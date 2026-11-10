@@ -673,6 +673,30 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .step-btn{width:32px;height:32px;border-radius:10px;border:2px solid var(--ink);background:var(--panel2);font-size:18px;font-weight:700;box-shadow:0 2px 0 var(--ink)}
 .step-btn:active{transform:translateY(2px);box-shadow:none}
 @media (max-width:520px){ .cust{width:110px} .amt{grid-template-columns:26px minmax(0,1fr) 30px 80px 30px} }
+
+/* makeup v2 */
+.paintable svg{touch-action:none;cursor:crosshair}
+.mk-grid .mirror-frame{max-width:340px}
+.prodbar{display:flex;flex-wrap:wrap;gap:6px}
+.prod{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:99px;border:2px solid var(--ink);background:var(--panel);font-size:12px;font-weight:700;box-shadow:0 2px 0 var(--ink)}
+.prod i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--ink);display:inline-block}
+.prod.sel{background:var(--c)}
+.prod.used:not(.sel){background:var(--panel2)}
+.judges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.judge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;background:var(--panel);border:2px solid var(--ink);border-radius:14px;padding:6px}
+.judge svg{width:64px;height:auto}
+.judge b{font-size:13px}.judge small{font-size:11px;color:var(--muted);line-height:1.3}
+.jstars{color:var(--math);-webkit-text-stroke:1px var(--ink);font-size:14px;letter-spacing:1px}.jstars .off{color:var(--panel2)}
+
+.envelopes{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.envelope{display:flex;flex-direction:column;align-items:stretch;gap:6px;text-align:left;padding:10px;border:2.5px solid var(--ink);border-radius:16px;background:var(--panel);box-shadow:0 4px 0 var(--ink);transition:transform .12s}
+.envelope:hover{transform:translateY(-3px) rotate(-.6deg)}
+.envelope svg{width:100%;height:auto;border:2px solid var(--ink);border-radius:10px}
+.envelope b{font-family:var(--display);font-size:18px}
+.envelope span{font-size:12px;color:var(--muted)}.envelope .off{color:var(--line)}
+.usage .warn{color:#c81d4a;font-family:var(--body);font-weight:600}.usage .okay{color:#14864d;font-family:var(--body);font-weight:600}
+.layout-compare{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.layout-compare figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700}
 </style>
 
 <div class="wrap">
@@ -801,9 +825,9 @@ const ROOMS = {
     tip:"<b>Tip:</b> anchor on dates you know for sure, like 1492, 1789 and 1969, and reason outward from them.",
     modes:[["studio","Build a timeline"],["sprint","Which came first? · 60s"],["practice","Quiz"]]},
   makeup:{name:"Makeup Studio", skill:"Color & beauty", color:"var(--makeup)", wing:"studio",
-    blurb:"Do a client's makeup for their big day: match foundation to their undertone, make their eyes pop with color theory and suit the occasion.",
-    tip:"<b>Tip:</b> opposites on the color wheel make each other glow. Blue eyes love copper; brown eyes love navy and purple.",
-    modes:[["studio","Open the studio"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]]},
+    blurb:"Paint makeup onto real faces with 13 products, from foundation to face gems. Do clients' looks for their big day, or face the judges in theme challenges.",
+    tip:"<b>Tip:</b> pick a product, then draw on the face. Stay inside the dashed guide. Opposites on the color wheel make each other glow: blue eyes love copper.",
+    modes:[["studio","Client appointments"],["theme","Theme challenge"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]]},
   hair:{name:"Hair Salon", skill:"Face shape & color", color:"var(--hair)", wing:"studio",
     blurb:"Choose cuts, bangs and toners that flatter each client's face shape and fix their color, with before-and-after mirrors.",
     tip:"<b>Tip:</b> work out the face shape first. Then remember toners cancel their opposite: violet fixes yellow, blue fixes orange.",
@@ -841,7 +865,7 @@ const ROOMS = {
 const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
 const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab","makeup","hair"];
 const RANKS = [[1,"Novice"],[3,"Apprentice"],[6,"Thinker"],[10,"Strategist"],[15,"Sage"],[22,"Mastermind"]];
-const MODE_NAMES = {studio:"Studio", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
+const MODE_NAMES = {studio:"Studio", theme:"Theme challenge", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
 
 /* =========================================================
    SAVED PROGRESS (this browser only)
@@ -1101,7 +1125,7 @@ function startRoom(room, mode){
   $("hub").hidden = true; $("play").hidden = false; closeModal();
   window.scrollTo(0,0);
   stage.innerHTML = "";
-  if(mode === "studio") STUDIO[room].start();
+  if(mode === "studio" || mode === "theme") STUDIO[room].start(mode);
   else if(mode === "sprint" || mode === "practice") QUIZ.start(room, mode);
   else ENG[room].start(mode);
   if(G.timed) G.timer = setInterval(tick, 100);
@@ -2804,9 +2828,10 @@ function faceInner(p){
   // face + foundation
   g += `<path d="${shapeD}" fill="${skin}" ${L}/>`;
   if(mk.foundation) g += `<path d="${shapeD}" fill="${mk.foundation}" opacity=".62"/><path d="${shapeD}" fill="none" ${L}/>`;
+  if(p.paintUnder) g += p.paintUnder;
   // contour/blush
   if(mk.blush && mk.blushPlace === "apples") g += `<g fill="${mk.blush}" opacity=".5"><ellipse cx="74" cy="128" rx="12" ry="8"/><ellipse cx="126" cy="128" rx="12" ry="8"/></g>`;
-  if(mk.blush && mk.blushPlace === "cheekbones") g += `<g fill="${mk.blush}" opacity=".5"><ellipse cx="70" cy="120" rx="15" ry="6" transform="rotate(-28 70 120)"/><ellipse cx="130" cy="120" rx="15" ry="6" transform="rotate(28 130 120)"/></g>`;
+  if(mk.blush && mk.blushPlace === "cheekbones") g += `<g fill="${mk.blush}" opacity=".5"><ellipse cx="68" cy="117" rx="16" ry="6" transform="rotate(30 68 117)"/><ellipse cx="132" cy="117" rx="16" ry="6" transform="rotate(-30 132 117)"/></g>`;
   if(!mk.blush && (mood === "angry")) g += `<g fill="#e63946" opacity=".22"><ellipse cx="74" cy="126" rx="12" ry="7"/><ellipse cx="126" cy="126" rx="12" ry="7"/></g>`;
   // eyes
   const eyeC = EYEC[p.eye] || p.eye || EYEC.brown, ey = 104;
@@ -2836,6 +2861,7 @@ function faceInner(p){
   else if(mood === "surprised") g += `<ellipse cx="100" cy="145" rx="7" ry="9" fill="#7a2e2e" ${L}/>`;
   else if(mood === "tense") g += `<path d="M88 144 L112 144" stroke="${mk.lip ? lipC : INK}" stroke-width="${mk.lip ? 5 : 2.6}" stroke-linecap="round"/>`;
   else g += `<path d="M86 141 C92 135 97 138 100 139 C103 138 108 135 114 141 C108 143 92 143 86 141Z" fill="${lipC}" stroke="${INK}" stroke-width="1.6"/><path d="M86 141 C92 151 108 151 114 141 C108 144 92 144 86 141Z" fill="${lipC}" stroke="${INK}" stroke-width="1.6"/><path d="M95 145 q5 2 10 0" stroke="#fff" stroke-width="1.4" opacity=".5"/>`;
+  if(p.paintOver) g += p.paintOver;
   // front hair
   const capD = `M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z`;
   if(hair === "buzz") g += `<path d="M54 92 C52 50 74 40 100 40 C126 40 148 50 146 92 C142 66 124 58 100 58 C76 58 58 66 54 92Z" fill="${hc}" opacity=".9" ${L}/>`;
@@ -2858,17 +2884,18 @@ function faceSVG(p, w=200, extraCls=""){ return `<svg viewBox="0 -14 200 246" wi
 /* ---------------- MAKEUP STUDIO ---------------- */
 const SHADOWS = [["bronze","#b8742a","warm"],["copper","#c8642e","warm"],["gold","#d9b13b","warm"],["taupe","#9c8574","neutral"],["navy","#2c3e75","cool"],["purple","#8e5bd1","cool"],["plum","#7a3a6e","cool"],["emerald","#2e8b57","cool"],["rose","#d48a9a","cool"]];
 const LIPS = [["nude","#b97a68","neutral","soft"],["peach","#f08a6b","warm","soft"],["coral","#ff6f61","warm","soft"],["rose","#d6728f","cool","soft"],["brick","#9c3a26","warm","bold"],["orange-red","#e63b1f","warm","bold"],["blue-red","#b5121b","cool","bold"],["berry","#7e1b48","cool","bold"]];
+const MK_LIPS_ALL = () => [...LIPS, ["hot pink","#ff3d8b","cool","bold"], ["nude-brown","#8e5a48","neutral","soft"]];
 const BLUSHES = [["peach","#f6a07d","warm"],["coral","#ff7f6e","warm"],["pink","#f28cb1","cool"],["berry","#c0507a","cool"]];
 const EYE_POP = {brown:["navy","purple","plum","emerald"], darkbrown:["navy","purple","plum","gold"], blue:["copper","bronze","gold"], green:["plum","purple","rose"], hazel:["purple","emerald","plum"]};
 const EYE_WHY = {brown:"Brown is a dark orange, so blues and purples, its opposites on the color wheel, make it glow.", darkbrown:"Very dark eyes pop against jewel tones and metallic gold, which catch the light.", blue:"Blue's opposite is orange, so copper, bronze and gold make blue eyes look bluer.", green:"Green's opposite is red-violet, so plum, purple and rose make green eyes stand out.", hazel:"Hazel mixes green and brown flecks; purple brings out the green, and emerald echoes it."};
 const UNDERTONE = {warm:"#e8b84a", cool:"#e88aa8", neutral:"#d9b8a0"};
 const NAMES = ["Amara","Lucía","Mei","Priya","Zainab","Hana","Sofia","Nia","Leila","Ingrid","Ana","Yuki","Fatima","Olivia","Imani","Rosa","Aiko","Chloe"];
 const MK_OCC = {
-  interview:{label:"a job interview", rules:[{label:"Polished and natural: no winged liner", why:"Interview makeup should look like you, only well rested. Dramatic liner reads as evening.", test:m=>m.liner !== "winged"},{label:"A soft lip shade", why:"Soft shades like nude, peach, rose and coral look professional and don't distract from what you say.", test:m=>LIPS.find(l=>l[0]===m.lip)?.[3] === "soft"}]},
-  gala:{label:"a black-tie gala", rules:[{label:"Evening drama: winged liner", why:"Evening light is dim and warm. Defined eyes and a wing stay visible across a ballroom.", test:m=>m.liner === "winged"},{label:"A bold lip", why:"A deep or bright lip balances formal clothes and reads well in photos with flash.", test:m=>LIPS.find(l=>l[0]===m.lip)?.[3] === "bold"}]},
-  stage:{label:"performing on stage", rules:[{label:"Defined eyes for the back row: liner on", why:"Stage lights wash out features. Performers exaggerate eyes so the audience can read expressions.", test:m=>m.liner !== "none"},{label:"A bold lip", why:"Under bright lights a soft lip disappears completely.", test:m=>LIPS.find(l=>l[0]===m.lip)?.[3] === "bold"}]},
+  interview:{label:"a job interview", rules:[{label:"Polished and natural: no winged liner", why:"Interview makeup should look like you, only well rested. Dramatic liner reads as evening.", test:m=>m.liner !== "winged"},{label:"A soft lip shade", why:"Soft shades like nude, peach, rose and coral look professional and don't distract from what you say.", test:m=>MK_LIPS_ALL().find(l=>l[0]===m.lip)?.[3] === "soft"}]},
+  gala:{label:"a black-tie gala", rules:[{label:"Evening drama: winged liner", why:"Evening light is dim and warm. Defined eyes and a wing stay visible across a ballroom.", test:m=>m.liner === "winged"},{label:"A bold lip", why:"A deep or bright lip balances formal clothes and reads well in photos with flash.", test:m=>MK_LIPS_ALL().find(l=>l[0]===m.lip)?.[3] === "bold"}]},
+  stage:{label:"performing on stage", rules:[{label:"Defined eyes for the back row: liner on", why:"Stage lights wash out features. Performers exaggerate eyes so the audience can read expressions.", test:m=>m.liner !== "none"},{label:"A bold lip", why:"Under bright lights a soft lip disappears completely.", test:m=>MK_LIPS_ALL().find(l=>l[0]===m.lip)?.[3] === "bold"}]},
   beach:{label:"a summer beach day", rules:[{label:"Sun-kissed warmth: warm blush (peach or coral)", why:"Warm blush mimics a natural flush from the sun.", test:m=>["peach","coral"].includes(m.blush)},{label:"Keep it light: no winged liner", why:"Heat, water and sweat make heavy liner smudge.", test:m=>m.liner !== "winged"}]},
-  wedding:{label:"a daytime wedding", rules:[{label:"A soft lip shade", why:"Soft shades photograph well in daylight and last through eating and hugging.", test:m=>LIPS.find(l=>l[0]===m.lip)?.[3] === "soft"},{label:"Blush on, for a healthy glow in photos", why:"Daylight photos flatten color; blush keeps the face from looking washed out.", test:m=>m.blush !== "none"}]}
+  wedding:{label:"a daytime wedding", rules:[{label:"A soft lip shade", why:"Soft shades photograph well in daylight and last through eating and hugging.", test:m=>MK_LIPS_ALL().find(l=>l[0]===m.lip)?.[3] === "soft"},{label:"Blush on, for a healthy glow in photos", why:"Daylight photos flatten color; blush keeps the face from looking washed out.", test:m=>m.blush !== "none"}]}
 };
 const BLUSH_PLACE = {round:["cheekbones","Angling blush up along the cheekbones adds length to a round face."], long:["apples","Blush on the apples, blended outward horizontally, makes a long face look shorter and fuller."], square:["apples","Round blush on the apples softens a strong, angular jaw."], heart:["apples","Blush on the apples draws attention to the middle of a face that's widest at the forehead."], oval:["apples","Oval faces are balanced; classic placement on the apples works well."]};
 function foundationShades(depth){
@@ -2889,7 +2916,7 @@ STUDIO.makeup = {
     rules.push(...MK_OCC[occ].rules);
     if(d >= 3){
       rules.push({label:`Make ${c.name}'s ${eye.replace("darkbrown","dark brown")} eyes pop`, why:EYE_WHY[eye] + ` Good picks: ${EYE_POP[eye].join(", ")}.`, test:m=>EYE_POP[eye].includes(m.shadow)});
-      if(u !== "neutral") rules.push({label:`Lip and blush in ${u} tones`, why: u === "warm" ? "Warm undertones glow with peach, coral, brick and orange-red." : "Cool undertones glow with pink, rose, berry and blue-red.", test:m=>{ const lp = LIPS.find(l=>l[0]===m.lip), bl = BLUSHES.find(b=>b[0]===m.blush); return lp && (lp[2] === u || lp[2] === "neutral") && (!bl || bl[2] === u); }});
+      if(u !== "neutral") rules.push({label:`Lip and blush in ${u} tones`, why: u === "warm" ? "Warm undertones glow with peach, coral, brick and orange-red." : "Cool undertones glow with pink, rose, berry and blue-red.", test:m=>{ const lp = MK_LIPS_ALL().find(l=>l[0]===m.lip), bl = BLUSHES.find(b=>b[0]===m.blush); return lp && (lp[2] === u || lp[2] === "neutral") && (!bl || bl[2] === u); }});
     }
     if(d >= 6) rules.push({label:`Blush placement for a ${shape} face`, why:BLUSH_PLACE[shape][1], test:m=>m.blush !== "none" && m.place === BLUSH_PLACE[shape][0]});
     c.rules = rules; return c;
@@ -2952,6 +2979,226 @@ STUDIO.makeup = {
       actions:[["New clients", () => startRoom("makeup","studio"), true], ["Lobby", goHub]]});
   }
 };
+/* ---- Makeup Studio v2: paint each product onto the face ---- */
+const MK_PRODUCTS = [
+  {k:"foundation", name:"Foundation", r:13, layer:"under", op:.6, zone:"face", tip:"Blend it evenly over the whole face, out to the hairline and jaw."},
+  {k:"concealer", name:"Concealer", r:5.5, layer:"under", op:.75, zone:"undereye", tip:"Dab it under the eyes. Peach corrector cancels blue shadows; green cancels redness."},
+  {k:"contour", name:"Contour", r:6, layer:"under", op:.38, zone:"contour", tip:"Sweep it just under the cheekbones toward the ears to carve shadows."},
+  {k:"blush", name:"Blush", r:8.5, layer:"under", op:.42, zone:"blush", tip:"Smile: the round bits are the apples. Or sweep it up along the cheekbones."},
+  {k:"highlight", name:"Highlighter", r:4.5, layer:"under", op:.6, zone:"highlight", tip:"Tap it where light naturally hits: tops of the cheekbones and down the nose."},
+  {k:"shadow", name:"Eyeshadow", r:5.5, layer:"under", op:.78, zone:"lids", tip:"Pack it onto the eyelids, from the lash line up to the crease."},
+  {k:"liner", name:"Eyeliner", r:1.5, layer:"over", op:1, zone:"lashline", tip:"Trace the upper lash line. Flick outward past the corner for a wing."},
+  {k:"mascara", name:"Mascara", r:3, layer:"over", op:1, zone:"lashline", tip:"Swipe along the upper lashes to lengthen and darken them."},
+  {k:"brow", name:"Brow pencil", r:2.2, layer:"over", op:.8, zone:"brows", tip:"Fill in the brows with short, hair-like strokes."},
+  {k:"lipstick", name:"Lipstick", r:3.2, layer:"over", op:.92, zone:"lips", tip:"Color inside the lips. Going over the edge looks smudged."},
+  {k:"gloss", name:"Lip gloss", r:2.8, layer:"over", op:.5, zone:"lips", tip:"A swipe across the lips adds shine."},
+  {k:"freckles", name:"Faux freckles", r:1.1, layer:"over", op:.8, zone:"freckles", tap:true, tip:"Tap little dots across the nose and cheeks."},
+  {k:"gems", name:"Face gems", r:2.6, layer:"over", op:1, zone:null, tap:true, tip:"Tap to stick on gems: try the outer corners of the eyes."}
+];
+const MK_COLORS = {
+  concealer:[["match","#f1c6a6","neutral"],["peach corrector","#f2a079","warm"],["green corrector","#b7d9a3","cool"]],
+  contour:[["cool taupe","#7a5c4f","cool"],["warm bronze","#9b6a45","warm"],["deep","#5a3b2c","neutral"]],
+  blush:BLUSHES.map(b => [b[0], b[1], b[2]]),
+  highlight:[["champagne","#fff1d6","warm"],["gold","#ffd98a","warm"],["pearl","#f4ecff","cool"],["rose","#ffd2e2","cool"]],
+  shadow:[...SHADOWS.map(s => [s[0], s[1], s[2]]), ["silver","#c9ced6","cool"], ["white","#f7f7f7","neutral"], ["pink","#ff8fb8","cool"], ["orange","#ff8a3d","warm"], ["turquoise","#22b8c4","cool"], ["black","#1d1d1d","neutral"]],
+  liner:[["black","#1a1a1a"],["brown","#5a3a24"],["navy","#1f3a8a"],["green","#1f7a4f"]],
+  mascara:[["black","#141414"],["brown","#4a2c1d"],["blue","#2b5cd6"]],
+  brow:[["soft black","#2b1d14"],["dark brown","#4a2c1d"],["brown","#7a4a2a"],["taupe","#9c8070"]],
+  lipstick:[...LIPS.map(l => [l[0], l[1], l[2], l[3]]), ["hot pink","#ff3d8b","cool","bold"], ["nude-brown","#8e5a48","neutral","soft"]],
+  gloss:[["clear","#ffffff"],["pink shimmer","#ffc2d9"]],
+  freckles:[["brown","#8a5233"],["deep brown","#5c341e"]],
+  gems:[["aqua","#4cc9f0"],["pink","#ff7db8"],["gold","#ffd166"],["mint","#b5e48c"],["diamond","#ffffff"]]
+};
+/* zones: ellipses in portrait coordinates (cx, cy, rx, ry, rotation in degrees) */
+const MK_ZONES = {
+  face:[[100,104,44,56,0]], undereye:[[80,114,10,4.5,0],[120,114,10,4.5,0]],
+  apples:[[74,128,12,8,0],[126,128,12,8,0]], cheekbones:[[68,117,16,6,30],[132,117,16,6,-30]],
+  contour:[[64,131,15,4.5,30],[136,131,15,4.5,-30]], highlight:[[72,109,9,3.5,30],[128,109,9,3.5,-30],[100,114,2.6,9,0]],
+  lids:[[80,96,14,6,0],[120,96,14,6,0]], lashline:[[80,99.5,13,3.2,0],[120,99.5,13,3.2,0]], wings:[[64,96,7,3.4,-30],[136,96,7,3.4,30]],
+  brows:[[80,86,12.5,3.5,0],[120,86,12.5,3.5,0]], lips:[[100,142,14,5.6,0]], freckles:[[100,122,34,7,0]]
+};
+function inEll(x, y, [cx,cy,rx,ry,rot], grow=1){
+  const a = -rot*Math.PI/180, dx = x-cx, dy = y-cy, lx = dx*Math.cos(a) - dy*Math.sin(a), ly = dx*Math.sin(a) + dy*Math.cos(a);
+  return (lx*lx)/(rx*rx*grow*grow) + (ly*ly)/(ry*ry*grow*grow) <= 1;
+}
+const inZone = (x, y, z, grow=1) => (MK_ZONES[z] || []).some(e => inEll(x, y, e, grow));
+function zoneSamples(z){
+  const pts = [];
+  (MK_ZONES[z] || []).forEach(e => { for(let i=-4;i<=4;i++) for(let j=-3;j<=3;j++){ const lx = i/4.4*e[2], ly = j/3.3*e[3], a = e[4]*Math.PI/180; const x = e[0] + lx*Math.cos(a) - ly*Math.sin(a), y = e[1] + lx*Math.sin(a) + ly*Math.cos(a); if(inEll(x, y, e)) pts.push([x,y]); } });
+  return pts;
+}
+function segDist(px, py, ax, ay, bx, by){ const dx = bx-ax, dy = by-ay, l = dx*dx + dy*dy; let t = l ? ((px-ax)*dx + (py-ay)*dy)/l : 0; t = clamp(t, 0, 1); return Math.hypot(px - (ax + t*dx), py - (ay + t*dy)); }
+const MK_THEMES = [
+  {n:"Sunset glam", s:"Warm, glowing colors like the sky at golden hour.", f:"Sunset palettes are analogous: neighbors on the color wheel (red, orange, gold) always look harmonious together.",
+   checks:[["Warm eyeshadow: copper, bronze, gold or orange", m => m.shadows.some(c => ["copper","bronze","gold","orange"].includes(c))],["A glow of highlighter on the cheekbones", m => m.cov.highlight >= .25],["Warm lips: coral, peach, orange-red or brick", m => ["coral","peach","orange-red","brick"].includes(m.lip)],["Blush for a sun-kissed flush", m => m.used.has("blush")]]},
+  {n:"Ice queen", s:"Frosty, cool and glittering.", f:"Cool colors (blues, silvers, violets) seem to recede and feel calm, which is why “icy” looks use them.",
+   checks:[["Cool eyeshadow: silver, white, navy, purple or turquoise", m => m.shadows.some(c => ["silver","white","navy","purple","turquoise"].includes(c))],["Pearl or rose highlighter", m => m.cov.highlight >= .25 && ["pearl","rose"].includes(m.hl)],["Cool lips: berry, blue-red, rose or hot pink", m => ["berry","blue-red","rose","hot pink"].includes(m.lip)],["No warm peach or coral blush", m => !["peach","coral"].includes(m.blush)]]},
+  {n:"Natural “no-makeup” makeup", s:"Look fresh and rested, like you're wearing nothing at all.", f:"The trick is skin-matching products and soft, sheer color. The goal is to enhance, not to change.",
+   checks:[["Even foundation coverage", m => m.cov.face >= .6],["Concealer under the eyes", m => m.cov.undereye >= .35],["Mascara on", m => m.cov.mascara >= .3],["A soft lip, or just gloss", m => !m.lip || ["nude","peach","rose","nude-brown"].includes(m.lip)],["No winged liner or bright shadow", m => m.liner !== "winged" && !m.shadows.some(c => !["taupe","bronze"].includes(c))]]},
+  {n:"Old Hollywood", s:"1940s film-star glamour.", f:"Max Factor's Pan-Cake makeup (1937) was created so actors' skin would look natural in Technicolor films. The red lip and winged liner became the era's signature.",
+   checks:[["A sharp winged liner", m => m.liner === "winged"],["A classic blue-red lip", m => m.lip === "blue-red"],["Defined brows", m => m.cov.brow >= .4],["Soft, neutral eyes: taupe or none", m => m.shadows.every(c => ["taupe"].includes(c))]]},
+  {n:"1980s neon", s:"Big, bold, clashing color.", f:"After the soft, natural looks of the 1970s, the '80s went loud: bright shadow, strong blush and pink lips, spread by music videos.",
+   checks:[["Bright eyeshadow: purple, pink, turquoise or navy", m => m.shadows.some(c => ["purple","pink","turquoise","navy"].includes(c))],["Strong blush swept along the cheekbones", m => m.used.has("blush") && m.place === "cheekbones"],["A bold pink or berry lip", m => ["hot pink","berry","rose"].includes(m.lip)]]},
+  {n:"Ancient Egypt", s:"Bold eyes worthy of a pharaoh.", f:"Over 5,000 years ago, Egyptians ground green malachite and dark galena (kohl) into eye paint, which may also have helped protect against eye infections.",
+   checks:[["Bold winged liner", m => m.liner === "winged"],["Green or gold eyeshadow, like malachite", m => m.shadows.some(c => ["emerald","gold","turquoise"].includes(c))],["Defined brows", m => m.cov.brow >= .4]]},
+  {n:"Forest fairy", s:"Mossy greens, gold light and a sprinkle of magic.", f:"Faux freckles became a trend in the 2010s, part of a wider move toward celebrating natural skin.",
+   checks:[["Green eyeshadow", m => m.shadows.some(c => ["emerald","turquoise"].includes(c))],["Gold highlighter", m => m.cov.highlight >= .2 && m.hl === "gold"],["At least 6 faux freckles", m => m.freckles >= 6],["At least 3 face gems", m => m.gems >= 3]]},
+  {n:"Pop-star stage look", s:"Sparkle that reads from the back row of an arena.", f:"Stage makeup is exaggerated because bright lights flatten features and audiences sit far away.",
+   checks:[["Winged liner", m => m.liner === "winged"],["At least 3 face gems", m => m.gems >= 3],["A bright lip: hot pink, coral or orange-red", m => ["hot pink","coral","orange-red"].includes(m.lip)],["Highlighter on", m => m.cov.highlight >= .2]]}
+];
+const JUDGES = [{n:"Mira", look:{skin:SKINS[1][0], hair:"bob", hairC:"black", eye:"brown", top:"#ff7db8", shape:"heart", earring:"#ffd166"}}, {n:"Theo", look:{skin:SKINS[5][0], hair:"buzz", hairC:"black", eye:"darkbrown", top:"#22b8a7", shape:"square", glasses:true}}, {n:"Inès", look:{skin:SKINS[3][0], hair:"long", hairC:"auburn", eye:"green", top:"#6f62ff", shape:"oval"}}];
+STUDIO.makeup = {
+  start(mode){ this.mode = mode === "theme" ? "theme" : "studio"; this.round = 0; this.total = 0; this.log = []; this.n = this.mode === "theme" ? 3 : 4; this.newRound(); },
+  newRound(){
+    this.locked = false; this.strokes = []; this.cur = null; this.prod = "foundation"; this.colors = {}; this.showGuide = S.rating.makeup < 5;
+    if(this.mode === "theme"){
+      this.theme = freshItems("mktheme", MK_THEMES, 1)[0];
+      const depth = R(0, SKINS.length-1);
+      this.c = {name:pick(NAMES), depth, eye: depth >= 4 ? "darkbrown" : pick(["brown","blue","green","hazel"]), u:pick(["warm","cool","neutral"]), shape:pick(Object.keys(FACE_SHAPES)), hair:pick(["bun","ponytail","lob","curls","afro","long"]), hairC:pick(["black","darkbrown","brown","auburn","blonde","pink"]), top:pick(["#3a8dff","#22b8a7","#ff7db8","#6f62ff"])};
+      if(["afro"].includes(this.c.hair) && depth < 3) this.c.hair = "curls";
+      this.c.rules = [];
+    } else this.c = this.newClient();
+    this.shades = foundationShades(this.c.depth);
+    MK_COLORS.foundation = this.shades.map(s => [s.id, s.c, s.u]);
+    MK_COLORS.concealer[0][1] = shade(SKINS[this.c.depth][0], .12);
+    MK_PRODUCTS.forEach(p => this.colors[p.k] = MK_COLORS[p.k][0][0]);
+    const c = this.c, title = this.mode === "theme" ? `Theme: ${this.theme.n}` : `${c.name} is getting ready for ${MK_OCC[c.occ].label}`;
+    const rules = this.mode === "theme" ? this.theme.checks.map(x => x[0]) : c.rules.map(r => r.label);
+    stage.innerHTML = `<div class="studio-grid mk-grid">
+      <div class="mirror"><div class="mirror-frame paintable" id="mkFace"></div><div class="vanity">${["#ff7db8","#ffbf2e","#22b8a7"].map((col,i)=>`<span class="bottle" style="background:${col};height:${30+i*8}px"></span>`).join("")}<span class="mirror-name">${c.name}</span></div>
+        <div class="row-btns"><button class="btn-sm" type="button" id="mkUndo">Undo</button><button class="btn-sm" type="button" id="mkWipe">Wipe this product</button><button class="btn-sm" type="button" id="mkGuide">${this.showGuide ? "Hide" : "Show"} guide</button></div>
+        <p class="msg" id="mkTip"></p></div>
+      <div class="ctl-col">${sessionHeader(this.mode === "theme" ? `Look ${this.round+1} of ${this.n} · judges are waiting` : `Client ${this.round+1} of ${this.n}`, title, this.mode === "theme" ? this.theme.s : "")}
+        <div class="brief" style="padding-top:12px"><ul id="mkRules">${rules.map(r=>`<li>${r}</li>`).join("")}<li>Neat work: stay on the lines</li></ul></div>
+        <div class="opt-group"><h4>Products</h4><div class="prodbar" id="mkProds">${MK_PRODUCTS.map(p => `<button type="button" class="prod" data-p="${p.k}"><i></i>${p.name}</button>`).join("")}</div></div>
+        <div class="opt-group"><h4 id="mkShadeH">Shade</h4><div class="swgrid" id="mkShades"></div></div>
+        <button class="btn btn-solid" type="button" id="mkGo">${this.mode === "theme" ? "Walk out to the judges" : `Show ${c.name} the mirror`}</button><div id="mkRes"></div></div></div>`;
+    this.mountFace();
+    $("mkProds").addEventListener("click", e => { const b = e.target.closest(".prod"); if(b && !this.locked){ this.prod = b.dataset.p; sfx.click(); this.renderTools(); this.paint(); } });
+    $("mkShades").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if(b && !this.locked){ this.colors[this.prod] = b.dataset.c; sfx.click(); this.renderTools(); } });
+    $("mkUndo").addEventListener("click", () => { if(this.locked) return; this.strokes.pop(); this.paint(); });
+    $("mkWipe").addEventListener("click", () => { if(this.locked) return; this.strokes = this.strokes.filter(s => s.p !== this.prod); this.paint(); });
+    $("mkGuide").addEventListener("click", () => { this.showGuide = !this.showGuide; $("mkGuide").textContent = (this.showGuide ? "Hide" : "Show") + " guide"; this.paint(); });
+    $("mkGo").addEventListener("click", () => this.submit());
+    setSide("Score", fmt(this.total));
+    this.renderTools();
+  },
+  mountFace(mood = "neutral"){
+    const c = this.c;
+    $("mkFace").innerHTML = faceSVG({skin:SKINS[c.depth][0], shape:c.shape, hair:c.hair, hairC:c.hairC, eye:c.eye, top:c.top, mood, earring:"#ffbf2e", paintUnder:`<g id="mkUnder"></g>`, paintOver:`<g id="mkOver"></g><g id="mkGuideG"></g>`}, 300);
+    const svg = $("mkFace").querySelector("svg");
+    const pt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [+q.x.toFixed(1), +q.y.toFixed(1)]; };
+    svg.addEventListener("pointerdown", e => { if(this.locked) return; e.preventDefault(); const P = MK_PRODUCTS.find(p => p.k === this.prod), q = pt(e);
+      this.cur = {p:this.prod, c:this.colors[this.prod], r:P.r, pts:[q]}; this.strokes.push(this.cur);
+      if(P.tap){ this.cur = null; sfx.click(); } else { try{ svg.setPointerCapture(e.pointerId); }catch(_){} } this.paint(); });
+    svg.addEventListener("pointermove", e => { if(!this.cur) return; const q = pt(e), l = this.cur.pts[this.cur.pts.length-1]; if(Math.hypot(q[0]-l[0], q[1]-l[1]) >= 1.2){ this.cur.pts.push(q); this.paint(); } });
+    const end = () => { this.cur = null; };
+    svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+    this.paint();
+  },
+  colorOf(p, name){ return (MK_COLORS[p].find(x => x[0] === name) || MK_COLORS[p][0])[1]; },
+  paint(){
+    const under = $("mkUnder"), over = $("mkOver"), guide = $("mkGuideG"); if(!under) return;
+    const shapeD = FACE_SHAPES[this.c.shape];
+    const pathOf = s => s.pts.length === 1 ? `M${s.pts[0][0]} ${s.pts[0][1]} l0.01 0` : "M" + s.pts.map(q => q.join(" ")).join(" L");
+    const groupFor = (pk, clip) => { const P = MK_PRODUCTS.find(p => p.k === pk), list = this.strokes.filter(s => s.p === pk); if(!list.length) return "";
+      const byColor = {}; list.forEach(s => (byColor[s.c] = byColor[s.c] || []).push(s));
+      return Object.entries(byColor).map(([cn, ss]) => `<g opacity="${P.op}" ${clip ? `clip-path="url(#mkClip)"` : ""}>${ss.map(s => `<path d="${pathOf(s)}" fill="none" stroke="${this.colorOf(pk, cn)}" stroke-width="${s.r*2}" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}</g>`).join(""); };
+    under.innerHTML = `<defs><clipPath id="mkClip"><path d="${shapeD}"/></clipPath></defs>` + ["foundation","concealer","contour","blush","highlight","shadow"].map(k => groupFor(k, true)).join("");
+    let o = ["brow","liner","lipstick"].map(k => groupFor(k, false)).join("");
+    const gl = this.strokes.filter(s => s.p === "gloss");
+    if(gl.length) o += `<g opacity=".55">${gl.map(s => `<path d="${pathOf(s)}" fill="none" stroke="${this.colorOf("gloss", s.c)}" stroke-width="${s.r*1.1}" stroke-linecap="round"/>`).join("")}</g>`;
+    const ms = this.strokes.filter(s => s.p === "mascara");
+    if(ms.length){ const col = this.colorOf("mascara", ms[ms.length-1].c), cov = this.coverage("mascara", "lashline");
+      if(cov > .15) o += [80,120].map((x,i) => [-10,-6.5,-3,0.5,4,7.5,10.5].map(dx => { const sx = x + dx*(i ? 1 : -1)*-1, y0 = 104 - 9*(1 - (dx/12)**2), out = (i ? 1 : -1)*(dx/12)*3; return `<path d="M${sx} ${y0} q${out} ${-3-cov*3} ${out*1.6} ${-5-cov*4}" stroke="${col}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`; }).join("")).join(""); }
+    this.strokes.filter(s => s.p === "freckles").forEach(s => { o += `<circle cx="${s.pts[0][0]}" cy="${s.pts[0][1]}" r="1.1" fill="${this.colorOf("freckles", s.c)}" opacity=".8"/>`; });
+    this.strokes.filter(s => s.p === "gems").forEach(s => { const [x,y] = s.pts[0], col = this.colorOf("gems", s.c); o += `<path d="M${x} ${y-3} L${x+2.4} ${y} L${x} ${y+3} L${x-2.4} ${y}Z" fill="${col}" stroke="${INK}" stroke-width=".9"/><circle cx="${x-.7}" cy="${y-1}" r=".7" fill="#fff"/>`; });
+    over.innerHTML = o;
+    const P = MK_PRODUCTS.find(p => p.k === this.prod);
+    let gz = P.zone === "blush" ? this.blushTarget() : P.zone;
+    if(P.k === "liner") gz = null;
+    guide.innerHTML = this.showGuide && !this.locked && gz ? (MK_ZONES[gz] || []).map(([cx,cy,rx,ry,rot]) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 2.5"/><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="none" stroke="${INK}" stroke-width=".8" stroke-dasharray="3 2.5"/>`).join("")
+      + (P.k === "liner" && this.showGuide && !this.locked ? [80,120].map(x => `<path d="M${x-12} 104 C${x-6} 95 ${x+6} 95 ${x+12} 104" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="2 2"/>`).join("") : "") : "";
+    if(!this.locked && this.mode === "studio" && S.rating.makeup < 4){ const m = this.derive(); const lis = [...$("mkRules").children]; this.c.rules.forEach((r,i) => lis[i] && lis[i].classList.toggle("ok", r.test(m))); }
+  },
+  blushTarget(){ if(this.mode === "theme") return this.theme.n === "1980s neon" ? "cheekbones" : "apples"; return S.rating.makeup >= 6 ? BLUSH_PLACE[this.c.shape][0] : "apples"; },
+  renderTools(){
+    stage.querySelectorAll(".prod").forEach(b => { b.classList.toggle("sel", b.dataset.p === this.prod); const used = this.strokes.some(s => s.p === b.dataset.p); b.classList.toggle("used", used); b.querySelector("i").style.background = this.colorOf(b.dataset.p, this.colors[b.dataset.p]); });
+    const P = MK_PRODUCTS.find(p => p.k === this.prod);
+    $("mkShadeH").textContent = P.k === "foundation" ? "Shade · depth & undertone (C cool, N neutral, W warm)" : `${P.name} shade`;
+    $("mkShades").innerHTML = MK_COLORS[P.k].map(([n, col]) => `<button type="button" class="${P.k === "foundation" ? "fswatch" : "dot-sw lip"}${this.colors[P.k] === n ? " sel" : ""}" data-c="${n}" style="background:${col}" title="${n}"><span>${n}</span></button>`).join("");
+    $("mkTip").textContent = `${P.name}: ${P.tip}`;
+  },
+  coverage(pk, z){
+    const ss = this.strokes.filter(s => s.p === pk); if(!ss.length) return 0;
+    const pts = zoneSamples(z); if(!pts.length) return 0;
+    let hit = 0;
+    pts.forEach(([x,y]) => { if(ss.some(s => s.pts.length === 1 ? Math.hypot(x - s.pts[0][0], y - s.pts[0][1]) <= s.r + .6 : s.pts.some((q,i) => i && segDist(x, y, s.pts[i-1][0], s.pts[i-1][1], q[0], q[1]) <= s.r + .6))) hit++; });
+    return hit / pts.length;
+  },
+  precision(pk, zones, grow=1.3){
+    const ss = this.strokes.filter(s => s.p === pk); let n = 0, ok = 0;
+    ss.forEach(s => s.pts.forEach(([x,y]) => { n++; if(zones.some(z => inZone(x, y, z, grow))) ok++; }));
+    return n ? ok/n : 1;
+  },
+  mostColor(pk, z){
+    const ss = this.strokes.filter(s => s.p === pk && s.pts.some(([x,y]) => inZone(x, y, z, 1.3)));
+    const cnt = {}; ss.forEach(s => cnt[s.c] = (cnt[s.c] || 0) + s.pts.length);
+    return Object.keys(cnt).sort((a,b) => cnt[b]-cnt[a])[0] || null;
+  },
+  derive(){
+    const used = new Set(this.strokes.map(s => s.p));
+    const cov = {face:this.coverage("foundation","face"), undereye:this.coverage("concealer","undereye"), highlight:this.coverage("highlight","highlight"), mascara:this.coverage("mascara","lashline"), brow:this.coverage("brow","brows"), lids:this.coverage("shadow","lids"), lips:this.coverage("lipstick","lips")};
+    const fShade = this.mostColor("foundation","face"), sh = this.shades.find(s => s.id === fShade);
+    const shadowCols = [...new Set(this.strokes.filter(s => s.p === "shadow" && s.pts.some(([x,y]) => inZone(x, y, "lids", 1.3))).map(s => s.c))];
+    const lin = this.strokes.filter(s => s.p === "liner");
+    const liner = !lin.length ? "none" : lin.some(s => s.pts.some(([x,y]) => (x < 67 || x > 133) && y < 102 && y > 86)) ? "winged" : "thin";
+    const apples = this.coverage("blush","apples"), cheek = this.coverage("blush","cheekbones");
+    const blush = used.has("blush") ? this.mostColor("blush","face") || this.strokes.find(s => s.p === "blush").c : "none";
+    const lip = cov.lips >= .4 ? this.mostColor("lipstick","lips") : null;
+    return {foundation: cov.face >= .55 && sh ? sh : null, cov, shadow: cov.lids >= .3 ? (this.mostColor("shadow","lids")) : null, shadows: cov.lids >= .2 ? shadowCols : [],
+      liner, blush, place: cheek > apples ? "cheekbones" : "apples", lip: lip || (this.mode === "theme" ? null : "nude"), used, hl: this.mostColor("highlight","highlight"),
+      gems: this.strokes.filter(s => s.p === "gems").length, freckles: this.strokes.filter(s => s.p === "freckles").length};
+  },
+  neat(){
+    const issues = [];
+    if(this.strokes.some(s => s.p === "lipstick") && this.precision("lipstick", ["lips"], 1.25) < .78) issues.push("the lipstick went outside the lips");
+    if(this.strokes.some(s => s.p === "liner") && this.precision("liner", ["lashline","wings"], 1.5) < .7) issues.push("the liner wandered off the lash line");
+    if(this.strokes.some(s => s.p === "shadow") && this.precision("shadow", ["lids"], 1.45) < .65) issues.push("eyeshadow strayed off the lids");
+    if(this.strokes.some(s => s.p === "blush") && this.precision("blush", ["apples","cheekbones"], 1.5) < .6) issues.push("blush landed outside the cheeks");
+    return issues;
+  },
+  submit(){
+    if(this.locked) return;
+    if(!this.strokes.length){ $("mkTip").textContent = "Paint something on first: choose a product, then draw on the face."; return; }
+    const m = this.derive(), ni = this.neat();
+    const res = this.mode === "theme" ? this.theme.checks.map(([label, t]) => ({label, ok:t(m), why:""})) : this.c.rules.map(r => ({label:r.label, why:r.why, ok:r.test(m)}));
+    res.push({label:"Neat work: stay on the lines", ok:!ni.length, why: ni.length ? `Careful: ${listAnd(ni)}. Pros use a lip liner and tape for crisp edges.` : "Clean edges make any look look professional."});
+    const f = res.filter(r => r.ok).length / res.length; this.f = f; this.locked = true;
+    const pts = Math.round(1000*f); this.total += pts; this.log.push({n: this.mode === "theme" ? this.theme.n : this.c.name, pts}); adapt("makeup", f);
+    f >= .99 ? sfx.win() : f >= .6 ? sfx.good() : sfx.bad();
+    this.mountFace(f >= .8 ? "happy" : f >= .5 ? "neutral" : "sad");
+    const last = this.round === this.n - 1;
+    $("mkGo").hidden = true;
+    let judges = "";
+    if(this.mode === "theme"){
+      const lines = res.map(r => (r.ok ? pick(["Loved it:","Nailed it:","Gorgeous:"]) : pick(["Missing:","Not quite:"])) + " " + r.label.split(":")[0].charAt(0).toLowerCase() + r.label.split(":")[0].slice(1) + ".");
+      judges = `<div class="judges">${JUDGES.map((j,i) => { const st = clamp(Math.round(f*5 + (i-1)*.4), 1, 5); return `<div class="judge">${faceSVG({...j.look, mood: st >= 4 ? "happy" : st >= 3 ? "neutral" : "sad"}, 70)}<b>${j.n}</b><span class="jstars">${"★".repeat(st)}<span class="off">${"★".repeat(5-st)}</span></span><small>${lines[i % lines.length]}</small></div>`; }).join("")}</div><p>${this.theme.f}</p>`;
+    }
+    $("mkRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? (this.mode === "theme" ? "Perfect score from the judges" : `${this.c.name} loves it`) : f >= .6 ? "Almost there" : "Back to the brushes"}</span><span class="pts">+${fmt(pts)}</span>${judges}${checklist(res)}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="mkNext">${last ? "See results" : this.mode === "theme" ? "Next theme" : "Next client"}</button></div></div>`;
+    $("mkNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+    setSide("Score", fmt(this.total));
+  },
+  newClient: STUDIO.makeup.newClient,
+  finish(){
+    const max = this.n*1000, f = this.total/max, stars = f >= .9 ? 3 : f >= .6 ? 2 : 1;
+    endSession({title: stars === 3 ? "Lead makeup artist" : stars === 2 ? "Rising artist" : "Practice makes perfect", stars, xp:25+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}.</p><ul class="roundlog">${this.log.map(l=>`<li><span>${l.n}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+      actions:[["Play again", () => startRoom("makeup", this.mode), true], ["Lobby", goHub]]});
+  }
+};
+
 const MK_BANK = [
  [1,"Which eyeshadow makes blue eyes look bluest?","Copper",["Navy","Blue","Silver"],"Orange tones like copper and bronze sit opposite blue on the color wheel."],
  [1,"Veins on your wrist look greenish. Your undertone is probably…","Warm",["Cool","Neutral","None"],"Green-looking veins suggest warm, golden undertones; blue or purple veins suggest cool."],
@@ -3291,7 +3538,7 @@ document.addEventListener("keydown", e => { if(e.key === "Escape") closeDef(); }
 /* =========================================================
    HOME SCREEN: greeting, today, tabs, tidy tiles and a room sheet
    ========================================================= */
-const MODE_INFO = {studio:"The main game: a hands-on project", sprint:"60-second quiz against the clock", practice:"10 questions, no timer, with an explanation after each", arcade:"60 seconds, build a streak for a multiplier", zen:"No timer: play at your own pace"};
+const MODE_INFO = {theme:"Paint a themed look, then face three judges", studio:"The main game: a hands-on project", sprint:"60-second quiz against the clock", practice:"10 questions, no timer, with an explanation after each", arcade:"60 seconds, build a streak for a multiplier", zen:"No timer: play at your own pace"};
 const lvlName = d => d < 3.5 ? "Beginner" : d < 6.5 ? "Intermediate" : "Advanced";
 function tileHTML(k){
   const r = ROOMS[k];
@@ -3674,19 +3921,49 @@ STUDIO.atelier = {
    ========================================================= */
 const COLS = 10, CELL_CM = 15;
 const GARMENTS = [
-  {name:"Canvas tote bag", pieces:[["Bag body",3,3,2],["Strap",1,4,2,"x"],["Pocket",2,2,1]],
+  {name:"Envelope pillow cover", tier:1, pieces:[["Front",3,3,1],["Back flap",3,2,2]], steps:[]},
+  {name:"Kitchen apron", tier:1, pieces:[["Apron body",2,6,1,"f"],["Pocket",2,1,1],["Waist tie",1,6,2,"x"],["Neck strap",1,4,1,"x"]], steps:[]},
+  {name:"Pajama pants", tier:2, pieces:[["Front leg",3,7,2],["Back leg",3,7,2],["Waistband",1,7,1,"x"]], steps:[]},
+  {name:"Tank top", tier:2, pieces:[["Front",3,5,1,"f"],["Back",3,5,1,"f"],["Neck binding",1,4,1,"x"],["Armhole binding",1,3,2,"x"]], steps:[]},
+  {name:"Kimono robe", tier:3, pieces:[["Back",3,7,1,"f"],["Front",2,7,2],["Sleeve",3,3,2],["Collar band",1,8,1,"x"],["Belt",1,8,1,"x"]], steps:[]},
+  {name:"Zip-free hoodie", tier:4, pieces:[["Front",3,5,1,"f"],["Back",3,5,1,"f"],["Sleeve",3,5,2],["Hood side",3,3,2],["Pocket",3,2,1],["Cuff",1,2,2,"x"],["Waistband",1,6,1,"x"]], steps:[]},
+  {name:"Canvas tote bag", tier:1, pieces:[["Bag body",3,3,2],["Strap",1,4,2,"x"],["Pocket",2,2,1]],
    steps:[["Prewash and press the fabric","Shrinkage happens now instead of after the bag is finished."],["Pin pieces on grain and cut","Grain-aligned pieces hang straight and don't twist."],["Hem the pocket top and stitch it to the front","Pockets go on while the front is still flat and easy to reach."],["Sew the sides and bottom, right sides together","Seams are sewn inside out so the raw edges end up hidden."],["Box the corners","Gives the bag a flat base. It needs the side seams first."],["Baste the straps inside the top edge","Straps are anchored before the top edge is finished."],["Fold and topstitch the top hem","Closes the top and locks the straps in place."]]},
-  {name:"A-line skirt", pieces:[["Skirt front",3,5,1,"f"],["Skirt back",3,5,2],["Waistband",1,6,1,"x"],["Pocket",2,2,2]],
+  {name:"A-line skirt", tier:2, pieces:[["Skirt front",3,5,1,"f"],["Skirt back",3,5,2],["Waistband",1,6,1,"x"],["Pocket",2,2,2]],
    steps:[["Prewash and press the fabric","Shrink it before it's cut to size."],["Cut and transfer dart markings","Marks go on while the pattern is still pinned in place."],["Sew the darts","Darts shape flat pieces; they're easiest before anything is joined."],["Sew the center back seam and insert the zipper","A zipper goes in while the seam is flat and open."],["Sew the side seams","Joins front to back into a tube."],["Attach the waistband","Needs the full waist circumference assembled first."],["Hem the skirt","Hem last so you can check the length on the body."],["Final press","Pressing sets the seams and gives a crisp finish."]]},
-  {name:"Button-up shirt", pieces:[["Back",3,5,1,"f"],["Front",3,5,2],["Sleeve",3,4,2],["Yoke",1,3,1,"f"],["Collar",1,3,1,"f"],["Cuff",1,2,2,"x"]],
+  {name:"Button-up shirt", tier:3, pieces:[["Back",3,5,1,"f"],["Front",3,5,2],["Sleeve",3,4,2],["Yoke",1,3,1,"f"],["Collar",1,3,1,"f"],["Cuff",1,2,2,"x"]],
    steps:[["Prewash and press the fabric","Shirting cotton shrinks; wash it first."],["Cut, mark and interface collar and cuffs","Interfacing fuses best on flat, single pieces."],["Attach the yoke and sew the shoulder seams","Shoulders create the neckline the collar will attach to."],["Attach the collar","The neckline is complete once shoulders are sewn."],["Set the sleeves in flat","Shirt sleeves go in while the armhole is still open and flat."],["Sew side and underarm seams in one pass","One continuous seam from hem to cuff, which is why sleeves went in flat."],["Attach the cuffs","Needs the sleeve tube closed first."],["Hem the shirt","Hem once the body is fully assembled."],["Make buttonholes and sew buttons","Placed last so spacing matches the final hem and collar."],["Final press","A final press makes a homemade shirt look store-bought."]]},
-  {name:"Summer dress", pieces:[["Bodice front",2,3,1,"f"],["Bodice back",2,3,2],["Skirt front",4,5,1,"f"],["Skirt back",4,5,2],["Neck facing",1,3,1,"x"],["Sleeve",2,2,2]],
+  {name:"Summer dress", tier:4, pieces:[["Bodice front",2,3,1,"f"],["Bodice back",2,3,2],["Skirt front",4,5,1,"f"],["Skirt back",4,5,2],["Neck facing",1,3,1,"x"],["Sleeve",2,2,2]],
    steps:[["Prewash and press the fabric","Shrink it before cutting."],["Cut and mark all pieces","Transfer darts and notches before unpinning."],["Stay-stitch the neckline","Stops curved, bias edges stretching while you handle them."],["Sew the bodice darts","Shape flat pieces before joining."],["Sew the shoulder seams","Creates the neckline for the facing."],["Finish the neckline with the facing","Easier before the side seams close the bodice."],["Join bodice to skirt at the waist","Front and back units are joined at the waist first."],["Insert the center back zipper","Runs across the waist seam, so that seam comes first."],["Sew the side seams","Closes the dress; fitting adjustments happen here."],["Hem and final press","Last, so the length can be checked on the body."]]},
-  {name:"Lined jacket", pieces:[["Front",3,6,2],["Back",3,6,1,"f"],["Sleeve",3,5,2],["Collar",1,4,1,"f"],["Front facing",1,6,2],["Pocket flap",1,2,2,"x"]],
+  {name:"Lined jacket", tier:5, pieces:[["Front",3,6,2],["Back",3,6,1,"f"],["Sleeve",3,5,2],["Collar",1,4,1,"f"],["Front facing",1,6,2],["Pocket flap",1,2,2,"x"]],
    steps:[["Steam to pre-shrink the wool","Wool shrinks with steam, so shrink it before cutting."],["Cut and fuse interfacing","Fusible interfacing bonds to flat single pieces."],["Sew darts and the center back seam","Shape the shell pieces first."],["Sew the shoulder seams","Creates the neckline for the collar."],["Attach the undercollar","Collar goes on once the neckline exists."],["Set the sleeves, easing the cap","Eases in extra cap length for a smooth shoulder."],["Assemble the lining separately","The lining is a second jacket built on its own."],["Bag the lining to the shell","Sew shell and lining right sides together around the edges."],["Turn, press and topstitch the edges","Turning reveals the finished edges; pressing sets them."],["Make buttonholes and sew buttons","Last, through all the finished layers."]]}
 ];
 /* flat sketches of each garment on the sewing table, with the seams you trace (in sewing order) */
 const SEW_STEPS = {
+  "Envelope pillow cover":{outline:"M80 50 h160 v120 h-160 z", extra:["M80 104 H240","M80 116 H240"],
+    seams:[["Hem the two back-flap edges","The opening edges are hemmed first, while each flap is a flat single layer.","M84 108 H236"],
+           ["Sew all four sides, right sides together","With the flaps overlapping, one seam around the square closes the cover. Turn it out through the opening.","M82 52 H238 V168 H82 V54"],
+           ["Topstitch a flange border","A second line of stitching 2 cm in gives a neat flat border, like a hotel pillow.","M98 68 H222 V152 H98 V70"]]},
+  "Kitchen apron":{outline:"M124 30 h72 v40 q44 12 54 44 v96 h-180 v-96 q10 -32 54 -44z", extra:["M160 30 V210"],
+    seams:[["Hem the curved armhole edges","Curves are hemmed narrow and slow, so they don't pucker.","M124 72 Q92 84 72 112"],
+           ["Stitch the pocket on","Pockets go on while the apron is flat and easy to reach.","M128 146 V184 H192 V146"],
+           ["Attach the waist ties","Ties are sewn in at the sides, backstitched hard, because they get pulled every time it's tied.","M72 118 H248"]]},
+  "Pajama pants":{outline:"M110 20 H210 L252 200 H180 L160 84 L140 200 H68 Z", extra:["M160 20 V84"],
+    seams:[["Sew the outer leg seam","Front and back of each leg join along the outside first, so each leg can lie flat.","M112 24 L72 196"],
+           ["Sew the inseam in one pass","One continuous seam from ankle, through the crotch, down to the other ankle.","M142 196 L160 86 L178 196"],
+           ["Sew the elastic waistband casing","A folded channel at the top holds the elastic, so no zip or buttons are needed.","M112 36 H208"]]},
+  "Tank top":{outline:"M122 30 Q160 62 198 30 L210 34 Q206 72 230 92 V200 H90 V92 Q114 72 110 34 Z",
+    seams:[["Bind the neckline","Binding is a strip of bias-cut fabric that wraps the curve. Bias stretches, so it hugs the neckline smoothly.","M122 33 Q160 66 198 33"],
+           ["Bind the armhole","Armholes are bound flat, before the side seam closes them into a loop.","M210 37 Q206 72 228 92"],
+           ["Sew the side seam","Last, close the side from armpit to hem. You can still adjust the fit here.","M230 95 V198"]]},
+  "Kimono robe":{outline:"M60 40 H260 V112 H210 V205 H110 V112 H60 Z", extra:["M160 40 L134 205","M160 40 L186 205"],
+    seams:[["Join the sleeves to the body","Kimono sleeves are rectangles sewn straight onto the body, so there are no curved armholes to fight with.","M110 42 V110"],
+           ["Sew the underarm and side seam","One L-shaped seam closes the sleeve and the side of the robe together.","M62 110 H110 V203"],
+           ["Attach the long collar band","The collar band runs from one hem, around the neck, down to the other, framing the wrap front.","M160 42 L136 203"]]},
+  "Zip-free hoodie":{outline:"M110 52 Q118 10 160 10 Q202 10 210 52 L262 102 L242 122 L214 98 V200 H106 V98 L78 122 L58 102 Z", extra:["M160 12 V52"],
+    seams:[["Sew the hood's center seam","The two hood sides join down the middle first, making the hood's 3D shape.","M160 12 Q192 14 204 48"],
+           ["Sleeve, underarm and side in one pass","Like a shirt, the sleeve goes in flat, so one seam can run from cuff to hem.","M64 106 L104 100 L106 196"],
+           ["Topstitch the kangaroo pocket","The pocket is stitched on along its top, bottom and sides, leaving the slanted ends open for your hands.","M126 152 L136 190 H184 L194 152"]]},
   "Canvas tote bag":{outline:"M90 60 h140 v140 h-140 z", extra:["M112 60 q0 -48 28 -48 q28 0 28 48","M152 60 q0 -48 28 -48 q28 0 28 48"],
     seams:[["Stitch the pocket onto the front","Pockets go on while the front is still flat and easy to reach.","M135 110 V160 H185 V110"],
            ["Sew the sides and bottom","Right sides together, so the raw edges end up hidden inside the bag.","M94 66 V196 H226 V66"],
@@ -3713,7 +3990,8 @@ function expandPieces(g){
   g.pieces.forEach(([name,w,h,count,flag]) => { for(let i=0;i<count;i++) out.push({id:out.length, name:count>1?`${name} ${i+1}`:name, w, h, fold:flag==="f", cross:flag==="x", x:null, y:null, rot:false}); });
   return out;
 }
-function packGreedy(pieces, cols){
+function packGreedy(pieces, cols, withPlan){
+  const plan = [];
   const occ = [], fits = (x,y,w,h) => { if(x+w>cols) return false; for(let r=y;r<y+h;r++) for(let c=x;c<x+w;c++) if(occ[r] && occ[r][c]) return false; return true; };
   let maxR = 0;
   for(const p of pieces){
@@ -3722,29 +4000,42 @@ function packGreedy(pieces, cols){
       const opts = [[p.w,p.h]]; if(p.cross) opts.push([p.h,p.w]);
       for(const [w,h] of opts){
         if(p.fold && x !== 0) continue;
-        if(fits(x,y,w,h)){ for(let r=y;r<y+h;r++){ occ[r] = occ[r] || []; for(let c=x;c<x+w;c++) occ[r][c] = 1; } maxR = Math.max(maxR, y+h); placed = true; break; }
+        if(fits(x,y,w,h)){ for(let r=y;r<y+h;r++){ occ[r] = occ[r] || []; for(let c=x;c<x+w;c++) occ[r][c] = 1; } maxR = Math.max(maxR, y+h); plan.push({id:p.id, x, y, w, h}); placed = true; break; }
       }
     }
   }
-  return maxR;
+  return withPlan ? {rows:maxR, plan} : maxR;
 }
 function lisLen(a){ const dp = a.map(() => 1); for(let i=0;i<a.length;i++) for(let j=0;j<i;j++) if(a[j] < a[i]) dp[i] = Math.max(dp[i], dp[j]+1); return Math.max(0, ...dp); }
 STUDIO.sewing = {
   start(){
+    const d = S.rating.sewing, lvl = clamp(Math.ceil(d/2), 1, 5);
+    const opts = freshOrder("sewing", GARMENTS.filter(g => Math.abs(g.tier - lvl) <= 1), g => g.name).slice(0, 3);
+    stage.innerHTML = `<div class="ctl-col">${sessionHeader("Choose a pattern", "What would you like to sew?", "Each envelope holds the pattern pieces. Harder garments have more pieces and trickier seams.")}
+      <div class="envelopes">${opts.map(g => `<button type="button" class="envelope" data-g="${g.name}"><svg viewBox="0 0 320 220" aria-hidden="true"><rect width="320" height="220" fill="#efe2c8"/><path d="${SEW_STEPS[g.name].outline}" fill="color-mix(in srgb, var(--c) 45%, white)" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/></svg><b>${g.name}</b><span>${"●".repeat(g.tier)}<span class="off">${"●".repeat(5-g.tier)}</span> · ${expandPieces(g).length} pieces</span></button>`).join("")}</div></div>`;
+    stage.querySelectorAll(".envelope").forEach(b => b.addEventListener("click", () => { const g = GARMENTS.find(x => x.name === b.dataset.g); markSeen("sewing", g.name); save(); this.begin(g); }));
+    setSide("Pattern", "–");
+  },
+  begin(g){
     const d = S.rating.sewing;
-    const gi = clamp(Math.floor((d-1)/2) + (Math.random() < .3 ? -1 : 0), 0, 4);
-    this.g = GARMENTS[gi]; this.pieces = expandPieces(this.g);
-    let best = 999;
-    for(let t=0;t<40;t++){
+    this.g = g; this.pieces = expandPieces(this.g);
+    let best = 999, plan = null;
+    for(let t=0;t<60;t++){
       const order = t === 0 ? this.pieces.slice().sort((a,b) => b.w*b.h - a.w*a.h || b.h - a.h) : shuffle(this.pieces.slice());
-      best = Math.min(best, packGreedy(order, COLS));
+      const r = packGreedy(order, COLS, true);
+      if(r.rows < best){ best = r.rows; plan = r.plan; }
     }
+    this.bestPlan = plan;
     this.best = best; this.target = best + (d < 3 ? 2 : d < 6 ? 1 : 0);
     this.rows = Math.max(10, this.target + 4);
     this.sel = null; this.hover = null; this.phase = 1;
     this.renderLayout();
   },
   rect(p){ return p.rot ? {w:p.h, h:p.w} : {w:p.w, h:p.h}; },
+  miniLayout(plan, rows){
+    const R = Math.max(rows, this.target) + 1, k = 9;
+    return `<svg viewBox="0 0 ${COLS*k} ${R*k}" width="${COLS*k}" aria-hidden="true"><rect width="${COLS*k}" height="${R*k}" fill="#efe2c8" stroke="${INK}" stroke-width="2"/>${plan.map(r => `<rect x="${r.x*k+.5}" y="${r.y*k+.5}" width="${r.w*k-1}" height="${r.h*k-1}" rx="1.5" fill="color-mix(in srgb, var(--c) 55%, white)" stroke="${INK}" stroke-width="1"/>`).join("")}<path d="M0 ${rows*k} H${COLS*k}" stroke="#e63946" stroke-width="2"/></svg>`;
+  },
   why(p, x, y){
     const {w,h} = this.rect(p);
     if(x < 0 || y < 0 || x + w > COLS || y + h > this.rows) return "That piece doesn't fit on the fabric there.";
@@ -3761,7 +4052,7 @@ STUDIO.sewing = {
       <div class="ctl-col">
         <div class="brief"><span class="eyebrow">Project · step 1 of 2 · then you'll sew it</span><h3>${this.g.name}: cutting layout</h3>
           <p>Place every pattern piece on the fabric. The less length you use, the less fabric the customer pays for.</p>
-          <ul><li>Target: use no more than <b>${(this.target*CELL_CM/100).toFixed(2)} m</b> of fabric</li>
+          <ul><li>Goal: fit every piece above the dashed line, so you only buy <b>${(this.target*CELL_CM/100).toFixed(2)} m</b> of fabric</li>
           <li>The grain (↕) runs along the length. Only pieces marked ↻ may turn sideways.</li>
           <li>FOLD pieces are half a pattern and must touch the fold on the left.</li></ul></div>
         <div class="tray" id="tray"></div>
@@ -3789,7 +4080,7 @@ STUDIO.sewing = {
     $("sClear").addEventListener("click", () => { this.pieces.forEach(p => { p.x = p.y = null; p.rot = false; }); this.sel = 0; this.renderAll(); });
     $("sNext").addEventListener("click", () => this.startSew());
     this.sel = 0;
-    setSide("Target", (this.target*CELL_CM/100).toFixed(2)+" m");
+    setSide("Goal", (this.target*CELL_CM/100).toFixed(2)+" m");
     this.renderAll();
   },
   rotate(){
@@ -3803,14 +4094,15 @@ STUDIO.sewing = {
   renderFabric(){
     const fab = $("fab"); if(!fab) return;
     const pos = (x,y,w,h) => `left:${x/COLS*100}%;top:${y/this.rows*100}%;width:${w/COLS*100}%;height:${h/this.rows*100}%`;
-    let html = `<div class="target-line" style="top:${this.target/this.rows*100}%"><span>target ${(this.target*CELL_CM/100).toFixed(2)} m</span></div>`;
+    let html = `<div class="target-line" style="top:${this.target/this.rows*100}%"><span>goal ${(this.target*CELL_CM/100).toFixed(2)} m</span></div>`;
     html += this.pieces.filter(p => p.x != null).map(p => { const r = this.rect(p);
       return `<div class="piece ${p.fold?"fold":""}" data-id="${p.id}" style="${pos(p.x,p.y,r.w,r.h)}"><span class="gr">${p.rot?"↔":"↕"}</span>${r.w*r.h >= 3 ? p.name : ""}</div>`; }).join("");
     if(this.hover && this.sel != null){ const p = this.pieces[this.sel], r = this.rect(p);
       if(this.hover.x < COLS && this.hover.y < this.rows) html += `<div class="ghost ${this.why(p,this.hover.x,this.hover.y)?"bad":""}" style="${pos(this.hover.x,this.hover.y,Math.min(r.w,COLS-this.hover.x),Math.min(r.h,this.rows-this.hover.y))}"></div>`; }
     fab.innerHTML = html;
     const used = this.used();
-    $("sUse").innerHTML = `Fabric used: <b>${(used*CELL_CM/100).toFixed(2)} m</b> · target ${(this.target*CELL_CM/100).toFixed(2)} m`;
+    const over = used - this.target, allIn = this.pieces.every(p => p.x != null);
+    $("sUse").innerHTML = `Fabric you'd need: <b>${(used*CELL_CM/100).toFixed(2)} m</b> · goal ${(this.target*CELL_CM/100).toFixed(2)} m` + (allIn ? (over > 0 ? `<br><span class="warn">${(over*CELL_CM/100).toFixed(2)} m more than needed. Try sliding pieces up into the gaps.</span>` : `<br><span class="okay">Every piece fits within the goal.</span>`) : "");
     $("sNext").disabled = this.pieces.some(p => p.x == null);
   },
   renderTray(){
@@ -3900,7 +4192,8 @@ STUDIO.sewing = {
     endSession({title: stars === 3 ? "Runway ready" : stars === 2 ? "Wearable, with notes" : "Unpick and try again", stars, xp:25+15*stars,
       body:`<div class="sewbox" style="max-width:260px;align-self:center"><svg viewBox="0 0 320 220"><rect width="320" height="220" fill="#efe2c8"/><path d="${sd.outline}" fill="color-mix(in srgb, var(--c) 45%, white)" stroke="${INK}" stroke-width="2.5"/>${sd.seams.map(sm => `<path d="${sm[2]}" fill="none" stroke="#e63946" stroke-width="2.6" stroke-dasharray="5 3"/>`).join("")}</svg></div>
         <div class="m-row"><span><b>${m(u)}</b>fabric used</span><span><b>${m(this.target)}</b>target</span><span><b>${Math.round(sewF*100)}%</b>stitch accuracy</span></div>
-        <p class="m-note">${u <= this.best ? "Your cutting layout matched or beat our best packing." : u <= this.target ? `Layout within target. Our best packing used ${m(this.best)}.` : `Layout over target by ${m(u-this.target)}. Place the largest pieces first next time.`}</p>
+        <p class="m-note">${u <= this.best ? `Your layout used ${m(u)}: as tight as it gets. No fabric wasted.` : u <= this.target ? `Your layout used ${m(u)}, within the goal. The tightest layout we found uses ${m(this.best)}.` : `Your layout used ${m(u)}, but the pieces can fit in ${m(this.best)}. That's ${m(u-this.best)} of fabric you'd pay for and throw away.`}</p>
+        ${u > this.best ? `<div class="layout-compare"><figure>${this.miniLayout(this.pieces.filter(p => p.x != null).map(p => ({x:p.x, y:p.y, ...this.rect(p)})), u)}<figcaption>Yours · ${m(u)}</figcaption></figure><figure>${this.miniLayout(this.bestPlan, this.best)}<figcaption>Tighter · ${m(this.best)}</figcaption></figure></div>` : ""}
         <ol class="order-review" style="text-align:left">${sd.seams.map(([t,why],i) => `<li><span class="eyebrow">${Math.round(this.seamScores[i]*100)}%</span><div><b>${t}</b><p>${why}</p></div></li>`).join("")}</ol>`,
       actions:[["New garment", () => startRoom("sewing","studio"), true], ["Lobby", goHub]]});
   }

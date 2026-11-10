@@ -12,8 +12,8 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Studios | **Test Kitchen**: cook for customers who taste and react ("too salty!") until you get it right | Flavor balance, food science, food origins |
 | Studios | **Atelier**: design a dress to a client brief | Color theory, proportion, dress codes |
 | Studios | **Hair Salon**: cuts, bangs and toners for each face shape and color problem | Face shapes, color correction |
-| Studios | **Makeup Studio**: match foundation undertones and pick colors for each eye color and occasion | Color theory, skin undertones |
-| Studios | **Sewing Room**: lay out pattern pieces, then sew by tracing each seam | Spatial planning, fine motor control |
+| Studios | **Makeup Studio**: paint 13 products onto a face for clients' occasions, or face the judges in theme challenges | Color theory, skin undertones, makeup history |
+| Studios | **Sewing Room**: pick from 11 patterns, lay out the pieces, then sew by tracing each seam | Spatial planning, fine motor control |
 | Studios | **Floorplan Lab**: draw a home that meets a client's rules | Spatial reasoning, area, building basics |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
 | Brain gym | **Science Lab**: find organs and bones; mix light versus ink | Biology, color science |
