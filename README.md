@@ -12,11 +12,12 @@ An adaptive brain-training game that runs in the browser. Ten rooms, each tracki
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
 | Core | Echo Grid, Quick Sums, Unscramble, Switchboard | Memory, mental math, vocabulary, logic |
 
-There's also a **Daily Mix**: eight interleaved questions from eight rooms.
+There's also a daily **World Tour** event (the same five map rounds for every player, with a shareable score) and a **Daily Mix** of eight interleaved questions.
 
 ## Project layout
 
-- `index.html` is the whole game: HTML, CSS, JavaScript and map data in one file. It has no build step and no dependencies.
+- `src/game.html` is the source: the whole game (HTML, CSS, JavaScript and map data) in one file.
+- `scripts/build.py` wraps it into a full web page at `index.html`, which Vercel serves. Run `python3 scripts/build.py` after editing the source, and commit both files.
 - Progress is saved in the browser's `localStorage`, so it stays on that device.
 
 ## Run locally

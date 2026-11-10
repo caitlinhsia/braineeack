@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="An adaptive brain-training game: guess where dishes and outfits come from on a world map, design dresses, sew, plan houses, mediate dramas, and train memory, math, words and logic.">
+<meta name="description" content="An adaptive brain-training game: a daily World Tour, food and fashion map guessers, dress design, sewing, floorplans, mediation dramas, and memory, math, word and logic games.">
 <meta name="theme-color" content="#121628">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23121628'/%3E%3Crect x='5' y='5' width='10' height='10' rx='3' fill='%23ff6b5e'/%3E%3Crect x='17' y='5' width='10' height='10' rx='3' fill='%23ffd24f'/%3E%3Crect x='5' y='17' width='10' height='10' rx='3' fill='%2347d4b5'/%3E%3Crect x='17' y='17' width='10' height='10' rx='3' fill='%23b08eff'/%3E%3C/svg%3E">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}</style>
@@ -58,6 +58,21 @@ button.chip:hover{color:var(--text)}
 .hero h1{font-size:clamp(32px,5.4vw,54px);font-weight:800;letter-spacing:-.025em}
 .hero h1 span{background:linear-gradient(90deg,var(--atelier),var(--peace) 30%,var(--sew) 60%,var(--floor));-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero p{color:var(--muted);max-width:64ch;font-size:16px}
+.tourcard{--c:var(--kitchen);display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:22px 22px 20px;border-radius:22px;border:1.5px solid var(--kitchen);
+  background:radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--thread) 16%, transparent), transparent 55%),radial-gradient(120% 140% at 0% 100%, color-mix(in srgb, var(--kitchen) 18%, transparent), transparent 60%),var(--panel)}
+.tour-main{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 380px}
+.tourcard h2{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.02em}
+.tournum{font-family:var(--mono);font-weight:700;color:var(--kitchen);font-size:.7em;vertical-align:middle}
+.tourcard p{color:var(--muted);font-size:14px;max-width:62ch}
+.tourcard p b{color:var(--text)}
+.stops{display:flex;gap:6px;flex-wrap:wrap}
+.stop{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:99px;border:1.5px solid var(--sc);color:var(--sc)}
+.tour-meta{font-size:13px!important}
+.tour-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sharegrid{display:flex;gap:6px;justify-content:center}
+.tour-main .sharegrid{justify-content:flex-start}
+.mark-tile{width:26px;height:26px;border-radius:7px;display:inline-block}
+textarea.copybox{width:100%;font-family:var(--mono);font-size:13px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;resize:none}
 .mixcard{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:18px 20px;border-radius:20px;border:1.5px dashed var(--line);background:var(--panel)}
 .mixcard h3{font-size:22px;font-weight:800}
 .mixcard p{color:var(--muted);font-size:14px;max-width:60ch}
@@ -414,6 +429,7 @@ details.science li b{color:var(--text)}
       <h1>Ten rooms that <span>adapt to how you think.</span></h1>
       <p>Design a gown, plan a house, guess where a dish was born, talk two people down from a fight. Every room tracks your skill and tunes its difficulty so you succeed about three times out of four. Learning researchers call that level of challenge the sweet spot.</p>
     </section>
+    <section class="tourcard" id="tourcard"></section>
     <section class="mixcard" id="mixcard"></section>
     <section class="wing">
       <div class="wing-head"><h2>Studios</h2><p>Creative projects with real-world skills inside them.</p></div>
@@ -449,6 +465,7 @@ details.science li b{color:var(--text)}
             <li><b>Dual coding.</b> The color wheel, fabric layouts and floor plans pair pictures with ideas, so you have two routes back to each idea.</li>
             <li><b>Growth mindset.</b> Feedback praises strategy and effort. A drop in difficulty is a reset, not a verdict.</li>
             <li><b>Stories and places.</b> Facts tied to a dish, an outfit and a spot on the map are far easier to recall than isolated dates. This is elaborative encoding, and memory athletes use the same “memory palace” idea.</li>
+            <li><b>A daily ritual.</b> The World Tour is short, shared and once a day. Small, regular sessions beat cramming, and comparing with friends adds the social motivation that keeps habits going.</li>
             <li><b>Real conflict research.</b> Peacemaker draws on Gottman's marriage studies, Fisher &amp; Ury's <i>Getting to Yes</i>, Rosenberg's Nonviolent Communication and Lieberman's affect-labeling experiments.</li>
           </ul>
         </details>
@@ -527,6 +544,9 @@ const ROOMS = {
     blurb:"Tapping a light flips it and its four neighbors. Switch every light off in as few moves as you can.",
     tip:"<b>Tip:</b> tapping the same light twice cancels out, so order doesn't matter. Clear the board row by row from the top.",
     modes:[["arcade","Arcade · 60s"],["zen","Zen · 3 boards"]]},
+  daily:{name:"World Tour", skill:"Daily event", color:"var(--kitchen)", wing:"none",
+    blurb:"Today's five-round tour: three dishes and two outfits, the same for every player, from easy to hard. Your first run is your official score.",
+    tip:"<b>Tip:</b> you start with two clues each round. Share your result with friends and compare tomorrow.", modes:[]},
   mix:{name:"Daily Mix", skill:"Interleaved practice", color:"var(--mix)", wing:"none",
     blurb:"Eight questions from eight rooms, mixed together.", tip:"<b>Why mix?</b> Switching topics forces your brain to pick the right strategy each time, and that is what makes it stick.", modes:[]}
 };
@@ -542,7 +562,7 @@ const KEY = "synapse-arcade-v2";
 function blank(){
   const per = v => Object.fromEntries(ALL.map(k => [k, typeof v === "function" ? v() : v]));
   return {xp:0, played:0, streak:0, lastDay:"", mixDay:"", sound:true, mixStars:0,
-    skill:per(0), rating:per(2), hist:per(() => []), stars:per(0), best:{}, review:[], lastScen:""};
+    skill:per(0), rating:per(2), hist:per(() => []), stars:per(0), best:{}, review:[], lastScen:"", daily:{}};
 }
 function load(){
   const d = blank();
@@ -582,9 +602,10 @@ function yesterday(){ const y = new Date(); y.setDate(y.getDate()-1); return day
 function levelInfo(xp){ let level=1, need=100; while(xp >= need){ xp -= need; level++; need = 100 + (level-1)*50; } return {level, into:xp, need}; }
 function rankFor(level){ let r = RANKS[0][1]; for(const [l,n] of RANKS) if(level>=l) r=n; return r; }
 const Dof = room => S.rating[room];
+const isMulti = r => r === "mix" || r === "daily";
 function adapt(room, outcome){
   S.rating[room] = clamp(S.rating[room] + 0.8*(outcome - 0.75), 1, 10);
-  if(G.room === "mix") G.mixRooms.add(room);
+  if(isMulti(G.room)) G.mixRooms.add(room);
 }
 function starsHtml(n){ return `<div class="stars" aria-label="${n} of 3 stars">${"★".repeat(n)}<span class="off">${"★".repeat(3-n)}</span></div>`; }
 function checklist(res){ return `<ul class="checks">${res.map(c=>`<li class="${c.ok?"ok":"no"}"><span class="mk">${c.ok?"✓":"✗"}</span><div><b>${c.label}</b><p>${c.why}</p></div></li>`).join("")}</ul>`; }
@@ -699,8 +720,23 @@ function roomCard(k){
     <div class="actions">${r.modes.map(([m,label],i) => `<button class="btn ${i===0?"btn-solid":"btn-ghost"}" type="button" data-room="${k}" data-mode="${m}">${label}</button>`).join("")}</div>
   </article>`;
 }
+function renderTourCard(){
+  const t = dailyTour(), rec = S.daily[t.key], streak = tourStreak();
+  const stops = t.items.map((it,i) => `<span class="stop" style="--sc:${it.y != null ? "var(--thread)" : "var(--kitchen)"}">${rec ? (it.y != null ? "Outfit" : "Dish") + " " + (i+1) : "?"}</span>`).join("");
+  $("tourcard").innerHTML = `<div class="tour-main">
+      <span class="eyebrow">Daily event · ${new Date().toLocaleDateString("en-US", {weekday:"long", month:"long", day:"numeric"})}</span>
+      <h2>World Tour <span class="tournum">#${t.num}</span></h2>
+      <p>${rec ? `You scored <b>${fmt(rec.score)}</b> of 25,000 today. A new tour unlocks in <b>${untilMidnight()}</b>.` : "Five rounds, the same for every player today: three dishes and two outfits, from easy to hard. Your first run is your official score, so share it and compare with friends."}</p>
+      <div class="stops">${rec ? `<div class="sharegrid">${rec.marks.map(markTile).join("")}</div>` : stops}</div>
+      <p class="tour-meta">Tour streak: <b>${streak} day${streak === 1 ? "" : "s"}</b>${streak >= 3 ? " · keep it going" : ""}</p>
+    </div>
+    <div class="tour-actions">${rec ? `<button class="btn btn-solid" type="button" id="tourShare">Copy result</button><button class="btn btn-ghost" type="button" data-room="daily" data-mode="studio">Practice replay</button>` : `<button class="btn btn-solid" type="button" data-room="daily" data-mode="studio">Start today's tour</button>`}</div>`;
+  if(rec) $("tourShare").addEventListener("click", e => copyText(shareText(t, rec), e.currentTarget));
+}
+setInterval(() => { if(!$("hub").hidden) renderTourCard(); }, 60000);
 function renderHub(){
   renderTop();
+  renderTourCard();
   const done = S.mixDay === today();
   $("mixcard").innerHTML = `<div><div class="mixdots" aria-hidden="true">${MIX_ROOMS.map(k=>`<i style="background:${ROOMS[k].color}"></i>`).join("")}</div>
     <h3>Daily Mix${done ? " · done today" : ""}</h3><p>Eight questions from eight rooms, shuffled together. Mixing topics feels harder than practicing one at a time, and that effort is what makes learning last.</p></div>
@@ -738,15 +774,15 @@ function setSide(label, value){ $("hudBLabel").textContent = label; $("hudB").te
 function startRoom(room, mode){
   stopTimer(); G.token++;
   Object.assign(G, {room, mode, timed: mode==="arcade" || mode==="sprint", score:0, combo:0, maxCombo:0, time:60, paused:false, correct:0, attempts:0,
-    dStart: room==="mix" ? 0 : S.rating[room], mixRooms:new Set()});
+    dStart: isMulti(room) ? 0 : S.rating[room], mixRooms:new Set()});
   const r = ROOMS[room];
   $("play").style.setProperty("--c", r.color);
   $("modal").style.setProperty("--c", r.color);
-  $("hudSkill").textContent = `${r.skill} · ${room==="mix" ? "Interleaved" : MODE_NAMES[mode]}`;
+  $("hudSkill").textContent = room === "daily" ? `Daily event · ${today()}` : `${r.skill} · ${room==="mix" ? "Interleaved" : MODE_NAMES[mode]}`;
   $("hudName").textContent = r.name;
   $("tipline").innerHTML = r.blurb + " " + r.tip;
   $("timebar").hidden = !G.timed; $("multBox").hidden = !G.timed;
-  $("hudALabel").textContent = G.timed ? "Time" : "Difficulty";
+  $("hudALabel").textContent = G.timed ? "Time" : room === "daily" ? "Tour" : "Difficulty";
   setSide(G.timed ? "Score" : "Progress", G.timed ? "0" : "–");
   $("stageWrap").classList.toggle("studio", mode === "studio");
   $("hub").hidden = true; $("play").hidden = false; closeModal();
@@ -767,7 +803,7 @@ function hud(){
     $("hudMult").textContent = "×" + mult();
     $("timeFill").style.width = (G.time/60*100) + "%";
     $("timebar").classList.toggle("low", G.time <= 10);
-  } else $("hudA").textContent = G.room === "mix" ? "Mixed" : S.rating[G.room].toFixed(1);
+  } else $("hudA").textContent = G.room === "daily" ? "#" + dailyTour().num : G.room === "mix" ? "Mixed" : S.rating[G.room].toFixed(1);
 }
 function fx(text, neg){ const el = $("fx"); el.textContent = text; el.classList.toggle("neg", !!neg); el.classList.remove("show"); void el.offsetWidth; el.classList.add("show"); }
 function hit(base){ G.combo++; G.maxCombo = Math.max(G.maxCombo, G.combo); G.correct++; G.attempts++; const pts = Math.round(base*mult()); G.score += pts; fx("+"+pts); sfx.good(); hud(); }
@@ -791,18 +827,18 @@ const COACH = {
 function endSession(o){
   stopTimer(); G.token++;
   const room = G.room, mode = G.mode;
-  const rooms = room === "mix" ? [...G.mixRooms] : [room];
+  const rooms = isMulti(room) ? [...G.mixRooms] : [room];
   rooms.forEach(k => { S.hist[k].push(+S.rating[k].toFixed(2)); if(S.hist[k].length > 30) S.hist[k].shift(); });
-  if(o.stars){ if(room === "mix") S.mixStars += o.stars; else S.stars[room] += o.stars; }
+  if(o.stars){ if(isMulti(room)) S.mixStars += o.stars; else S.stars[room] += o.stars; }
   if(room === "mix") S.mixDay = today();
   const up = award(rooms.length ? rooms : ["math"], o.xp);
   let coach = "";
-  if(room !== "mix"){
+  if(!isMulti(room)){
     const d0 = G.dStart, d1 = S.rating[room], dd = d1 - d0;
     coach = `<div class="coach"><span>Difficulty ${d0.toFixed(1)} → <b>${d1.toFixed(1)}</b></span><p>${pick(dd > .05 ? COACH.up : dd < -.05 ? COACH.down : COACH.flat)}</p></div>`;
   }
   openModal({
-    eyebrow: `${ROOMS[room].name} · ${room==="mix" ? "Interleaved" : MODE_NAMES[mode]}`, title: o.title,
+    eyebrow: `${ROOMS[room].name} · ${room==="daily" ? "#" + dailyTour().num : room==="mix" ? "Interleaved" : MODE_NAMES[mode]}`, title: o.title,
     body: (o.stars ? starsHtml(o.stars) : "") + o.body + `<p class="m-note">+${o.xp} XP</p>` + coach + up,
     actions: o.actions || [["Play again", () => startRoom(room, mode), true], ["Lobby", goHub]]
   });
@@ -1242,17 +1278,17 @@ function WorldMap(el, onPick){
 function Explorer(cfg){
   return {
     start(){
-      const d = S.rating[cfg.room];
-      this.items = pickItems(cfg.list, d, 5); this.round = 0; this.total = 0; this.log = [];
-      this.startClues = d < 4 ? 2 : 1;
+      if(cfg.daily){ this.tour = dailyTour(); this.items = this.tour.items; this.startClues = 2; }
+      else { const d = S.rating[cfg.room]; this.items = pickItems(cfg.list, d, 5); this.startClues = d < 4 ? 2 : 1; }
+      this.round = 0; this.total = 0; this.log = [];
       stage.innerHTML = `<div class="explore"><div id="exMap"></div>
         <div class="ctl-col">
-          <div class="brief"><span class="eyebrow" id="exEyebrow"></span><h3>${cfg.question}</h3><ol class="clues" id="exClues"></ol>
+          <div class="brief"><span class="eyebrow" id="exEyebrow"></span><h3 id="exQ"></h3><ol class="clues" id="exClues"></ol>
             <div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="exClue">Reveal a clue (−15%)</button></div></div>
-          ${cfg.year ? `<div class="yearbox"><div class="yearrow"><span class="eyebrow">Your year</span><span class="yr" id="exYr"></span></div>
+          <div class="yearbox" id="exYearBox" hidden><div class="yearrow"><span class="eyebrow">Your year</span><span class="yr" id="exYr"></span></div>
             <input type="range" id="exYear" min="0" max="1000" value="700" aria-label="Year">
             <div class="era-ticks"><span style="left:0">3000 BCE</span><span style="left:33.8%">0</span><span style="left:51.4%">1000</span><span style="left:64.2%">1500</span><span style="left:81.3%">1900</span><span style="left:100%">now</span></div>
-            <div class="yearrow"><button class="btn-sm" type="button" data-yd="-1">− earlier</button><button class="btn-sm" type="button" data-yd="1">later +</button></div></div>` : ""}
+            <div class="yearrow"><button class="btn-sm" type="button" data-yd="-1">− earlier</button><button class="btn-sm" type="button" data-yd="1">later +</button></div></div>
           <p class="msg" id="exMsg">Tap the map to drop your pin.</p>
           <button class="btn btn-solid" type="button" id="exGo" disabled>Lock in guess</button>
           <div id="exReveal"></div>
@@ -1260,24 +1296,25 @@ function Explorer(cfg){
       this.map = WorldMap($("exMap"), ll => { this.guess = ll; $("exGo").disabled = false; $("exMsg").textContent = "Pin placed. Tap again to move it, or lock in your guess."; });
       $("exClue").addEventListener("click", () => this.moreClue());
       $("exGo").addEventListener("click", () => this.lockIn());
-      if(cfg.year){
-        const yOf = t => Math.round(2025 - 5025*Math.pow(1 - t/1000, 2.2)), tOf = y => 1000*(1 - Math.pow((2025-y)/5025, 1/2.2));
-        this.yOf = yOf; this.tOf = tOf;
-        const upd = () => { this.year = yOf(+$("exYear").value); $("exYr").textContent = yearLabel(this.year); };
-        $("exYear").addEventListener("input", upd);
-        stage.querySelectorAll("[data-yd]").forEach(b => b.addEventListener("click", () => {
-          const step = this.year < 0 ? 100 : this.year < 1500 ? 25 : 5;
-          this.year = clamp(this.year + (+b.dataset.yd)*step, -3000, 2025); $("exYear").value = tOf(this.year); $("exYr").textContent = yearLabel(this.year); }));
-        this.updYear = upd;
-      }
+      const yOf = t => Math.round(2025 - 5025*Math.pow(1 - t/1000, 2.2)), tOf = y => 1000*(1 - Math.pow((2025-y)/5025, 1/2.2));
+      this.updYear = () => { this.year = yOf(+$("exYear").value); $("exYr").textContent = yearLabel(this.year); };
+      $("exYear").addEventListener("input", this.updYear);
+      stage.querySelectorAll("[data-yd]").forEach(b => b.addEventListener("click", () => {
+        if(this.locked) return;
+        const step = this.year < 0 ? 100 : this.year < 1500 ? 25 : 5;
+        this.year = clamp(this.year + (+b.dataset.yd)*step, -3000, 2025); $("exYear").value = tOf(this.year); $("exYr").textContent = yearLabel(this.year); }));
       this.newRound();
     },
     newRound(){
-      this.item = this.items[this.round]; this.shown = this.startClues; this.guess = null; this.locked = false;
-      $("exEyebrow").textContent = `Round ${this.round+1} of ${this.items.length} · ${cfg.noun}`;
+      this.item = this.items[this.round]; this.hasYear = this.item.y != null;
+      this.shown = this.startClues; this.guess = null; this.locked = false;
+      const noun = this.hasYear ? "Mystery outfit" : "Mystery dish";
+      $("exEyebrow").textContent = cfg.daily ? `World Tour #${this.tour.num} · Round ${this.round+1} of 5 · ${noun}` : `Round ${this.round+1} of ${this.items.length} · ${noun}`;
+      $("exQ").textContent = this.hasYear ? "Where and when was this worn?" : "Where does this dish come from?";
+      $("exYearBox").hidden = !this.hasYear;
       $("exReveal").innerHTML = ""; $("exGo").hidden = false; $("exGo").disabled = true;
       $("exMsg").textContent = "Tap the map to drop your pin.";
-      if(cfg.year){ $("exYear").value = 700; this.updYear(); $("exYear").disabled = false; }
+      if(this.hasYear){ $("exYear").value = 700; this.updYear(); $("exYear").disabled = false; }
       this.map.clear(); this.renderClues();
       setSide("Score", fmt(this.total));
     },
@@ -1294,22 +1331,23 @@ function Explorer(cfg){
       this.locked = true;
       const it = this.item, km = Math.round(haversine(this.guess, it.ll));
       const mult = Math.max(.4, 1 - .15*(this.shown - this.startClues));
-      let place = Math.exp(-km/2000), time = null, yErr = 0;
-      if(cfg.year){ yErr = Math.abs(this.year - it.y); time = Math.exp(-yErr / Math.max(25, (2025-it.y)*.12)); }
-      const raw = cfg.year ? 2500*place + 2500*time : 5000*place;
+      let yErr = 0;
+      const place = Math.exp(-km/2000);
+      let raw = 5000*place;
+      if(this.hasYear){ yErr = Math.abs(this.year - it.y); raw = 2500*place + 2500*Math.exp(-yErr / Math.max(25, (2025-it.y)*.12)); }
       const pts = Math.round(raw*mult);
       this.total += pts;
-      this.log.push({n:it.n, pts, km, yErr});
-      adapt(cfg.room, Math.min(1, pts/3500));
+      this.log.push({n:it.n, pts, km, yErr, hasYear:this.hasYear});
+      adapt(this.hasYear ? "thread" : "kitchen", Math.min(1, pts/3500));
       pts >= 3500 ? sfx.win() : pts >= 1500 ? sfx.good() : sfx.bad();
       this.map.reveal(it.ll, it.c);
-      if(cfg.year) $("exYear").disabled = true;
+      if(this.hasYear) $("exYear").disabled = true;
       this.shown = 4; this.renderClues();
       $("exGo").hidden = true; $("exMsg").textContent = "";
       const last = this.round === this.items.length - 1;
       $("exReveal").innerHTML = `<div class="reveal"><span class="eyebrow">${km < 300 ? "Spot on" : km < 1200 ? "Close" : km < 3500 ? "Same part of the world" : "Far off"}</span>
         <h3>${it.n}</h3><span class="pts">+${fmt(pts)}</span>
-        <div class="facts"><span><b>${it.city}, ${cname(it.c)}</b>origin</span><span><b>${fmt(km)} km</b>from your pin</span>${cfg.year ? `<span><b>${it.yl}</b>you said ${yearLabel(this.year)}</span>` : ""}${mult < 1 ? `<span><b>×${mult.toFixed(2)}</b>clue penalty</span>` : ""}</div>
+        <div class="facts"><span><b>${it.city}, ${cname(it.c)}</b>origin</span><span><b>${fmt(km)} km</b>from your pin</span>${this.hasYear ? `<span><b>${it.yl}</b>you said ${yearLabel(this.year)}</span>` : ""}${mult < 1 ? `<span><b>×${mult.toFixed(2)}</b>clue penalty</span>` : ""}</div>
         <p>${it.fact}</p>
         <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="exNext">${last ? "See results" : "Next round"}</button></div></div>`;
       $("exNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
@@ -1317,16 +1355,65 @@ function Explorer(cfg){
       $("exReveal").scrollIntoView({block:"nearest", behavior:"smooth"});
     },
     finish(){
+      if(cfg.daily) return this.finishDaily();
       const key = cfg.room + ":studio", prev = S.best[key] || 0, isBest = this.total > prev;
       if(isBest) S.best[key] = this.total;
       const stars = this.total >= 18000 ? 3 : this.total >= 10000 ? 2 : 1;
       endSession({title: stars === 3 ? "World-class explorer" : stars === 2 ? "Well traveled" : "Every trip teaches something", stars, xp: 25 + 15*stars,
         body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of 25,000${isBest ? " · new best" : prev ? ` · best ${fmt(prev)}` : ""}</p>
-          <ul class="roundlog">${this.log.map(l => `<li><span><b>${l.n}</b> · ${fmt(l.km)} km${cfg.year ? ` · ${l.yErr} yrs off` : ""}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+          <ul class="roundlog">${this.log.map(l => `<li><span><b>${l.n}</b> · ${fmt(l.km)} km${l.hasYear ? ` · ${l.yErr} yrs off` : ""}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
         actions:[["Play again", () => startRoom(cfg.room, "studio"), true], ["Lobby", goHub]]});
+    },
+    finishDaily(){
+      const t = this.tour, first = !S.daily[t.key];
+      if(first) S.daily[t.key] = {score:this.total, marks:this.log.map(l => l.pts)};
+      const keys = Object.keys(S.daily).sort(); while(keys.length > 90) delete S.daily[keys.shift()];
+      const rec = S.daily[t.key], streak = tourStreak();
+      const stars = this.total >= 18000 ? 3 : this.total >= 10000 ? 2 : 1;
+      const text = shareText(t, rec);
+      endSession({title: first ? (stars === 3 ? "Tour complete. Superb!" : "Tour complete") : "Practice run complete", stars: first ? stars : 0, xp: first ? 30 + 15*stars : 10,
+        body:`<div class="big">${fmt(this.total)}</div>
+          <p class="m-note">${first ? `Your official score for World Tour #${t.num}, out of 25,000.` : `Practice only. Your official score today is ${fmt(rec.score)}.`}</p>
+          <div class="sharegrid" aria-label="Round results">${rec.marks.map(markTile).join("")}</div>
+          <ul class="roundlog">${this.log.map(l => `<li><span><b>${l.n}</b> · ${fmt(l.km)} km${l.hasYear ? ` · ${l.yErr} yrs off` : ""}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>
+          <p class="m-note">Tour streak: <b>${streak} day${streak === 1 ? "" : "s"}</b> · next tour in ${untilMidnight()}</p>`,
+        actions:[["Copy result", e => copyText(text, e.currentTarget), true], ["Lobby", goHub]]});
     }
   };
 }
+
+/* ---------- daily World Tour event: the same five rounds for every player, seeded by local date ---------- */
+const TOUR_EPOCH = new Date(2026, 10, 10);
+function hashStr(str){ let h = 2166136261; for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function seeded(a){ return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function dailyTour(date = new Date()){
+  const key = dayStr(date), mid = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const num = Math.round((mid - TOUR_EPOCH) / 86400000) + 1;
+  const rnd = seeded(hashStr("world-tour:" + key));
+  const sh = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(rnd()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+  const dishes = sh(DISHES), outfits = sh(OUTFITS), byT = (a,t) => a.find(x => x.t === t);
+  return {key, num, items:[byT(dishes,1), byT(outfits,1), byT(dishes,2), byT(outfits,2), byT(dishes,3)]};
+}
+function tourStreak(){ let n = 0; const d = new Date(); if(!S.daily[dayStr(d)]) d.setDate(d.getDate()-1); while(S.daily[dayStr(d)]){ n++; d.setDate(d.getDate()-1); } return n; }
+function untilMidnight(){ const n = new Date(), m = new Date(n.getFullYear(), n.getMonth(), n.getDate()+1), mins = Math.ceil((m - n)/60000); return `${Math.floor(mins/60)}h ${mins%60}m`; }
+const markOf = p => p >= 4000 ? "🟩" : p >= 2000 ? "🟨" : p >= 500 ? "🟧" : "🟥";
+const markTile = p => `<span class="mark-tile" style="background:${p >= 4000 ? "var(--good)" : p >= 2000 ? "var(--math)" : p >= 500 ? "var(--peace)" : "var(--bad)"}" title="${fmt(p)} points"></span>`;
+function shareText(t, rec){
+  const site = /^https?:$/.test(location.protocol) && !/claude|anthropic|localhost/.test(location.hostname) ? "\n" + location.origin : "";
+  return `Synapse Arcade · World Tour #${t.num}\n${rec.marks.map(markOf).join("")}  ${fmt(rec.score)} / 25,000${site}`;
+}
+function copyText(text, btn){
+  const done = () => { if(btn){ btn.textContent = "Copied!"; setTimeout(() => btn.textContent = "Copy result", 1800); } };
+  const fallback = () => {
+    const box = $("mBody") && !$("modal").hidden ? $("mBody") : $("tourcard");
+    let ta = box.querySelector("textarea.copybox");
+    if(!ta){ ta = document.createElement("textarea"); ta.className = "copybox"; ta.readOnly = true; ta.rows = 3; box.appendChild(ta); }
+    ta.value = text; ta.focus(); ta.select();
+    if(btn) btn.textContent = "Select and copy the text";
+  };
+  try{ navigator.clipboard.writeText(text).then(done, fallback); }catch(e){ fallback(); }
+}
+STUDIO.daily = Explorer({room:"daily", daily:true});
 STUDIO.kitchen = Explorer({room:"kitchen", list:DISHES, noun:"Mystery dish", question:"Where does this dish come from?"});
 STUDIO.thread = Explorer({room:"thread", list:OUTFITS, noun:"Mystery outfit", question:"Where and when was this worn?", year:true});
 
