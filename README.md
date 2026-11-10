@@ -9,7 +9,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Explorers | **Landmark Hunt**: pin illustrated world landmarks on the map | Geography, history |
 | Explorers | **Flag Maker**: rebuild a country's flag (layout and colors) | Flags, symbolism |
 | Explorers | **Then & Now**: slot events into a growing timeline | History |
-| Studios | **Test Kitchen**: fill the bowl with a recipe's real ingredients | Food culture, where ingredients come from |
+| Studios | **Test Kitchen**: cook for customers who taste and react ("too salty!") until you get it right | Flavor balance, food science, food origins |
 | Studios | **Atelier**: design a dress to a client brief | Color theory, proportion, dress codes |
 | Studios | **Hair Salon**: cuts, bangs and toners for each face shape and color problem | Face shapes, color correction |
 | Studios | **Makeup Studio**: match foundation undertones and pick colors for each eye color and occasion | Color theory, skin undertones |

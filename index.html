@@ -660,6 +660,28 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .pm-actor.talking{animation:talk .45s ease-in-out}
 @keyframes talk{30%{transform:translateY(-5px) rotate(-1.5deg)}60%{transform:translateY(-2px) rotate(1deg)}}
 .pm-name{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);background:var(--panel);border:2px solid var(--ink);border-radius:99px;padding:1px 10px;font-weight:700;font-size:12px;white-space:nowrap}
+
+/* test kitchen v2 */
+.counter{display:flex;flex-direction:column;gap:12px}
+.cust-row{display:flex;align-items:flex-end;gap:10px}
+.cust{width:150px;flex:none;position:relative;background:radial-gradient(circle at 50% 40%, #fffdf8, #ffe8c2);border:2.5px solid var(--ink);border-radius:20px 20px 8px 8px;padding:8px 6px 0;overflow:hidden;box-shadow:0 4px 0 var(--ink)}
+.cust svg{display:block;width:100%;height:auto}
+.cust.talking{animation:talk .45s ease-in-out}
+.bubble{position:relative;flex:1;background:var(--panel);border:2.5px solid var(--ink);border-radius:18px;padding:12px 14px;font-weight:600;font-size:15px;line-height:1.4;box-shadow:0 3px 0 var(--ink);margin-bottom:40px;animation:rise .25s ease-out}
+.bubble::before{content:"";position:absolute;left:-12px;bottom:14px;width:18px;height:18px;background:var(--panel);border-left:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(45deg)}
+.counter-top{background:#c8915a;border:2.5px solid var(--ink);border-radius:16px;padding:10px 10px 0;box-shadow:0 4px 0 var(--ink)}
+.counter-top .mixbowl{max-width:300px;margin:0 auto}
+.tastelog{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow:auto}
+.tastelog li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;background:var(--panel2);border:2px solid var(--ink);border-radius:12px;padding:8px 10px;font-size:13px;animation:rise .3s ease-out}
+.tastelog .tnum{font-family:var(--mono);font-size:11px;background:var(--panel);border:1.5px solid var(--ink);border-radius:8px;padding:2px 6px;align-self:start;text-align:center}
+.tastelog p{color:var(--muted);font-size:12px;margin-top:2px}.tastelog small{color:var(--muted);font-size:11px}
+.amts{display:flex;flex-direction:column;gap:6px}
+.amt{display:grid;grid-template-columns:30px minmax(0,1fr) 34px 96px 34px;align-items:center;gap:8px;background:var(--panel);border:2px solid var(--ink);border-radius:12px;padding:4px 8px;font-size:13px}
+.amt-name{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.amt b{font-family:var(--mono);font-weight:500;text-align:center;font-size:13px}
+.step-btn{width:32px;height:32px;border-radius:10px;border:2px solid var(--ink);background:var(--panel2);font-size:18px;font-weight:700;box-shadow:0 2px 0 var(--ink)}
+.step-btn:active{transform:translateY(2px);box-shadow:none}
+@media (max-width:520px){ .cust{width:110px} .amt{grid-template-columns:26px minmax(0,1fr) 30px 80px 30px} }
 </style>
 </head>
 <body>
@@ -797,8 +819,8 @@ const ROOMS = {
     tip:"<b>Tip:</b> work out the face shape first. Then remember toners cancel their opposite: violet fixes yellow, blue fixes orange.",
     modes:[["studio","Open the salon"],["sprint","Salon sprint · 60s"],["practice","Quiz"]]},
   cook:{name:"Test Kitchen", skill:"Food & culture", color:"var(--cook)", wing:"studio",
-    blurb:"Fill the bowl with the right ingredients for a classic recipe, and find out where each one first grew.",
-    tip:"<b>Tip:</b> watch for decoys that sound reasonable. Classic recipes are often simpler than you'd think.",
+    blurb:"Cook for real customers. Pick ingredients, set the amounts and serve. They'll tell you if it's too salty or missing something, so adjust and serve again until they love it.",
+    tip:"<b>Tip:</b> fix the biggest complaint first. Salt, acid, fat and heat balance each other, and every complaint comes with a chef's note on why.",
     modes:[["studio","Start cooking"],["sprint","Pantry sprint · 60s"],["practice","Quiz"]]},
   lab:{name:"Science Lab", skill:"Body & science", color:"var(--lab)", wing:"core",
     blurb:"Find organs and bones on the body, and mix colored light and ink to match a target color.",
@@ -2267,52 +2289,162 @@ function ingIcon(key, size=56){
   }
   return s(`<circle cx="30" cy="30" r="20"/>`);
 }
+/* ---- Test Kitchen v2: cook it, serve it, hear what the customer thinks, adjust, repeat ---- */
+/* amounts per recipe: key: [target, unit, step, max] (serves 4) */
+const AMT = {
+  "Guacamole":{avocado:[3,"avocados",1,6], lime:[2,"tbsp",1,6], onion:[2,"tbsp",1,6], chili:[1,"chili",1,4], cilantro:[2,"tbsp",1,6], salt:[1,"tsp",.5,3]},
+  "Caprese salad":{tomato:[3,"tomatoes",1,6], mozzarella:[2,"balls",1,4], basil:[1,"handful",1,4], oil:[2,"tbsp",1,6], salt:[1,"tsp",.5,3]},
+  "Crêpe batter":{flour:[1,"cup",.25,2.5], egg:[2,"eggs",1,5], milk:[1.25,"cups",.25,3], butter:[2,"tbsp",1,6], sugar:[1,"tbsp",1,4], salt:[.5,"tsp",.25,2]},
+  "Pesto alla Genovese":{basil:[2,"cups",.5,4], pinenuts:[3,"tbsp",1,7], garlic:[1,"clove",1,4], parmesan:[4,"tbsp",1,8], oil:[6,"tbsp",1,10], salt:[.5,"tsp",.25,2]},
+  "Hummus":{chickpeas:[2,"cups",.5,4], tahini:[4,"tbsp",1,8], lemon:[3,"tbsp",1,7], garlic:[1,"clove",1,4], oil:[2,"tbsp",1,6], salt:[1,"tsp",.5,3]},
+  "Miso soup":{dashi:[4,"cups",1,7], miso:[3,"tbsp",1,7], tofu:[1,"cup",.5,3], wakame:[1,"tbsp",1,4], scallion:[2,"tbsp",1,5]},
+  "Tzatziki":{yogurt:[2,"cups",.5,4], cucumber:[1,"cucumber",.5,3], garlic:[2,"cloves",1,5], dill:[2,"tbsp",1,5], oil:[1,"tbsp",1,4], lemon:[1,"tbsp",1,4]},
+  "Egg fried rice":{rice:[3,"cups",1,6], egg:[2,"eggs",1,5], soy:[2,"tbsp",1,5], scallion:[3,"tbsp",1,6], garlic:[2,"cloves",1,5], oil:[2,"tbsp",1,5], peas:[1,"cup",.5,3]},
+  "Basic bread":{flour:[500,"g",50,800], water:[325,"ml",25,550], yeast:[7,"g",1,15], salt:[10,"g",2,20]},
+  "Pico de gallo":{tomato:[4,"tomatoes",1,7], onion:[3,"tbsp",1,6], chili:[1,"chili",1,4], cilantro:[3,"tbsp",1,6], lime:[2,"tbsp",1,5], salt:[1,"tsp",.5,3]}
+};
+const TASTE = {
+  salt:{over:["Too salty! I need a glass of water.","A bit too salty."], under:["It's bland. It needs salt to wake the flavors up.","Just a touch under-seasoned."], note:"Salt blocks bitterness and makes every other flavor taste more like itself. Add it a pinch at a time and taste as you go."},
+  sour:{over:["Ooh, too sour, my lips are puckering!","A little too tangy."], under:["It tastes flat and heavy. It needs something sour to brighten it up.","Could use a little more brightness."], note:"Acid from citrus or vinegar cuts through richness and balances salt. Chefs call it “brightening” a dish."},
+  heat:{over:["Too spicy! My mouth is on fire!","That's a bit too hot for me."], under:["It could use a little kick of heat.","Maybe a touch more spice?"], note:"Chili heat isn't a taste: capsaicin triggers the pain sensors that detect real heat. Milk and fat calm it; water doesn't."},
+  sharp:{over:["Whoa, that's a lot of raw garlic and onion. It's harsh.","A little too sharp and pungent."], under:["It's missing a savory bite.","It needs a little more punch."], note:"Raw onion and garlic release sharp sulfur compounds when cut. A little goes a long way."},
+  fresh:{over:["It's like eating a lawn. Too many herbs!","A bit too herby."], under:["It needs something fresh and green.","Could use a few more herbs."], note:"Herbs add aroma, and most of what we call flavor is really smell. That's why food tastes dull when you have a cold."},
+  rich:{over:["Too heavy and greasy.","A bit rich."], under:["It's thin and dry. It needs some richness.","Could be a little silkier."], note:"Fat carries flavor molecules and coats your tongue, which is why rich food tastes fuller."},
+  sweet:{over:["Too sweet!","A bit sweet for me."], under:["It needs a touch of sweetness.","Just a hint more sugar?"], note:"A little sweetness balances acid and bitterness, even in savory food."},
+  umami:{over:["Too salty and murky.","A bit strong."], under:["It's weak and watery.","Could be a little more savory."], note:"Miso, soy and parmesan are packed with glutamate, the savory taste called umami, named by a Japanese chemist in 1908."}
+};
+const ING_TASTE = {salt:"salt", soy:"umami", miso:"umami", parmesan:"umami", lime:"sour", lemon:"sour", chili:"heat", onion:"sharp", garlic:"sharp",
+  cilantro:"fresh", basil:"fresh", dill:"fresh", scallion:"fresh", wakame:"fresh", oil:"rich", butter:"rich", tahini:"rich", pinenuts:"rich", mozzarella:"rich", sugar:"sweet"};
+const ING_LINES = {
+  flour:{over:"These are thick and rubbery. Too much flour.", under:"It's runny and falls apart. It needs more flour.", note:"Flour's starch and gluten set the structure. Bakers weigh it, because a scooped cup can vary by 20%."},
+  milk:{over:"The batter's too thin. These tore when you flipped them.", under:"Thick and pasty. The batter needs more liquid.", note:"Crêpe batter should coat a spoon like heavy cream. Resting it for 30 minutes lets the flour absorb the milk."},
+  water:{over:"It's a sticky, gummy mess. Too much water.", under:"It's dry and crumbly. It needs more water.", note:"Bakers call the water-to-flour ratio hydration. About 65% makes a classic loaf."},
+  yeast:{over:"It rose too fast, collapsed and tastes boozy.", under:"It's a dense brick. It barely rose.", note:"Yeast eats sugars and burps carbon dioxide, which inflates the dough. More isn't better: too much makes it collapse and taste of alcohol."},
+  egg:{over:"Rubbery and eggy.", under:"It falls apart. It needs more egg to bind it.", note:"Egg proteins set when heated, binding everything together."},
+  dashi:{over:"It's mostly broth; I can barely taste the miso.", under:"It's so concentrated. It needs more broth.", note:"Dashi, made from kombu and bonito, is the base of Japanese cooking."},
+  yogurt:{over:"It's mostly plain yogurt. Where's the flavor?", under:"It's all garlic and cucumber. Where's the yogurt?", note:"Strained Greek yogurt keeps tzatziki thick."},
+  cucumber:{over:"It's watery. Too much cucumber.", under:"It needs more cucumber crunch.", note:"Salt the grated cucumber and squeeze it out, or the sauce turns watery."},
+  tofu:{over:"It's more tofu than soup.", under:"It needs some tofu.", note:"Silken tofu is added at the end so it doesn't break apart."},
+  peas:{over:"So many peas!", under:"It needs a little color: some peas.", note:"Frozen peas are frozen within hours of picking, so they're often sweeter than “fresh” ones."}
+};
+const BODY_LINES = {over:"There's so much {n} the other flavors disappear.", under:"There's barely any {n}! It's all seasoning.", overSoft:"Close, but a little too much {n}.", underSoft:"Close, but it needs a bit more {n}.", note:"The main ingredient is the canvas. Seasonings should support it, not bury it."};
+const listAnd = a => a.length < 2 ? a.join("") : a.slice(0,-1).join(", ") + " and " + a[a.length-1];
+const fmtAmt = (a, unit) => { const n = Number.isInteger(a) ? a : a.toFixed(2).replace(/0+$/,"").replace(/\.$/,""); const frac = {"0.25":"¼","0.5":"½","0.75":"¾","1.25":"1¼","1.5":"1½","1.75":"1¾","2.25":"2¼","2.5":"2½","2.75":"2¾"}[String(n)]; const sing = {cups:"cup", cloves:"clove", eggs:"egg", tomatoes:"tomato", avocados:"avocado", balls:"ball"}; return `${frac || n} ${a <= 1 && sing[unit] ? sing[unit] : unit}`; };
 STUDIO.cook = {
-  start(){ const d = S.rating.cook; this.list = shuffle(RECIPES.filter(x => x.t <= tier3(d) + 1)).slice(0,5); this.round = 0; this.total = 0; this.log = []; this.nDecoy = d < 3.5 ? 4 : d < 6.5 ? 5 : 6; this.newRound(); },
+  start(){
+    const d = S.rating.cook;
+    this.list = shuffle(RECIPES.filter(x => x.t <= tier3(d) + 1)).slice(0, 3);
+    this.round = 0; this.total = 0; this.log = []; this.nDecoy = d < 3.5 ? 4 : d < 6.5 ? 5 : 6;
+    this.namesHint = d < 4; this.newRound();
+  },
   newRound(){
-    const r = this.list[this.round]; this.r = r; this.picked = new Set(); this.locked = false;
-    this.pantry = shuffle([...r.core, ...shuffle(r.decoy.slice()).slice(0, this.nDecoy)]);
+    const r = this.list[this.round]; this.r = r; this.amt = AMT[r.n];
+    this.bowl = {}; this.tastings = 0; this.done = false; this.notes = [];
+    this.pantry = shuffle([...r.core, ...shuffle(r.decoy.filter(k => ING[k])).slice(0, this.nDecoy)]);
+    const look = {skin:pick(SKINS)[0], shape:pick(Object.keys(FACE_SHAPES)), hair:pick(["lob","bun","curls","pixie","ponytail","buzz","long","afro"]), hairC:pick(["black","darkbrown","brown","auburn","blonde","grey"]), eye:pick(["brown","darkbrown","hazel","green","blue"]), top:pick(["#3a8dff","#22b8a7","#ff7db8","#ffbf2e","#6f62ff"]), glasses:Math.random() < .25};
+    this.cust = {look, name:pick(NAMES)};
     stage.innerHTML = `<div class="studio-grid">
-      <div class="kitchen-stage"><div class="recipe-card"><span class="eyebrow">Recipe ${this.round+1} of ${this.list.length}</span><h3>${r.n}</h3><p>From ${r.from} · needs <b>${r.core.length}</b> ingredients</p></div>
-        <div class="mixbowl" id="ckBowl"></div></div>
-      <div class="ctl-col"><div class="opt-group"><h4>Pantry · tap to add or remove</h4><div class="pantry" id="ckPantry"></div></div>
-        <button class="btn btn-solid" type="button" id="ckGo">Taste test</button><div id="ckRes"></div></div></div>`;
-    $("ckPantry").addEventListener("click", e => { const b = e.target.closest(".ing"); if(!b || this.locked) return; const k = b.dataset.k; this.picked.has(k) ? this.picked.delete(k) : this.picked.add(k); sfx.click(); this.render(); });
-    $("ckGo").addEventListener("click", () => this.submit());
+      <div class="counter">
+        <div class="cust-row"><div class="cust" id="ckCust"></div><div class="bubble" id="ckSay"></div></div>
+        <div class="counter-top"><div class="mixbowl" id="ckBowl"></div></div>
+        <ol class="tastelog" id="ckLog"></ol>
+      </div>
+      <div class="ctl-col">
+        <div class="recipe-card"><span class="eyebrow">Order ${this.round+1} of ${this.list.length} · serves 4</span><h3>${r.n}</h3><p>From ${r.from}${this.namesHint ? ` · needs <b>${r.core.length}</b> ingredients` : ""}</p></div>
+        <div class="opt-group"><h4>Pantry · tap to add or remove</h4><div class="pantry" id="ckPantry"></div></div>
+        <div class="opt-group"><h4>In the pot · set the amounts</h4><div class="amts" id="ckAmts"></div></div>
+        <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckServe">Serve it</button><button class="btn btn-ghost" type="button" id="ckGive" hidden>Show me the recipe</button></div>
+        <div id="ckRes"></div></div></div>`;
+    $("ckPantry").addEventListener("click", e => { const b = e.target.closest(".ing"); if(!b || this.done) return; const k = b.dataset.k;
+      if(k in this.bowl) delete this.bowl[k]; else { const a = this.amt[k]; this.bowl[k] = a ? Math.max(a[2], Math.round(a[3]/2/a[2])*a[2]) : 1; } sfx.click(); this.render(); });
+    $("ckAmts").addEventListener("click", e => { const b = e.target.closest("[data-d]"); if(!b || this.done) return; const k = b.dataset.k, a = this.amt[k] || [1,"",1,4];
+      this.bowl[k] = clamp(+(this.bowl[k] + (+b.dataset.d)*a[2]).toFixed(2), a[2], a[3]); sfx.click(); this.render(); });
+    $("ckServe").addEventListener("click", () => this.serve());
+    $("ckGive").addEventListener("click", () => this.giveUp());
+    this.say(`Hi! Could I get the ${r.n.toLowerCase()}, please?`, "happy");
     setSide("Score", fmt(this.total));
     this.render();
   },
-  render(){
-    $("ckPantry").innerHTML = this.pantry.map(k => { const ok = this.r.core.includes(k), st = this.locked ? (this.picked.has(k) ? (ok ? "hit" : "wrong") : (ok ? "missed" : "")) : (this.picked.has(k) ? "in" : "");
-      return `<button type="button" class="ing ${st}" data-k="${k}" ${this.locked ? "disabled" : ""}>${ingIcon(k, 50)}<span>${ING[k][0]}</span></button>`; }).join("");
-    const pk = [...this.picked];
-    $("ckBowl").innerHTML = `<svg viewBox="0 0 240 170" width="100%" aria-label="Mixing bowl"><path d="M14 78 h212 a106 84 0 0 1 -212 0z" fill="${W_}" stroke="${INK}" stroke-width="3.5"/><path d="M30 104 h180" stroke="var(--c)" stroke-width="7"/><ellipse cx="120" cy="78" rx="106" ry="20" fill="#f6e6c9" stroke="${INK}" stroke-width="3.5"/>
-      ${pk.map((k,i) => { const a = (i/Math.max(1,pk.length))*Math.PI*2, x = 120 + Math.cos(a)*(pk.length > 1 ? 56 : 0) - 22, y = 50 + Math.sin(a)*12; return `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)})">${ingIcon(k, 44)}</g>`; }).join("")}</svg>
-      <p class="msg" style="text-align:center">${pk.length} of ${this.r.core.length} in the bowl</p>`;
+  say(text, mood){
+    $("ckCust").innerHTML = faceSVG({...this.cust.look, mood}, 150) + `<span class="pm-name">${this.cust.name}</span>`;
+    $("ckSay").innerHTML = text;
+    const c = $("ckCust"); c.classList.remove("talking"); void c.offsetWidth; c.classList.add("talking");
   },
-  submit(){
-    if(this.locked) return;
-    this.locked = true;
-    const r = this.r, hits = r.core.filter(k => this.picked.has(k)).length, wrong = [...this.picked].filter(k => !r.core.includes(k)).length;
-    const f = clamp((hits - .75*wrong) / r.core.length, 0, 1), pts = Math.round(1000*f);
-    this.total += pts; this.log.push({n:r.n, pts}); adapt("cook", f);
-    f >= .99 ? sfx.win() : f >= .6 ? sfx.good() : sfx.bad();
+  render(){
+    const keys = Object.keys(this.bowl);
+    $("ckPantry").innerHTML = this.pantry.map(k => `<button type="button" class="ing ${k in this.bowl ? "in" : ""}" data-k="${k}" ${this.done ? "disabled" : ""}>${ingIcon(k, 46)}<span>${ING[k][0]}</span></button>`).join("");
+    $("ckAmts").innerHTML = keys.length ? keys.map(k => { const a = this.amt[k] || [1, "portion", 1, 4];
+      return `<div class="amt">${ingIcon(k, 30)}<span class="amt-name">${ING[k][0]}</span><button type="button" class="step-btn" data-k="${k}" data-d="-1" aria-label="Less ${ING[k][0]}" ${this.done ? "disabled" : ""}>−</button><b>${fmtAmt(this.bowl[k], a[1])}</b><button type="button" class="step-btn" data-k="${k}" data-d="1" aria-label="More ${ING[k][0]}" ${this.done ? "disabled" : ""}>+</button></div>`; }).join("")
+      : `<p class="msg">Nothing yet. Tap ingredients in the pantry to add them.</p>`;
+    $("ckBowl").innerHTML = `<svg viewBox="0 0 240 170" width="100%" aria-label="Pot"><path d="M14 78 h212 a106 84 0 0 1 -212 0z" fill="${W_}" stroke="${INK}" stroke-width="3.5"/><path d="M30 104 h180" stroke="var(--c)" stroke-width="7"/><ellipse cx="120" cy="78" rx="106" ry="20" fill="#f6e6c9" stroke="${INK}" stroke-width="3.5"/>
+      ${keys.map((k,i) => { const a = (i/Math.max(1,keys.length))*Math.PI*2, x = 120 + Math.cos(a)*(keys.length > 1 ? 58 : 0) - 21, y = 48 + Math.sin(a)*12; return `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)})">${ingIcon(k, 42)}</g>`; }).join("")}</svg>`;
+    $("ckServe").disabled = this.done || !keys.length;
+    $("ckGive").hidden = this.done || this.tastings < 3;
+  },
+  issues(){
+    const r = this.r, out = [];
+    Object.keys(this.bowl).filter(k => !r.core.includes(k)).forEach(k => out.push({sev:9, line:`Wait, is that ${ING[k][0].toLowerCase()}? That doesn't belong in ${r.n.toLowerCase()}.`, note:"Classic recipes are defined as much by what they leave out as by what they include.", mood:"surprised"}));
+    const missing = r.core.filter(k => !(k in this.bowl));
+    if(missing.length && this.namesHint) out.push({sev:8, line: missing.length === 1 ? `Something's missing… I think it needs ${ING[missing[0]][0].toLowerCase()}.` : `It's missing a few things: ${listAnd(missing.map(k => ING[k][0].toLowerCase()))}.`, note:"Every ingredient in a classic recipe has a job: a base, salt, acid, fat, heat or freshness.", mood:"sad"});
+    else if(missing.length){ const seen = new Set(); missing.forEach(k => { const dim = ING_TASTE[k], custom = ING_LINES[k];
+      const line = dim ? TASTE[dim].under[0] : custom ? custom.under : BODY_LINES.under.replace("{n}", ING[k][0].toLowerCase());
+      if(!seen.has(line)){ seen.add(line); out.push({sev:8, line, note: dim ? TASTE[dim].note : custom ? custom.note : BODY_LINES.note, mood:"sad"}); } }); }
+    r.core.forEach(k => {
+      const [t,, step] = this.amt[k], name = ING[k][0].toLowerCase(), dim = ING_TASTE[k], custom = ING_LINES[k];
+      if(!(k in this.bowl)) return;
+      const a = this.bowl[k], steps = (a - t)/step, tol = t/step >= 4 ? 1 : 0;
+      if(Math.abs(steps) <= tol) return;
+      const big = Math.abs(steps) > tol + 1, over = steps > 0;
+      let line, note;
+      if(dim){ line = TASTE[dim][over ? "over" : "under"][big ? 0 : 1]; note = TASTE[dim].note; }
+      else if(custom){ line = (big ? "" : "Almost. ") + custom[over ? "over" : "under"]; note = custom.note; }
+      else { line = BODY_LINES[(over ? "over" : "under") + (big ? "" : "Soft")].replace("{n}", name); note = BODY_LINES.note; }
+      out.push({sev: big ? 6 : 3, line, note, mood: big ? (dim === "heat" && over ? "surprised" : "angry") : "tense"});
+    });
+    return out.sort((a,b) => b.sev - a.sev);
+  },
+  serve(){
+    if(this.done) return;
+    this.tastings++;
+    const iss = this.issues();
+    if(!iss.length) return this.success();
+    const top = iss.slice(0, 3);
+    sfx.bad();
+    this.say(top.map(i => `“${i.line}”`).join(" "), top[0].mood);
+    $("ckLog").insertAdjacentHTML("afterbegin", `<li><span class="tnum">Taste ${this.tastings}</span><div><b>${top.map(i => i.line).join(" ")}</b><p>Chef's note: ${top[0].note}</p><small>${iss.length > 3 ? `…and ${iss.length - 3} more thing${iss.length - 3 === 1 ? "" : "s"} to fix.` : iss.length === 1 ? "One thing to fix." : `${iss.length} things to fix.`}</small></div></li>`);
     this.render();
-    const notes = this.pantry.filter(k => this.picked.has(k) || r.core.includes(k)).map(k => `<li class="${r.core.includes(k) ? (this.picked.has(k) ? "ok" : "miss") : "no"}">${ingIcon(k, 28)}<div><b>${ING[k][0]}</b> ${r.core.includes(k) ? (this.picked.has(k) ? "" : "· you missed this") : "· doesn't belong"}<p>Origin: ${ING[k][3]}</p></div></li>`).join("");
+  },
+  success(){
+    this.done = true;
+    const pts = this.tastings <= 3 ? 1000 : Math.max(300, 1000 - 100*(this.tastings - 3));
+    this.finishRound(pts, `Mmm! That's perfect. ${this.tastings === 1 ? "First try?! You're a natural." : `Worth the ${this.tastings} tries!`}`, "happy");
+  },
+  giveUp(){
+    this.done = true;
+    this.finishRound(100, "That's okay. Here's how the chef makes it.", "neutral");
+  },
+  finishRound(pts, line, mood){
+    const r = this.r;
+    this.total += pts; this.log.push({n:r.n, pts, t:this.tastings}); adapt("cook", pts/1000);
+    pts >= 700 ? sfx.win() : sfx.good();
+    this.say(line, mood);
+    this.render();
     const last = this.round === this.list.length - 1;
-    $("ckGo").hidden = true;
-    $("ckRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? "Chef's kiss" : f >= .6 ? "Tasty, mostly" : "Something's off"}</span><span class="pts">+${fmt(pts)}</span><p>${r.f}</p><ul class="ingnotes">${notes}</ul>
-      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckNext">${last ? "See results" : "Next recipe"}</button></div></div>`;
+    $("ckServe").hidden = true; $("ckGive").hidden = true;
+    $("ckRes").innerHTML = `<div class="reveal"><span class="eyebrow">${pts >= 700 ? "Five stars from the customer" : "Recipe card"}</span><span class="pts">+${fmt(pts)}</span><p>${r.f}</p>
+      <ul class="ingnotes">${r.core.map(k => `<li class="ok">${ingIcon(k, 28)}<div><b>${fmtAmt(this.amt[k][0], this.amt[k][1])} ${ING[k][0].toLowerCase()}</b><p>Origin: ${ING[k][3]}</p></div></li>`).join("")}</ul>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckNext">${last ? "See results" : "Next order"}</button></div></div>`;
     $("ckNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
     setSide("Score", fmt(this.total));
   },
   finish(){
-    const max = this.list.length*1000, f = this.total/max, stars = f >= .9 ? 3 : f >= .6 ? 2 : 1;
-    endSession({title: stars === 3 ? "Head chef" : stars === 2 ? "Sous-chef" : "Kitchen apprentice", stars, xp:20+15*stars,
-      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}</p><ul class="roundlog">${this.log.map(l => `<li><span>${l.n}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+    const max = this.list.length*1000, f = this.total/max, stars = f >= .8 ? 3 : f >= .5 ? 2 : 1;
+    endSession({title: stars === 3 ? "Head chef" : stars === 2 ? "Sous-chef" : "Kitchen apprentice", stars, xp:25+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}. Real chefs taste constantly; adjusting as you go is the whole skill.</p><ul class="roundlog">${this.log.map(l => `<li><span>${l.n} · ${l.t} tasting${l.t === 1 ? "" : "s"}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
       actions:[["Cook again", () => startRoom("cook","studio"), true], ["Lobby", goHub]]});
   }
 };
+
 GEN.cook = d => {
   if(Math.random() < .5){
     const amer = ["avocado","chili","tomato","potato","peanut"], other = Object.keys(ING).filter(k => !amer.includes(k) && !["salt","water"].includes(k));
