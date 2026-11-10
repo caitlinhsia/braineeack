@@ -1,6 +1,6 @@
 # Synapse Arcade
 
-An adaptive brain-training game that runs in the browser. Fifteen rooms, each tracking its own difficulty (1–10) and tuning itself so you succeed about 75% of the time.
+An adaptive brain-training game that runs in the browser. Seventeen rooms, each tracking its own difficulty (1–10) and tuning itself so you succeed about 75% of the time.
 
 | Wing | Room | What you learn |
 | --- | --- | --- |
@@ -11,6 +11,8 @@ An adaptive brain-training game that runs in the browser. Fifteen rooms, each tr
 | Explorers | **Then & Now**: slot events into a growing timeline | History |
 | Studios | **Test Kitchen**: fill the bowl with a recipe's real ingredients | Food culture, where ingredients come from |
 | Studios | **Atelier**: design a dress to a client brief | Color theory, proportion, dress codes |
+| Studios | **Hair Salon**: cuts, bangs and toners for each face shape and color problem | Face shapes, color correction |
+| Studios | **Makeup Studio**: match foundation undertones and pick colors for each eye color and occasion | Color theory, skin undertones |
 | Studios | **Sewing Room**: lay out pattern pieces, then sew by tracing each seam | Spatial planning, fine motor control |
 | Studios | **Floorplan Lab**: draw a home that meets a client's rules | Spatial reasoning, area, building basics |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
@@ -18,6 +20,8 @@ An adaptive brain-training game that runs in the browser. Fifteen rooms, each tr
 | Brain gym | Echo Grid, Quick Sums, Unscramble, Switchboard | Memory, mental math, vocabulary, logic |
 
 There's also a daily **World Tour** event (the same five map rounds for every player, with a shareable score) and a **Daily Mix** of eight interleaved questions.
+
+Double-click any word in the app for a definition (built-in glossary, with a dictionary lookup as a fallback). Map rounds show country names as you zoom.
 
 ## Project layout
 

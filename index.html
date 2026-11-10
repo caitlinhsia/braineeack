@@ -20,7 +20,7 @@
   --bg:#fbf2e2; --ink:#2b1d14; --text:#2b1d14; --muted:#7b6553; --panel:#fffdf8; --panel2:#f6e6c9; --line:#e5d2b2; --skin:#d9c3ea;
   --mem:#ff6b57; --math:#ffbf2e; --word:#22b8a7; --logic:#6f62ff;
   --atelier:#ff7db8; --sew:#78c552; --floor:#3a8dff; --peace:#ff9a1f; --kitchen:#e85d3a; --thread:#b97cf6; --mix:#ffd166;
-  --flag:#e63946; --land-c:#2a9d8f; --cook:#f4a259; --time:#8d6e63; --lab:#00b4d8;
+  --flag:#e63946; --land-c:#2a9d8f; --cook:#f4a259; --time:#577590; --lab:#00b4d8; --makeup:#ff5d8f; --hair:#9c6644;
   --good:#22b26b; --bad:#ef476f; --scrim:rgb(43 29 20 / .45);
   --sea:#a9dcef; --land:#f7e4bd;
   --shadow:0 5px 0 var(--ink); --shadow-sm:0 3px 0 var(--ink); --bw:2.5px;
@@ -562,6 +562,104 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .msg.bad{color:#c81d4a}
 .explain.ok b{color:#14864d}.explain.no b{color:#c81d4a}
 .timebar.low i{background:var(--bad)}
+
+/* ===== home screen ===== */
+.home-top{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:22px;align-items:start}
+.welcome{display:flex;flex-direction:column;gap:12px}
+.welcome h1{font-size:clamp(34px,4.6vw,50px);line-height:1.04}
+.welcome h1 span{position:relative;z-index:0;white-space:nowrap}
+.welcome h1 span::after{content:"";position:absolute;left:-4px;right:-4px;bottom:.06em;height:.34em;background:var(--math);border-radius:6px;z-index:-1;transform:rotate(-1deg)}
+.welcome > p{color:var(--muted);font-size:16px;max-width:52ch}
+.player-card{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--panel);border:var(--bw) solid var(--ink);border-radius:20px;padding:14px 18px;box-shadow:var(--shadow)}
+.player-card > div:nth-child(2){display:flex;flex-direction:column;flex:1;min-width:150px}
+.player-card > div:nth-child(2) b{font-family:var(--display);font-size:20px}
+.player-card span{font-size:12px;color:var(--muted)}
+.ring{--p:0;width:58px;height:58px;border-radius:50%;background:conic-gradient(var(--sew) calc(var(--p)*1%), var(--panel2) 0);display:grid;place-items:center;border:2.5px solid var(--ink)}
+.ring b{width:42px;height:42px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-family:var(--display);font-size:20px;border:2px solid var(--ink)}
+.pc-stat{display:flex;flex-direction:column;align-items:center;padding:0 6px}
+.pc-stat b{font-family:var(--display);font-size:22px}
+.sugg-head{font-size:18px;margin-top:4px}
+.suggest{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sugg{display:flex;flex-direction:column;align-items:stretch;text-align:left;border:2px solid var(--ink);border-radius:16px;background:var(--panel);box-shadow:0 3px 0 var(--ink);overflow:hidden;transition:transform .12s}
+.sugg:hover{transform:translateY(-2px)}
+.sugg-art{background:var(--c);height:70px;display:grid;place-items:center;border-bottom:2px solid var(--ink)}
+.sugg-art svg{height:60px;width:auto}
+.sugg > span:last-child{padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.sugg b{font-size:14px}.sugg small{font-size:11px;color:var(--muted);line-height:1.3}
+.today{display:flex;flex-direction:column;gap:14px}
+.today .tourcard{padding:18px}
+.today .tour-main{flex-basis:100%}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 0;border-bottom:2px dashed var(--line)}
+.tabs button{padding:9px 16px;border-radius:99px;border:2px solid var(--ink);background:var(--panel);font-weight:700;font-size:14px;box-shadow:0 2px 0 var(--ink)}
+.tabs button.sel{background:var(--ink);color:var(--panel)}
+#roomGrid{display:flex;flex-direction:column;gap:28px}
+.tgroup{display:flex;flex-direction:column;gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px}
+.rtile{display:flex;flex-direction:column;text-align:left;border:var(--bw) solid var(--ink);border-radius:20px;background:var(--panel);box-shadow:var(--shadow-sm);overflow:hidden;transition:transform .14s, box-shadow .14s}
+.rtile:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:0 6px 0 var(--ink)}
+.rtile-art{background:var(--c);height:104px;display:grid;place-items:center;border-bottom:var(--bw) solid var(--ink);position:relative}
+.rtile-art::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgb(255 255 255 / .35) 2px, transparent 2.5px);background-size:16px 16px}
+.rtile-art svg{position:relative;height:88px;width:auto}
+.rtile-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px}
+.rtile-body b{font-family:var(--display);font-size:19px;line-height:1.1}
+.rtile-body .eyebrow{font-size:10px}
+.pill{align-self:flex-start;margin-top:4px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;border:1.5px solid var(--ink);background:var(--panel2)}
+.sheet-art{background:var(--c);border:2px solid var(--ink);border-radius:16px;height:130px;display:grid;place-items:center}
+.sheet-art svg{height:112px;width:auto}
+.tipnote{font-size:13px;text-align:left;background:var(--panel2);border:2px solid var(--ink);border-radius:12px;padding:10px 12px}
+.modes{display:flex;flex-direction:column;gap:8px}
+.modebtn{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;padding:12px 14px;border:2px solid var(--ink);border-radius:14px;background:var(--panel);box-shadow:0 3px 0 var(--ink)}
+.modebtn b{font-size:15px}.modebtn span{font-size:12px;color:var(--muted)}
+.modebtn.primary{background:var(--c)}.modebtn.primary span{color:var(--ink)}
+.modebtn:hover{transform:translateY(-1px)}
+.gloss{display:flex;flex-direction:column;gap:8px;margin:10px 0 0;max-height:360px;overflow:auto}
+.gloss dt{font-weight:700;font-size:13px;text-transform:capitalize}.gloss dd{margin:0;font-size:12px;color:var(--muted)}
+@media (max-width:860px){ .home-top{grid-template-columns:1fr} }
+@media (max-width:520px){ .suggest{grid-template-columns:1fr} .sugg{flex-direction:row} .sugg-art{height:auto;width:70px;border-bottom:0;border-right:2px solid var(--ink)} .tiles{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+/* ===== definitions ===== */
+.defpop{position:fixed;z-index:80;width:min(320px,calc(100vw - 16px));background:var(--panel);border:var(--bw) solid var(--ink);border-radius:16px;box-shadow:0 5px 0 var(--ink);padding:12px 14px;display:flex;flex-direction:column;gap:6px;animation:rise .2s ease-out}
+.defhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.defhead b{font-family:var(--display);font-size:20px;text-transform:capitalize}
+.defx{width:28px;height:28px;border-radius:8px;border:2px solid var(--ink);font-size:18px;line-height:1;background:var(--panel2)}
+.defpop p{font-size:14px}.defpop small{font-size:11px;color:var(--muted)}.defpop a{color:var(--ink)}
+
+/* ===== map labels ===== */
+.clabel{fill:var(--ink);stroke:#fffaf0;paint-order:stroke;font-family:var(--body);font-weight:700;text-anchor:middle;pointer-events:none;opacity:.85}
+.map-tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--panel);font-size:12px;font-weight:700;padding:3px 9px;border-radius:8px;white-space:nowrap}
+.land path:hover{fill:#fde9b8}
+
+/* ===== atelier / salon / makeup ===== */
+.figure{background:radial-gradient(ellipse at 50% 18%, #fffaf0 0, var(--panel2) 70%)}
+.mirror{display:flex;flex-direction:column;align-items:center;gap:0}
+.mirror-frame{background:radial-gradient(circle at 50% 40%, #fffdf8, #e8f4fb);border:6px solid #e9b872;outline:2.5px solid var(--ink);border-radius:50% 50% 46% 46%/42% 42% 58% 58%;padding:18px 18px 0;display:flex;justify-content:center;overflow:hidden;box-shadow:0 6px 0 var(--ink)}
+.mirror-frame svg{display:block;max-width:100%;height:auto}
+.mirror-frame.small{border-width:4px;padding:10px 10px 0}
+.vanity{width:100%;max-width:330px;margin-top:-4px;height:58px;background:#c8915a;border:2.5px solid var(--ink);border-radius:10px;display:flex;align-items:flex-end;gap:8px;padding:0 14px 8px;position:relative}
+.bottle{width:16px;border:2px solid var(--ink);border-radius:5px 5px 3px 3px}
+.mirror-name{margin-left:auto;font-family:var(--display);font-weight:700;font-size:18px;color:var(--panel);text-shadow:0 2px 0 var(--ink)}
+.swgrid{display:flex;flex-wrap:wrap;gap:6px}
+.fswatch{width:52px;height:40px;border-radius:10px;border:2px solid var(--ink);display:grid;place-items:end center;padding-bottom:2px;box-shadow:0 2px 0 var(--ink)}
+.fswatch span{font-family:var(--mono);font-size:10px;background:rgb(255 253 248 / .85);padding:0 4px;border-radius:4px}
+.fswatch.sel,.dot-sw.sel{outline:3px solid var(--ink);outline-offset:2px}
+.dot-sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink)}
+.dot-sw.lip{width:auto;min-width:34px;height:30px;border-radius:99px;padding:0 10px;display:grid;place-items:center}
+.dot-sw.lip span{font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 1px rgb(0 0 0 / .5)}
+.cdot{display:inline-block;width:12px;height:12px;border-radius:50%;border:1.5px solid var(--ink);margin-right:6px;vertical-align:-1px}
+.salon{display:flex;flex-direction:column;gap:10px;align-items:center}
+.salon-pair{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;justify-content:center}
+.salon-pair figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;font-weight:700;font-size:13px}
+.toner-wheel{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);background:var(--panel2);border:2px solid var(--ink);border-radius:12px;padding:6px 10px}
+
+/* ===== peacemaker stage ===== */
+.pm-stage{position:relative;border:var(--bw) solid var(--ink);border-radius:18px;overflow:hidden;box-shadow:0 4px 0 var(--ink)}
+.pm-set{display:block;width:100%;height:auto}
+.pm-cast{position:absolute;inset:auto 0 0 0;display:flex;justify-content:space-between;padding:0 6%;pointer-events:none}
+.pm-actor{width:38%;position:relative;transform-origin:bottom center}
+.pm-actor svg{width:100%;height:auto;display:block}
+.pm-actor.talking{animation:talk .45s ease-in-out}
+@keyframes talk{30%{transform:translateY(-5px) rotate(-1.5deg)}60%{transform:translateY(-2px) rotate(1deg)}}
+.pm-name{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);background:var(--panel);border:2px solid var(--ink);border-radius:99px;padding:1px 10px;font-weight:700;font-size:12px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -579,29 +677,24 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
   </header>
 
   <main id="hub" class="wrap">
-    <section class="hero">
-      <h1>Fifteen rooms that <span>adapt to how you think.</span></h1>
-      <p>Design a gown, plan a house, guess where a dish was born, talk two people down from a fight. Every room tracks your skill and tunes its difficulty so you succeed about three times out of four. Learning researchers call that level of challenge the sweet spot.</p>
-    </section>
-    <section class="tourcard" id="tourcard"></section>
-    <section class="mixcard" id="mixcard"></section>
-    <section class="wing">
-      <div class="wing-head"><h2>Studios</h2><p>Creative projects with real-world skills inside them.</p></div>
-      <div class="rooms" id="studioRooms"></div>
-    </section>
-    <section class="wing">
-      <div class="wing-head"><h2>Explorers</h2><p>Geography and history through food, fashion, landmarks, flags and time.</p></div>
-      <div class="rooms" id="exploreRooms"></div>
-    </section>
-    <section class="wing">
-      <div class="wing-head"><h2>Brain gym</h2><p>Science, memory, numbers, words and logic.</p></div>
-      <div class="rooms" id="coreRooms"></div>
-    </section>
-    <section class="profile">
-      <div>
-        <h2>Skill profile</h2>
-        <div class="bars" id="bars"></div>
+    <section class="home-top">
+      <div class="welcome">
+        <span class="eyebrow" id="greet">Hello</span>
+        <h1>What will you <span>discover</span> today?</h1>
+        <p>Seventeen game rooms that adapt to how you play. Double-click any word in the app to see what it means.</p>
+        <div class="player-card" id="playerCard"></div>
+        <h3 class="sugg-head">Picked for you</h3>
+        <div class="suggest" id="suggest"></div>
       </div>
+      <div class="today">
+        <section class="tourcard" id="tourcard"></section>
+        <section class="mixcard" id="mixcard"></section>
+      </div>
+    </section>
+    <nav class="tabs" id="tabs" aria-label="Room categories"><button type="button" data-tab="all">All rooms</button><button type="button" data-tab="studio">Studios</button><button type="button" data-tab="explore">Explorers</button><button type="button" data-tab="core">Brain gym</button><button type="button" data-tab="progress">My progress</button></nav>
+    <div id="roomGrid"></div>
+    <section id="progressView" class="profile" hidden>
+      <div><h2>Skill profile</h2><div class="bars" id="bars"></div></div>
       <div class="advice">
         <p id="advice"></p>
         <dl class="stats">
@@ -623,6 +716,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
             <li><b>Real conflict research.</b> Peacemaker draws on Gottman's marriage studies, Fisher &amp; Ury's <i>Getting to Yes</i>, Rosenberg's Nonviolent Communication and Lieberman's affect-labeling experiments.</li>
           </ul>
         </details>
+        <details class="science"><summary>Glossary</summary><dl class="gloss" id="glossList"></dl></details>
       </div>
     </section>
   </main>
@@ -694,6 +788,14 @@ const ROOMS = {
     blurb:"Inventions, empires and firsts. Slot each new card into the right place on a growing timeline before you run out of lives.",
     tip:"<b>Tip:</b> anchor on dates you know for sure, like 1492, 1789 and 1969, and reason outward from them.",
     modes:[["studio","Build a timeline"],["sprint","Which came first? · 60s"],["practice","Quiz"]]},
+  makeup:{name:"Makeup Studio", skill:"Color & beauty", color:"var(--makeup)", wing:"studio",
+    blurb:"Do a client's makeup for their big day: match foundation to their undertone, make their eyes pop with color theory and suit the occasion.",
+    tip:"<b>Tip:</b> opposites on the color wheel make each other glow. Blue eyes love copper; brown eyes love navy and purple.",
+    modes:[["studio","Open the studio"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]]},
+  hair:{name:"Hair Salon", skill:"Face shape & color", color:"var(--hair)", wing:"studio",
+    blurb:"Choose cuts, bangs and toners that flatter each client's face shape and fix their color, with before-and-after mirrors.",
+    tip:"<b>Tip:</b> work out the face shape first. Then remember toners cancel their opposite: violet fixes yellow, blue fixes orange.",
+    modes:[["studio","Open the salon"],["sprint","Salon sprint · 60s"],["practice","Quiz"]]},
   cook:{name:"Test Kitchen", skill:"Food & culture", color:"var(--cook)", wing:"studio",
     blurb:"Fill the bowl with the right ingredients for a classic recipe, and find out where each one first grew.",
     tip:"<b>Tip:</b> watch for decoys that sound reasonable. Classic recipes are often simpler than you'd think.",
@@ -724,8 +826,8 @@ const ROOMS = {
   mix:{name:"Daily Mix", skill:"Interleaved practice", color:"var(--mix)", wing:"none",
     blurb:"Eight questions from across the arcade, mixed together.", tip:"<b>Why mix?</b> Switching topics forces your brain to pick the right strategy each time, and that is what makes it stick.", modes:[]}
 };
-const STUDIO_KEYS = ["atelier","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
-const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab"];
+const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
+const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab","makeup","hair"];
 const RANKS = [[1,"Novice"],[3,"Apprentice"],[6,"Thinker"],[10,"Strategist"],[15,"Sage"],[22,"Mastermind"]];
 const MODE_NAMES = {studio:"Studio", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
 
@@ -905,6 +1007,8 @@ const ART = {
   time: svgA(`<path d="M10 70 H150" stroke-width="4"/>${[24,62,100,138].map((x,i) => `<circle cx="${x}" cy="70" r="7" fill="${["#ffbf2e","#ef476f","#22b8a7","#6f62ff"][i]}"/><rect x="${x-16}" y="${i%2 ? 82 : 22}" width="32" height="26" rx="5"/><path d="M${x} ${i%2 ? 82 : 48} V${i%2 ? 77 : 63}" fill="none"/>`).join("")}`),
   cook: svgA(`<path d="M26 54 h108 v30 a20 20 0 0 1 -20 20 h-68 a20 20 0 0 1 -20 -20z" fill="#e85d3a"/><path d="M14 62 h12 M134 62 h12" stroke-width="7"/><ellipse cx="80" cy="54" rx="54" ry="10"/><path d="M60 40 q-6 -8 0 -16 M80 36 q-6 -8 0 -16 M100 40 q-6 -8 0 -16" fill="none"/><path d="M118 10 L100 50" stroke-width="5"/><ellipse cx="122" cy="10" rx="8" ry="5" transform="rotate(-60 122 10)" fill="#c8915a"/><circle cx="56" cy="52" r="5" fill="#e63946"/><circle cx="72" cy="50" r="4" fill="#78c552"/><circle cx="96" cy="52" r="5" fill="#ffbf2e"/>`),
   lab: svgA(`<path d="M52 10 h28 M58 10 v28 l-26 50 a8 8 0 0 0 7 12 h54 a8 8 0 0 0 7 -12 l-26 -50 v-28"/><path d="M40 74 h60 l10 18 a6 6 0 0 1 -5 8 h-70 a6 6 0 0 1 -5 -8z" fill="#22b8a7" stroke="none"/><path d="M58 38 l-26 50 a8 8 0 0 0 7 12 h54 a8 8 0 0 0 7 -12 l-26 -50" fill="none"/><circle cx="60" cy="86" r="4"/><circle cx="76" cy="80" r="3"/><circle cx="120" cy="40" r="16" fill="#ff6b57" opacity=".85"/><circle cx="136" cy="40" r="16" fill="#3a8dff" opacity=".85"/><circle cx="128" cy="54" r="16" fill="#78c552" opacity=".85"/>`),
+  makeup: svgA(`<circle cx="56" cy="58" r="38"/><circle cx="56" cy="58" r="28" fill="#a9dcef"/><path d="M42 44 q8 -6 16 0" fill="none" stroke="${W_}" stroke-width="4"/><rect x="104" y="44" width="24" height="56" rx="4" fill="#2b1d14"/><rect x="106" y="22" width="20" height="24" rx="3" fill="#ffbf2e"/><path d="M108 22 L116 4 L124 22Z" fill="#e63946"/><path d="M138 100 L150 30" stroke-width="5"/><path d="M146 36 q6 -18 12 -30 q2 16 -4 32z" fill="#ff7db8"/>`),
+  hair: svgA(`<circle cx="44" cy="80" r="12" fill="none" stroke-width="4"/><circle cx="80" cy="80" r="12" fill="none" stroke-width="4"/><path d="M50 70 L98 14 M74 70 L40 18" stroke-width="5"/><path d="M98 14 L104 8 M40 18 L34 12" stroke-width="5"/><rect x="104" y="58" width="48" height="12" rx="4" fill="#ffbf2e"/>${[0,1,2,3,4,5,6,7].map(i=>`<path d="M${108+i*5.6} 70 v14" stroke-width="2.5"/>`).join("")}<path d="M112 26 h30 a8 8 0 0 1 0 16 h-30z" fill="#ff7db8"/><path d="M118 42 v12" stroke-width="5"/>`),
   memory: svgA([0,1,2].map(r => [0,1,2].map(c => `<rect x="${38+c*30}" y="${8+r*32}" width="24" height="26" rx="6" fill="${[1,5,6].includes(r*3+c) ? "#ffbf2e" : W_}"/>`).join("")).join("") + `<path d="M132 20 l6 -6 M136 30 h9 M132 40 l6 6" fill="none"/>`),
   math: svgA(`<rect x="30" y="10" width="100" height="90" rx="14"/><rect x="40" y="20" width="80" height="26" rx="6" fill="#a9dcef"/>
     <text x="80" y="40" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="20" fill="${INK}" stroke="none">7×8=?</text>
@@ -955,30 +1059,6 @@ function renderTourCard(){
   if(rec) $("tourShare").addEventListener("click", e => copyText(shareText(t, rec), e.currentTarget));
 }
 setInterval(() => { if(!$("hub").hidden) renderTourCard(); }, 60000);
-function renderHub(){
-  renderTop();
-  renderTourCard();
-  const done = S.mixDay === today();
-  $("mixcard").innerHTML = `<div><div class="mixdots" aria-hidden="true">${MIX_ROOMS.map(k=>`<i style="background:${ROOMS[k].color}"></i>`).join("")}</div>
-    <h3>Daily Mix${done ? " · done today" : ""}</h3><p>Eight questions from across the arcade, shuffled together. Mixing topics feels harder than practicing one at a time, and that effort is what makes learning last.</p></div>
-    <button class="btn btn-solid" type="button" data-room="mix" data-mode="practice">${done ? "Play again" : "Start today's mix"}</button>`;
-  $("studioRooms").innerHTML = STUDIO_KEYS.map(roomCard).join("");
-  $("exploreRooms").innerHTML = EXPLORE_KEYS.map(roomCard).join("");
-  $("coreRooms").innerHTML = CORE_KEYS.map(roomCard).join("");
-  const max = Math.max(1, ...ALL.map(k=>S.skill[k]));
-  $("bars").innerHTML = ALL.map(k => `<div class="bar-row" style="--c:${ROOMS[k].color}"><span>${ROOMS[k].skill}</span><span class="bar"><i style="width:${(S.skill[k]/max*100).toFixed(1)}%"></i></span><span class="num">${fmt(S.skill[k])} XP</span><span class="num" title="Difficulty">D ${S.rating[k].toFixed(1)}</span></div>`).join("");
-  const total = ALL.reduce((s,k)=>s+S.skill[k],0);
-  const due = S.review.filter(r => r.due <= S.played).length;
-  if(!total) $("advice").innerHTML = "Start anywhere. A good first loop is one Studio, one Core skill, then the Daily Mix. Your profile fills in as you play.";
-  else {
-    const weak = ALL.slice().sort((a,b)=>S.skill[a]-S.skill[b])[0];
-    const strong = ALL.slice().sort((a,b)=>S.skill[b]-S.skill[a])[0];
-    $("advice").innerHTML = `Your strongest area is <b>${ROOMS[strong].skill}</b>. Your brain gains most from variety, so try <b>${ROOMS[weak].name}</b> next.` + (due ? ` You also have <b>${due} word${due===1?"":"s"}</b> ready for review in Unscramble.` : "");
-  }
-  $("statPlayed").textContent = fmt(S.played);
-  $("statStars").textContent = fmt(ALL.reduce((s,k)=>s+S.stars[k],0) + S.mixStars);
-  $("statReview").textContent = S.review.length;
-}
 $("hub").addEventListener("click", e => { const b = e.target.closest("button[data-room]"); if(b) startRoom(b.dataset.room, b.dataset.mode); });
 $("soundBtn").addEventListener("click", () => { S.sound = !S.sound; save(); renderTop(); if(S.sound) sfx.click(); });
 
@@ -1447,14 +1527,36 @@ function pickItems(list, d, n){
 }
 
 /* ---------- reusable world map ---------- */
+let MAP_LABELS = null;
+function mapLabels(){
+  if(MAP_LABELS) return MAP_LABELS;
+  MAP_LABELS = Object.entries(MAP_PATHS).map(([n, d]) => {
+    let best = null;
+    for(const sp of d.split("M").filter(Boolean)){
+      const nums = sp.replace(/[LZ]/g, " ").trim().split(/\s+/).map(Number);
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for(let i=0;i+1<nums.length;i+=2){ x0 = Math.min(x0, nums[i]); x1 = Math.max(x1, nums[i]); y0 = Math.min(y0, nums[i+1]); y1 = Math.max(y1, nums[i+1]); }
+      const a = (x1-x0)*(y1-y0);
+      if(!best || a > best.a) best = {a, x:(x0+x1)/2, y:(y0+y1)/2, w:x1-x0};
+    }
+    return {n, ...best};
+  });
+  return MAP_LABELS;
+}
 function WorldMap(el, onPick){
   el.innerHTML = `<div class="map-box"><svg viewBox="0 0 1000 ${MAP_H}" role="img" aria-label="World map. Tap to place your guess.">
       <rect width="1000" height="${MAP_H}" fill="var(--sea)"/>
       <g class="land">${Object.entries(MAP_PATHS).map(([n,d]) => `<path d="${d}" data-n="${n}"/>`).join("")}</g>
-      <g class="marks"></g></svg>
+      <g class="clabels"></g><g class="marks"></g></svg>
     <div class="map-tools"><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="out" aria-label="Zoom out">−</button><button type="button" data-z="reset" aria-label="Reset view">⟲</button></div>
-    <span class="map-hint">Drag to pan · scroll or +/− to zoom</span></div>`;
-  const svg = el.querySelector("svg"), marks = el.querySelector(".marks"), ratio = MAP_H/1000;
+    <span class="map-hint">Drag to pan · scroll or +/− to zoom</span><div class="map-tip" hidden></div></div>`;
+  const svg = el.querySelector("svg"), marks = el.querySelector(".marks"), ratio = MAP_H/1000, labG = el.querySelector(".clabels"), tip = el.querySelector(".map-tip");
+  function drawLabels(){
+    const px = (svg.getBoundingClientRect().width || 600) / v.w, fs = 10.5/px;
+    labG.innerHTML = mapLabels().filter(l => l.w*px > cname(l.n).length*5.4 || (v.w < 260 && l.w*px > 14)).map(l => `<text x="${l.x.toFixed(1)}" y="${(l.y + fs*.35).toFixed(1)}" font-size="${fs.toFixed(2)}" stroke-width="${(2.8/px).toFixed(2)}" class="clabel">${cname(l.n)}</text>`).join("");
+  }
+  svg.addEventListener("pointermove", e => { if(e.pointerType !== "mouse" || start) { tip.hidden = true; return; } const pth = e.target.closest && e.target.closest(".land path"); if(!pth){ tip.hidden = true; return; } const r = el.querySelector(".map-box").getBoundingClientRect(); tip.textContent = cname(pth.dataset.n); tip.hidden = false; tip.style.left = (e.clientX - r.left + 14) + "px"; tip.style.top = (e.clientY - r.top + 10) + "px"; });
+  svg.addEventListener("pointerleave", () => { tip.hidden = true; });
   const v = {x:0, y:0, w:1000};
   let guess = null, answer = null, start = null;
   const apply = () => { v.w = clamp(v.w, 110, 1000); const h = v.w*ratio; v.x = clamp(v.x, 0, 1000-v.w); v.y = clamp(v.y, 0, MAP_H-h); svg.setAttribute("viewBox", `${v.x} ${v.y} ${v.w} ${h}`); draw(); };
@@ -1462,6 +1564,7 @@ function WorldMap(el, onPick){
   const toSvg = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
   const pin = (x, y, color, r) => `<g><circle cx="${x}" cy="${y}" r="${r*1.9}" fill="${color}" opacity=".25"/><circle cx="${x}" cy="${y}" r="${r}" fill="${color}" stroke="var(--ink)" stroke-width="${r*.35}"/></g>`;
   function draw(){
+    drawLabels();
     const r = v.w/1000*7;
     let h = "";
     if(guess && answer) h += `<line x1="${guess[0]}" y1="${guess[1]}" x2="${answer[0]}" y2="${answer[1]}" stroke="var(--text)" stroke-width="${r*.4}" stroke-dasharray="${r} ${r*.8}"/>`;
@@ -2461,6 +2564,587 @@ const LAB_BANK = [
 ];
 GEN.lab = d => fromBank(LAB_BANK, d);
 
+/* =========================================================
+   FACES: one detailed portrait renderer shared by the Hair Salon,
+   Makeup Studio, Peacemaker cast and the Atelier figure
+   ========================================================= */
+const SKINS = [["#f9dcc8","porcelain"],["#f1c6a6","light"],["#e2aa83","light-medium"],["#c98e62","medium"],["#a86b43","tan"],["#8a5233","deep"],["#6b3c22","rich"],["#4b2818","ebony"]];
+const HAIRC = {black:"#1f1a17", darkbrown:"#4a2c1d", brown:"#7a4a2a", auburn:"#a0451f", copper:"#c8641e", blonde:"#e8c77b", platinum:"#efe6d2", ash:"#a89c8c", grey:"#b7b2ad", pink:"#ff8fc2", blue:"#4f7cff", brassy:"#e9b53f", brassyorange:"#d9822b", greenish:"#c4c98a"};
+const EYEC = {brown:"#6b3e1f", darkbrown:"#3f2414", blue:"#4a90d9", green:"#4f9a5a", hazel:"#8f7a3b", grey:"#8a9aa6"};
+function hexRGB(h){ const n = parseInt(h.slice(1),16); return [n>>16, (n>>8)&255, n&255]; }
+function mixHex(a, b, t){ const A = hexRGB(a), B = hexRGB(b); return "#" + A.map((v,i) => Math.round(v + (B[i]-v)*t).toString(16).padStart(2,"0")).join(""); }
+const shade = (h, f) => f < 0 ? mixHex(h, "#000000", -f) : mixHex(h, "#ffffff", f);
+const FACE_SHAPES = {
+  oval:`M52 104 C52 62 72 44 100 44 C128 44 148 62 148 104 C148 140 128 166 100 166 C72 166 52 140 52 104Z`,
+  round:`M46 106 C46 64 70 46 100 46 C130 46 154 64 154 106 C154 140 132 162 100 162 C68 162 46 140 46 106Z`,
+  square:`M52 82 C52 54 72 46 100 46 C128 46 148 54 148 82 L147 128 C146 150 130 162 100 163 C70 162 54 150 53 128Z`,
+  heart:`M48 88 C48 56 70 44 100 44 C130 44 152 56 152 88 C152 116 140 136 122 152 C112 161 106 166 100 166 C94 166 88 161 78 152 C60 136 48 116 48 88Z`,
+  long:`M56 102 C56 56 74 38 100 38 C126 38 144 56 144 102 C144 146 126 172 100 172 C74 172 56 146 56 102Z`
+};
+const HAIR_BACK = {
+  long:`M44 96 C38 40 70 28 100 28 C130 28 162 40 156 96 L166 216 C140 226 60 226 34 216Z`,
+  layers:`M44 96 C38 40 70 28 100 28 C130 28 162 40 156 96 L164 190 L154 204 L146 194 L136 210 L124 198 L100 212 L76 198 L64 210 L54 194 L46 204 L36 190Z`,
+  lob:`M46 96 C40 42 70 30 100 30 C130 30 160 42 154 96 L158 182 C130 190 70 190 42 182Z`,
+  bob:`M48 98 C42 44 72 32 100 32 C128 32 158 44 152 98 L156 150 C148 158 136 158 128 152 L72 152 C64 158 52 158 44 150Z`,
+  braids:`M44 96 C38 40 70 28 100 28 C130 28 162 40 156 96 L162 222 L38 222Z`,
+  ponytail:`M128 46 C176 52 182 120 166 168 C160 130 150 96 132 70Z`,
+  bun:`M100 24 m-24 0 a24 21 0 1 0 48 0 a24 21 0 1 0 -48 0`,
+  curls:"", afro:"", pixie:"", buzz:""
+};
+function curlCloud(cx, cy, rx, ry, r, n, c, seed){
+  const R = rng(seed); let s = "";
+  for(let i=0;i<n;i++){ const a = i/n*Math.PI*2; const x = cx + Math.cos(a)*rx + (R()-.5)*6, y = cy + Math.sin(a)*ry + (R()-.5)*6; s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r*(.8+R()*.4)).toFixed(1)}"/>`; }
+  return `<g fill="${c}" stroke="${INK}" stroke-width="2.5">${s}</g><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${c}"/>`;
+}
+function faceInner(p){
+  const skin = p.skin || SKINS[2][0], hc = HAIRC[p.hairC] || p.hairC || HAIRC.brown, mk = p.makeup || {};
+  const shapeD = FACE_SHAPES[p.shape || "oval"], mood = p.mood || "neutral", hair = p.hair || "lob";
+  const L = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
+  let g = "";
+  // background hair
+  if(hair === "afro") g += curlCloud(100, 86, 74, 70, 16, 26, hc, "afro");
+  else if(hair === "curls") g += curlCloud(100, 112, 70, 92, 15, 28, hc, "curls");
+  else if(HAIR_BACK[hair]) g += `<path d="${HAIR_BACK[hair]}" fill="${hc}" ${L}/>`;
+  if(hair === "braids") g += Array.from({length:12},(_,i) => { const x = 44 + i*10.2; return `<path d="M${x} 110 V220" stroke="${shade(hc,-.35)}" stroke-width="1.6"/>${Array.from({length:10},(_,k)=>`<path d="M${x-3} ${116+k*10} l3 4 l3 -4" fill="none" stroke="${shade(hc,.25)}" stroke-width="1.2"/>`).join("")}`; }).join("");
+  // shoulders and neck
+  const top = p.top || "#3a8dff";
+  if(!p.noBody) g += `<path d="M22 232 C26 194 60 182 86 178 L114 178 C140 182 174 194 178 232Z" fill="${top}" ${L}/>`;
+  if(!p.noBody){ g += `<path d="M86 150 L86 182 C92 190 108 190 114 182 L114 150Z" fill="${shade(skin,-.08)}" ${L}/>`;
+  g += `<path d="M84 180 C92 196 108 196 116 180" fill="none" stroke="${INK}" stroke-width="2"/>`; }
+  // ears
+  g += `<ellipse cx="51" cy="110" rx="8" ry="13" fill="${skin}" ${L}/><ellipse cx="149" cy="110" rx="8" ry="13" fill="${skin}" ${L}/>`;
+  if(p.earring) g += `<circle cx="50" cy="126" r="3.5" fill="${p.earring}" stroke="${INK}" stroke-width="1.5"/><circle cx="150" cy="126" r="3.5" fill="${p.earring}" stroke="${INK}" stroke-width="1.5"/>`;
+  // face + foundation
+  g += `<path d="${shapeD}" fill="${skin}" ${L}/>`;
+  if(mk.foundation) g += `<path d="${shapeD}" fill="${mk.foundation}" opacity=".62"/><path d="${shapeD}" fill="none" ${L}/>`;
+  // contour/blush
+  if(mk.blush && mk.blushPlace === "apples") g += `<g fill="${mk.blush}" opacity=".5"><ellipse cx="74" cy="128" rx="12" ry="8"/><ellipse cx="126" cy="128" rx="12" ry="8"/></g>`;
+  if(mk.blush && mk.blushPlace === "cheekbones") g += `<g fill="${mk.blush}" opacity=".5"><ellipse cx="70" cy="120" rx="15" ry="6" transform="rotate(-28 70 120)"/><ellipse cx="130" cy="120" rx="15" ry="6" transform="rotate(28 130 120)"/></g>`;
+  if(!mk.blush && (mood === "angry")) g += `<g fill="#e63946" opacity=".22"><ellipse cx="74" cy="126" rx="12" ry="7"/><ellipse cx="126" cy="126" rx="12" ry="7"/></g>`;
+  // eyes
+  const eyeC = EYEC[p.eye] || p.eye || EYEC.brown, ey = 104;
+  const lidDrop = mood === "angry" ? 4 : mood === "sad" ? 2 : mood === "tense" ? 1 : 0, open = mood === "surprised" ? 11 : 9;
+  [80, 120].forEach((x, i) => {
+    const dir = i === 0 ? -1 : 1;
+    if(mk.shadow) g += `<path d="M${x-15} ${ey-1} C${x-10} ${ey-17} ${x+10} ${ey-17} ${x+15} ${ey-1} C${x+8} ${ey-8} ${x-8} ${ey-8} ${x-15} ${ey-1}Z" fill="${mk.shadow}" opacity=".85"/>`;
+    g += `<path d="M${x-12} ${ey} C${x-6} ${ey-open} ${x+6} ${ey-open} ${x+12} ${ey} C${x+6} ${ey+7} ${x-6} ${ey+7} ${x-12} ${ey}Z" fill="#fff" stroke="${INK}" stroke-width="1.6"/>`;
+    g += `<circle cx="${x}" cy="${ey-1}" r="5.6" fill="${eyeC}"/><circle cx="${x}" cy="${ey-1}" r="2.6" fill="${INK}"/><circle cx="${x+1.8}" cy="${ey-3}" r="1.4" fill="#fff"/>`;
+    if(lidDrop) g += `<path d="M${x-13} ${ey} C${x-6} ${ey-open-2} ${x+6} ${ey-open-2} ${x+13} ${ey} L${x+13} ${ey-4+lidDrop*(mood==="sad" ? (dir>0?.2:1) : 1)} C${x+6} ${ey-open+lidDrop+2} ${x-6} ${ey-open+lidDrop+2} ${x-13} ${ey-4+lidDrop}Z" fill="${mk.foundation ? mixHex(skin, mk.foundation, .62) : skin}"/>`;
+    const lw = mk.liner === "thin" || mk.liner === "winged" ? 3.6 : 2.4;
+    g += `<path d="M${x-12} ${ey} C${x-6} ${ey-open+lidDrop} ${x+6} ${ey-open+lidDrop} ${x+12} ${ey}" fill="none" stroke="${INK}" stroke-width="${lw}" stroke-linecap="round"/>`;
+    if(mk.liner === "winged") g += `<path d="M${x + 12*dir} ${ey} L${x + 20*dir} ${ey-6}" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
+    // brows
+    const bc = shade(hc, -.25), inner = x - 9*dir*-1;
+    const by = {neutral:[88,86,88], happy:[86,84,87], angry:[93,86,84], sad:[84,86,91], tense:[90,87,88], surprised:[80,78,82]}[mood] || [88,86,88];
+    const xi = x + (i === 0 ? 11 : -11), xo = x + (i === 0 ? -13 : 13);
+    g += `<path d="M${xi} ${by[0]} Q${x} ${by[1]-3} ${xo} ${by[2]}" fill="none" stroke="${bc}" stroke-width="4.2" stroke-linecap="round"/>`;
+  });
+  // nose
+  g += `<path d="M100 110 C97 122 95 128 99 130 C102 131 106 130 108 127" fill="none" stroke="${shade(skin,-.45)}" stroke-width="2.2" stroke-linecap="round"/>`;
+  // mouth
+  const lipC = mk.lip || shade(skin, -.2);
+  if(mood === "happy") g += `<path d="M84 140 C90 156 110 156 116 140 C108 144 92 144 84 140Z" fill="${mk.lip ? lipC : "#7a2e2e"}" ${L}/><path d="M89 143 C96 146 104 146 111 143 L110 146 C104 148 96 148 90 146Z" fill="#fff"/>`;
+  else if(mood === "angry") g += `<path d="M86 146 C92 138 108 138 114 146 C108 148 92 148 86 146Z" fill="${mk.lip ? lipC : "#7a2e2e"}" ${L}/><path d="M90 145 h20" stroke="#fff" stroke-width="2.4"/>`;
+  else if(mood === "sad") g += `<path d="M88 147 C94 140 106 140 112 147" fill="none" stroke="${mk.lip ? lipC : INK}" stroke-width="${mk.lip ? 5 : 2.6}" stroke-linecap="round"/>`;
+  else if(mood === "surprised") g += `<ellipse cx="100" cy="145" rx="7" ry="9" fill="#7a2e2e" ${L}/>`;
+  else if(mood === "tense") g += `<path d="M88 144 L112 144" stroke="${mk.lip ? lipC : INK}" stroke-width="${mk.lip ? 5 : 2.6}" stroke-linecap="round"/>`;
+  else g += `<path d="M86 141 C92 135 97 138 100 139 C103 138 108 135 114 141 C108 143 92 143 86 141Z" fill="${lipC}" stroke="${INK}" stroke-width="1.6"/><path d="M86 141 C92 151 108 151 114 141 C108 144 92 144 86 141Z" fill="${lipC}" stroke="${INK}" stroke-width="1.6"/><path d="M95 145 q5 2 10 0" stroke="#fff" stroke-width="1.4" opacity=".5"/>`;
+  // front hair
+  const capD = `M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z`;
+  if(hair === "buzz") g += `<path d="M54 92 C52 50 74 40 100 40 C126 40 148 50 146 92 C142 66 124 58 100 58 C76 58 58 66 54 92Z" fill="${hc}" opacity=".9" ${L}/>`;
+  else if(hair === "afro") g += curlCloud(100, 54, 50, 18, 11, 14, hc, "afrofront");
+  else if(hair === "curls") g += curlCloud(100, 56, 48, 18, 10, 14, hc, "curlfront");
+  else if(hair === "pixie") g += `<path d="M48 96 C40 40 72 28 100 28 C134 28 160 44 152 92 C146 70 132 60 118 58 C120 70 104 76 84 74 C70 74 58 82 48 96Z" fill="${hc}" ${L}/>`;
+  else g += `<path d="${capD}" fill="${hc}" ${L}/>`;
+  if(hair === "ponytail" || hair === "bun") g += `<path d="M70 50 C84 44 116 44 130 50 M64 60 C84 50 116 50 136 60" fill="none" stroke="${shade(hc,.3)}" stroke-width="1.6"/>`;
+  if(hair === "braids") g += `<path d="M100 32 V56 M80 36 L84 58 M120 36 L116 58" stroke="${shade(hc,-.4)}" stroke-width="1.6"/>`;
+  const b = p.bangs || "none";
+  if(b === "blunt" && !["afro","curls","buzz"].includes(hair)) g += `<path d="M56 64 C70 48 130 48 144 64 L145 86 C120 82 80 82 55 86Z" fill="${hc}" ${L}/>`;
+  if(b === "side" && !["afro","buzz"].includes(hair)) g += `<path d="M54 84 C60 50 120 40 146 62 C128 60 110 66 96 88 C86 78 70 78 54 84Z" fill="${hc}" ${L}/>`;
+  if(b === "curtain" && !["afro","buzz"].includes(hair)) g += `<path d="M100 54 C76 56 64 70 58 96 C68 80 84 68 100 62 C116 68 132 80 142 96 C136 70 124 56 100 54Z" fill="${hc}" ${L}/>`;
+  if(!["buzz","afro","curls"].includes(hair)) g += `<path d="M78 44 C86 40 96 40 104 42 M112 40 C124 42 134 48 140 58" fill="none" stroke="${shade(hc,.35)}" stroke-width="2" stroke-linecap="round" opacity=".8"/>`;
+  if(p.glasses) g += `<g fill="rgb(255 255 255 / .25)" stroke="${INK}" stroke-width="2.6"><rect x="64" y="94" width="30" height="20" rx="8"/><rect x="106" y="94" width="30" height="20" rx="8"/></g><path d="M94 102 h12" stroke="${INK}" stroke-width="2.4"/>`;
+  return g;
+}
+function faceSVG(p, w=200, extraCls=""){ return `<svg viewBox="0 -14 200 246" width="${w}" class="face ${extraCls}" role="img" aria-label="Portrait">${faceInner(p)}</svg>`; }
+
+/* ---------------- MAKEUP STUDIO ---------------- */
+const SHADOWS = [["bronze","#b8742a","warm"],["copper","#c8642e","warm"],["gold","#d9b13b","warm"],["taupe","#9c8574","neutral"],["navy","#2c3e75","cool"],["purple","#8e5bd1","cool"],["plum","#7a3a6e","cool"],["emerald","#2e8b57","cool"],["rose","#d48a9a","cool"]];
+const LIPS = [["nude","#b97a68","neutral","soft"],["peach","#f08a6b","warm","soft"],["coral","#ff6f61","warm","soft"],["rose","#d6728f","cool","soft"],["brick","#9c3a26","warm","bold"],["orange-red","#e63b1f","warm","bold"],["blue-red","#b5121b","cool","bold"],["berry","#7e1b48","cool","bold"]];
+const BLUSHES = [["peach","#f6a07d","warm"],["coral","#ff7f6e","warm"],["pink","#f28cb1","cool"],["berry","#c0507a","cool"]];
+const EYE_POP = {brown:["navy","purple","plum","emerald"], darkbrown:["navy","purple","plum","gold"], blue:["copper","bronze","gold"], green:["plum","purple","rose"], hazel:["purple","emerald","plum"]};
+const EYE_WHY = {brown:"Brown is a dark orange, so blues and purples, its opposites on the color wheel, make it glow.", darkbrown:"Very dark eyes pop against jewel tones and metallic gold, which catch the light.", blue:"Blue's opposite is orange, so copper, bronze and gold make blue eyes look bluer.", green:"Green's opposite is red-violet, so plum, purple and rose make green eyes stand out.", hazel:"Hazel mixes green and brown flecks; purple brings out the green, and emerald echoes it."};
+const UNDERTONE = {warm:"#e8b84a", cool:"#e88aa8", neutral:"#d9b8a0"};
+const NAMES = ["Amara","Lucía","Mei","Priya","Zainab","Hana","Sofia","Nia","Leila","Ingrid","Ana","Yuki","Fatima","Olivia","Imani","Rosa","Aiko","Chloe"];
+const MK_OCC = {
+  interview:{label:"a job interview", rules:[{label:"Polished and natural: no winged liner", why:"Interview makeup should look like you, only well rested. Dramatic liner reads as evening.", test:m=>m.liner !== "winged"},{label:"A soft lip shade", why:"Soft shades like nude, peach, rose and coral look professional and don't distract from what you say.", test:m=>LIPS.find(l=>l[0]===m.lip)?.[3] === "soft"}]},
+  gala:{label:"a black-tie gala", rules:[{label:"Evening drama: winged liner", why:"Evening light is dim and warm. Defined eyes and a wing stay visible across a ballroom.", test:m=>m.liner === "winged"},{label:"A bold lip", why:"A deep or bright lip balances formal clothes and reads well in photos with flash.", test:m=>LIPS.find(l=>l[0]===m.lip)?.[3] === "bold"}]},
+  stage:{label:"performing on stage", rules:[{label:"Defined eyes for the back row: liner on", why:"Stage lights wash out features. Performers exaggerate eyes so the audience can read expressions.", test:m=>m.liner !== "none"},{label:"A bold lip", why:"Under bright lights a soft lip disappears completely.", test:m=>LIPS.find(l=>l[0]===m.lip)?.[3] === "bold"}]},
+  beach:{label:"a summer beach day", rules:[{label:"Sun-kissed warmth: warm blush (peach or coral)", why:"Warm blush mimics a natural flush from the sun.", test:m=>["peach","coral"].includes(m.blush)},{label:"Keep it light: no winged liner", why:"Heat, water and sweat make heavy liner smudge.", test:m=>m.liner !== "winged"}]},
+  wedding:{label:"a daytime wedding", rules:[{label:"A soft lip shade", why:"Soft shades photograph well in daylight and last through eating and hugging.", test:m=>LIPS.find(l=>l[0]===m.lip)?.[3] === "soft"},{label:"Blush on, for a healthy glow in photos", why:"Daylight photos flatten color; blush keeps the face from looking washed out.", test:m=>m.blush !== "none"}]}
+};
+const BLUSH_PLACE = {round:["cheekbones","Angling blush up along the cheekbones adds length to a round face."], long:["apples","Blush on the apples, blended outward horizontally, makes a long face look shorter and fuller."], square:["apples","Round blush on the apples softens a strong, angular jaw."], heart:["apples","Blush on the apples draws attention to the middle of a face that's widest at the forehead."], oval:["apples","Oval faces are balanced; classic placement on the apples works well."]};
+function foundationShades(depth){
+  const out = [];
+  [depth-1, depth, depth+1].filter(i => i >= 0 && i < SKINS.length).forEach(i => ["cool","neutral","warm"].forEach(u => out.push({id:`${i+1}${u[0].toUpperCase()}`, depth:i, u, c: mixHex(SKINS[i][0], UNDERTONE[u], u === "neutral" ? .05 : .14)})));
+  return out;
+}
+STUDIO.makeup = {
+  start(){ this.round = 0; this.total = 0; this.log = []; this.n = 4; this.newRound(); },
+  newClient(){
+    const d = S.rating.makeup, depth = R(0, SKINS.length-1);
+    const eye = depth >= 4 ? pick(["brown","darkbrown","darkbrown","hazel"]) : pick(["brown","blue","green","hazel","darkbrown"]);
+    const occ = pick(Object.keys(MK_OCC)), u = pick(["warm","cool","neutral"]), shape = pick(Object.keys(FACE_SHAPES));
+    const c = {name:pick(NAMES), depth, eye, occ, u, shape, hair:pick(["lob","long","bun","curls","braids","bob","afro","ponytail"]), hairC:pick(depth >= 4 ? ["black","darkbrown"] : ["black","darkbrown","brown","auburn","blonde"]), top:pick(["#3a8dff","#22b8a7","#ff7db8","#ffbf2e","#6f62ff"])};
+    if(["afro","braids"].includes(c.hair) && depth < 3) c.hair = "curls";
+    const rules = [];
+    rules.push({label:`Foundation that matches ${c.name}'s skin (${c.u} undertone)`, why:`Match depth on the jawline, and match undertone: ${c.u === "warm" ? "warm skin has golden or peachy undertones (veins look greenish)" : c.u === "cool" ? "cool skin has pink or rosy undertones (veins look bluish)" : "neutral skin has a mix of both"}. The wrong undertone looks ashy or orange.`, test:m=>m.foundation && m.foundation.depth === depth && m.foundation.u === u});
+    rules.push(...MK_OCC[occ].rules);
+    if(d >= 3){
+      rules.push({label:`Make ${c.name}'s ${eye.replace("darkbrown","dark brown")} eyes pop`, why:EYE_WHY[eye] + ` Good picks: ${EYE_POP[eye].join(", ")}.`, test:m=>EYE_POP[eye].includes(m.shadow)});
+      if(u !== "neutral") rules.push({label:`Lip and blush in ${u} tones`, why: u === "warm" ? "Warm undertones glow with peach, coral, brick and orange-red." : "Cool undertones glow with pink, rose, berry and blue-red.", test:m=>{ const lp = LIPS.find(l=>l[0]===m.lip), bl = BLUSHES.find(b=>b[0]===m.blush); return lp && (lp[2] === u || lp[2] === "neutral") && (!bl || bl[2] === u); }});
+    }
+    if(d >= 6) rules.push({label:`Blush placement for a ${shape} face`, why:BLUSH_PLACE[shape][1], test:m=>m.blush !== "none" && m.place === BLUSH_PLACE[shape][0]});
+    c.rules = rules; return c;
+  },
+  newRound(){
+    this.c = this.newClient(); this.locked = false;
+    this.m = {foundation:null, shadow:null, liner:"none", lip:"nude", blush:"none", place:"apples"};
+    this.shades = foundationShades(this.c.depth);
+    const c = this.c;
+    stage.innerHTML = `<div class="studio-grid">
+      <div class="mirror"><div class="mirror-frame" id="mkFace"></div><div class="vanity">${["#ff7db8","#ffbf2e","#22b8a7"].map((col,i)=>`<span class="bottle" style="background:${col};height:${30+i*8}px"></span>`).join("")}<span class="mirror-name">${c.name}</span></div></div>
+      <div class="ctl-col">${sessionHeader(`Client ${this.round+1} of ${this.n}`, `${c.name} is getting ready for ${MK_OCC[c.occ].label}`, "")}
+        <div class="brief" style="padding-top:12px"><ul id="mkRules">${c.rules.map(r=>`<li>${r.label}</li>`).join("")}</ul></div>
+        <div class="opt-group"><h4>Foundation · depth & undertone (C cool, N neutral, W warm)</h4><div class="swgrid" id="mkFound">${this.shades.map(s=>`<button type="button" class="fswatch" data-f="${s.id}" style="background:${s.c}"><span>${s.id}</span></button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Eyeshadow</h4><div class="swgrid">${SHADOWS.map(([n,col])=>`<button type="button" class="dot-sw" data-k="shadow" data-v="${n}" style="background:${col}" title="${n}"></button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Eyeliner</h4><div class="chips">${["none","thin","winged"].map(v=>`<button type="button" class="ch" data-k="liner" data-v="${v}">${cap(v)}</button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Blush</h4><div class="chips">${["none",...BLUSHES.map(b=>b[0])].map(v=>`<button type="button" class="ch" data-k="blush" data-v="${v}">${v === "none" ? "None" : `<i class="cdot" style="background:${BLUSHES.find(b=>b[0]===v)[1]}"></i>${cap(v)}`}</button>`).join("")}</div>
+          <div class="chips">${[["apples","On the apples"],["cheekbones","Along the cheekbones"]].map(([v,l])=>`<button type="button" class="ch" data-k="place" data-v="${v}">${l}</button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Lipstick</h4><div class="swgrid">${LIPS.map(([n,col])=>`<button type="button" class="dot-sw lip" data-k="lip" data-v="${n}" style="background:${col}" title="${n}"><span>${n}</span></button>`).join("")}</div></div>
+        <button class="btn btn-solid" type="button" id="mkGo">Show ${c.name} the mirror</button><div id="mkRes"></div></div></div>`;
+    stage.onclick = e => {
+      if(this.locked) return;
+      const f = e.target.closest(".fswatch"), k = e.target.closest("[data-k]");
+      if(f){ this.m.foundation = this.shades.find(s => s.id === f.dataset.f); sfx.click(); this.render(); }
+      else if(k){ this.m[k.dataset.k] = k.dataset.v; sfx.click(); this.render(); }
+      if(e.target.id === "mkGo") this.submit();
+    };
+    setSide("Score", fmt(this.total));
+    this.render();
+  },
+  look(mood){
+    const c = this.c, m = this.m;
+    return {skin:SKINS[c.depth][0], shape:c.shape, hair:c.hair, hairC:c.hairC, eye:c.eye, top:c.top, mood, earring:"#ffbf2e",
+      makeup:{foundation:m.foundation?.c, shadow:SHADOWS.find(s=>s[0]===m.shadow)?.[1], liner:m.liner, lip:m.lip === "nude" && !this.touchedLip ? null : LIPS.find(l=>l[0]===m.lip)?.[1], blush:BLUSHES.find(b=>b[0]===m.blush)?.[1], blushPlace:m.place}};
+  },
+  render(){
+    this.touchedLip = true;
+    $("mkFace").innerHTML = faceSVG(this.look(this.locked ? (this.f >= .8 ? "happy" : this.f >= .5 ? "neutral" : "sad") : "neutral"), 260);
+    stage.querySelectorAll(".fswatch").forEach(b => b.classList.toggle("sel", this.m.foundation?.id === b.dataset.f));
+    stage.querySelectorAll("[data-k]").forEach(b => b.classList.toggle("sel", this.m[b.dataset.k] === b.dataset.v));
+    if(!this.locked && S.rating.makeup < 4){ const lis = [...$("mkRules").children]; this.c.rules.forEach((r,i) => lis[i].classList.toggle("ok", r.test(this.m))); }
+  },
+  submit(){
+    const res = this.c.rules.map(r => ({label:r.label, why:r.why, ok:r.test(this.m)}));
+    const f = res.filter(r => r.ok).length / res.length; this.f = f; this.locked = true;
+    const pts = Math.round(1000*f); this.total += pts; this.log.push({n:this.c.name, pts}); adapt("makeup", f);
+    f >= .99 ? sfx.win() : f >= .6 ? sfx.good() : sfx.bad();
+    this.render();
+    const last = this.round === this.n - 1;
+    $("mkGo").hidden = true;
+    $("mkRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? `${this.c.name} loves it` : f >= .6 ? "Almost there" : "Back to the brushes"}</span><span class="pts">+${fmt(pts)}</span>${checklist(res)}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="mkNext">${last ? "See results" : "Next client"}</button></div></div>`;
+    $("mkNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+    setSide("Score", fmt(this.total));
+  },
+  finish(){
+    const max = this.n*1000, f = this.total/max, stars = f >= .9 ? 3 : f >= .6 ? 2 : 1;
+    endSession({title: stars === 3 ? "Lead makeup artist" : stars === 2 ? "Rising artist" : "Practice makes perfect", stars, xp:25+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}. Fun fact: ancient Egyptians wore kohl eyeliner partly to cut sun glare and fight eye infections.</p><ul class="roundlog">${this.log.map(l=>`<li><span>${l.n}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+      actions:[["New clients", () => startRoom("makeup","studio"), true], ["Lobby", goHub]]});
+  }
+};
+const MK_BANK = [
+ [1,"Which eyeshadow makes blue eyes look bluest?","Copper",["Navy","Blue","Silver"],"Orange tones like copper and bronze sit opposite blue on the color wheel."],
+ [1,"Veins on your wrist look greenish. Your undertone is probably…","Warm",["Cool","Neutral","None"],"Green-looking veins suggest warm, golden undertones; blue or purple veins suggest cool."],
+ [2,"Why test foundation on the jawline rather than the hand?","It must match both the face and the neck",["The hand is too oily","Jaws are lighter","It dries faster there"],"Your hands get more sun and are often a different shade from your face."],
+ [2,"Which lipstick suits a cool undertone?","Blue-red",["Orange-red","Coral","Brick"],"A red with blue in it harmonizes with pink undertones; orange-reds suit warm skin."],
+ [3,"Ancient Egyptians wore kohl eyeliner partly to…","Reduce sun glare and protect against eye infections",["Signal they were married","Repel mosquitoes","Show their age"],"Lab studies suggest the lead compounds in kohl triggered an immune response that helped fight eye infections."],
+ [3,"Where should blush go to make a round face look longer?","Angled up along the cheekbones",["In circles on the apples","Across the nose","Along the jaw"],"Diagonal lines lead the eye up and out, lengthening the face."],
+ [4,"What does SPF measure?","Protection against UVB rays",["Protection against UVA only","Water resistance","Skin hydration"],"SPF rates UVB protection. Look for “broad spectrum” to cover UVA as well."]
+];
+GEN.makeup = d => fromBank(MK_BANK, d);
+
+/* ---------------- HAIR SALON ---------------- */
+const CUTS = [["pixie","Pixie"],["bob","Chin bob"],["lob","Lob (long bob)"],["long","Long & straight"],["layers","Long layers"],["curls","Defined curls"],["afro","Afro"],["braids","Box braids"],["bun","Top bun"],["ponytail","High ponytail"],["buzz","Buzz cut"]];
+const BANGS = [["none","No bangs"],["blunt","Blunt bangs"],["side","Side-swept"],["curtain","Curtain bangs"]];
+const TONERS = [["none","No toner","#ffffff"],["violet","Violet","#8e5bd1"],["blue","Blue","#3a6df0"],["green","Green","#2e8b57"]];
+const FACE_RULE = {
+  round:{label:"Lengthen a round face", why:"Round faces are as wide as they are long. Length past the chin and height on top elongate; a chin-length bob or blunt bangs add width at the widest point.", test:h=>["lob","long","layers","pixie","ponytail","bun"].includes(h.cut) && h.bangs !== "blunt"},
+  square:{label:"Soften a square jaw", why:"Layers, curls and side-swept or curtain bangs add soft curves; a blunt cut ending right at the jaw draws a hard line there.", test:h=>h.cut !== "bob" && h.cut !== "buzz" && (["layers","curls","lob","long","afro"].includes(h.cut) || ["side","curtain"].includes(h.bangs))},
+  long:{label:"Shorten a long face", why:"Width and bangs break up vertical length. Very long straight hair without bangs makes the face look even longer.", test:h=>["bob","lob","curls","afro"].includes(h.cut) || ["blunt","curtain"].includes(h.bangs)},
+  heart:{label:"Balance a heart-shaped face", why:"Heart faces are widest at the forehead. Lengths that add fullness near the jaw, or side-swept and curtain bangs, even it out.", test:h=>["bob","lob","layers","curls"].includes(h.cut) || ["side","curtain"].includes(h.bangs)}
+};
+const GOALS = {
+  natural:{label:"Keep her natural curls and coils", why:"Textured hair is often cut dry, curl by curl, so each curl's shape shows. Styles that work with texture keep it healthy without heat damage.", test:h=>["curls","afro","braids","bun"].includes(h.cut), textured:true},
+  swim:{label:"Out of the way for daily swim training", why:"Swimmers need hair secured or short: chlorine and drag punish loose long hair.", test:h=>["bun","ponytail","braids","pixie","buzz"].includes(h.cut)},
+  lowmaint:{label:"Low maintenance: she visits the salon twice a year", why:"Pixies, buzz cuts and bobs need trims every 4–6 weeks, and bangs every 3–4. Longer, layered or curly cuts grow out gracefully.", test:h=>["long","layers","lob","curls","afro"].includes(h.cut) && ["none","curtain"].includes(h.bangs)},
+  brassy:{label:"Neutralize brassy yellow color", why:"Toners cancel unwanted tones with their opposite on the color wheel: violet cancels yellow, blue cancels orange, green cancels red.", test:h=>h.toner === "violet", color:"brassy"},
+  brassyorange:{label:"Neutralize brassy orange tones", why:"Blue sits opposite orange on the color wheel, so a blue toner turns orange brass into a cool ash brown.", test:h=>h.toner === "blue", color:"brassyorange"},
+  volume:{label:"She wants more volume", why:"Layers, curls and height remove weight and add movement; one-length straight hair lies flat.", test:h=>["layers","curls","afro","bun","pixie"].includes(h.cut)}
+};
+function tonedColor(base, toner){
+  if(base === "brassy") return toner === "violet" ? "platinum" : toner === "blue" ? "greenish" : toner === "green" ? "greenish" : "brassy";
+  if(base === "brassyorange") return toner === "blue" ? "ash" : toner === "violet" ? "copper" : toner === "green" ? "brown" : "brassyorange";
+  return base;
+}
+STUDIO.hair = {
+  start(){ this.round = 0; this.total = 0; this.log = []; this.n = 4; this.newRound(); },
+  newClient(){
+    const d = S.rating.hair, depth = R(0, SKINS.length-1);
+    const shapes = d < 3 ? ["round","long","square","heart"] : Object.keys(FACE_RULE);
+    const c = {name:pick(NAMES), depth, shape:pick(shapes), eye:depth >= 4 ? "darkbrown" : pick(["brown","blue","green","hazel"]), top:pick(["#ff7db8","#22b8a7","#6f62ff","#ffbf2e"])};
+    const goalKeys = shuffle(Object.keys(GOALS).filter(g => !(GOALS[g].textured && depth < 3 && Math.random() < .5))).slice(0, d < 4 ? 1 : 2);
+    c.goals = goalKeys.map(k => ({k, ...GOALS[k]}));
+    const colorGoal = c.goals.find(g => g.color);
+    c.textured = c.goals.some(g => g.textured);
+    c.hairC = colorGoal ? colorGoal.color : pick(depth >= 4 ? ["black","darkbrown"] : ["black","darkbrown","brown","auburn","blonde"]);
+    c.before = {cut: c.textured ? "afro" : pick(["long","lob","bob"]), bangs:"none"};
+    c.rules = [FACE_RULE[c.shape], ...c.goals];
+    return c;
+  },
+  newRound(){
+    this.c = this.newClient(); this.locked = false;
+    this.h = {cut:this.c.before.cut, bangs:"none", toner:"none"};
+    const c = this.c;
+    stage.innerHTML = `<div class="studio-grid">
+      <div class="salon"><div class="salon-pair"><figure><div class="mirror-frame small">${faceSVG({skin:SKINS[c.depth][0], shape:c.shape, hair:c.before.cut, hairC:c.hairC, eye:c.eye, top:c.top, mood:"tense"}, 150)}</div><figcaption>Before</figcaption></figure>
+        <figure><div class="mirror-frame" id="hsFace"></div><figcaption>After</figcaption></figure></div>
+        <p class="msg">${c.name} has a <b>${c.shape}</b> face shape${c.textured ? " and coily, textured hair" : ""}.</p></div>
+      <div class="ctl-col">${sessionHeader(`Client ${this.round+1} of ${this.n}`, `${c.name}'s appointment`, "")}
+        <div class="brief" style="padding-top:12px"><ul id="hsRules">${c.rules.map(r=>`<li>${r.label}</li>`).join("")}</ul></div>
+        <div class="opt-group"><h4>Cut & style</h4><div class="chips">${CUTS.map(([v,l])=>`<button type="button" class="ch" data-k="cut" data-v="${v}">${l}</button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Bangs</h4><div class="chips">${BANGS.map(([v,l])=>`<button type="button" class="ch" data-k="bangs" data-v="${v}">${l}</button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Toner (color correction)</h4><div class="chips">${TONERS.map(([v,l,col])=>`<button type="button" class="ch" data-k="toner" data-v="${v}"><i class="cdot" style="background:${col}"></i>${l}</button>`).join("")}</div></div>
+        <div class="toner-wheel">${wheelSVG(["60m","270m","30m","210m","0m","120m"].slice(0,6), 70)}<p>Toners work like the color wheel: each color cancels its opposite.</p></div>
+        <button class="btn btn-solid" type="button" id="hsGo">Spin the chair</button><div id="hsRes"></div></div></div>`;
+    stage.onclick = e => { if(this.locked) return; const k = e.target.closest("[data-k]"); if(k){ this.h[k.dataset.k] = k.dataset.v; sfx.click(); this.render(); } if(e.target.id === "hsGo") this.submit(); };
+    setSide("Score", fmt(this.total));
+    this.render();
+  },
+  render(){
+    const c = this.c;
+    $("hsFace").innerHTML = faceSVG({skin:SKINS[c.depth][0], shape:c.shape, hair:this.h.cut, bangs:this.h.bangs, hairC:tonedColor(c.hairC, this.h.toner), eye:c.eye, top:c.top, mood:this.locked ? (this.f >= .99 ? "happy" : this.f >= .5 ? "neutral" : "sad") : "neutral"}, 220);
+    stage.querySelectorAll("[data-k]").forEach(b => b.classList.toggle("sel", this.h[b.dataset.k] === b.dataset.v));
+    if(!this.locked && S.rating.hair < 4){ const lis = [...$("hsRules").children]; c.rules.forEach((r,i) => lis[i].classList.toggle("ok", r.test(this.h))); }
+  },
+  submit(){
+    const res = this.c.rules.map(r => ({label:r.label, why:r.why, ok:r.test(this.h)}));
+    const f = res.filter(r=>r.ok).length / res.length; this.f = f; this.locked = true;
+    const pts = Math.round(1000*f); this.total += pts; this.log.push({n:this.c.name, pts}); adapt("hair", f);
+    f >= .99 ? sfx.win() : f >= .5 ? sfx.good() : sfx.bad();
+    this.render();
+    const last = this.round === this.n - 1;
+    $("hsGo").hidden = true;
+    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? `${this.c.name} is thrilled` : f >= .5 ? "Nearly perfect" : "Not what she asked for"}</span><span class="pts">+${fmt(pts)}</span>${checklist(res)}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="hsNext">${last ? "See results" : "Next client"}</button></div></div>`;
+    $("hsNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+    setSide("Score", fmt(this.total));
+  },
+  finish(){
+    const max = this.n*1000, f = this.total/max, stars = f >= .9 ? 3 : f >= .6 ? 2 : 1;
+    endSession({title: stars === 3 ? "Master stylist" : stars === 2 ? "Senior stylist" : "Junior stylist", stars, xp:25+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}. Fun fact: a single hair can stretch about 30% longer when wet before it breaks.</p><ul class="roundlog">${this.log.map(l=>`<li><span>${l.n}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+      actions:[["New clients", () => startRoom("hair","studio"), true], ["Lobby", goHub]]});
+  }
+};
+const HAIR_BANK = [
+ [1,"Which toner cancels brassy yellow in blonde hair?","Violet",["Blue","Green","Red"],"Violet is opposite yellow on the color wheel, which is why purple shampoo exists."],
+ [1,"Which cut tends to make a round face look longer?","Long layers",["Chin-length blunt bob","Blunt bangs","A wide, rounded afro puff at the cheeks"],"Length below the chin draws the eye down, elongating the face."],
+ [2,"Which toner neutralizes orange brass?","Blue",["Violet","Green","Yellow"],"Blue sits opposite orange."],
+ [2,"Why is curly hair often cut dry?","Each curl springs up differently, so wet length is misleading",["Water dulls scissors","Curly hair can't get wet","It's faster"],"Curls can shrink 30–75% when dry, so cutting dry shows the true shape."],
+ [3,"Hair is mostly made of which protein?","Keratin",["Collagen","Melanin","Elastin"],"Keratin is the same protein found in nails and in animal horns and hooves."],
+ [3,"Which pigment gives hair red tones?","Pheomelanin",["Eumelanin","Keratin","Carotene"],"Eumelanin makes brown and black; pheomelanin makes red and yellow."],
+ [4,"Roughly how fast does scalp hair grow?","About 1–1.5 cm a month",["About 1 mm a month","About 5 cm a month","About 1 cm a year"],"That's about 15 cm a year, which is why bangs need trimming so often."]
+];
+GEN.hair = d => fromBank(HAIR_BANK, d);
+
+/* =========================================================
+   ATELIER FIGURE v2: outlined croquis with face, hair, hands, shoes,
+   fabric texture, shading and folds
+   ========================================================= */
+const FABRICS = [["cotton","Cotton"],["linen","Linen"],["wool","Wool"],["silk","Silk"],["velvet","Velvet"],["tulle","Tulle"],["sequin","Sequins"]];
+const FABRIC_RULE = {
+  gala:{label:"A luxurious fabric: silk, velvet or sequins", why:"Evening fabrics are chosen for how they catch low light: silk shimmers, velvet glows, sequins sparkle.", ok:["silk","velvet","sequin"]},
+  interview:{label:"A structured fabric: wool or cotton", why:"Wool and crisp cotton hold a clean shape all day and look professional; tulle and sequins read as party wear.", ok:["wool","cotton"]},
+  beach:{label:"A breathable fabric: linen or cotton", why:"Natural plant fibers let air through and absorb sweat. Linen dries fast, which is why it's a summer classic.", ok:["linen","cotton"]},
+  winter:{label:"A warm fabric: wool or velvet", why:"Wool traps air between its crimped fibers, so it insulates even when slightly damp.", ok:["wool","velvet"]},
+  picnic:{label:"An easy, washable fabric: cotton or linen", why:"Grass, sun and spills call for tough natural fabrics you can throw in the wash.", ok:["cotton","linen"]},
+  dance:{label:"A light fabric that swings: silk, cotton or tulle", why:"Light fabrics move with every turn; heavy velvet and wool hang still.", ok:["silk","cotton","tulle"]}
+};
+function dressSVG(d, look = {}){
+  const skin = look.skin || SKINS[2][0], M = css(d.main), K = css(d.second), A = css(d.accent), sil = d.sil, fab = d.fabric || "cotton";
+  const id = "dz" + (++SVGID);
+  const wy = sil === "empire" ? 106 : 136, wh = sil === "empire" ? 21 : 17;
+  const hemY = {mini:200, knee:240, midi:282, floor:336}[d.len], L = hemY - wy, lx = 100-wh, rx = 100+wh;
+  let skirt, he = 30;
+  if(sil === "sheath"){ he = 23; skirt = `M${lx},${wy} Q71,${wy+28} 77,${hemY} L123,${hemY} Q129,${wy+28} ${rx},${wy} Z`; }
+  else if(sil === "aline"){ he = 24 + L*.36; skirt = `M${lx},${wy} L${100-he},${hemY} Q100,${hemY+7} ${100+he},${hemY} L${rx},${wy} Z`; }
+  else if(sil === "ballgown"){ he = 34 + L*.5; skirt = `M${lx},${wy} C${lx-28},${wy+8} ${100-he},${hemY-L*.45} ${100-he},${hemY} Q100,${hemY+9} ${100+he},${hemY} C${100+he},${hemY-L*.45} ${rx+28},${wy+8} ${rx},${wy} Z`; }
+  else if(sil === "empire"){ he = 22 + L*.28; skirt = `M${lx},${wy} C${lx-3},${wy+40} ${100-he},${hemY-30} ${100-he},${hemY} Q100,${hemY+6} ${100+he},${hemY} C${100+he},${hemY-30} ${rx+3},${wy+40} ${rx},${wy} Z`; }
+  else { const ky = Math.min(hemY-10, 236); he = hemY > 250 ? 48 : 23; skirt = `M${lx},${wy} Q69,${wy+30} 80,${ky} L${100-he},${hemY} Q100,${hemY+6} ${100+he},${hemY} L120,${ky} Q131,${wy+30} ${rx},${wy} Z`; }
+  const bodice = {
+    crew:`M72,80 L88,74 Q100,84 112,74 L128,80 L124,100 L${rx},${wy} L${lx},${wy} L76,100 Z`,
+    vneck:`M72,80 L90,74 L100,${Math.min(wy-6,112)} L110,74 L128,80 L124,100 L${rx},${wy} L${lx},${wy} L76,100 Z`,
+    sweet:`M77,95 Q88,85 100,97 Q112,85 123,95 L${rx},${wy} L${lx},${wy} Z`,
+    off:`M62,88 Q100,99 138,88 L134,97 L124,103 L${rx},${wy} L${lx},${wy} L76,103 L66,97 Z`
+  }[d.neck];
+  const sy = d.neck === "off" ? 92 : 84;
+  const sleeve = {none:null, cap:[`M75,${sy} L72,${sy+12}`,`M125,${sy} L128,${sy+12}`], short:[`M75,${sy} L68,${sy+32}`,`M125,${sy} L132,${sy+32}`], long:[`M75,${sy} L65,140 L61,188`,`M125,${sy} L135,140 L139,188`]}[d.sleeve];
+  const pat = {vstripe:`<rect width="8" height="8" fill="${K}"/><rect width="3" height="8" fill="${A}"/>`, hstripe:`<rect width="8" height="8" fill="${K}"/><rect width="8" height="3" fill="${A}"/>`,
+    dots:`<rect width="8" height="8" fill="${K}"/><circle cx="4" cy="4" r="1.7" fill="${A}"/>`, check:`<rect width="8" height="8" fill="${K}"/><rect width="4" height="8" fill="${A}" opacity=".5"/><rect width="8" height="4" fill="${A}" opacity=".5"/>`}[d.pattern];
+  const tex = {
+    linen:`<pattern id="${id}tx" width="6" height="4" patternUnits="userSpaceOnUse"><path d="M0 2 H6" stroke="#000" stroke-opacity=".08" stroke-width="1"/></pattern>`,
+    wool:`<pattern id="${id}tx" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".8" fill="#000" fill-opacity=".1"/><circle cx="4.5" cy="4.5" r=".8" fill="#fff" fill-opacity=".12"/></pattern>`,
+    sequin:`<pattern id="${id}tx" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="2" fill="#fff" fill-opacity=".35"/><circle cx="0" cy="0" r="2" fill="#fff" fill-opacity=".2"/><circle cx="7" cy="7" r="2" fill="#fff" fill-opacity=".2"/></pattern>`,
+    tulle:`<pattern id="${id}tx" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 0 L4 4 M4 0 L0 4" stroke="#fff" stroke-opacity=".35" stroke-width=".6"/></pattern>`
+  }[fab] || "";
+  const sheen = fab === "silk" ? `<linearGradient id="${id}sk" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#fff" stop-opacity=".38"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".72" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>`
+    : fab === "velvet" ? `<radialGradient id="${id}sk" cx=".5" cy=".4" r=".7"><stop offset=".3" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient>` : "";
+  const shadeG = `<linearGradient id="${id}sh" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient>`;
+  const layers = (path, fill) => `<path d="${path}" fill="${fill}"/><path d="${path}" fill="url(#${id}sh)"/>${tex ? `<path d="${path}" fill="url(#${id}tx)"/>` : ""}${sheen ? `<path d="${path}" fill="url(#${id}sk)"/>` : ""}${fab === "tulle" ? `<path d="${path}" fill="#fff" opacity=".22"/>` : ""}<path d="${path}" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>`;
+  const folds = [-.55,-.2,.2,.55].map(t => `<path d="M${100+t*wh*1.6} ${wy+12} Q${100+t*he*.8} ${wy+L*.55} ${100+t*he*.92} ${hemY-4}" fill="none" stroke="${INK}" stroke-opacity=".22" stroke-width="1.6" stroke-linecap="round"/>`).join("");
+  const limb = (dd, w) => `<path d="${dd}" fill="none" stroke="${INK}" stroke-width="${w+5}" stroke-linecap="round" stroke-linejoin="round"/><path d="${dd}" fill="none" stroke="${skin}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const shoe = look.shoe || INK;
+  const head = `<g transform="translate(69 13) scale(.31)">${faceInner({skin, shape:"oval", hair:look.hair || "bun", hairC:look.hairC || "darkbrown", eye:look.eye || "brown", mood:look.mood || "neutral", noBody:true, earring:A})}</g>`;
+  return `<svg viewBox="16 6 168 356" role="img" aria-label="Dress preview on a figure">
+    <defs>${pat ? `<pattern id="${id}pt" width="8" height="8" patternUnits="userSpaceOnUse">${pat}</pattern>` : ""}${tex}${sheen}${shadeG}</defs>
+    <ellipse cx="100" cy="350" rx="60" ry="8" fill="${INK}" opacity=".12"/>
+    ${limb(`M92,170 L90,342`, 10)}${limb(`M108,170 L110,342`, 10)}
+    <path d="M80 344 q10 -8 16 0 q-2 5 -16 4z M104 344 q6 -8 16 0 q0 4 -16 4z" fill="${shoe}" stroke="${INK}" stroke-width="2"/>
+    ${limb(`M75,84 L65,140 L61,190`, 8)}${limb(`M125,84 L135,140 L139,190`, 8)}
+    <circle cx="61" cy="194" r="6" fill="${skin}" stroke="${INK}" stroke-width="2.2"/><circle cx="139" cy="194" r="6" fill="${skin}" stroke="${INK}" stroke-width="2.2"/>
+    <path d="M94 60 L94 80 L106 80 L106 60" fill="${skin}" stroke="${INK}" stroke-width="2.2"/>
+    <path d="M73,82 Q100,72 127,82 L121,140 L79,140 Z" fill="${skin}" stroke="${INK}" stroke-width="2.2"/>
+    ${layers(skirt, pat ? `url(#${id}pt)` : K)}${folds}
+    ${layers(bodice, M)}
+    <path d="M${lx+4} ${wy-1} H${rx-4}" stroke="${INK}" stroke-opacity=".35" stroke-width="1.4"/>
+    ${d.accent !== d.main ? `<rect x="${lx-1}" y="${wy-4}" width="${2*wh+2}" height="7" rx="2" fill="${A}" stroke="${INK}" stroke-width="2"/><rect x="${98}" y="${wy-5}" width="6" height="9" rx="1.5" fill="none" stroke="${INK}" stroke-width="1.6"/>` : ""}
+    ${sleeve ? sleeve.map(p => `<path d="${p}" stroke="${INK}" stroke-width="19" stroke-linecap="round" fill="none"/><path d="${p}" stroke="${M}" stroke-width="14" stroke-linecap="round" fill="none"/>`).join("") : ""}
+    ${head}
+  </svg>`;
+}
+
+/* =========================================================
+   PEACEMAKER STAGE: an illustrated set plus two expressive portraits
+   ========================================================= */
+const CAST_LOOK = {
+  dishes:[{skin:SKINS[2][0], hair:"curls", hairC:"black", top:"#ff7db8", eye:"brown", shape:"heart"}, {skin:SKINS[5][0], hair:"buzz", hairC:"black", top:"#3a8dff", eye:"darkbrown", shape:"square"}],
+  credit:[{skin:SKINS[4][0], hair:"long", hairC:"black", top:"#22b8a7", eye:"darkbrown", shape:"oval", earring:"#ffbf2e"}, {skin:SKINS[1][0], hair:"pixie", hairC:"blonde", top:"#6f62ff", eye:"blue", shape:"long", glasses:true}],
+  wedding:[{skin:SKINS[3][0], hair:"lob", hairC:"darkbrown", top:"#e85d3a", eye:"brown", shape:"round"}, {skin:SKINS[3][0], hair:"bun", hairC:"darkbrown", top:"#fffdf8", eye:"brown", shape:"oval", earring:"#fffdf8"}],
+  neighbors:[{skin:SKINS[6][0], hair:"buzz", hairC:"black", top:"#78c552", eye:"darkbrown", shape:"square"}, {skin:SKINS[0][0], hair:"ponytail", hairC:"auburn", top:"#a9dcef", eye:"green", shape:"oval"}]
+};
+const SCENE_ART = {
+  dishes:`<rect width="400" height="200" fill="#ffe8c2"/><rect x="0" y="140" width="400" height="60" fill="#e9c995"/><rect x="250" y="24" width="110" height="78" rx="4" fill="#a9dcef" stroke="${INK}" stroke-width="3"/><path d="M305 24 V102 M250 63 H360" stroke="${INK}" stroke-width="3"/><rect x="40" y="96" width="170" height="44" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><path d="M80 96 v-26 h22" fill="none" stroke="${INK}" stroke-width="4"/><ellipse cx="150" cy="96" rx="40" ry="8" fill="#9aa5b1" stroke="${INK}" stroke-width="3"/><path d="M120 92 l30 -22 l6 4 l-28 22z" fill="#3d3d3d" stroke="${INK}" stroke-width="2"/><g stroke="${INK}" stroke-width="2.5" fill="#fffdf8"><ellipse cx="118" cy="88" rx="14" ry="4"/><ellipse cx="124" cy="82" rx="14" ry="4"/><ellipse cx="116" cy="76" rx="14" ry="4"/></g><rect x="372" y="40" width="28" height="100" fill="#fffdf8" stroke="${INK}" stroke-width="3"/>`,
+  credit:`<rect width="400" height="200" fill="#e8f2ff"/><rect x="0" y="150" width="400" height="50" fill="#c9d6e8"/><rect x="40" y="22" width="150" height="90" rx="4" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><path d="M58 92 L88 70 L112 80 L150 44 L172 52" fill="none" stroke="#e63946" stroke-width="4"/><path d="M58 98 H176" stroke="${INK}" stroke-width="2"/><rect x="230" y="110" width="150" height="14" rx="3" fill="#c8915a" stroke="${INK}" stroke-width="3"/><path d="M246 124 v26 M364 124 v26" stroke="${INK}" stroke-width="4"/><rect x="270" y="88" width="40" height="24" rx="3" fill="#3d3d3d" stroke="${INK}" stroke-width="2.5"/><path d="M0 10 H400" stroke="#9fb3cc" stroke-width="4"/>`,
+  wedding:`<rect width="400" height="200" fill="#fff0f3"/><rect x="0" y="150" width="400" height="50" fill="#f3d2c1"/><rect x="30" y="118" width="340" height="12" rx="3" fill="#c8915a" stroke="${INK}" stroke-width="3"/><g transform="translate(250 92)"><path d="M0 26 l6 -26 h20 l6 26z" fill="#a9dcef" stroke="${INK}" stroke-width="2.5"/>${[[8,-6,"#ff7db8"],[18,-12,"#ffbf2e"],[26,-4,"#ff7db8"]].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="7" fill="${c}" stroke="${INK}" stroke-width="2"/>`).join("")}</g><g transform="rotate(-8 120 104)"><rect x="96" y="92" width="52" height="34" rx="2" fill="#fffdf8" stroke="${INK}" stroke-width="2.5"/><path d="M96 92 l26 18 l26 -18" fill="none" stroke="${INK}" stroke-width="2"/></g><path d="M40 20 q40 30 80 0 q40 30 80 0 q40 30 80 0 q40 30 80 0" fill="none" stroke="#ff7db8" stroke-width="3"/>`,
+  neighbors:`<rect width="400" height="200" fill="#efe6d6"/><rect x="0" y="160" width="400" height="40" fill="#c9b79c"/><rect x="40" y="40" width="80" height="120" fill="#78c552" stroke="${INK}" stroke-width="3"/><rect x="280" y="40" width="80" height="120" fill="#a9dcef" stroke="${INK}" stroke-width="3"/><circle cx="108" cy="104" r="4" fill="#ffbf2e" stroke="${INK}" stroke-width="2"/><circle cx="292" cy="104" r="4" fill="#ffbf2e" stroke="${INK}" stroke-width="2"/><rect x="66" y="64" width="34" height="22" fill="#fffdf8" stroke="${INK}" stroke-width="2"/><path d="M70 72 h26 M70 78 h18" stroke="${INK}" stroke-width="1.6"/><g transform="translate(170 132)"><ellipse cx="30" cy="16" rx="26" ry="12" fill="#c8915a" stroke="${INK}" stroke-width="2.5"/><circle cx="54" cy="6" r="10" fill="#c8915a" stroke="${INK}" stroke-width="2.5"/><path d="M58 0 l6 -8 M48 -2 l-2 -8" stroke="${INK}" stroke-width="2.5"/><path d="M8 16 q-10 -10 -4 -18" fill="none" stroke="${INK}" stroke-width="2.5"/><text x="60" y="-16" font-family="Fredoka, sans-serif" font-size="14" font-weight="700" fill="${INK}">woof!</text></g>`
+};
+const MOOD_FACE = {Heated:"angry", Guarded:"sad", Open:"happy", Tense:"tense", Calmer:"neutral", "?":"neutral"};
+
+/* =========================================================
+   DOUBLE-CLICK DEFINITIONS: glossary first, then a dictionary lookup
+   ========================================================= */
+const GLOSSARY = {
+  "affect labeling":"Putting a feeling into words (“you sound frustrated”). Studies show it calms the brain's threat response.",
+  "validation":"Showing someone their feelings make sense, without necessarily agreeing with them.",
+  "mediation":"A process where a neutral person helps two sides talk and reach their own agreement.",
+  "mediator":"A neutral person who helps people in conflict talk and find their own solution.",
+  "criticism":"In Gottman's research, attacking someone's character instead of naming a specific behavior.",
+  "contempt":"Mockery, sarcasm or eye-rolling that signals disgust. Gottman found it the strongest predictor of breakups.",
+  "defensiveness":"Deflecting blame back onto the other person instead of taking responsibility.",
+  "stonewalling":"Shutting down and withdrawing from a conversation, often from feeling overwhelmed.",
+  "reactance":"The urge to resist when someone pressures you or limits your freedom.",
+  "interests":"In negotiation, the needs and concerns underneath a demand (the “why”).",
+  "positions":"In negotiation, what someone says they want (the “what”), as opposed to why they want it.",
+  "looping":"Summarizing what someone said and checking you understood it correctly.",
+  "catastrophizing":"A thinking trap: jumping to the worst possible outcome.",
+  "overgeneralization":"A thinking trap: turning one event into a rule about everything.",
+  "personalization":"A thinking trap: blaming yourself for outcomes that had many causes.",
+  "interleaving":"Mixing different topics in one practice session. It feels harder but improves long-term learning.",
+  "retrieval":"Pulling information out of memory. Practicing it (testing yourself) strengthens learning.",
+  "monochromatic":"A color scheme using one hue in different tints and shades.",
+  "analogous":"Colors next to each other on the color wheel, like orange, yellow and chartreuse.",
+  "complementary":"Colors opposite each other on the color wheel, like blue and orange. They make each other look brighter.",
+  "triadic":"Three colors evenly spaced (120° apart) on the color wheel.",
+  "split-complementary":"A color plus the two neighbors of its opposite on the color wheel.",
+  "hue":"The pure color itself, like red or blue, as named on the color wheel.",
+  "tint":"A color mixed with white, making it lighter.",
+  "shade":"A color mixed with black, making it darker.",
+  "undertone":"The subtle warm (golden), cool (pink) or neutral color beneath skin's surface tone.",
+  "silhouette":"The overall outline shape of a garment, like A-line or mermaid.",
+  "a-line":"A dress or skirt fitted at the top that widens gradually toward the hem, like a capital A.",
+  "sheath":"A close-fitting, straight dress with no waist seam.",
+  "empire":"A waistline sitting just under the bust, named after France's First Empire (1804–1815).",
+  "mermaid":"A silhouette fitted to the knee that flares out at the hem.",
+  "bias":"A diagonal line at 45° to the fabric's grain. Fabric cut on the bias stretches and drapes.",
+  "selvage":"The tightly woven, finished edge of a length of fabric that keeps it from fraying.",
+  "grain":"The direction of the threads in woven fabric. Straight grain runs parallel to the selvage.",
+  "dart":"A folded and stitched wedge of fabric that shapes a flat piece around a curve.",
+  "seam":"The line where two pieces of fabric are stitched together.",
+  "hem":"An edge of fabric folded over and sewn to stop it fraying, usually at the bottom of a garment.",
+  "interfacing":"A stabilizing layer sewn or ironed behind fabric to give it structure, as in collars.",
+  "stay-stitch":"A line of stitching that stops curved edges from stretching before they're sewn.",
+  "stay-stitching":"A line of stitching that stops curved edges from stretching before they're sewn.",
+  "yoke":"A fitted panel across the shoulders or hips that other parts of a garment hang from.",
+  "lining":"An inner layer of fabric inside a garment that hides seams and helps it slide on.",
+  "toner":"A hair-color product that neutralizes unwanted tones using the opposite color on the color wheel.",
+  "brassy":"Unwanted yellow or orange tones that appear in lightened hair.",
+  "keratin":"The tough protein that hair and nails are made of.",
+  "egress":"A way out. Building codes require an egress window in bedrooms for emergency escape.",
+  "floorplan":"A drawing of a building seen from above, showing rooms, walls and doors to scale.",
+  "scale":"The ratio between a drawing and real life. At 1:100, 1 cm on paper is 1 m in reality.",
+  "vexillology":"The study of flags.",
+  "pan-african":"Green, yellow and red (or red, black and green) colors symbolizing African unity.",
+  "columbian exchange":"The transfer of plants, animals and diseases between the Americas and the rest of the world after 1492.",
+  "sumptuary":"Laws that restricted luxury clothing or spending, often by social class.",
+  "unesco":"The United Nations' cultural agency, which lists World Heritage Sites and living traditions.",
+  "umami":"The savory “fifth taste”, found in broths, miso, aged cheese and tomatoes.",
+  "kohl":"A dark eye cosmetic used since ancient Egypt.",
+  "spf":"Sun Protection Factor: how well sunscreen blocks UVB rays.",
+  "chunking":"Grouping items into meaningful units so more fit in working memory.",
+  "desirable difficulty":"A challenge that feels hard but makes learning stick, like spacing and testing yourself.",
+  "spaced repetition":"Reviewing information at growing intervals, just before you'd forget it.",
+  "laminated":"Dough folded many times with butter to create thin flaky layers, as in croissants.",
+  "socarrat":"The prized crispy, caramelized layer of rice at the bottom of a paella pan.",
+  "teff":"A tiny grain native to Ethiopia, used to make injera flatbread.",
+  "berbere":"An Ethiopian spice blend of chili, fenugreek, ginger and other spices.",
+  "jameed":"Dried, fermented yogurt used by Bedouin herders, the base of mansaf.",
+  "gochujang":"A Korean fermented chili paste.",
+  "dashi":"A Japanese stock made from kombu seaweed and dried bonito flakes.",
+  "tahini":"A paste of ground sesame seeds.",
+  "tocapu":"Small square geometric designs woven into Inca textiles.",
+  "obi":"The wide sash tied around a kimono.",
+  "kente":"A brightly colored woven cloth from Ghana, first worn by Asante royalty.",
+  "batik":"A way of patterning cloth by drawing wax on it before dyeing.",
+  "crinoline":"A cage of steel hoops worn under skirts in the 1850s–60s to make them wide.",
+  "amygdala":"A small brain region that processes threat and fear.",
+  "insulin":"A hormone made by the pancreas that lets cells take in sugar from the blood.",
+  "femur":"The thigh bone, the longest bone in the human body.",
+  "patella":"The kneecap.",
+  "clavicle":"The collarbone.",
+  "additive":"Color mixing with light: red, green and blue light add up to white.",
+  "subtractive":"Color mixing with ink or paint: each pigment absorbs light, and mixing them makes colors darker.",
+  "cmyk":"Cyan, magenta, yellow and black (key): the four inks used in printing."
+};
+function defStem(w){
+  w = w.toLowerCase().replace(/[^a-z\-' ]/g, "").trim();
+  const cand = [w, w.replace(/s$/, ""), w.replace(/es$/, ""), w.replace(/ing$/, ""), w.replace(/ed$/, ""), w.replace(/ly$/, "")];
+  for(const c of cand){ if(GLOSSARY[c]) return {term:c, def:GLOSSARY[c]}; if(DEF[c]) return {term:c, def:DEF[c]}; }
+  const multi = Object.keys(GLOSSARY).find(k => k.includes(" ") && k.split(" ").includes(w));
+  if(multi) return {term:multi, def:GLOSSARY[multi]};
+  return null;
+}
+let defPop = null;
+function closeDef(){ if(defPop){ defPop.remove(); defPop = null; } }
+function showDef(word, x, y){
+  closeDef();
+  const local = defStem(word);
+  defPop = document.createElement("div");
+  defPop.className = "defpop"; defPop.setAttribute("role", "dialog");
+  const place = () => { const r = defPop.getBoundingClientRect(); defPop.style.left = clamp(x - r.width/2, 8, innerWidth - r.width - 8) + "px"; defPop.style.top = (y + 18 + r.height > innerHeight ? y - r.height - 14 : y + 18) + "px"; };
+  const body = (term, def, src) => `<div class="defhead"><b>${term}</b><button type="button" aria-label="Close definition" class="defx">×</button></div><p>${def}</p><small>${src}</small>`;
+  if(local) defPop.innerHTML = body(local.term, local.def, "Synapse Arcade glossary");
+  else defPop.innerHTML = body(word, "Looking it up…", "");
+  document.body.appendChild(defPop); place();
+  defPop.querySelector(".defx").addEventListener("click", closeDef);
+  if(local) return;
+  const mine = defPop, wiki = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(word)}`;
+  const fail = () => { if(defPop !== mine) return; mine.innerHTML = body(word, "No saved definition for this word.", `<a href="${wiki}" target="_blank" rel="noopener">Search Wikipedia ↗</a>`); mine.querySelector(".defx").addEventListener("click", closeDef); place(); };
+  try{
+    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word.toLowerCase())}`).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      if(defPop !== mine) return;
+      const m = j[0]?.meanings?.[0], dd = m?.definitions?.[0]?.definition;
+      if(!dd) return fail();
+      mine.innerHTML = body(word, `<i>${m.partOfSpeech}</i> · ${dd}`, `Free Dictionary · <a href="${wiki}" target="_blank" rel="noopener">More ↗</a>`);
+      mine.querySelector(".defx").addEventListener("click", closeDef); place();
+    }).catch(fail);
+  }catch(e){ fail(); }
+}
+document.addEventListener("dblclick", e => {
+  if(e.target.closest("input, textarea, .map-box svg, .bodysvg, .sewbox, .plot, .fabric, .flagpole, .defpop")) return;
+  const sel = window.getSelection(), w = (sel ? sel.toString() : "").trim();
+  if(!w || w.length > 40 || /\d/.test(w)) return;
+  showDef(w.replace(/[“”"'.,;:!?()]/g, ""), e.clientX, e.clientY);
+});
+document.addEventListener("pointerdown", e => { if(defPop && !e.target.closest(".defpop")) closeDef(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeDef(); });
+
+/* =========================================================
+   HOME SCREEN: greeting, today, tabs, tidy tiles and a room sheet
+   ========================================================= */
+const MODE_INFO = {studio:"The main game: a hands-on project", sprint:"60-second quiz against the clock", practice:"10 questions, no timer, with an explanation after each", arcade:"60 seconds, build a streak for a multiplier", zen:"No timer: play at your own pace"};
+const lvlName = d => d < 3.5 ? "Beginner" : d < 6.5 ? "Intermediate" : "Advanced";
+function tileHTML(k){
+  const r = ROOMS[k];
+  return `<button type="button" class="rtile" data-open="${k}" style="--c:${r.color}"><span class="rtile-art">${ART[k] || ""}</span>
+    <span class="rtile-body"><span class="eyebrow">${r.skill}</span><b>${r.name}</b><span class="pill">${lvlName(S.rating[k])} · ${S.rating[k].toFixed(1)}</span></span></button>`;
+}
+function openRoomSheet(k){
+  const r = ROOMS[k], best = Math.max(0, ...r.modes.map(([m]) => S.best[k+":"+m] || 0));
+  $("modal").style.setProperty("--c", r.color);
+  openModal({eyebrow:r.skill, title:r.name,
+    body:`<div class="sheet-art">${ART[k] || ""}</div><p class="m-note" style="text-align:left">${r.blurb}</p><p class="tipnote">${r.tip}</p>
+      <div class="m-row"><span><b>${lvlName(S.rating[k])}</b>level ${S.rating[k].toFixed(1)} ${sparkSVG(S.hist[k], S.rating[k])}</span><span><b>${fmt(best)}</b>best score</span><span><b>${S.stars[k]}</b>stars</span></div>
+      <div class="modes">${r.modes.map(([m,label],i) => `<button type="button" class="modebtn ${i===0?"primary":""}" data-room="${k}" data-mode="${m}"><b>${label}</b><span>${MODE_INFO[m]}</span></button>`).join("")}</div>`,
+    actions:[["Close", closeModal]]});
+  $("mBody").querySelectorAll(".modebtn").forEach(b => b.addEventListener("click", () => startRoom(b.dataset.room, b.dataset.mode)));
+}
+function suggestions(){
+  const list = [];
+  const weak = ALL.slice().sort((a,b) => S.skill[a]-S.skill[b])[0];
+  list.push([weak, S.played ? "Your least-played skill" : "A great first room"]);
+  const fav = ALL.slice().sort((a,b) => S.skill[b]-S.skill[a])[0];
+  if(S.played && fav !== weak) list.push([fav, "Your strongest skill: push it further"]);
+  const fresh = shuffle(ALL.filter(k => !S.hist[k].length && !list.some(l => l[0] === k)))[0] || pick(ALL.filter(k => !list.some(l => l[0] === k)));
+  list.push([fresh, "Something new to try"]);
+  if(S.review.some(r => r.due <= S.played) && !list.some(l => l[0] === "words")) list[list.length-1] = ["words", "Words are ready for review"];
+  while(list.length < 3){ const k = pick(ALL.filter(x => !list.some(l => l[0] === x))); list.push([k, "Worth a visit"]); }
+  return list.slice(0,3);
+}
+function renderHub(){
+  renderTop();
+  renderTourCard();
+  const h = new Date().getHours();
+  $("greet").textContent = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  const li = levelInfo(S.xp);
+  $("playerCard").innerHTML = `<div class="ring" style="--p:${(li.into/li.need*100).toFixed(0)}"><b>${li.level}</b></div><div><b>${rankFor(li.level)}</b><span>${li.into}/${li.need} XP to level ${li.level+1}</span></div>
+    <div class="pc-stat"><b>${S.streak && (S.lastDay === today() || S.lastDay === yesterday()) ? S.streak : 0}</b><span>day streak</span></div><div class="pc-stat"><b>${fmt(ALL.reduce((s,k)=>s+S.stars[k],0) + S.mixStars)}</b><span>stars</span></div>`;
+  $("suggest").innerHTML = suggestions().map(([k, why]) => `<button type="button" class="sugg" data-open="${k}" style="--c:${ROOMS[k].color}"><span class="sugg-art">${ART[k] || ""}</span><span><b>${ROOMS[k].name}</b><small>${why}</small></span></button>`).join("");
+  const done = S.mixDay === today();
+  $("mixcard").innerHTML = `<div><div class="mixdots" aria-hidden="true">${MIX_ROOMS.slice(0,10).map(k=>`<i style="background:${ROOMS[k].color}"></i>`).join("")}</div>
+    <h3>Daily Mix${done ? " · done" : ""}</h3><p>Eight quick questions from across the arcade. Mixing topics makes learning stick.</p></div>
+    <button class="btn btn-solid" type="button" data-room="mix" data-mode="practice">${done ? "Play again" : "Start mix"}</button>`;
+  const tab = S.tab || "all";
+  $("tabs").querySelectorAll("button").forEach(b => b.classList.toggle("sel", b.dataset.tab === tab));
+  const groups = {studio:["Studios","Make things: design, style, sew, cook, plan and mediate.", STUDIO_KEYS], explore:["Explorers","Geography and history through food, fashion, landmarks, flags and time.", EXPLORE_KEYS], core:["Brain gym","Science, memory, numbers, words and logic.", CORE_KEYS]};
+  $("progressView").hidden = tab !== "progress"; $("roomGrid").hidden = tab === "progress";
+  if(tab !== "progress") $("roomGrid").innerHTML = Object.entries(groups).filter(([g]) => tab === "all" || tab === g).map(([g,[title,sub,keys]]) => `<section class="tgroup"><div class="wing-head"><h2>${title}</h2><p>${sub}</p></div><div class="tiles">${keys.map(tileHTML).join("")}</div></section>`).join("");
+  const max = Math.max(1, ...ALL.map(k=>S.skill[k]));
+  $("bars").innerHTML = ALL.map(k => `<div class="bar-row" style="--c:${ROOMS[k].color}"><span>${ROOMS[k].skill}</span><span class="bar"><i style="width:${(S.skill[k]/max*100).toFixed(1)}%"></i></span><span class="num">${fmt(S.skill[k])} XP</span><span class="num" title="Difficulty">${S.rating[k].toFixed(1)}</span></div>`).join("");
+  const total = ALL.reduce((s,k)=>s+S.skill[k],0);
+  $("advice").innerHTML = !total ? "Your profile fills in as you play. A good first loop: one Studio, one Explorer room, then the Daily Mix." : `Your strongest area is <b>${ROOMS[ALL.slice().sort((a,b)=>S.skill[b]-S.skill[a])[0]].skill}</b>. Variety helps your brain most, so try something from a different wing next.`;
+  $("statPlayed").textContent = fmt(S.played);
+  $("statStars").textContent = fmt(ALL.reduce((s,k)=>s+S.stars[k],0) + S.mixStars);
+  $("statReview").textContent = S.review.length;
+  $("glossList").innerHTML = Object.keys(GLOSSARY).sort().map(k => `<div><dt>${k}</dt><dd>${GLOSSARY[k]}</dd></div>`).join("");
+}
+$("hub").addEventListener("click", e => {
+  const o = e.target.closest("[data-open]"); if(o){ openRoomSheet(o.dataset.open); return; }
+  const t = e.target.closest("[data-tab]"); if(t){ S.tab = t.dataset.tab; save(); renderHub(); }
+});
+
 /* every question must offer four distinct answers; regenerate if a random draw collides */
 Object.keys(GEN).forEach(k => { const raw = GEN[k]; GEN[k] = d => { let it; for(let i=0;i<25;i++){ it = raw(d); if(it.choices.length === 4 && new Set(it.choices).size === 4) return it; } return it; }; });
 
@@ -2706,54 +3390,15 @@ function makeBrief(d){
     if(Math.random() < .5) checks.push({label:"High value contrast between bodice and skirt (stage lighting)", why:"Under strong lights, color differences flatten but light-dark contrast still reads from the back row.", test:dd=>Math.abs(SW[dd.main].l-SW[dd.second].l)>=35});
     else checks.push({label:"Tonal look: bodice and skirt close in lightness", why:"Low value contrast between halves creates one long, quiet column, an elegant trick for photos.", test:dd=>Math.abs(SW[dd.main].l-SW[dd.second].l)<=15});
   }
-  return {who: pick(o.who), checks};
-}
-function dressSVG(d){
-  const M = css(d.main), K = css(d.second), A = css(d.accent), sil = d.sil;
-  const wy = sil === "empire" ? 106 : 136, wh = sil === "empire" ? 21 : 17;
-  const hemY = {mini:200, knee:240, midi:282, floor:336}[d.len], L = hemY - wy, lx = 100-wh, rx = 100+wh;
-  let skirt;
-  if(sil === "sheath"){ skirt = `M${lx},${wy} Q${71},${wy+28} ${77},${hemY} L${123},${hemY} Q${129},${wy+28} ${rx},${wy} Z`; }
-  else if(sil === "aline"){ const he = 24 + L*.36; skirt = `M${lx},${wy} L${100-he},${hemY} Q100,${hemY+7} ${100+he},${hemY} L${rx},${wy} Z`; }
-  else if(sil === "ballgown"){ const he = 34 + L*.5; skirt = `M${lx},${wy} C${lx-28},${wy+8} ${100-he},${hemY-L*.45} ${100-he},${hemY} Q100,${hemY+9} ${100+he},${hemY} C${100+he},${hemY-L*.45} ${rx+28},${wy+8} ${rx},${wy} Z`; }
-  else if(sil === "empire"){ const he = 22 + L*.28; skirt = `M${lx},${wy} C${lx-3},${wy+40} ${100-he},${hemY-30} ${100-he},${hemY} Q100,${hemY+6} ${100+he},${hemY} C${100+he},${hemY-30} ${rx+3},${wy+40} ${rx},${wy} Z`; }
-  else { const ky = Math.min(hemY-10, 236), he = hemY > 250 ? 48 : 23;
-    skirt = `M${lx},${wy} Q${69},${wy+30} ${80},${ky} L${100-he},${hemY} Q100,${hemY+6} ${100+he},${hemY} L${120},${ky} Q${131},${wy+30} ${rx},${wy} Z`; }
-  const bodice = {
-    crew:`M72,80 L88,74 Q100,84 112,74 L128,80 L124,100 L${rx},${wy} L${lx},${wy} L76,100 Z`,
-    vneck:`M72,80 L90,74 L100,${Math.min(wy-6,112)} L110,74 L128,80 L124,100 L${rx},${wy} L${lx},${wy} L76,100 Z`,
-    sweet:`M77,95 Q88,85 100,97 Q112,85 123,95 L${rx},${wy} L${lx},${wy} Z`,
-    off:`M62,88 Q100,99 138,88 L134,97 L124,103 L${rx},${wy} L${lx},${wy} L76,103 L66,97 Z`
-  }[d.neck];
-  const sy = d.neck === "off" ? 92 : 84;
-  const sleevePath = {none:null, cap:[`M75,${sy} L72,${sy+12}`,`M125,${sy} L128,${sy+12}`], short:[`M75,${sy} L68,${sy+32}`,`M125,${sy} L132,${sy+32}`], long:[`M75,${sy} L65,140 L61,190`,`M125,${sy} L135,140 L139,190`]}[d.sleeve];
-  const pat = {
-    vstripe:`<rect width="8" height="8" fill="${K}"/><rect width="3" height="8" fill="${A}"/>`,
-    hstripe:`<rect width="8" height="8" fill="${K}"/><rect width="8" height="3" fill="${A}"/>`,
-    dots:`<rect width="8" height="8" fill="${K}"/><circle cx="4" cy="4" r="1.7" fill="${A}"/>`,
-    check:`<rect width="8" height="8" fill="${K}"/><rect width="4" height="8" fill="${A}" opacity=".5"/><rect width="8" height="4" fill="${A}" opacity=".5"/>`
-  }[d.pattern];
-  const ol = `stroke="var(--ink)" stroke-opacity=".35" stroke-width="1.2"`;
-  return `<svg viewBox="20 18 160 340" role="img" aria-label="Dress preview">
-    <defs>${pat ? `<pattern id="pt" width="8" height="8" patternUnits="userSpaceOnUse">${pat}</pattern>` : ""}</defs>
-    <g fill="none" stroke="var(--skin)" stroke-linecap="round">
-      <path d="M75,84 L65,140 L61,194" stroke-width="10"/><path d="M125,84 L135,140 L139,194" stroke-width="10"/>
-      <path d="M92,170 L90,346" stroke-width="12"/><path d="M108,170 L110,346" stroke-width="12"/>
-    </g>
-    <circle cx="100" cy="46" r="15" fill="var(--skin)"/><rect x="95" y="58" width="10" height="20" fill="var(--skin)"/>
-    <path d="M73,82 Q100,72 127,82 L121,140 L79,140 Z" fill="var(--skin)"/>
-    <path d="${skirt}" fill="${pat ? "url(#pt)" : K}" ${ol}/>
-    <path d="${bodice}" fill="${M}" ${ol}/>
-    ${d.accent !== d.main ? `<rect x="${lx-1}" y="${wy-4}" width="${2*wh+2}" height="7" rx="2" fill="${A}" ${ol}/>` : ""}
-    ${sleevePath ? sleevePath.map(p => `<path d="${p}" stroke="${M}" stroke-width="15" stroke-linecap="round" fill="none"/>`).join("") : ""}
-  </svg>`;
+  if(d >= 2 && FABRIC_RULE[occKey]){ const fr = FABRIC_RULE[occKey]; checks.splice(o.rules.length, 0, {label:fr.label, why:fr.why, test:dd=>fr.ok.includes(dd.fabric)}); }
+  return {who: pick(o.who), checks, look:{skin:pick(SKINS)[0], hair:pick(["bun","lob","long","curls","ponytail","pixie"]), hairC:pick(["black","darkbrown","brown","auburn","blonde"]), eye:pick(["brown","darkbrown","hazel","green","blue"])}};
 }
 STUDIO.atelier = {
   start(){
     this.brief = makeBrief(S.rating.atelier);
-    this.d = {sil:"sheath", len:"knee", neck:"crew", sleeve:"none", main:"blk", second:"blk", accent:"blk", pattern:"solid"};
+    this.d = {sil:"sheath", len:"knee", neck:"crew", sleeve:"none", main:"ivo", second:"ivo", accent:"cam", pattern:"solid", fabric:"cotton"};
     this.slot = "main";
-    const chips = (k, list) => `<div class="opt-group"><h4>${{sil:"Silhouette",len:"Length",neck:"Neckline",sleeve:"Sleeves",pattern:"Skirt pattern"}[k]}</h4><div class="chips">${list.map(([v,l]) => `<button class="ch" type="button" data-k="${k}" data-v="${v}">${l}</button>`).join("")}</div></div>`;
+    const chips = (k, list) => `<div class="opt-group"><h4>${{sil:"Silhouette",len:"Length",neck:"Neckline",sleeve:"Sleeves",pattern:"Skirt pattern",fabric:"Fabric"}[k]}</h4><div class="chips">${list.map(([v,l]) => `<button class="ch" type="button" data-k="${k}" data-v="${v}">${l}</button>`).join("")}</div></div>`;
     stage.innerHTML = `<div class="studio-grid">
       <div><div class="figure" id="atFig"></div>
         <div class="wheel-box"><div id="atWheel"></div><div><small>Your palette reads as</small><p id="atHarm"></p><small id="atHues"></small></div></div></div>
@@ -2763,7 +3408,7 @@ STUDIO.atelier = {
         <div class="opt-group"><h4>Colors · pick a part, then a swatch</h4><div class="slotbar" id="atSlots"></div>
           <div class="swatches" id="atSw">${TONES.map(([t]) => HUES.map(([h]) => `<button class="sw" type="button" data-sw="${h+t}" style="background:${css(h+t)}" aria-label="${SW[h+t].name}" title="${cap(SW[h+t].name)}"></button>`).join("")).join("")}</div>
           <div class="swatches neutrals">${["blk","chr","gry","ivo","cam"].map(id => `<button class="sw" type="button" data-sw="${id}" style="background:${css(id)}" aria-label="${SW[id].name}" title="${cap(SW[id].name)}"></button>`).join("")}</div></div>
-        ${chips("pattern",PAT)}
+        ${chips("pattern",PAT)}${chips("fabric",FABRICS)}
         <button class="btn btn-solid" type="button" id="atSubmit">Present to client</button>
       </div></div>`;
     stage.onclick = e => {
@@ -2778,7 +3423,7 @@ STUDIO.atelier = {
   },
   render(){
     const d = this.d;
-    $("atFig").innerHTML = dressSVG(d);
+    $("atFig").innerHTML = dressSVG(d, this.brief.look);
     stage.querySelectorAll(".ch[data-k]").forEach(b => b.classList.toggle("sel", d[b.dataset.k] === b.dataset.v));
     stage.querySelectorAll(".sw").forEach(b => b.classList.toggle("sel", d[this.slot] === b.dataset.sw));
     $("atSlots").innerHTML = [["main","Bodice"],["second","Skirt"],["accent","Belt & print"]].map(([k,l]) => `<button class="slotbtn ${this.slot===k?"sel":""}" type="button" data-slot="${k}"><i style="background:${css(d[k])}"></i><span>${l}: ${SW[d[k]].name}</span></button>`).join("");
@@ -2797,7 +3442,7 @@ STUDIO.atelier = {
     adapt("atelier", f);
     const stars = f === 1 ? 3 : f >= .7 ? 2 : 1;
     endSession({title: f === 1 ? "The client loves it" : f >= .7 ? "Nearly there" : "Back to the sketchbook", stars, xp:25+15*stars,
-      body:`<div class="figure" style="max-width:180px;align-self:center">${dressSVG(d)}</div>${checklist(res)}`,
+      body:`<div class="figure" style="max-width:180px;align-self:center">${dressSVG(d, {...this.brief.look, mood: f === 1 ? "happy" : f >= .7 ? "neutral" : "sad"})}</div>${checklist(res)}`,
       actions:[["New brief", () => startRoom("atelier","studio"), true], ["Lobby", goHub]]});
   }
 };
@@ -3291,6 +3936,7 @@ STUDIO.peace = {
       <div class="scene">
         <span class="eyebrow">Scene ${sc.tier} · ${this.blind ? "Blind mode: read their words, the meters are hidden" : "Watch the meters as you mediate"}</span>
         <h3>${sc.title}</h3><p class="setting">${sc.setting}</p>
+        <div class="pm-stage"><svg viewBox="0 0 400 200" class="pm-set" aria-hidden="true">${SCENE_ART[sc.id] || ""}</svg><div class="pm-cast"><div class="pm-actor" id="pmP0"></div><div class="pm-actor" id="pmP1"></div></div></div>
         <div class="meter tension"><span>Tension</span><span class="bar"><i id="pmT"></i></span></div>
         <div class="cast">${sc.cast.map((c,i) => `<div class="actor" style="--ac:${ac[i]}"><div class="actor-top"><span class="avatar" id="pmAv${i}">${c.n[0]}</span><div><b>${c.n}</b><small>${c.role}</small></div></div><span class="mood" id="pmMood${i}"></span><div class="meter"><span>Trust in you</span><span class="bar"><i id="pmTr${i}"></i></span></div></div>`).join("")}</div>
       </div>
@@ -3303,13 +3949,14 @@ STUDIO.peace = {
   mood(i){ const tr = this.trust[i], t = this.t; return t > 70 ? "Heated" : tr < 25 ? "Guarded" : tr > 65 ? "Open" : t > 45 ? "Tense" : "Calmer"; },
   meters(){
     $("pmT").style.width = this.t + "%"; $("pmT").style.setProperty("--bw", (10000/Math.max(this.t,1)) + "%");
-    [0,1].forEach(i => { $("pmTr"+i).style.width = this.trust[i] + "%"; $("pmMood"+i).textContent = this.blind ? "?" : this.mood(i); });
+    [0,1].forEach(i => { $("pmTr"+i).style.width = this.trust[i] + "%"; $("pmMood"+i).textContent = this.blind ? "Read their face" : this.mood(i);
+      const pa = $("pmP"+i); if(pa) pa.innerHTML = faceSVG({...(CAST_LOOK[this.sc.id] || [{},{}])[i], mood: MOOD_FACE[this.mood(i)] || "neutral"}, 170) + `<span class="pm-name">${this.sc.cast[i].n}</span>`; });
   },
   line(type, who, text){
     const f = $("pmFeed"); if(!f) return;
     const el = document.createElement("div");
     el.className = "line " + type;
-    if(type === "char"){ el.style.setProperty("--ac", this.ac[who]); el.innerHTML = `<span class="who">${this.sc.cast[who].n}</span>${text}`; const av = $("pmAv"+who); if(av){ av.style.transform = "scale(1.12)"; setTimeout(() => av.style.transform = "", 300); } }
+    if(type === "char"){ el.style.setProperty("--ac", this.ac[who]); el.innerHTML = `<span class="who">${this.sc.cast[who].n}</span>${text}`; const av = $("pmAv"+who); if(av){ av.style.transform = "scale(1.12)"; setTimeout(() => av.style.transform = "", 300); } const pa = $("pmP"+who); if(pa){ pa.classList.remove("talking"); void pa.offsetWidth; pa.classList.add("talking"); } }
     else if(type === "you") el.innerHTML = `<span class="who">You · mediator</span>${text}`;
     else el.textContent = text;
     f.appendChild(el); f.scrollTop = f.scrollHeight;
