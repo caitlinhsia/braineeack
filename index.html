@@ -860,7 +860,7 @@ const KEY = "synapse-arcade-v2";
 function blank(){
   const per = v => Object.fromEntries(ALL.map(k => [k, typeof v === "function" ? v() : v]));
   return {xp:0, played:0, streak:0, lastDay:"", mixDay:"", sound:true, mixStars:0,
-    skill:per(0), rating:per(2), hist:per(() => []), stars:per(0), best:{}, review:[], lastScen:"", daily:{}};
+    skill:per(0), rating:per(2), hist:per(() => []), stars:per(0), best:{}, review:[], lastScen:"", daily:{}, seenQ:{}, seenItems:{}};
 }
 function load(){
   const d = blank();
@@ -1198,9 +1198,22 @@ function mk(prompt, correct, wrongs, explain, extra={}){
   const choices = shuffle([correct, ...wrongs.slice(0,3)]);
   return Object.assign({prompt, choices, answer:choices.indexOf(correct), explain}, extra);
 }
+/* remember what each player has seen, and serve the least recently seen first */
+function freshOrder(room, list, key = x => x.n){
+  const seen = (S.seenItems[room] = S.seenItems[room] || []);
+  return shuffle(list.slice()).sort((a,b) => seen.indexOf(key(a)) - seen.indexOf(key(b)));
+}
+function markSeen(room, k){
+  const seen = (S.seenItems[room] = S.seenItems[room] || []), i = seen.indexOf(k);
+  if(i >= 0) seen.splice(i, 1);
+  seen.push(k); if(seen.length > 250) seen.splice(0, seen.length - 250);
+}
+function freshItems(room, list, n, key = x => x.n){ const out = freshOrder(room, list, key).slice(0, n); out.forEach(x => markSeen(room, key(x))); save(); return out; }
 function fromBank(bank, d){
   const t = d < 3.5 ? 1 : d < 5.5 ? 2 : d < 7.5 ? 3 : 4;
-  const pool = bank.filter(b => b[0] <= t && b[0] >= t-2);
+  let pool = bank.filter(b => b[0] <= t+1 && b[0] >= t-2);
+  if(pool.length < 20) pool = bank.filter(b => b[0] <= t+2);
+  if(pool.length < 20) pool = bank;
   const [, q, c, w, e] = pick(pool.length ? pool : bank);
   const long = [c, ...w].some(s => s.length > 22);
   return mk(q, c, w, e, {long, text:!long});
@@ -1327,7 +1340,17 @@ const AT_BANK = [
   [3,"Why do complementary colors look so vivid side by side?","Each makes the other look more saturated at the edges",["They have the same wavelength","They have identical lightness","They are both warm"],"Your visual system exaggerates differences at edges. Chemist Michel Chevreul described this “simultaneous contrast” in 1839."],
   [4,"Cutting fabric “on the bias” means cutting at…","45° to the grain",["90° to the selvage","Along the selvage","Along the fold"],"Bias-cut fabric stretches and drapes around curves. Madeleine Vionnet made the technique famous in the 1920s."],
   [4,"A princess seam is mainly used to…","Shape the bodice over the bust without darts",["Attach a pocket","Hold a zipper","Finish a hem"],"Princess seams run vertically over the bust, shaping the fabric and adding a slimming vertical line."],
-  [4,"Which pair has the strongest value contrast?","Ivory and black",["Red and green of equal lightness","Pale blue and pale pink","Teal and azure"],"Value contrast is about light vs dark, not hue. Red and green of the same lightness look almost identical in a black-and-white photo."]
+  [4,"Which pair has the strongest value contrast?","Ivory and black",["Red and green of equal lightness","Pale blue and pale pink","Teal and azure"],"Value contrast is about light vs dark, not hue. Red and green of the same lightness look almost identical in a black-and-white photo."],
+  [1,"Which colors are warm?","Red, orange and yellow",["Blue, green and violet","Black and white","Grey and silver"],"Warm colors seem to come toward you; cool colors recede."],
+  [1,"Mixing red and white makes…","Pink",["Purple","Orange","Brown"],"Adding white makes a tint, so pink is a tint of red."],
+  [2,"A capsule wardrobe is…","A small set of versatile clothes that all mix and match",["Clothes for astronauts","A wardrobe with a lock","A single outfit"],"London boutique owner Susie Faux coined the term in the 1970s."],
+  [2,"Haute couture means…","Custom-made, handmade high fashion",["Cheap mass-produced clothing","Second-hand clothes","Sportswear"],"In France, a fashion house needs official approval to call itself haute couture."],
+  [2,"Which neckline runs wide, from shoulder to shoulder?","Boat neck (bateau)",["V-neck","Halter","Crew neck"],"Breton striped sailor shirts made it famous."],
+  [3,"Coco Chanel made which fabric fashionable for women?","Jersey",["Velvet","Denim","Lace"],"Jersey was mostly used for men's underwear; she turned it into comfortable, chic dresses."],
+  [3,"Which designer launched the 1947 “New Look”, with a tiny waist and full skirt?","Christian Dior",["Coco Chanel","Yves Saint Laurent","Mary Quant"],"After wartime rationing, its lavish use of fabric caused a sensation."],
+  [3,"In color theory, saturation means…","How intense or pure a color is",["How light or dark it is","Its temperature","Its name"],"Low-saturation colors look greyish or muted."],
+  [4,"Fast fashion is criticized mainly because…","Cheap, short-lived clothes create huge waste and pollution",["Clothes cost too much","It uses only natural fibers","Everything is handmade"],"Tens of millions of tonnes of textiles are thrown away worldwide every year."],
+  [4,"Pantone is best known for…","Standard color-matching codes and a Color of the Year",["Sewing machines","Fabric dyes only","Fashion shows"],"Designers and printers use Pantone numbers to match colors exactly."]
 ];
 GEN.atelier = d => {
   const kinds = d < 3 ? ["harm","harm","comp","warm","bank"] : d < 6 ? ["harm","harm","comp","bank","bank"] : ["harm","comp","bank","bank"];
@@ -1367,7 +1390,19 @@ const SEW_BANK = [
   [3,"Interfacing is added to collars and cuffs to…","Give them structure",["Make them stretch","Hide the seams","Waterproof them"],"Interfacing is a stabilizing layer behind fabric that needs to hold its shape."],
   [3,"Why grade (trim to staggered widths) seam allowances?","To reduce bulk",["To make the seam stronger","To add ease","To stop shrinkage"],"Layers trimmed to different widths lie flat instead of forming a ridge."],
   [4,"On an inward (concave) curve, you should … the seam allowance.","Clip",["Notch out wedges","Leave it uncut","Fold it twice"],"Clips let a concave curve spread open when turned. Convex curves need wedges notched out so they don't bunch."],
-  [4,"“Ease” in a sleeve cap means…","The cap is slightly larger than the armhole and eased in smoothly",["The sleeve is loose at the wrist","The seam allowance is wider","The sleeve is cut on the bias"],"A little extra length in the cap makes room for the shoulder's curve without visible puckers."]
+  [4,"“Ease” in a sleeve cap means…","The cap is slightly larger than the armhole and eased in smoothly",["The sleeve is loose at the wrist","The seam allowance is wider","The sleeve is cut on the bias"],"A little extra length in the cap makes room for the shoulder's curve without visible puckers."],
+  [1,"What is the selvage?","The tightly woven, finished edge of the fabric",["A type of needle","The fold line","A pattern marking"],"It doesn't fray, and the straight grain runs parallel to it."],
+  [1,"What does a thimble protect?","Your finger while you push a needle",["The fabric from stains","The thread from tangling","The scissors"],"Thimbles have been found in the ruins of Pompeii."],
+  [1,"Which fiber comes from sheep?","Wool",["Linen","Silk","Cotton"],"Wool's natural crimp traps air, which keeps you warm."],
+  [2,"Pinking shears cut a zigzag edge to…","Slow down fraying",["Make pleats","Mark the grain","Cut buttonholes"],"The zigzag keeps loose threads short, so woven fabric frays less."],
+  [2,"What is a seam allowance?","The fabric between the stitching line and the cut edge",["The thread length you need","The width of the finished garment","A tax on fabric"],"Common seam allowances are 1 to 1.5 cm."],
+  [2,"Why sew pieces with right sides together?","So the seam ends up hidden inside when turned out",["It's faster","It saves thread","It stops shrinking"],"After stitching, you open the pieces and the raw edges are on the inside."],
+  [2,"A piece must finish 30 cm wide, with 1.5 cm seam allowance on each side. How wide do you cut it?","33 cm",["31.5 cm","30 cm","36 cm"],"30 + 2 × 1.5 = 33 cm."],
+  [3,"A serger (overlocker) is used to…","Trim raw edges and wrap them in thread in one step",["Embroider names","Sew on buttons","Press seams"],"It's how store-bought clothes get their neat inside seams."],
+  [3,"Which fiber comes from flax plants?","Linen",["Silk","Wool","Polyester"],"Linen is one of the oldest textiles; ancient Egyptians wrapped mummies in it."],
+  [3,"Which fiber is made by caterpillars?","Silk",["Cotton","Linen","Rayon"],"A single silkworm cocoon unwinds into one thread that can be hundreds of meters long."],
+  [4,"What does basting mean?","Long, temporary stitches that hold pieces before the final seam",["Ironing with steam","Dyeing fabric","Cutting on the bias"],"Basting lets you check the fit before sewing the real seam."],
+  [4,"Polyester is made from…","Petroleum-based plastic",["Tree bark","Cotton waste","Wool fibers"],"It's durable and cheap, but it sheds microplastic fibers in the wash."]
 ];
 GEN.sewing = d => {
   const k = pick(d < 3 ? ["cut","cut","across","bank"] : d < 6 ? ["cut","across","hem","yard","bank","bank"] : ["shrink","yard","across","cut","bank","bank"]);
@@ -1394,7 +1429,18 @@ const FLOOR_BANK = [
   [2,"Why must bedrooms have a window to the outside?","Emergency escape (egress)",["Paint codes","Wi-Fi signal","Noise rules"],"Building codes require an exit route from sleeping rooms in case a fire blocks the door."],
   [3,"Roughly how wide should a doorway be for wheelchair access?","About 85–90 cm",["About 60 cm","About 70 cm","About 1.5 m"],"Accessibility standards ask for at least ~81 cm (32 in) of clear width, so 85–90 cm doors are typical."],
   [3,"On a plan drawn at 1:100, 1 cm on paper equals…","1 m in reality",["10 cm","100 m","1 km"],"1:100 means reality is 100× larger: 1 cm × 100 = 100 cm = 1 m."],
-  [4,"Putting the kitchen and bathroom back to back mainly saves on…","Plumbing runs",["Paint","Lighting","Furniture"],"Sharing a “wet wall” shortens water and drain pipes, which saves money and reduces leak points."]
+  [4,"Putting the kitchen and bathroom back to back mainly saves on…","Plumbing runs",["Paint","Lighting","Furniture"],"Sharing a “wet wall” shortens water and drain pipes, which saves money and reduces leak points."],
+  [1,"Which room usually needs the most plumbing?","Bathroom",["Bedroom","Living room","Hallway"],"Toilets, showers and sinks all need a water supply and drains."],
+  [1,"What does a floor plan show?","A building seen from above, with walls, doors and rooms to scale",["The outside of a building from the front","Only the roof","The electricity bill"],"Architects draw plans as if the building were sliced horizontally about a meter above the floor."],
+  [1,"A room is 5 m by 4 m. How many 1 m² tiles cover the floor?","20",["9","18","25"],"5 × 4 = 20 m², so 20 tiles of 1 m²."],
+  [2,"On a floor plan, a door is usually drawn as…","A line with a quarter-circle arc showing its swing",["A dashed square","A zigzag","A solid black circle"],"The arc shows how much space the door needs to open."],
+  [2,"Why do architects keep bedrooms away from the garage and street?","To keep them quiet",["To save paint","Because garages are cold","For better Wi-Fi"],"Zoning a home into quiet and noisy areas is a basic layout principle."],
+  [2,"A room is 4 m × 3 m. What is its perimeter?","14 m",["12 m","7 m","24 m"],"Perimeter = 2 × (4 + 3) = 14 m. The area would be 12 m²."],
+  [3,"What is “open plan” design?","Kitchen, dining and living spaces combined without walls",["A house with no roof","Rooms that open onto the street","A plan drawn without a scale"],"Open plans spread in the mid-1900s and let daylight travel through the home."],
+  [3,"Why are stair steps usually about 17–18 cm high?","It matches a comfortable human stride",["It's cheapest","Every country bans other sizes","It saves wood"],"Designers use a rule of thumb: 2 risers + 1 tread ≈ 63 cm, about one walking step."],
+  [3,"In the southern hemisphere, which way should a living room face for the most winter sun?","North",["South","East","West"],"South of the equator, the sun travels across the northern sky."],
+  [4,"What does a load-bearing wall do?","Supports the weight of the floors and roof above",["Only blocks sound","Holds the pipes","Divides the garden"],"Removing one without adding a beam can make a building collapse."],
+  [4,"Feng shui is…","A traditional Chinese practice of arranging spaces for harmony",["A Japanese roof style","A type of brick","A building code"],"It considers flow, orientation and balance; some ideas overlap with good daylight and circulation design."]
 ];
 function miniGrid(cells, n=3, size=16){
   const s = size;
@@ -1454,7 +1500,17 @@ const PEACE_BANK = [
   [4,"A Gottman “soft startup” to a complaint begins with…","A calm description of the situation and your feeling, without blame",["A list of past mistakes","A question about why they did it","A joke to lighten the mood"],"In Gottman's lab, how a conversation started predicted how it ended 96% of the time."],
   [4,"In a heated argument, someone's heart rate passes ~100 bpm. Gottman recommends…","A break of at least 20 minutes before continuing",["Pushing through to finish","Raising your voice to be heard","Changing the subject quickly"],"Above ~100 bpm, people become “flooded”: listening and empathy drop. A real break lets the body reset."],
   [4,"“Looping for understanding” means…","Summarizing what someone said and checking you got it right",["Repeating your point until they agree","Asking the same question twice","Ignoring interruptions"],"Mediators use looping to prove they heard and to catch misunderstandings early."],
-  [4,"Ordering someone to apologize often makes them less willing. This is called…","Psychological reactance",["Cognitive dissonance","The halo effect","Anchoring"],"People push back when their freedom feels threatened, so good mediators ask rather than order."]
+  [4,"Ordering someone to apologize often makes them less willing. This is called…","Psychological reactance",["Cognitive dissonance","The halo effect","Anchoring"],"People push back when their freedom feels threatened, so good mediators ask rather than order."],
+  [1,"Someone says “I'm fine” with crossed arms and a flat voice. What should you pay most attention to?","Their body language and tone",["Only their words","Nothing at all","Their clothes"],"Tone and posture often carry more of the emotional message than the words do."],
+  [1,"Which is an open question?","“What happened, from your side?”",["“Did you do it?”","“Are you angry?”","“Was it Tuesday?”"],"Open questions can't be answered with yes or no, so people explain."],
+  [2,"Turn “You always leave a mess” into a fair complaint:","“The dishes have been in the sink since Monday, and it stresses me out.”",["“You're so lazy.”","“Why are you like this?”","“Forget it.”"],"A complaint names a specific behavior and its effect, not a character flaw."],
+  [2,"What is empathy?","Understanding and sharing another person's feelings",["Feeling sorry for someone","Agreeing with everyone","Giving advice"],"Empathy is “I feel with you”; sympathy is “I feel sorry for you”."],
+  [2,"In a heated group argument, a good first step for a mediator is…","Setting ground rules, like taking turns",["Picking a side quickly","Letting everyone shout it out","Leaving the room"],"Clear structure makes people feel safe enough to listen."],
+  [3,"Which sentence shows all-or-nothing thinking?","“If I'm not perfect, I'm a total failure.”",["“I did okay and can improve.”","“Let's look at the facts.”","“Maybe next time.”"],"It sees only extremes, with no middle ground."],
+  [3,"What is a win-win solution?","One where both sides get what matters most to them",["One side wins, the other loses","Both sides give up everything","A coin toss"],"It usually comes from exploring interests rather than arguing positions."],
+  [3,"Why do mediators summarize both sides out loud?","To show each person they were heard accurately",["To fill the silence","To decide who's right","To speed things up"],"Feeling understood lowers defensiveness."],
+  [4,"The halo effect is…","Letting one good trait color your whole judgment of someone",["Feeling guilty after an argument","Copying a friend's mood","Remembering only the good times"],"We tend to assume a confident or attractive person is also kind or smart."],
+  [4,"Confirmation bias means…","Noticing information that supports what you already believe",["Asking for confirmation","Changing your mind easily","Doubting everything"],"In conflicts, each side tends to remember the evidence that proves them right."]
 ];
 GEN.peace = d => fromBank(PEACE_BANK, d);
 /* =========================================================
@@ -1540,12 +1596,10 @@ function haversine([la1,lo1],[la2,lo2]){
 const llToXY = ([lat,lon]) => [(lon+180)/360*1000, (84-lat)/360*1000];
 const xyToLL = (x,y) => [84 - y/1000*360, x/1000*360 - 180];
 const tierFor = d => d < 4 ? 1 : d < 7 ? 2 : 3;
-function pickItems(list, d, n){
+function pickItems(list, d, n, room){
   const t = tierFor(d);
-  let pool = shuffle(list.filter(x => x.t <= t && x.t >= t-1));
-  if(t > 1) pool.sort((a,b) => b.t - a.t);
-  pool = shuffle(pool.slice(0, Math.max(n, Math.ceil(pool.length*.75))));
-  return pool.slice(0, n);
+  const pool = list.filter(x => x.t <= t && x.t >= t-1);
+  return freshItems(room || "explore", pool.length >= n ? pool : list, n);
 }
 
 /* ---------- reusable world map ---------- */
@@ -1625,7 +1679,7 @@ function Explorer(cfg){
   return {
     start(){
       if(cfg.daily){ this.tour = dailyTour(); this.items = this.tour.items; this.startClues = 2; }
-      else { const d = S.rating[cfg.room]; this.items = pickItems(cfg.list, d, 5); this.startClues = d < 4 ? 2 : 1; }
+      else { const d = S.rating[cfg.room]; this.items = pickItems(cfg.list, d, 5, cfg.room); this.startClues = d < 4 ? 2 : 1; }
       this.round = 0; this.total = 0; this.log = [];
       stage.innerHTML = `<div class="explore"><div id="exMap"></div>
         <div class="ctl-col">
@@ -2013,7 +2067,7 @@ STUDIO.thread = Explorer({room:"thread", list:OUTFITS, noun:"Mystery outfit", qu
 
 /* ---------- quiz generators ---------- */
 GEN.kitchen = d => {
-  const pool = DISHES.filter(x => x.t <= tierFor(d)), it = pick(pool);
+  const pool = DISHES.filter(x => x.t <= tierFor(d) + 1), it = pick(pool);
   const others = shuffle([...new Set(DISHES.map(x => x.c).filter(c => c !== it.c))]).slice(0,3);
   if(Math.random() < .55)
     return mk(`<b>${it.n}</b>: ${it.clues[0]}<br>Which country is it from?`, cname(it.c), others.map(cname), `${it.n} comes from ${it.city}, ${cname(it.c)}. ${it.fact}`, {text:true});
@@ -2021,7 +2075,7 @@ GEN.kitchen = d => {
   return mk(`Which of these dishes comes from <b>${cname(it.c)}</b>?`, it.n, wrong, `${it.n}: ${it.clues[0]} ${it.fact}`, {text:true});
 };
 GEN.thread = d => {
-  const pool = OUTFITS.filter(x => x.t <= tierFor(d)), it = pick(pool);
+  const pool = OUTFITS.filter(x => x.t <= tierFor(d) + 1), it = pick(pool);
   if(Math.random() < .55){
     const cy = centuryOf(it.y), base = it.y;
     const offs = shuffle([-300,-200,-100,100,200,400]).map(o => centuryOf(base+o)).filter((v,i,a) => v !== cy && a.indexOf(v) === i).slice(0,3);
@@ -2092,7 +2146,7 @@ function flagSVG(l, cols, w=150, opts={}){
 STUDIO.flags = {
   start(){
     const d = S.rating.flags;
-    this.list = shuffle(poolFor(FLAGS, d).slice()).slice(0, 6);
+    this.list = freshItems("flags", poolFor(FLAGS, d), 6);
     this.giveLayout = d < 3.5; this.round = 0; this.total = 0; this.log = [];
     this.newRound();
   },
@@ -2144,7 +2198,7 @@ STUDIO.flags = {
   }
 };
 GEN.flags = d => {
-  const it = pick(poolFor(FLAGS, d)), others = shuffle(FLAGS.filter(x => x.n !== it.n && JSON.stringify(x.c) !== JSON.stringify(it.c))).slice(0,3).map(x => x.n);
+  const it = pick(FLAGS.filter(x => x.t <= tier3(d) + 1)), others = shuffle(FLAGS.filter(x => x.n !== it.n && JSON.stringify(x.c) !== JSON.stringify(it.c))).slice(0,3).map(x => x.n);
   return mk("Whose flag is this?", it.n, others, `${it.n}. ${it.f}`, {text:true, visual:flagSVG(it.l, it.c, 180, {cx:it.n==="Bangladesh"||it.n==="Palau"?66:72})});
 };
 
@@ -2197,7 +2251,7 @@ const LANDMARKS = [
 LANDMARKS.forEach(x => x.kind = "landmark");
 STUDIO.landmarks = Explorer({room:"landmarks", list:LANDMARKS});
 GEN.landmarks = d => {
-  const it = pick(poolFor(LANDMARKS, d)), others = shuffle([...new Set(LANDMARKS.map(x => x.c).filter(c => c !== it.c))]).slice(0,3);
+  const it = pick(LANDMARKS), others = shuffle([...new Set(LANDMARKS.map(x => x.c).filter(c => c !== it.c))]).slice(0,3);
   return mk(`Which country is this landmark in?`, cname(it.c), others.map(cname), `${it.n}, ${it.city}, ${cname(it.c)}. ${it.fact}`, {text:true, visual:LANDMARK_ART[it.n]});
 };
 
@@ -2333,7 +2387,7 @@ const fmtAmt = (a, unit) => { const n = Number.isInteger(a) ? a : a.toFixed(2).r
 STUDIO.cook = {
   start(){
     const d = S.rating.cook;
-    this.list = shuffle(RECIPES.filter(x => x.t <= tier3(d) + 1)).slice(0, 3);
+    this.list = freshItems("cook", RECIPES.filter(x => x.t <= tier3(d) + 1), 3);
     this.round = 0; this.total = 0; this.log = []; this.nDecoy = d < 3.5 ? 4 : d < 6.5 ? 5 : 6;
     this.namesHint = d < 4; this.newRound();
   },
@@ -2513,7 +2567,7 @@ const evIcon = k => `<svg viewBox="0 0 40 40" width="34" height="34" aria-hidden
 STUDIO.time = {
   start(){
     const d = S.rating.time; this.gap = Math.round(clamp(500 - d*52, 8, 500));
-    const pool = shuffle(EVENTS.slice());
+    const pool = freshOrder("time", EVENTS);
     this.placed = [pool.shift()]; this.deck = pool; this.lives = 3; this.score = 0; this.turns = 0; this.max = 8;
     stage.innerHTML = `<div class="studio-grid"><div class="ctl-col"><div class="brief"><span class="eyebrow">Then & Now</span><h3>Where does this go on the timeline?</h3><div id="tmCard"></div><p class="msg" id="tmMsg">Tap the gap where it belongs.</p></div><div id="tmRes"></div></div>
       <div><ol class="timeline" id="tmLine"></ol></div></div>`;
@@ -2525,7 +2579,7 @@ STUDIO.time = {
     const minGap = c => Math.min(...this.placed.map(p => Math.abs(p.y - c.y)));
     let i = this.deck.findIndex(c => minGap(c) >= this.gap);
     if(i < 0) i = 0;
-    this.card = this.deck.splice(i,1)[0]; this.locked = false;
+    this.card = this.deck.splice(i,1)[0]; this.locked = false; markSeen("time", this.card.n); save();
     $("tmCard").innerHTML = `<div class="evcard new">${evIcon(this.card.k)}<b>${this.card.n}</b><span class="yr">?</span></div>`;
     $("tmMsg").textContent = "Tap the gap where it belongs.";
     $("tmRes").innerHTML = "";
@@ -2571,8 +2625,8 @@ GEN.time = d => {
   const gap = clamp(500 - d*52, 8, 500);
   let set; let guard = 0;
   do{ set = shuffle(EVENTS.slice()).slice(0,4); guard++; } while(guard < 60 && Math.min(...pairs(set.map(e => e.y)).map(([a,b]) => Math.abs(a-b))) < gap*.4);
-  const first = set.slice().sort((a,b) => a.y - b.y)[0];
-  return mk("Which of these happened <b>first</b>?", first.n, set.filter(e => e !== first).map(e => e.n), set.slice().sort((a,b)=>a.y-b.y).map(e => `${e.n}: ${yearLabel(e.y)}`).join(". ") + ".", {long:true});
+  const late = Math.random() < .5, sorted = set.slice().sort((a,b) => a.y - b.y), first = late ? sorted[sorted.length-1] : sorted[0];
+  return mk(late ? "Which of these happened <b>most recently</b>?" : "Which of these happened <b>first</b>?", first.n, set.filter(e => e !== first).map(e => e.n), set.slice().sort((a,b)=>a.y-b.y).map(e => `${e.n}: ${yearLabel(e.y)}`).join(". ") + ".", {long:true});
 };
 
 /* ---------------- SCIENCE LAB ---------------- */
@@ -2614,7 +2668,7 @@ function bodySVG(extra=""){
 STUDIO.lab = {
   start(){
     const d = S.rating.lab, pool = poolFor(BODY, d);
-    const organs = shuffle(pool.filter(b => b.k === "organ")), bones = shuffle(pool.filter(b => b.k === "bone"));
+    const organs = freshItems("lab", pool.filter(b => b.k === "organ"), 4), bones = freshItems("labbones", pool.filter(b => b.k === "bone"), 1);
     this.rounds = [{type:"body", it:organs[0]}, {type:"light"}, {type:"body", it:bones[0] || organs[3]}, {type:"paint"}, {type:"body", it:organs[1]}, {type:"body", it:organs[2]}];
     this.round = 0; this.total = 0; this.log = []; this.newRound();
   },
@@ -2692,7 +2746,18 @@ const LAB_BANK = [
  [3,"Why do printers use black ink as well as cyan, magenta and yellow?","Mixing the three gives a muddy dark brown, and uses lots of ink",["Black ink is cheaper to make than paper","Screens need it","It makes colors brighter"],"CMY inks aren't perfect absorbers. Real black ink (the K in CMYK) is sharper and cheaper."],
  [3,"About how many bones does an adult human have?","206",["106","306","412"],"Babies have around 300; many fuse together as they grow."],
  [3,"Where is your appendix?","Lower right abdomen",["Lower left abdomen","Upper left abdomen","Behind the heart"],"Appendicitis pain usually starts near the belly button and moves to the lower right."],
- [4,"Which organ makes insulin?","Pancreas",["Liver","Spleen","Kidneys"],"Insulin lets cells take sugar from the blood. In type 1 diabetes, the pancreas can't make enough."]
+ [4,"Which organ makes insulin?","Pancreas",["Liver","Spleen","Kidneys"],"Insulin lets cells take sugar from the blood. In type 1 diabetes, the pancreas can't make enough."],
+  [1,"Which organ do you think with?","Brain",["Heart","Liver","Stomach"],"Your brain has about 86 billion neurons."],
+  [1,"Mixing blue and yellow paint makes…","Green",["Purple","Orange","Brown"],"Paint mixes subtractively: together, blue and yellow pigments reflect mostly green light."],
+  [1,"Which body system includes your heart and blood vessels?","Circulatory system",["Nervous system","Digestive system","Skeletal system"],"Laid end to end, an adult's blood vessels would stretch around the Earth more than twice."],
+  [2,"What do your kidneys do?","Filter waste from the blood and make urine",["Pump blood","Digest food","Make bile"],"They filter about 180 liters of fluid from your blood every day."],
+  [2,"Which part of the eye controls how much light gets in?","The iris",["The lens","The retina","The cornea"],"The iris is the colored ring; it widens or narrows the pupil."],
+  [2,"What are the primary colors of light?","Red, green and blue",["Red, yellow and blue","Cyan, magenta and yellow","Black and white"],"Screens make every color from tiny red, green and blue dots."],
+  [3,"Where is the smallest bone in your body?","In the ear",["In the toe","In the finger","In the nose"],"The stapes, or stirrup bone, is about 3 mm long."],
+  [3,"Why does the sky look blue?","Air scatters short blue wavelengths more than red ones",["It reflects the ocean","Space is blue","Clouds are blue"],"This is Rayleigh scattering. At sunset, light passes through more air and mostly reds remain."],
+  [3,"What do red blood cells carry around the body?","Oxygen",["Only nutrients","Only hormones","Electricity"],"They're packed with hemoglobin, an iron-containing protein that grabs oxygen in the lungs."],
+  [4,"Which organ makes bile to help digest fats?","Liver",["Pancreas","Spleen","Kidneys"],"Bile is stored in the gallbladder and released into the small intestine."],
+  [4,"Why do some objects look black?","They absorb nearly all visible light",["They reflect every color","They give off darkness","They're very cold"],"White things reflect all wavelengths; black things absorb them, which is why black cars get hot in the sun."]
 ];
 GEN.lab = d => fromBank(LAB_BANK, d);
 
@@ -2904,7 +2969,17 @@ const MK_BANK = [
  [2,"Which lipstick suits a cool undertone?","Blue-red",["Orange-red","Coral","Brick"],"A red with blue in it harmonizes with pink undertones; orange-reds suit warm skin."],
  [3,"Ancient Egyptians wore kohl eyeliner partly to…","Reduce sun glare and protect against eye infections",["Signal they were married","Repel mosquitoes","Show their age"],"Lab studies suggest the lead compounds in kohl triggered an immune response that helped fight eye infections."],
  [3,"Where should blush go to make a round face look longer?","Angled up along the cheekbones",["In circles on the apples","Across the nose","Along the jaw"],"Diagonal lines lead the eye up and out, lengthening the face."],
- [4,"What does SPF measure?","Protection against UVB rays",["Protection against UVA only","Water resistance","Skin hydration"],"SPF rates UVB protection. Look for “broad spectrum” to cover UVA as well."]
+ [4,"What does SPF measure?","Protection against UVB rays",["Protection against UVA only","Water resistance","Skin hydration"],"SPF rates UVB protection. Look for “broad spectrum” to cover UVA as well."],
+  [1,"Which blush color suits warm undertones?","Peach",["Berry","Cool pink","Lavender"],"Warm undertones glow with peach, coral and apricot."],
+  [1,"What does a makeup primer do?","Creates a smooth base so makeup lasts longer",["Removes makeup","Adds color","Sets hair"],"It smooths pores and fine lines and helps foundation stay put."],
+  [2,"Why wear sunscreen on cloudy days?","Most UV rays pass through clouds",["Clouds make UV stronger at night","Sunscreen is only a moisturizer","It isn't needed"],"UVA rays, which age skin, get through clouds and even windows."],
+  [2,"A tightline is eyeliner applied…","Along the upper waterline, between the lashes",["Out into a wing","Under the brows","On the lips"],"It makes lashes look thicker without obvious liner."],
+  [2,"Which eyeshadow makes green eyes stand out?","Plum",["Green","Lime","Teal"],"Red-violet tones sit opposite green on the color wheel."],
+  [3,"Green color-correcting concealer hides…","Redness",["Dark blue circles","Yellow tones","Freckles"],"Green cancels red, its opposite on the color wheel."],
+  [3,"Peach or orange corrector is used on…","Blue-purple under-eye circles",["Red spots","Yellowish skin","Oily skin"],"Orange sits opposite blue, so it neutralizes dark circles, especially on medium and deep skin."],
+  [3,"Ancient Egyptian eye makeup was made with…","Kohl",["Charcoal pencils","Ink","Coffee grounds"],"Kohl was made from ground minerals such as galena."],
+  [4,"What does “non-comedogenic” mean?","Formulated not to clog pores",["Fragrance-free","Waterproof","Made without animal products"],"Comedones are clogged pores, such as blackheads."],
+  [4,"Why can foundation look more orange after a few hours?","It oxidizes as it reacts with skin oils and air",["The light changes","It absorbs sunscreen","It evaporates"],"Testing for a few hours before buying, or using a primer, helps."]
 ];
 GEN.makeup = d => fromBank(MK_BANK, d);
 
@@ -2998,7 +3073,17 @@ const HAIR_BANK = [
  [2,"Why is curly hair often cut dry?","Each curl springs up differently, so wet length is misleading",["Water dulls scissors","Curly hair can't get wet","It's faster"],"Curls can shrink 30–75% when dry, so cutting dry shows the true shape."],
  [3,"Hair is mostly made of which protein?","Keratin",["Collagen","Melanin","Elastin"],"Keratin is the same protein found in nails and in animal horns and hooves."],
  [3,"Which pigment gives hair red tones?","Pheomelanin",["Eumelanin","Keratin","Carotene"],"Eumelanin makes brown and black; pheomelanin makes red and yellow."],
- [4,"Roughly how fast does scalp hair grow?","About 1–1.5 cm a month",["About 1 mm a month","About 5 cm a month","About 1 cm a year"],"That's about 15 cm a year, which is why bangs need trimming so often."]
+ [4,"Roughly how fast does scalp hair grow?","About 1–1.5 cm a month",["About 1 mm a month","About 5 cm a month","About 1 cm a year"],"That's about 15 cm a year, which is why bangs need trimming so often."],
+  [1,"Which face shape is said to suit almost any haircut?","Oval",["Round","Square","Heart"],"Its balanced proportions mean there's no width to add or hide."],
+  [1,"How often do bangs usually need a trim?","Every 3–4 weeks",["Every 6 months","Once a year","Every day"],"Hair grows about 1 cm a month, so bangs soon fall into the eyes."],
+  [2,"Why can swimming pools turn blonde hair green?","Copper in the water binds to the hair",["Chlorine is green","Algae grow in hair","Sunlight reacts with shampoo"],"Copper from pipes and pool treatments clings to porous light hair; a clarifying shampoo removes it."],
+  [2,"What does a heat protectant spray do?","Reduces damage from hot styling tools",["Makes hair grow","Dyes hair","Removes frizz permanently"],"Very hot irons can break down keratin and boil the water inside hair."],
+  [2,"Why are box braids called a “protective style”?","They tuck the ends away and reduce daily handling",["They block the sun","They make hair grow faster","They never need washing"],"Less combing and heat means less breakage, especially for textured hair."],
+  [3,"Hair porosity describes…","How easily hair absorbs and holds moisture",["How thick hair is","Hair color","Scalp temperature"],"High-porosity hair soaks up water fast but also loses it fast."],
+  [3,"Why does hair turn grey?","Pigment cells in the follicle stop making melanin",["Hair dries out","Too much shampoo","Lack of sunlight"],"Genetics largely decide when it starts."],
+  [3,"A lob is…","A long bob, ending between the chin and the shoulders",["A short pixie","A type of braid","A curly perm"],"It's popular because it flatters most face shapes."],
+  [4,"What does bleach do to hair?","Breaks down its natural pigment by oxidation",["Adds white pigment","Coats each strand in white","Removes only keratin"],"Hair passes through red, orange and yellow stages as it lightens, which is why toner is needed."],
+  [4,"Which shampoo ingredients make the lather?","Surfactants",["Silicones","Keratin","Toners"],"Surfactants grab oil and dirt so water can rinse them away."]
 ];
 GEN.hair = d => fromBank(HAIR_BANK, d);
 
@@ -3278,7 +3363,22 @@ $("hub").addEventListener("click", e => {
 });
 
 /* every question must offer four distinct answers; regenerate if a random draw collides */
-Object.keys(GEN).forEach(k => { const raw = GEN[k]; GEN[k] = d => { let it; for(let i=0;i<25;i++){ it = raw(d); if(it.choices.length === 4 && new Set(it.choices).size === 4) return it; } return it; }; });
+const qKey = it => hashStr((it.prompt + "|" + it.choices[it.answer]).replace(/<[^>]+>/g, ""));
+Object.keys(GEN).forEach(k => { const raw = GEN[k]; GEN[k] = d => {
+  const seen = (S.seenQ[k] = S.seenQ[k] || []);
+  let first = null, it = null;
+  for(let i=0;i<60;i++){
+    const c = raw(d);
+    if(c.choices.length !== 4 || new Set(c.choices).size !== 4) continue;
+    if(!first) first = c;
+    if(!seen.includes(qKey(c))){ it = c; break; }
+  }
+  it = it || first || raw(d);
+  const key = qKey(it), i = seen.indexOf(key);
+  if(i >= 0) seen.splice(i, 1);
+  seen.push(key); if(seen.length > 80) seen.shift();
+  return it;
+}; });
 
 /* =========================================================
    ECHO GRID (memory)
@@ -3364,7 +3464,7 @@ ENG.words = {
     const due = S.review.find(r => r.w in DEF && r.due <= S.played && !this.recent.has(r.w));
     let w, review = false;
     if(due && Math.random() < .6){ w = due.w; review = true; }
-    else { const list = WORDS[wordTier(S.rating.words)].filter(([x]) => !this.recent.has(x)); w = pick(list.length ? list : WORDS[wordTier(S.rating.words)])[0]; }
+    else { const list = WORDS[wordTier(S.rating.words)].filter(([x]) => !this.recent.has(x)); const ord = freshOrder("words", list.length ? list : WORDS[wordTier(S.rating.words)], x => x[0]); w = ord[Math.floor(Math.random()*Math.min(3, ord.length))][0]; markSeen("words", w); }
     this.recent.add(w); this.review = review; this.word = w;
     $("wTag").textContent = review ? "Review word · Definition" : "Definition";
     $("wDef").textContent = DEF[w];
@@ -4058,9 +4158,9 @@ const SCEN = [
 STUDIO.peace = {
   start(){
     const d = S.rating.peace, tier = d < 3 ? 1 : d < 5 ? 2 : d < 7 ? 3 : 4;
-    let pool = SCEN.filter(s => s.tier <= tier && s.tier >= tier-1 && s.id !== S.lastScen);
+    let pool = SCEN.filter(s => s.tier <= tier && s.tier >= tier-1);
     if(!pool.length) pool = SCEN.filter(s => s.tier <= tier);
-    this.sc = pick(pool); S.lastScen = this.sc.id; save();
+    this.sc = freshItems("peace", pool, 1, x => x.id)[0]; S.lastScen = this.sc.id;
     this.blind = d >= 5.5;
     this.t = this.sc.tension; this.trust = [35,35]; this.beat = 0; this.log = [];
     const sc = this.sc, ac = ["var(--atelier)","var(--floor)"];
