@@ -76,7 +76,7 @@ textarea.copybox{width:100%;font-family:var(--mono);font-size:13px;background:va
 .wing-head h2{font-size:26px;font-weight:800}
 .wing-head p{color:var(--muted);font-size:14px}
 .wing{display:flex;flex-direction:column;gap:14px}
-.rooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
 .room{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:12px;transition:border-color .2s}
 .room:hover{border-color:var(--c)}
 .room-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
@@ -372,6 +372,62 @@ details.science li b{color:var(--text)}
 .roundlog li span:last-child{font-family:var(--mono);color:var(--c)}
 @media (max-width:820px){ .explore{grid-template-columns:1fr} }
 
+/* flag maker */
+.flag-stage{display:flex;flex-direction:column;gap:14px;align-items:center}
+.flagpole{padding:14px;background:var(--panel2);border:2px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 var(--ink);max-width:100%}
+.flagpole svg{display:block;max-width:100%;height:auto}
+.freg{cursor:pointer}.freg:hover{opacity:.85}
+.freg.sel{stroke:var(--ink);stroke-width:4;stroke-dasharray:6 4}
+.flag-empty{width:300px;max-width:70vw;aspect-ratio:3/2;display:grid;place-items:center;color:var(--muted);border:2px dashed var(--ink);border-radius:8px}
+.fpalette{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.fsw{width:42px;height:42px;border-radius:12px;border:2.5px solid var(--ink);box-shadow:0 3px 0 var(--ink)}
+.fsw:active{transform:translateY(2px);box-shadow:none}
+.layouts{display:flex;gap:8px;flex-wrap:wrap}
+.lay{padding:6px;border-radius:10px;border:2px solid var(--ink);background:var(--panel);box-shadow:0 2px 0 var(--ink)}
+.lay.sel{background:var(--c)}
+.lay svg{display:block}
+.flag-compare{display:flex;gap:16px;flex-wrap:wrap}
+.flag-compare figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600}
+/* test kitchen */
+.kitchen-stage{display:flex;flex-direction:column;gap:12px}
+.recipe-card{background:var(--panel);border:2.5px solid var(--ink);border-radius:14px;padding:14px 16px;box-shadow:0 4px 0 var(--ink);transform:rotate(-1deg);background-image:repeating-linear-gradient(transparent 0 23px, #e9dcc4 23px 24px)}
+.recipe-card h3{font-size:26px}
+.recipe-card p{color:var(--muted)}
+.mixbowl{max-width:360px;align-self:center;width:100%}
+.pantry{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
+.ing{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:2px solid var(--ink);border-radius:14px;background:var(--panel);box-shadow:0 2px 0 var(--ink);font-size:12px;font-weight:600;text-align:center}
+.ing.in{background:var(--c)}
+.ing.hit{background:color-mix(in srgb, var(--good) 45%, white)}.ing.wrong{background:color-mix(in srgb, var(--bad) 40%, white)}.ing.missed{outline:3px dashed var(--good);outline-offset:-6px}
+.ingnotes{display:flex;flex-direction:column;gap:8px}
+.ingnotes li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;font-size:13px}
+.ingnotes li.no b{text-decoration:line-through}
+.ingnotes p{font-size:12px}
+/* timeline */
+.timeline{display:flex;flex-direction:column;gap:6px;position:relative;padding-left:22px}
+.timeline::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:4px;background:var(--ink);border-radius:2px}
+.evcard{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--ink);border-radius:14px;background:var(--panel);box-shadow:0 3px 0 var(--ink);font-size:14px;position:relative}
+.timeline .evcard::before{content:"";position:absolute;left:-21px;top:50%;width:12px;height:12px;border-radius:50%;background:var(--c);border:2px solid var(--ink);transform:translateY(-50%)}
+.evcard .yr{font-family:var(--mono);font-weight:500;background:var(--panel2);border:1.5px solid var(--ink);border-radius:8px;padding:2px 8px;white-space:nowrap}
+.evcard.new{background:var(--c);transform:rotate(-1deg)}
+.evcard.right{background:color-mix(in srgb, var(--good) 40%, white)}.evcard.wrong{background:color-mix(in srgb, var(--bad) 35%, white)}
+.gap{width:100%;padding:6px;border:2px dashed var(--ink);border-radius:10px;font-size:12px;font-weight:600;color:var(--muted);background:transparent}
+.gap:hover:not(:disabled){background:var(--c);color:var(--ink);border-style:solid}
+.gap:disabled{opacity:.25}
+/* science lab */
+.body-wrap{display:flex;justify-content:center;background:var(--panel2);border:2px solid var(--ink);border-radius:18px;padding:10px}
+.bodysvg{width:100%;max-width:240px;height:auto;cursor:crosshair}
+.color-stage{display:flex;flex-direction:column;gap:12px}
+.swatch-pair{display:flex;gap:14px}
+.swatch-pair figure{margin:0;flex:1;display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;text-align:center}
+.cswatch{aspect-ratio:1;border-radius:16px;border:2.5px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
+.mixviz{border:2.5px solid var(--ink);border-radius:16px;overflow:hidden}
+.mixviz svg{display:block}
+.slider{display:grid;grid-template-columns:120px minmax(0,1fr) 46px;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.slider span{display:flex;align-items:center;gap:8px}
+.slider i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);display:inline-block}
+.slider b{font-family:var(--mono);font-weight:500;text-align:right}
+.slider input{accent-color:var(--ink)}
+
 /* modal */
 .modal{position:fixed;inset:0;background:var(--scrim);display:grid;place-items:center;padding:20px max(20px,env(safe-area-inset-right,0px)) 20px max(20px,env(safe-area-inset-left,0px));z-index:50;backdrop-filter:blur(4px)}
 .sheet{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:26px 22px;width:min(100%,480px);max-height:calc(100vh - 40px);overflow-y:auto;display:flex;flex-direction:column;gap:14px;text-align:center}
@@ -447,7 +503,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .stats dt{color:var(--muted)}
 .wing-head h2{font-size:32px}
 .wing-head p{color:var(--muted)}
-.mixcard{background:var(--panel);border:var(--bw) dashed var(--ink)}
+.mixcard{--c:var(--math);background:var(--panel);border:var(--bw) dashed var(--ink)}
 .mixdots i{border:1.5px solid var(--ink)}
 .tourcard{background:var(--kitchen);border:var(--bw) solid var(--ink);box-shadow:var(--shadow);border-radius:26px;color:var(--ink)}
 .tourcard p{color:var(--ink);opacity:.85}
@@ -514,7 +570,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 
   <main id="hub" class="wrap">
     <section class="hero">
-      <h1>Ten rooms that <span>adapt to how you think.</span></h1>
+      <h1>Fifteen rooms that <span>adapt to how you think.</span></h1>
       <p>Design a gown, plan a house, guess where a dish was born, talk two people down from a fight. Every room tracks your skill and tunes its difficulty so you succeed about three times out of four. Learning researchers call that level of challenge the sweet spot.</p>
     </section>
     <section class="tourcard" id="tourcard"></section>
@@ -524,11 +580,11 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
       <div class="rooms" id="studioRooms"></div>
     </section>
     <section class="wing">
-      <div class="wing-head"><h2>Explorers</h2><p>Geography and history, told through food and fashion, on a real world map.</p></div>
+      <div class="wing-head"><h2>Explorers</h2><p>Geography and history through food, fashion, landmarks, flags and time.</p></div>
       <div class="rooms" id="exploreRooms"></div>
     </section>
     <section class="wing">
-      <div class="wing-head"><h2>Core skills</h2><p>Fast training for memory, numbers, words and logic.</p></div>
+      <div class="wing-head"><h2>Brain gym</h2><p>Science, memory, numbers, words and logic.</p></div>
       <div class="rooms" id="coreRooms"></div>
     </section>
     <section class="profile">
@@ -616,6 +672,26 @@ const ROOMS = {
     blurb:"Clothes are history you can wear. Read the clues about an outfit, then guess where it was worn and when.",
     tip:"<b>Tip:</b> fabrics and laws are big hints. Silk brocade suggests trade-route empires; rationing points to wartime. Half the points come from place, half from year.",
     modes:[["studio","Guess where & when"],["sprint","Era sprint · 60s"],["practice","Quiz"]]},
+  landmarks:{name:"Landmark Hunt", skill:"World landmarks", color:"var(--land-c)", wing:"explore",
+    blurb:"Twenty wonders of the world, drawn as postcards. Pin each one on the map and learn its story.",
+    tip:"<b>Tip:</b> materials and climate are clues: sandstone and desert point to North Africa and the Middle East; onion domes point east.",
+    modes:[["studio","Hunt landmarks"],["sprint","Postcard sprint · 60s"],["practice","Quiz"]]},
+  flags:{name:"Flag Maker", skill:"Flags & symbols", color:"var(--flag)", wing:"explore",
+    blurb:"Rebuild a country's flag from memory: choose the layout, then paint every stripe, cross and disc.",
+    tip:"<b>Tip:</b> lots of flags share colors. Green, yellow and red often signal pan-African unity; red, white and black, pan-Arab.",
+    modes:[["studio","Make flags"],["sprint","Flag sprint · 60s"],["practice","Quiz"]]},
+  time:{name:"Then & Now", skill:"History timeline", color:"var(--time)", wing:"explore",
+    blurb:"Inventions, empires and firsts. Slot each new card into the right place on a growing timeline before you run out of lives.",
+    tip:"<b>Tip:</b> anchor on dates you know for sure, like 1492, 1789 and 1969, and reason outward from them.",
+    modes:[["studio","Build a timeline"],["sprint","Which came first? · 60s"],["practice","Quiz"]]},
+  cook:{name:"Test Kitchen", skill:"Food & culture", color:"var(--cook)", wing:"studio",
+    blurb:"Fill the bowl with the right ingredients for a classic recipe, and find out where each one first grew.",
+    tip:"<b>Tip:</b> watch for decoys that sound reasonable. Classic recipes are often simpler than you'd think.",
+    modes:[["studio","Start cooking"],["sprint","Pantry sprint · 60s"],["practice","Quiz"]]},
+  lab:{name:"Science Lab", skill:"Body & science", color:"var(--lab)", wing:"core",
+    blurb:"Find organs and bones on the body, and mix colored light and ink to match a target color.",
+    tip:"<b>Tip:</b> the body is shown facing you, so its left side is on your right. Light mixes by adding; ink mixes by subtracting.",
+    modes:[["studio","Run experiments"],["sprint","Science sprint · 60s"],["practice","Quiz"]]},
   memory:{name:"Echo Grid", skill:"Memory", color:"var(--mem)", wing:"core",
     blurb:"Watch the tiles light up, then tap them back in order. Pattern length follows your ability.",
     tip:"<b>Tip:</b> group steps into chunks of three and name their positions in your head. Chunking is how memory champions hold long sequences.",
@@ -636,10 +712,10 @@ const ROOMS = {
     blurb:"Today's five-round tour: three dishes and two outfits, the same for every player, from easy to hard. Your first run is your official score.",
     tip:"<b>Tip:</b> you start with two clues each round. Share your result with friends and compare tomorrow.", modes:[]},
   mix:{name:"Daily Mix", skill:"Interleaved practice", color:"var(--mix)", wing:"none",
-    blurb:"Eight questions from eight rooms, mixed together.", tip:"<b>Why mix?</b> Switching topics forces your brain to pick the right strategy each time, and that is what makes it stick.", modes:[]}
+    blurb:"Eight questions from across the arcade, mixed together.", tip:"<b>Why mix?</b> Switching topics forces your brain to pick the right strategy each time, and that is what makes it stick.", modes:[]}
 };
-const STUDIO_KEYS = ["atelier","sewing","floor","peace"], EXPLORE_KEYS = ["kitchen","thread"], CORE_KEYS = ["memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
-const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread"];
+const STUDIO_KEYS = ["atelier","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
+const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab"];
 const RANKS = [[1,"Novice"],[3,"Apprentice"],[6,"Thinker"],[10,"Strategist"],[15,"Sage"],[22,"Mastermind"]];
 const MODE_NAMES = {studio:"Studio", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
 
@@ -814,6 +890,11 @@ const ART = {
     <path d="M28 28 l8 8 m0 -8 l-8 8 M56 28 l8 8 m0 -8 l-8 8 M34 50 q12 -8 24 0" fill="none" stroke="#ef476f"/>
     <path d="M150 40 h-62 a10 10 0 0 0 -10 10 v28 a10 10 0 0 0 10 10 h40 l14 12 v-12 h8 a10 10 0 0 0 10 -10 v-28 a10 10 0 0 0 -10 -10z"/>
     <path d="M119 74 c-14 -10 -18 -16 -12 -22 c4 -4 10 -2 12 3 c2 -5 8 -7 12 -3 c6 6 2 12 -12 22z" fill="#ef476f"/>`),
+  landmarks: svgA(`<rect x="22" y="14" width="116" height="84" rx="6" transform="rotate(-4 80 56)"/><path d="M50 84 L80 30 L110 84 Z" fill="#f2cc8f" transform="rotate(-4 80 56)"/><path d="M80 30 L88 84" fill="none" stroke-width="2" transform="rotate(-4 80 56)"/><circle cx="114" cy="34" r="8" fill="#ffbf2e" transform="rotate(-4 80 56)"/><path d="M128 70 a14 14 0 1 1 20 0 l-10 16z" fill="#ef476f"/><circle cx="138" cy="62" r="5"/>`),
+  flags: svgA(`<path d="M30 104 V8" stroke-width="5"/><path d="M32 12 q30 -8 56 2 t52 0 v52 q-26 8 -52 -2 t-56 2z"/><path d="M32 12 q14 -4 28 -2 v54 q-14 -2 -28 2z" fill="#3a8dff"/><path d="M60 10 q14 2 28 6 v52 q-14 -4 -28 -6z"/><path d="M88 16 q26 8 52 0 v52 q-26 8 -52 0z" fill="#ef476f"/><circle cx="30" cy="8" r="5" fill="#ffbf2e"/>`),
+  time: svgA(`<path d="M10 70 H150" stroke-width="4"/>${[24,62,100,138].map((x,i) => `<circle cx="${x}" cy="70" r="7" fill="${["#ffbf2e","#ef476f","#22b8a7","#6f62ff"][i]}"/><rect x="${x-16}" y="${i%2 ? 82 : 22}" width="32" height="26" rx="5"/><path d="M${x} ${i%2 ? 82 : 48} V${i%2 ? 77 : 63}" fill="none"/>`).join("")}`),
+  cook: svgA(`<path d="M26 54 h108 v30 a20 20 0 0 1 -20 20 h-68 a20 20 0 0 1 -20 -20z" fill="#e85d3a"/><path d="M14 62 h12 M134 62 h12" stroke-width="7"/><ellipse cx="80" cy="54" rx="54" ry="10"/><path d="M60 40 q-6 -8 0 -16 M80 36 q-6 -8 0 -16 M100 40 q-6 -8 0 -16" fill="none"/><path d="M118 10 L100 50" stroke-width="5"/><ellipse cx="122" cy="10" rx="8" ry="5" transform="rotate(-60 122 10)" fill="#c8915a"/><circle cx="56" cy="52" r="5" fill="#e63946"/><circle cx="72" cy="50" r="4" fill="#78c552"/><circle cx="96" cy="52" r="5" fill="#ffbf2e"/>`),
+  lab: svgA(`<path d="M52 10 h28 M58 10 v28 l-26 50 a8 8 0 0 0 7 12 h54 a8 8 0 0 0 7 -12 l-26 -50 v-28"/><path d="M40 74 h60 l10 18 a6 6 0 0 1 -5 8 h-70 a6 6 0 0 1 -5 -8z" fill="#22b8a7" stroke="none"/><path d="M58 38 l-26 50 a8 8 0 0 0 7 12 h54 a8 8 0 0 0 7 -12 l-26 -50" fill="none"/><circle cx="60" cy="86" r="4"/><circle cx="76" cy="80" r="3"/><circle cx="120" cy="40" r="16" fill="#ff6b57" opacity=".85"/><circle cx="136" cy="40" r="16" fill="#3a8dff" opacity=".85"/><circle cx="128" cy="54" r="16" fill="#78c552" opacity=".85"/>`),
   memory: svgA([0,1,2].map(r => [0,1,2].map(c => `<rect x="${38+c*30}" y="${8+r*32}" width="24" height="26" rx="6" fill="${[1,5,6].includes(r*3+c) ? "#ffbf2e" : W_}"/>`).join("")).join("") + `<path d="M132 20 l6 -6 M136 30 h9 M132 40 l6 6" fill="none"/>`),
   math: svgA(`<rect x="30" y="10" width="100" height="90" rx="14"/><rect x="40" y="20" width="80" height="26" rx="6" fill="#a9dcef"/>
     <text x="80" y="40" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="20" fill="${INK}" stroke="none">7×8=?</text>
@@ -869,7 +950,7 @@ function renderHub(){
   renderTourCard();
   const done = S.mixDay === today();
   $("mixcard").innerHTML = `<div><div class="mixdots" aria-hidden="true">${MIX_ROOMS.map(k=>`<i style="background:${ROOMS[k].color}"></i>`).join("")}</div>
-    <h3>Daily Mix${done ? " · done today" : ""}</h3><p>Eight questions from eight rooms, shuffled together. Mixing topics feels harder than practicing one at a time, and that effort is what makes learning last.</p></div>
+    <h3>Daily Mix${done ? " · done today" : ""}</h3><p>Eight questions from across the arcade, shuffled together. Mixing topics feels harder than practicing one at a time, and that effort is what makes learning last.</p></div>
     <button class="btn btn-solid" type="button" data-room="mix" data-mode="practice">${done ? "Play again" : "Start today's mix"}</button>`;
   $("studioRooms").innerHTML = STUDIO_KEYS.map(roomCard).join("");
   $("exploreRooms").innerHTML = EXPLORE_KEYS.map(roomCard).join("");
@@ -1016,7 +1097,7 @@ const QUIZ = {
   start(room, mode){
     this.room = room; this.mode = mode; this.n = 0; this.right = 0; this.results = [];
     this.total = room === "mix" ? 8 : mode === "practice" ? 10 : 0;
-    this.mixOrder = shuffle([...MIX_ROOMS]);
+    this.mixOrder = shuffle([...MIX_ROOMS]).slice(0, 8);
     stage.innerHTML = `${this.total ? `<div class="dots" id="qDots"></div>` : ""}<span class="eyebrow quiz-tag" id="qTag"></span>
       <div class="quiz-prompt" id="qP"></div><div class="quiz-visual" id="qV"></div><div class="choices" id="qC"></div><div id="qX"></div>`;
     $("qC").addEventListener("click", e => { const b = e.target.closest(".choice"); if(b) this.pick(+b.dataset.i); });
@@ -1438,11 +1519,12 @@ function Explorer(cfg){
     newRound(){
       this.item = this.items[this.round]; this.hasYear = this.item.y != null;
       this.shown = this.startClues; this.guess = null; this.locked = false;
-      const noun = this.hasYear ? "Mystery outfit" : "Mystery dish";
+      const kind = this.item.kind || (this.hasYear ? "outfit" : "dish");
+      const noun = {outfit:"Mystery outfit", dish:"Mystery dish", landmark:"Mystery landmark"}[kind];
       $("exEyebrow").textContent = cfg.daily ? `World Tour #${this.tour.num} · Round ${this.round+1} of 5 · ${noun}` : `Round ${this.round+1} of ${this.items.length} · ${noun}`;
-      $("exQ").textContent = this.hasYear ? "Where and when was this worn?" : "Where does this dish come from?";
+      $("exQ").textContent = {outfit:"Where and when was this worn?", dish:"Where does this dish come from?", landmark:"Where in the world is this?"}[kind];
       $("exYearBox").hidden = !this.hasYear;
-      $("exPic").innerHTML = this.hasYear ? outfitSVG(this.item.n, 150) : dishSVG(this.item.n, 230);
+      $("exPic").innerHTML = kind === "outfit" ? outfitSVG(this.item.n, 150) : kind === "landmark" ? LANDMARK_ART[this.item.n] : dishSVG(this.item.n, 230);
       $("exReveal").innerHTML = ""; $("exGo").hidden = false; $("exGo").disabled = true;
       $("exMsg").textContent = "Tap the map to drop your pin.";
       if(this.hasYear){ $("exYear").value = 700; this.updYear(); $("exYear").disabled = false; }
@@ -1469,7 +1551,7 @@ function Explorer(cfg){
       const pts = Math.round(raw*mult);
       this.total += pts;
       this.log.push({n:it.n, pts, km, yErr, hasYear:this.hasYear});
-      adapt(this.hasYear ? "thread" : "kitchen", Math.min(1, pts/3500));
+      adapt(this.hasYear ? "thread" : it.kind === "landmark" ? "landmarks" : "kitchen", Math.min(1, pts/3500));
       pts >= 3500 ? sfx.win() : pts >= 1500 ? sfx.good() : sfx.bad();
       this.map.reveal(it.ll, it.c);
       if(this.hasYear) $("exYear").disabled = true;
@@ -1813,6 +1895,561 @@ GEN.thread = d => {
   const others = shuffle([...new Set(OUTFITS.map(x => x.c).filter(c => c !== it.c))]).slice(0,3);
   return mk(`Where does the <b>${it.n.toLowerCase()}</b> come from?`, cname(it.c), others.map(cname), `${it.n} was worn in ${it.city}, ${cname(it.c)} (${it.yl}). ${it.fact}`, {text:true});
 };
+
+/* =========================================================
+   NEW ROOMS: Flag Maker, Landmark Hunt, Test Kitchen, Then & Now, Science Lab
+   ========================================================= */
+const tier3 = d => d < 3.5 ? 1 : d < 6.5 ? 2 : 3;
+function poolFor(list, d){ const t = tier3(d); const p = list.filter(x => x.t <= t && x.t >= t-1); return p.length ? p : list; }
+function sessionHeader(eyebrow, title, sub){ return `<div class="brief"><span class="eyebrow">${eyebrow}</span><h3>${title}</h3>${sub ? `<p>${sub}</p>` : ""}</div>`; }
+
+/* ---------------- FLAG MAKER ---------------- */
+const FCOL = {red:"#d52b1e", white:"#ffffff", blue:"#0b3d91", skyblue:"#6cace4", green:"#009246", yellow:"#ffcd00", black:"#1a1a1a", orange:"#ff883e"};
+const FLAYOUTS = {v3:"Three vertical stripes", h3:"Three horizontal stripes", h2:"Two horizontal stripes", nordic:"Nordic cross", disc:"Disc on a field"};
+const FLAGS = [
+ {n:"France",t:1,l:"v3",c:["blue","white","red"],f:"Blue and red are the colors of Paris; white was the royal color. The tricolor dates from the 1789 Revolution."},
+ {n:"Italy",t:1,l:"v3",c:["green","white","red"],f:"Inspired by the French tricolor, it first flew in 1797 in the Cispadane Republic of northern Italy."},
+ {n:"Germany",t:1,l:"h3",c:["black","red","yellow"],f:"Black, red and gold came from the uniforms of volunteers who fought Napoleon in 1813, and became the colors of German democracy in 1848."},
+ {n:"Japan",t:1,l:"disc",c:["white","red"],f:"Called the Hinomaru, “circle of the sun”. Japan's name, Nihon, means “origin of the sun”."},
+ {n:"Ireland",t:1,l:"v3",c:["green","white","orange"],f:"Green for the Gaelic tradition, orange for supporters of William of Orange, and white for peace between them."},
+ {n:"Russia",t:1,l:"h3",c:["white","blue","red"],f:"The white, blue and red tricolor goes back to merchant ships in the late 1600s, in Peter the Great's era."},
+ {n:"Poland",t:1,l:"h2",c:["white","red"],f:"Its colors come from the coat of arms: a white eagle on a red shield."},
+ {n:"Ukraine",t:1,l:"h2",c:["blue","yellow"],f:"Often read as a blue sky above golden fields of wheat."},
+ {n:"Netherlands",t:1,l:"h3",c:["red","white","blue"],f:"It began as orange, white and blue for the Prince of Orange. Orange dye faded at sea, so red replaced it."},
+ {n:"Sweden",t:1,l:"nordic",c:["blue","yellow"],f:"The colors come from the national coat of arms, three gold crowns on blue. The cross sits off-center, toward the pole."},
+ {n:"Belgium",t:2,l:"v3",c:["black","yellow","red"],f:"The colors come from the coat of arms of the Duchy of Brabant; the vertical layout copied France."},
+ {n:"Nigeria",t:2,l:"v3",c:["green","white","green"],f:"Green for forests and farmland, white for peace. A 23-year-old student, Michael Taiwo Akinkunmi, designed it in 1959."},
+ {n:"Austria",t:2,l:"h3",c:["red","white","red"],f:"Legend says a duke's white tunic was soaked in blood at the Siege of Acre in 1191, except under his belt."},
+ {n:"Hungary",t:2,l:"h3",c:["red","white","green"],f:"Red for strength, white for faithfulness and green for hope."},
+ {n:"Denmark",t:2,l:"nordic",c:["red","white"],f:"The Dannebrog is the oldest continuously used national flag. Legend says it fell from the sky during a battle in 1219."},
+ {n:"Finland",t:2,l:"nordic",c:["white","blue"],f:"Blue for the country's thousands of lakes and the sky, white for snow."},
+ {n:"Indonesia",t:2,l:"h2",c:["red","white"],f:"Red for courage, white for purity. It looks almost identical to Monaco's flag; only the proportions differ."},
+ {n:"Peru",t:2,l:"v3",c:["red","white","red"],f:"Legend says liberator José de San Martín chose red and white after seeing flamingos fly over the coast."},
+ {n:"Bangladesh",t:2,l:"disc",c:["green","red"],f:"The red disc is the sun rising over Bengal and the blood of the 1971 war. It sits slightly toward the pole so it looks centered when the flag flies."},
+ {n:"Mali",t:2,l:"v3",c:["green","yellow","red"],f:"Green, yellow and red are the pan-African colors, taken from Ethiopia's flag, a symbol of a country never colonized."},
+ {n:"Romania",t:2,l:"v3",c:["blue","yellow","red"],f:"Nearly identical to Chad's flag. When Chad raised the issue at the UN in 2004, Romania said it had used the colors first."},
+ {n:"Chad",t:3,l:"v3",c:["blue","yellow","red"],f:"Blue for sky and water, yellow for the desert sun, red for sacrifice. Its blue is a shade darker than Romania's."},
+ {n:"Estonia",t:3,l:"h3",c:["blue","black","white"],f:"Blue for the sky, black for the soil and past hardships, white for hope."},
+ {n:"Lithuania",t:3,l:"h3",c:["yellow","green","red"],f:"Yellow for the sun, green for forests, red for the blood shed for freedom."},
+ {n:"Bulgaria",t:3,l:"h3",c:["white","green","red"],f:"White for peace, green for the land, red for courage."},
+ {n:"Sierra Leone",t:3,l:"h3",c:["green","white","blue"],f:"Green for farming, white for justice, blue for the natural harbor of Freetown."},
+ {n:"Gabon",t:3,l:"h3",c:["green","yellow","blue"],f:"Green for forests, yellow for the equator that crosses the country, blue for the sea."},
+ {n:"Armenia",t:3,l:"h3",c:["red","blue","orange"],f:"Red for the blood of ancestors, blue for the sky, orange (often called apricot) for courage and work."},
+ {n:"Luxembourg",t:3,l:"h3",c:["red","white","skyblue"],f:"Like the Dutch flag, but with a lighter blue and a longer shape."},
+ {n:"Yemen",t:3,l:"h3",c:["red","white","black"],f:"Red, white and black are pan-Arab colors, shared with Egypt, Syria and Iraq."},
+ {n:"Guinea",t:3,l:"v3",c:["red","yellow","green"],f:"The same colors as Mali's flag, in reverse order."},
+ {n:"Côte d'Ivoire",t:3,l:"v3",c:["orange","white","green"],f:"It's Ireland's flag in reverse: orange at the pole instead of green."},
+ {n:"Palau",t:3,l:"disc",c:["skyblue","yellow"],f:"The yellow disc is the full moon over the Pacific, set slightly toward the pole."},
+ {n:"Monaco",t:3,l:"h2",c:["red","white"],f:"Red and white are the colors of the Grimaldi family, who have ruled since 1297. Indonesia's flag looks almost the same."}
+];
+const FREG = {v3:3, h3:3, h2:2, nordic:2, disc:2};
+function flagSVG(l, cols, w=150, opts={}){
+  const f = i => cols[i] ? FCOL[cols[i]] : "url(#hatch)";
+  const sel = i => opts.edit ? ` data-r="${i}" class="freg${opts.sel===i?" sel":""}"` : "";
+  let g = "";
+  if(l === "v3") g = [0,1,2].map(i => `<rect x="${i*50}" y="0" width="50" height="100" fill="${f(i)}"${sel(i)}/>`).join("");
+  if(l === "h3") g = [0,1,2].map(i => `<rect x="0" y="${i*33.34}" width="150" height="33.34" fill="${f(i)}"${sel(i)}/>`).join("");
+  if(l === "h2") g = [0,1].map(i => `<rect x="0" y="${i*50}" width="150" height="50" fill="${f(i)}"${sel(i)}/>`).join("");
+  if(l === "nordic") g = `<rect width="150" height="100" fill="${f(0)}"${sel(0)}/><path d="M40 0 h18 v41 h92 v18 h-92 v41 h-18 v-41 h-40 v-18 h40z" fill="${f(1)}"${sel(1)}/>`;
+  if(l === "disc") g = `<rect width="150" height="100" fill="${f(0)}"${sel(0)}/><circle cx="${opts.cx||72}" cy="50" r="30" fill="${f(1)}"${sel(1)}/>`;
+  return `<svg viewBox="0 0 150 100" width="${w}" class="flag" role="img" aria-label="Flag"><defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#f4ecdf"/><rect width="3" height="8" fill="#e2d4bd"/></pattern></defs>${g}<rect width="150" height="100" fill="none" stroke="${INK}" stroke-width="3"/></svg>`;
+}
+STUDIO.flags = {
+  start(){
+    const d = S.rating.flags;
+    this.list = shuffle(poolFor(FLAGS, d).slice()).slice(0, 6);
+    this.giveLayout = d < 3.5; this.round = 0; this.total = 0; this.log = [];
+    this.newRound();
+  },
+  newRound(){
+    const fl = this.list[this.round];
+    this.fl = fl; this.layout = this.giveLayout ? fl.l : null; this.cols = []; this.sel = 0; this.locked = false;
+    stage.innerHTML = `<div class="studio-grid">
+      <div class="flag-stage"><div class="flagpole"><div id="fgEdit"></div></div><div class="fpalette" id="fgPal">${Object.entries(FCOL).map(([k,v]) => `<button type="button" class="fsw" data-c="${k}" style="background:${v}" aria-label="${k}"></button>`).join("")}</div>
+        <p class="msg" id="fgMsg">Tap a part of the flag, then tap a color.</p></div>
+      <div class="ctl-col">${sessionHeader(`Flag ${this.round+1} of ${this.list.length}`, `Make the flag of ${fl.n}`, this.giveLayout ? "The layout is set. Paint each part with the right color." : "Pick the layout, then paint each part.")}
+        <div class="opt-group" ${this.giveLayout ? "hidden" : ""}><h4>Layout</h4><div class="layouts" id="fgLay">${Object.keys(FLAYOUTS).map(l => `<button type="button" class="lay" data-l="${l}" title="${FLAYOUTS[l]}">${flagSVG(l, l==="nordic"||l==="disc" ? ["white","black"] : l==="h2" ? ["white","black"] : ["white","black","white"], 66)}</button>`).join("")}</div></div>
+        <button class="btn btn-solid" type="button" id="fgGo" disabled>Raise the flag</button><div id="fgRes"></div></div></div>`;
+    $("fgLay").addEventListener("click", e => { const b = e.target.closest(".lay"); if(!b || this.locked) return; this.layout = b.dataset.l; this.cols = []; this.sel = 0; sfx.click(); this.render(); });
+    $("fgPal").addEventListener("click", e => { const b = e.target.closest(".fsw"); if(!b || this.locked || !this.layout) return; this.cols[this.sel] = b.dataset.c; sfx.click();
+      const n = FREG[this.layout]; for(let k=1;k<=n;k++){ const j = (this.sel+k) % n; if(!this.cols[j]){ this.sel = j; break; } } this.render(); });
+    $("fgEdit").addEventListener("click", e => { const r = e.target.closest("[data-r]"); if(!r || this.locked) return; this.sel = +r.dataset.r; this.render(); });
+    $("fgGo").addEventListener("click", () => this.submit());
+    setSide("Score", fmt(this.total));
+    this.render();
+  },
+  render(){
+    stage.querySelectorAll(".lay").forEach(b => b.classList.toggle("sel", b.dataset.l === this.layout));
+    $("fgEdit").innerHTML = this.layout ? flagSVG(this.layout, this.cols, 300, {edit:true, sel:this.sel}) : `<div class="flag-empty">Choose a layout</div>`;
+    $("fgGo").disabled = !this.layout || this.cols.filter(Boolean).length < FREG[this.layout];
+  },
+  submit(){
+    this.locked = true;
+    const fl = this.fl, layOk = this.layout === fl.l, n = FREG[fl.l];
+    const colOk = layOk ? fl.c.filter((c,i) => this.cols[i] === c).length / n : fl.c.filter(c => this.cols.includes(c)).length / n * .5;
+    const f = this.giveLayout ? colOk : .35*(layOk?1:0) + .65*colOk;
+    const pts = Math.round(1000*f); this.total += pts;
+    this.log.push({n:fl.n, pts});
+    adapt("flags", f);
+    f >= .99 ? sfx.win() : f >= .5 ? sfx.good() : sfx.bad();
+    const last = this.round === this.list.length - 1;
+    $("fgGo").hidden = true;
+    $("fgRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? "Perfect match" : f >= .6 ? "Close" : "Not quite"}</span>
+      <div class="flag-compare"><figure>${flagSVG(this.layout, this.cols, 120)}<figcaption>Yours</figcaption></figure><figure>${flagSVG(fl.l, fl.c, 120, {cx:fl.n==="Bangladesh"||fl.n==="Palau"?66:72})}<figcaption>${fl.n}</figcaption></figure></div>
+      <span class="pts">+${fmt(pts)}</span><p>${fl.f}</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="fgNext">${last ? "See results" : "Next flag"}</button></div></div>`;
+    $("fgNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+    setSide("Score", fmt(this.total));
+  },
+  finish(){
+    const max = this.list.length*1000, f = this.total/max, stars = f >= .9 ? 3 : f >= .6 ? 2 : 1;
+    endSession({title: stars === 3 ? "Master vexillologist" : stars === 2 ? "Flying high" : "Back to the sewing table", stars, xp:20+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}. Vexillology is the study of flags.</p><ul class="roundlog">${this.log.map(l => `<li><span>${l.n}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+      actions:[["New flags", () => startRoom("flags","studio"), true], ["Lobby", goHub]]});
+  }
+};
+GEN.flags = d => {
+  const it = pick(poolFor(FLAGS, d)), others = shuffle(FLAGS.filter(x => x.n !== it.n && JSON.stringify(x.c) !== JSON.stringify(it.c))).slice(0,3).map(x => x.n);
+  return mk("Whose flag is this?", it.n, others, `${it.n}. ${it.f}`, {text:true, visual:flagSVG(it.l, it.c, 180, {cx:it.n==="Bangladesh"||it.n==="Palau"?66:72})});
+};
+
+/* ---------------- LANDMARK HUNT ---------------- */
+const LM = (inner) => `<svg viewBox="0 0 200 140" width="230" role="img" aria-label="Landmark illustration" fill="${W_}" stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M0 132 H200" stroke-width="3"/>${inner}</svg>`;
+const LANDMARK_ART = {
+  "Eiffel Tower": LM(`<path d="M100 6 L106 40 L118 84 L140 132 H116 Q100 104 84 132 H60 L82 84 L94 40 Z" fill="#c8915a"/><path d="M84 84 H116 M90 60 H110 M96 40 H104 M74 106 H126" fill="none"/><path d="M100 6 V0" />`),
+  "Great Pyramid of Giza": LM(`<path d="M20 132 L84 40 L148 132 Z" fill="#f2cc8f"/><path d="M84 40 L104 132" fill="none" stroke-width="2"/><path d="M118 132 L156 80 L196 132 Z" fill="#e9b872"/><path d="M40 108 H128 M58 84 H112 M70 64 H98" fill="none" stroke-width="1.5" opacity=".5"/><circle cx="168" cy="24" r="12" fill="#ffbf2e"/>`),
+  "Taj Mahal": LM(`<rect x="56" y="80" width="88" height="52"/><path d="M70 80 Q70 36 100 22 Q130 36 130 80 Z"/><path d="M100 22 V8"/><path d="M88 132 V104 a12 14 0 0 1 24 0 V132" fill="#a9dcef"/><rect x="34" y="56" width="8" height="76"/><rect x="158" y="56" width="8" height="76"/><path d="M32 56 Q38 44 44 56 M156 56 Q162 44 168 56"/><path d="M60 80 q8 -14 16 0 M124 80 q8 -14 16 0"/>`),
+  "Statue of Liberty": LM(`<path d="M70 132 V98 H130 V132 Z" fill="#c8915a"/><path d="M80 98 L84 74 H116 L120 98 Z" fill="#c8915a"/><path d="M88 74 Q86 50 92 42 L108 42 Q114 50 112 74 Z" fill="#7fc8a9"/><circle cx="100" cy="34" r="9" fill="#7fc8a9"/><path d="M92 28 l-6 -8 M100 25 v-10 M108 28 l6 -8" stroke-width="2.5"/><path d="M108 46 L120 16" stroke-width="6" stroke="#7fc8a9"/><path d="M108 46 L120 16" fill="none"/><path d="M116 14 q4 -10 8 0 z" fill="#ffbf2e"/><rect x="86" y="50" width="10" height="14" fill="#7fc8a9" transform="rotate(-10 91 57)"/>`),
+  "Colosseum": LM(`<path d="M20 132 V56 Q100 30 180 56 V132 Z" fill="#e9c46a"/><path d="M20 78 Q100 54 180 78 M20 104 Q100 82 180 104" fill="none"/>${[30,52,74,96,118,140,162].map(x => `<path d="M${x} 132 v-14 a6 6 0 0 1 12 0 v14" fill="#7a5c3d" stroke-width="2"/><path d="M${x} 100 v-10 a6 6 0 0 1 12 0 v10" fill="#7a5c3d" stroke-width="2"/>`).join("")}<path d="M150 56 Q166 60 180 56 V132 H160 Z" fill="#d4a373"/>`),
+  "Sydney Opera House": LM(`<path d="M10 132 H190 V120 H10 Z" fill="#e9c46a"/><path d="M30 120 Q50 60 82 54 Q74 90 80 120 Z"/><path d="M70 120 Q92 46 128 38 Q116 84 122 120 Z"/><path d="M114 120 Q138 66 168 64 Q156 96 160 120 Z"/><path d="M0 132 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0" fill="none" stroke="#3a8dff"/>`),
+  "Great Wall of China": LM(`<path d="M0 132 Q40 70 80 96 T160 70 T200 80 V132 Z" fill="#78c552"/><path d="M0 110 Q40 52 80 78 T160 52 T200 62" fill="none" stroke-width="14" stroke="${INK}"/><path d="M0 110 Q40 52 80 78 T160 52 T200 62" fill="none" stroke-width="8" stroke="#e9c46a"/><rect x="66" y="58" width="22" height="24" fill="#e9c46a"/><rect x="146" y="34" width="22" height="24" fill="#e9c46a"/><path d="M66 58 v-5 h5 v5 m6 0 v-5 h5 v5 M146 34 v-5 h5 v5 m6 0 v-5 h5 v5" fill="none" stroke-width="2"/>`),
+  "Christ the Redeemer": LM(`<path d="M0 132 Q60 60 100 70 Q140 60 200 132 Z" fill="#78c552"/><rect x="92" y="64" width="16" height="10"/><path d="M94 64 L92 30 H108 L106 64 Z"/><path d="M60 34 H140 V42 H60 Z"/><circle cx="100" cy="22" r="8"/>`),
+  "Machu Picchu": LM(`<path d="M86 132 L130 26 L150 60 L172 132 Z" fill="#5a8f4a"/><path d="M0 132 L40 84 L70 92 L100 132 Z" fill="#78c552"/><path d="M20 120 h60 M30 110 h44 M40 100 h28" fill="none" stroke-width="2"/>${[[30,112],[46,112],[38,102],[54,102],[62,112]].map(([x,y]) => `<rect x="${x}" y="${y}" width="10" height="8" fill="#d4c4a8" stroke-width="2"/>`).join("")}`),
+  "Leaning Tower of Pisa": LM(`<g transform="rotate(6 100 132)"><rect x="78" y="22" width="44" height="110" rx="4"/><rect x="84" y="10" width="32" height="14" rx="3"/>${[36,52,68,84,100,116].map(y => `<path d="M78 ${y} H122" fill="none" stroke-width="2"/>`).join("")}${[36,52,68,84,100].map(y => [84,96,108].map(x => `<path d="M${x} ${y+12} v-6 a3 3 0 0 1 6 0 v6" fill="none" stroke-width="1.5"/>`).join("")).join("")}</g>`),
+  "Big Ben (Elizabeth Tower)": LM(`<rect x="82" y="40" width="36" height="92" fill="#e9c46a"/><path d="M80 40 L100 6 L120 40 Z" fill="#5a6e8c"/><circle cx="100" cy="56" r="12"/><path d="M100 56 V48 M100 56 L106 60" fill="none" stroke-width="2"/><path d="M88 80 V128 M100 80 V128 M112 80 V128" fill="none" stroke-width="1.6"/><rect x="40" y="96" width="42" height="36" fill="#e9c46a"/><rect x="118" y="96" width="62" height="36" fill="#e9c46a"/>`),
+  "Burj Khalifa": LM(`<path d="M100 2 L104 30 L108 60 L114 94 L120 132 H80 L86 94 L92 60 L96 30 Z" fill="#a9dcef"/><path d="M92 60 H108 M86 94 H114 M96 30 H104" fill="none" stroke-width="2"/><rect x="20" y="104" width="22" height="28" fill="#a9dcef"/><rect x="150" y="96" width="26" height="36" fill="#a9dcef"/><circle cx="170" cy="22" r="11" fill="#ffbf2e"/>`),
+  "Mount Fuji": LM(`<path d="M10 132 L80 40 Q100 30 120 40 L190 132 Z" fill="#5a6e8c"/><path d="M80 40 Q100 30 120 40 L136 62 L124 58 L112 66 L100 56 L88 66 L76 58 L64 62 Z"/><circle cx="160" cy="34" r="14" fill="#ef476f"/><path d="M0 132 q25 -8 50 0" fill="none" stroke="#3a8dff"/>`),
+  "Petra (Al-Khazneh)": LM(`<path d="M0 132 V6 H200 V132 Z" fill="#e07a5f"/><path d="M40 132 V70 H160 V132" fill="#f2a07b"/><path d="M50 70 L100 48 L150 70 Z" fill="#f2a07b"/>${[52,72,128,148].map(x => `<rect x="${x-4}" y="74" width="8" height="58" fill="#f2a07b" stroke-width="2"/>`).join("")}<rect x="90" y="96" width="20" height="36" fill="#7a3b2e"/><path d="M60 46 V20 H140 V46 Z M94 20 Q100 6 106 20" fill="#f2a07b" stroke-width="2.5"/>`),
+  "Stonehenge": LM(`<path d="M0 132 Q100 118 200 132 Z" fill="#78c552"/>${[[22,70,14],[58,62,16],[100,58,16],[142,62,16]].map(([x,y,w]) => `<rect x="${x}" y="${y}" width="${w}" height="${132-y}" fill="#b8b8b8"/><rect x="${x+w+8}" y="${y}" width="${w}" height="${132-y}" fill="#b8b8b8"/><rect x="${x-2}" y="${y-12}" width="${2*w+12}" height="12" fill="#a0a0a0"/>`).join("")}`),
+  "St Basil's Cathedral": LM(`<rect x="40" y="86" width="120" height="46" fill="#e63946"/>${[[64,86,"#22b8a7"],[100,70,"#ffbf2e"],[136,86,"#6f62ff"]].map(([x,y,c]) => `<rect x="${x-10}" y="${y}" width="20" height="${132-y}" fill="#f6e3b0"/><path d="M${x-14} ${y} Q${x-16} ${y-22} ${x} ${y-34} Q${x+16} ${y-22} ${x+14} ${y} Z" fill="${c}"/><path d="M${x} ${y-34} v-10" fill="none"/>`).join("")}<path d="M100 36 V8" fill="none"/><path d="M92 14 h16" fill="none" stroke-width="2"/>`),
+  "Angkor Wat": LM(`<path d="M0 132 H200 V124 H0 Z" fill="#3a8dff"/><rect x="30" y="94" width="140" height="30" fill="#c2a878"/>${[[50,72],[100,40],[150,72],[72,84],[128,84]].map(([x,y]) => `<path d="M${x-12} ${y+30} Q${x-12} ${y+6} ${x} ${y} Q${x+12} ${y+6} ${x+12} ${y+30} Z" fill="#c2a878"/><path d="M${x-8} ${y+16} H${x+8} M${x-10} ${y+24} H${x+10}" fill="none" stroke-width="1.5"/>`).join("")}`),
+  "Chichén Itzá": LM(`<path d="M30 132 L58 104 L142 104 L170 132 Z" fill="#d4c4a8"/><path d="M58 104 L76 82 L124 82 L142 104 Z" fill="#d4c4a8"/><path d="M76 82 L90 64 L110 64 L124 82 Z" fill="#d4c4a8"/><rect x="88" y="48" width="24" height="16" fill="#d4c4a8"/><path d="M92 132 L100 50 L108 132" fill="#bfae8f" stroke-width="2"/>`),
+  "Golden Gate Bridge": LM(`<path d="M0 132 q25 -8 50 0 t50 0 t50 0 t50 0" fill="none" stroke="#3a8dff"/><path d="M0 100 H200" stroke-width="8" stroke="#e63946"/><path d="M0 100 H200" fill="none" stroke-width="2"/><rect x="50" y="20" width="10" height="112" fill="#e63946"/><rect x="140" y="20" width="10" height="112" fill="#e63946"/><path d="M0 60 Q28 96 55 24 Q100 92 145 24 Q172 96 200 60" fill="none" stroke="#e63946" stroke-width="3.5"/><path d="M50 40 h10 M140 40 h10" stroke-width="2"/>`),
+  "Moai of Rapa Nui": LM(`<path d="M0 132 Q100 112 200 132 Z" fill="#78c552"/>${[60,110,154].map((x,i) => `<path d="M${x-14} 132 V${56+i*8} Q${x-16} ${34+i*8} ${x} ${30+i*8} Q${x+14} ${34+i*8} ${x+12} ${56+i*8} L${x+14} 132 Z" fill="#8d7b68"/><path d="M${x-8} ${50+i*8} H${x+6} M${x+2} ${50+i*8} V${68+i*8} L${x+8} ${70+i*8}" fill="none" stroke-width="2"/>`).join("")}`)
+};
+const LANDMARKS = [
+ {n:"Eiffel Tower",t:1,c:"France",city:"Paris",ll:[48.858,2.294],clues:["A wrought-iron lattice tower about 330 meters tall.","Built as the entrance arch for a world's fair in 1889.","Many artists signed a protest calling it an eyesore. It was meant to be taken down after 20 years."],fact:"It was saved because it made a perfect radio antenna. It's repainted every seven years, using about 60 tonnes of paint."},
+ {n:"Great Pyramid of Giza",t:1,c:"Egypt",city:"Giza",ll:[29.979,31.134],clues:["Built from about 2.3 million stone blocks.","For nearly 4,000 years it was the tallest human-made structure on Earth.","The tomb of the pharaoh Khufu, on the edge of a desert by a great river."],fact:"It's the only one of the Seven Wonders of the Ancient World still standing."},
+ {n:"Taj Mahal",t:1,c:"India",city:"Agra",ll:[27.175,78.042],clues:["A white marble tomb with a great dome and four minarets.","An emperor built it in memory of his favorite wife, who died in 1631.","It stands beside the Yamuna River in the Mughal city of Agra."],fact:"The marble changes color through the day, from pink at dawn to gold under moonlight. The minarets lean slightly outward so they'd fall away from the tomb."},
+ {n:"Statue of Liberty",t:1,c:"United States of America",city:"New York",ll:[40.689,-74.045],clues:["A copper statue of a robed woman holding a torch.","A gift from France, dedicated in 1886.","It welcomed millions of immigrants arriving by ship at a harbor island."],fact:"It's green because the copper has oxidized. It was originally the color of a shiny penny."},
+ {n:"Colosseum",t:1,c:"Italy",city:"Rome",ll:[41.890,12.492],clues:["An oval amphitheater that held around 50,000 spectators.","Gladiators fought here, and the arena could have a canvas roof for shade.","Completed in 80 CE in the capital of an ancient empire."],fact:"Much of its missing stone was taken for other buildings, including parts of St Peter's Basilica."},
+ {n:"Sydney Opera House",t:1,c:"Australia",city:"Sydney",ll:[-33.857,151.215],clues:["Roofs shaped like white sails or shells, covered in over a million tiles.","A Danish architect won the design competition in 1957.","It sits on a harbor point in the largest city of an island continent."],fact:"Jørn Utzon resigned before it was finished in 1973 and never saw it completed."},
+ {n:"Great Wall of China",t:1,c:"China",city:"Badaling, near Beijing",ll:[40.36,116.02],clues:["Walls, watchtowers and fortresses snaking over mountain ridges.","An early version was linked up by the first emperor in about 221 BCE.","Most of the stretch tourists visit today was built in the Ming dynasty."],fact:"Contrary to the myth, it can't be seen with the naked eye from the Moon."},
+ {n:"Christ the Redeemer",t:1,c:"Brazil",city:"Rio de Janeiro",ll:[-22.952,-43.211],clues:["A 30-meter statue with outstretched arms on a mountaintop.","Made of reinforced concrete covered in soapstone tiles, finished in 1931.","It overlooks a coastal city famous for its carnival."],fact:"It's struck by lightning several times a year, so spare pieces of soapstone are kept for repairs."},
+ {n:"Machu Picchu",t:2,c:"Peru",city:"near Cusco",ll:[-13.163,-72.545],clues:["Stone terraces and buildings on a ridge 2,400 meters up in the mountains.","Built in the mid-1400s for an emperor, then abandoned about a century later.","The Spanish never found it; it became world-famous in 1911."],fact:"Its stones fit so tightly without mortar that a knife blade can't slide between them, which helps them survive earthquakes."},
+ {n:"Leaning Tower of Pisa",t:2,c:"Italy",city:"Pisa",ll:[43.723,10.396],clues:["A white marble bell tower that tilts noticeably.","It began leaning during construction in the 1170s because of soft soil.","Engineers straightened it by about 40 cm between 1990 and 2001."],fact:"Builders tried to fix the lean by making the upper floors slightly taller on one side, so the tower is actually curved."},
+ {n:"Big Ben (Elizabeth Tower)",t:2,c:"United Kingdom",city:"London",ll:[51.501,-0.125],clues:["A Gothic clock tower beside a riverside parliament building.","“Big Ben” is really the name of the great bell inside.","Finished in 1859 after the old palace burned down."],fact:"The clock's pendulum is adjusted with a stack of old penny coins; adding one changes its speed by 0.4 seconds a day."},
+ {n:"Burj Khalifa",t:2,c:"United Arab Emirates",city:"Dubai",ll:[25.197,55.274],clues:["The world's tallest building, at about 828 meters.","Its Y-shaped floor plan is inspired by a desert flower.","Opened in 2010 in a Gulf city that was a small fishing and pearling town a century ago."],fact:"From the top you can see the sun set twice: once from the ground, then again after a fast elevator ride up."},
+ {n:"Mount Fuji",t:2,c:"Japan",city:"Honshu",ll:[35.361,138.728],clues:["A nearly symmetrical, snow-capped volcanic cone 3,776 meters high.","It last erupted in 1707.","Shown in a famous series of woodblock prints by Hokusai."],fact:"Climbing season is only July to early September; hundreds of thousands of people climb it each year."},
+ {n:"Petra (Al-Khazneh)",t:2,c:"Jordan",city:"Petra",ll:[30.322,35.451],clues:["A temple-like facade carved straight into a rose-red sandstone cliff.","Built by the Nabataeans, who controlled desert trade routes about 2,000 years ago.","You reach it through a narrow canyon called the Siq."],fact:"Its name means “the Treasury”, from a legend that pirates hid gold in the urn at the top."},
+ {n:"Stonehenge",t:3,c:"United Kingdom",city:"Salisbury Plain",ll:[51.179,-1.826],clues:["A ring of standing stones with horizontal stones on top.","Some smaller stones were dragged about 240 km from Wales.","Built in stages from around 3000 BCE, aligned with the summer and winter solstices."],fact:"Nobody knows exactly why it was built. Ideas include a temple, a calendar and a burial ground."},
+ {n:"St Basil's Cathedral",t:3,c:"Russia",city:"Moscow",ll:[55.753,37.623],clues:["A church crowned by brightly colored, patterned onion domes.","Built from 1555 to 1561 to celebrate a military victory by Ivan the Terrible.","It stands at the edge of Red Square."],fact:"A legend says Ivan blinded the architect so he could never build anything as beautiful again, but there's no evidence for it."},
+ {n:"Angkor Wat",t:3,c:"Cambodia",city:"Siem Reap",ll:[13.412,103.867],clues:["Lotus-bud towers rising from a temple surrounded by a wide moat.","Built in the early 1100s as a Hindu temple, later Buddhist.","It's the largest religious monument in the world and appears on its country's flag."],fact:"Its five towers represent Mount Meru, the home of the gods in Hindu and Buddhist cosmology."},
+ {n:"Chichén Itzá",t:3,c:"Mexico",city:"Yucatán",ll:[20.684,-88.568],clues:["A stepped pyramid with a temple on top.","At the equinoxes, shadows form a serpent sliding down its steps.","Built by the Maya on a flat peninsula of limestone and sinkholes."],fact:"The pyramid has 91 steps on each of four sides, plus the top platform: 365, one for each day of the year."},
+ {n:"Golden Gate Bridge",t:3,c:"United States of America",city:"San Francisco",ll:[37.819,-122.479],clues:["A suspension bridge painted “International Orange”.","When it opened in 1937 it had the longest main span in the world.","It crosses a foggy strait where a bay meets the Pacific."],fact:"The orange color was chosen to stay visible in fog and to suit the hills around it."},
+ {n:"Moai of Rapa Nui",t:3,c:"Chile",city:"Easter Island",ll:[-27.12,-109.35],clues:["Hundreds of giant stone heads with long faces, many with bodies buried underground.","Carved from volcanic rock by the Rapa Nui people between about 1250 and 1500.","On one of the most remote inhabited islands on Earth, in the Pacific."],fact:"Experiments suggest the statues were “walked” upright, rocked from side to side with ropes."}
+];
+LANDMARKS.forEach(x => x.kind = "landmark");
+STUDIO.landmarks = Explorer({room:"landmarks", list:LANDMARKS});
+GEN.landmarks = d => {
+  const it = pick(poolFor(LANDMARKS, d)), others = shuffle([...new Set(LANDMARKS.map(x => x.c).filter(c => c !== it.c))]).slice(0,3);
+  return mk(`Which country is this landmark in?`, cname(it.c), others.map(cname), `${it.n}, ${it.city}, ${cname(it.c)}. ${it.fact}`, {text:true, visual:LANDMARK_ART[it.n]});
+};
+
+/* ---------------- TEST KITCHEN ---------------- */
+const ING = {
+  avocado:["Avocado","avocado","#6a994e","Mexico and Central America. Domesticated about 5,000 years ago."],
+  lime:["Lime","wedge","#8bd16a","Southeast Asia. Arab traders spread it west; the Spanish took it to the Americas."],
+  lemon:["Lemon","wedge","#ffe066","Northeast India or Myanmar. It reached the Mediterranean around the 1st century CE."],
+  onion:["Onion","bulb","#c77dff","Central Asia. One of the oldest cultivated vegetables."],
+  chili:["Chili","chili","#e63946","The Americas. Portuguese traders carried chilies to India and Asia in the 1500s."],
+  cilantro:["Cilantro","herb","#3f9e4d","The Mediterranean and Middle East. Its seeds are the spice coriander."],
+  basil:["Basil","herb","#2d8a3e","India, where holy basil is sacred. It reached Europe via the spice trade."],
+  dill:["Dill","fern","#5bbf6a","Eastern Mediterranean and western Asia."],
+  garlic:["Garlic","garlic","#f7f1e3","Central Asia. Workers building the pyramids were given garlic rations."],
+  salt:["Salt","shaker","#ffffff","Everywhere: from seawater, salt lakes and mines. Roman soldiers were sometimes paid in salt."],
+  oil:["Olive oil","bottle","#c9b037","The eastern Mediterranean, pressed for at least 6,000 years."],
+  tomato:["Tomato","fruit","#e63946","The Andes, domesticated in Mexico. Europeans were suspicious of it for 200 years."],
+  mozzarella:["Mozzarella","ball","#ffffff","Southern Italy, traditionally from water-buffalo milk."],
+  parmesan:["Parmesan","wedgecheese","#f4d58d","Around Parma and Reggio Emilia, Italy, made for about 800 years."],
+  pinenuts:["Pine nuts","pile","#efdcb0","Seeds from pine cones, gathered around the Mediterranean since ancient times."],
+  walnut:["Walnuts","pile","#a47148","Persia (Iran)."],
+  chickpeas:["Chickpeas","pile","#e9c46a","Southeastern Turkey, about 9,000 years ago."],
+  tahini:["Tahini","jar","#d4a373","Sesame paste. Sesame came from India and is one of the oldest oilseed crops."],
+  yogurt:["Yogurt","jar","#fbfaf5","Central Asia and the Middle East, where herders found milk soured into yogurt."],
+  cucumber:["Cucumber","long","#6a994e","India, grown for at least 3,000 years."],
+  miso:["Miso","jar","#c68b59","Fermented soybean paste, from Japan via older Chinese ferments."],
+  dashi:["Dashi stock","bowl","#f2cc8f","Japan: stock made from kombu seaweed and dried bonito flakes."],
+  tofu:["Tofu","block","#fbfaf5","China, said to date back about 2,000 years."],
+  wakame:["Wakame seaweed","leafy","#2d6a4f","Seas around Japan and Korea."],
+  scallion:["Scallion","long","#9ad66b","East Asia."],
+  rice:["Cooked rice","pile","#ffffff","The Yangtze valley in China, about 9,000 years ago."],
+  egg:["Egg","egg","#fbfaf5","Chickens were domesticated in Southeast Asia."],
+  soy:["Soy sauce","bottle","#3d1f12","China, over 2,000 years ago."],
+  peas:["Peas","pile","#6cc04a","The Mediterranean and Near East."],
+  flour:["Flour","sack","#fbfaf5","Wheat comes from the Fertile Crescent, about 10,000 years ago."],
+  milk:["Milk","bottle","#ffffff","From cattle domesticated in the Near East around 10,000 years ago."],
+  butter:["Butter","block","#ffe066","Made by herders for thousands of years by churning cream."],
+  sugar:["Sugar","sack","#ffffff","Sugarcane was domesticated in New Guinea."],
+  yeast:["Yeast","jar","#e9c46a","A wild microbe. Egyptians brewed and baked with it 5,000 years ago."],
+  water:["Water","bottle","#a9dcef","Every kitchen, everywhere."],
+  mayo:["Mayonnaise","jar","#fff3c4","Probably named after Mahón in Menorca, in the 1700s."],
+  cheddar:["Cheddar","block","#ffa62b","The village of Cheddar, England."],
+  potato:["Potato","potato","#d4a373","The Andes of Peru and Bolivia, about 8,000 years ago."],
+  cream:["Cream","bottle","#fffaf0","Skimmed from the top of fresh milk."],
+  carrot:["Carrot","long","#ff8c42","Afghanistan. Early carrots were purple or yellow."],
+  lettuce:["Lettuce","leafy","#9ad66b","Ancient Egypt."],
+  peanut:["Peanuts","pile","#d9a066","South America. Portuguese traders spread them to Africa and Asia."],
+  cumin:["Cumin","pile","#a47148","The Middle East and India."],
+  coconut:["Coconut milk","bottle","#fffaf0","Tropical Asia and the Pacific islands."]
+};
+const RECIPES = [
+ {n:"Guacamole",t:1,from:"Mexico",core:["avocado","lime","onion","chili","cilantro","salt"],decoy:["mayo","cheddar","potato","basil","milk","carrot"],f:"The Aztecs made āhuacamōlli, “avocado sauce”, long before the Spanish arrived."},
+ {n:"Caprese salad",t:1,from:"Italy",core:["tomato","mozzarella","basil","oil","salt"],decoy:["cheddar","lettuce","mayo","cilantro","carrot","soy"],f:"Named after the island of Capri. Its red, white and green echo the Italian flag."},
+ {n:"Crêpe batter",t:1,from:"France",core:["flour","egg","milk","butter","salt","sugar"],decoy:["yeast","rice","tomato","oil","cheddar","soy"],f:"Crêpes come from Brittany, where buckwheat grew well in poor soil. February 2 is crêpe day."},
+ {n:"Pesto alla Genovese",t:2,from:"Genoa, Italy",core:["basil","pinenuts","garlic","parmesan","oil","salt"],decoy:["walnut","cilantro","butter","cream","lemon","spinach"],f:"Traditionally pounded in a marble mortar; the name comes from pestare, “to pound”."},
+ {n:"Hummus",t:2,from:"the Levant",core:["chickpeas","tahini","lemon","garlic","oil","salt"],decoy:["yogurt","peanut","butter","milk","mayo","potato"],f:"Hummus means “chickpeas” in Arabic. Lebanon and Israel have competed to make the world's largest bowl of it."},
+ {n:"Miso soup",t:2,from:"Japan",core:["dashi","miso","tofu","wakame","scallion"],decoy:["cream","potato","cheddar","milk","flour","carrot"],f:"Miso should never boil, because boiling kills its aroma and its healthy live cultures."},
+ {n:"Tzatziki",t:2,from:"Greece",core:["yogurt","cucumber","garlic","dill","oil","lemon"],decoy:["mayo","cream","tomato","cumin","basil","carrot"],f:"Squeezing water out of the grated cucumber keeps the sauce thick."},
+ {n:"Egg fried rice",t:3,from:"China",core:["rice","egg","soy","scallion","garlic","oil","peas"],decoy:["butter","cream","milk","cheddar","yogurt","tomato"],f:"Day-old rice works best: it's drier, so the grains fry separately instead of turning mushy."},
+ {n:"Basic bread",t:3,from:"the Fertile Crescent",core:["flour","water","yeast","salt"],decoy:["egg","milk","butter","sugar","oil","rice"],f:"Lean bread needs just four ingredients. Bakers measure them as percentages of the flour's weight: about 65% water and 2% salt."},
+ {n:"Pico de gallo",t:3,from:"Mexico",core:["tomato","onion","chili","cilantro","lime","salt"],decoy:["avocado","mayo","basil","cucumber","garlic","carrot"],f:"Its name means “rooster's beak”, maybe because people once ate it by pinching pieces between finger and thumb."}
+];
+ING.spinach = ["Spinach","leafy","#2d6a4f","Persia (Iran). Medieval Arab farmers spread it to Spain."];
+function ingIcon(key, size=56){
+  const [, shape, c] = ING[key];
+  const s = (inner) => `<svg viewBox="0 0 60 60" width="${size}" height="${size}" aria-hidden="true" fill="${c}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">${inner}</svg>`;
+  switch(shape){
+    case "avocado": return s(`<path d="M30 6 C18 6 16 24 12 36 C8 50 20 56 30 56 C40 56 52 50 48 36 C44 24 42 6 30 6z"/><circle cx="30" cy="38" r="9" fill="#9c6644"/><path d="M30 10 C22 12 22 26 18 36 C15 46 24 51 30 51 C36 51 45 46 42 36 C38 26 38 12 30 10z" fill="#d8e9a8" stroke="none" opacity=".6"/><circle cx="30" cy="38" r="9" fill="#9c6644"/>`);
+    case "wedge": return s(`<path d="M8 22 a22 22 0 0 0 44 0z"/><path d="M14 24 a16 16 0 0 0 32 0z" fill="#f7f7c8" stroke-width="1.5"/><path d="M30 24 v14 M30 24 l-10 10 M30 24 l10 10" stroke-width="1.5"/>`);
+    case "bulb": return s(`<path d="M30 8 q2 8 12 16 q10 12 0 24 q-12 8 -24 0 q-10 -12 0 -24 q10 -8 12 -16z"/><path d="M30 16 q-8 14 0 34 M30 16 q8 14 0 34" fill="none" stroke-width="1.5"/>`);
+    case "chili": return s(`<path d="M18 14 q-2 -6 4 -8" fill="none" stroke="#3f9e4d" stroke-width="3"/><path d="M18 16 q20 -4 26 16 q4 18 4 24 q-12 -4 -22 -18 q-8 -12 -8 -22z"/>`);
+    case "herb": return s(`<path d="M30 56 V20" fill="none" stroke="#2d6a4f"/><ellipse cx="22" cy="24" rx="9" ry="6" transform="rotate(-30 22 24)"/><ellipse cx="38" cy="24" rx="9" ry="6" transform="rotate(30 38 24)"/><ellipse cx="22" cy="38" rx="9" ry="6" transform="rotate(-30 22 38)"/><ellipse cx="38" cy="38" rx="9" ry="6" transform="rotate(30 38 38)"/><ellipse cx="30" cy="12" rx="6" ry="8"/>`);
+    case "fern": return s(`<path d="M30 56 V8" fill="none" stroke="#2d6a4f"/>${[14,22,30,38,46].map(y => `<path d="M30 ${y} l-12 -6 M30 ${y} l12 -6" fill="none" stroke="${c}" stroke-width="3"/>`).join("")}`);
+    case "garlic": return s(`<path d="M30 8 q14 12 16 26 q0 18 -16 20 q-16 -2 -16 -20 q2 -14 16 -26z"/><path d="M30 12 v40 M22 26 q-2 14 4 24 M38 26 q2 14 -4 24" fill="none" stroke-width="1.5"/>`);
+    case "shaker": return s(`<path d="M18 22 h24 l-2 32 h-20z"/><path d="M20 22 q0 -14 10 -14 q10 0 10 14z" fill="#adb5bd"/><circle cx="26" cy="15" r="1.4" fill="${INK}"/><circle cx="34" cy="15" r="1.4" fill="${INK}"/><circle cx="30" cy="11" r="1.4" fill="${INK}"/>`);
+    case "bottle": return s(`<rect x="24" y="4" width="12" height="8" rx="2" fill="#adb5bd"/><path d="M24 12 h12 v6 q8 4 8 12 v22 a4 4 0 0 1 -4 4 h-20 a4 4 0 0 1 -4 -4 v-22 q0 -8 8 -12z"/><rect x="18" y="32" width="24" height="12" rx="2" fill="${W_}" stroke-width="1.5"/>`);
+    case "fruit": return s(`<circle cx="30" cy="34" r="20"/><path d="M30 14 l-6 -6 M30 14 l6 -6 M30 14 l-8 2 M30 14 l8 2" stroke="#3f9e4d" stroke-width="3"/><ellipse cx="22" cy="28" rx="4" ry="6" fill="${W_}" stroke="none" opacity=".5"/>`);
+    case "ball": return s(`<circle cx="30" cy="32" r="20"/><path d="M18 26 q12 -8 24 0" fill="none" stroke-width="1.5"/>`);
+    case "wedgecheese": return s(`<path d="M8 40 L48 14 L52 46 Z"/><path d="M8 40 L52 46 V52 L8 46z" fill="#e9c46a"/><circle cx="36" cy="32" r="3" fill="#e9c46a" stroke-width="1.5"/>`);
+    case "pile": return s(`<path d="M8 50 h44 q0 -6 -4 -8 h-36 q-4 2 -4 8z" fill="${W_}"/>${[[18,40],[26,36],[34,38],[42,41],[22,32],[30,30],[38,33],[26,26],[34,26],[30,20]].map(([x,y]) => `<ellipse cx="${x}" cy="${y}" rx="5" ry="4"/>`).join("")}`);
+    case "jar": return s(`<rect x="16" y="8" width="28" height="8" rx="2" fill="#adb5bd"/><path d="M14 16 h32 v34 a4 4 0 0 1 -4 4 h-24 a4 4 0 0 1 -4 -4z"/><rect x="18" y="28" width="24" height="12" rx="2" fill="${W_}" stroke-width="1.5"/>`);
+    case "long": return s(`<rect x="10" y="22" width="40" height="16" rx="8" transform="rotate(-30 30 30)"/><path d="M14 40 l-6 4 M14 40 l-4 6" stroke="#3f9e4d" stroke-width="3"/>`);
+    case "bowl": return s(`<path d="M8 28 h44 a22 20 0 0 1 -44 0z" fill="${W_}"/><ellipse cx="30" cy="28" rx="22" ry="5"/>`);
+    case "block": return s(`<path d="M10 24 l20 -10 l20 10 v18 l-20 10 l-20 -10z"/><path d="M10 24 l20 10 l20 -10 M30 34 v18" fill="none" stroke-width="2"/>`);
+    case "leafy": return s(`<path d="M30 54 q-24 -10 -18 -36 q10 6 18 0 q8 6 18 0 q6 26 -18 36z"/><path d="M30 54 V16 M30 30 l-8 -6 M30 40 l8 -6" fill="none" stroke-width="1.5"/>`);
+    case "egg": return s(`<path d="M30 6 q16 6 18 28 q0 20 -18 20 q-18 0 -18 -20 q2 -22 18 -28z"/>`);
+    case "sack": return s(`<path d="M16 16 q14 -6 28 0 l4 32 q-18 8 -36 0z"/><path d="M18 16 l-2 -6 h28 l-2 6" fill="#e9c46a"/><path d="M22 34 h16" stroke-width="1.5"/>`);
+    case "potato": return s(`<path d="M10 30 q2 -18 22 -18 q20 0 18 18 q-2 18 -20 18 q-20 0 -20 -18z"/><circle cx="22" cy="26" r="1.6" fill="${INK}"/><circle cx="36" cy="22" r="1.6" fill="${INK}"/><circle cx="34" cy="36" r="1.6" fill="${INK}"/>`);
+  }
+  return s(`<circle cx="30" cy="30" r="20"/>`);
+}
+STUDIO.cook = {
+  start(){ const d = S.rating.cook; this.list = shuffle(RECIPES.filter(x => x.t <= tier3(d) + 1)).slice(0,5); this.round = 0; this.total = 0; this.log = []; this.nDecoy = d < 3.5 ? 4 : d < 6.5 ? 5 : 6; this.newRound(); },
+  newRound(){
+    const r = this.list[this.round]; this.r = r; this.picked = new Set(); this.locked = false;
+    this.pantry = shuffle([...r.core, ...shuffle(r.decoy.slice()).slice(0, this.nDecoy)]);
+    stage.innerHTML = `<div class="studio-grid">
+      <div class="kitchen-stage"><div class="recipe-card"><span class="eyebrow">Recipe ${this.round+1} of ${this.list.length}</span><h3>${r.n}</h3><p>From ${r.from} · needs <b>${r.core.length}</b> ingredients</p></div>
+        <div class="mixbowl" id="ckBowl"></div></div>
+      <div class="ctl-col"><div class="opt-group"><h4>Pantry · tap to add or remove</h4><div class="pantry" id="ckPantry"></div></div>
+        <button class="btn btn-solid" type="button" id="ckGo">Taste test</button><div id="ckRes"></div></div></div>`;
+    $("ckPantry").addEventListener("click", e => { const b = e.target.closest(".ing"); if(!b || this.locked) return; const k = b.dataset.k; this.picked.has(k) ? this.picked.delete(k) : this.picked.add(k); sfx.click(); this.render(); });
+    $("ckGo").addEventListener("click", () => this.submit());
+    setSide("Score", fmt(this.total));
+    this.render();
+  },
+  render(){
+    $("ckPantry").innerHTML = this.pantry.map(k => { const ok = this.r.core.includes(k), st = this.locked ? (this.picked.has(k) ? (ok ? "hit" : "wrong") : (ok ? "missed" : "")) : (this.picked.has(k) ? "in" : "");
+      return `<button type="button" class="ing ${st}" data-k="${k}" ${this.locked ? "disabled" : ""}>${ingIcon(k, 50)}<span>${ING[k][0]}</span></button>`; }).join("");
+    const pk = [...this.picked];
+    $("ckBowl").innerHTML = `<svg viewBox="0 0 240 170" width="100%" aria-label="Mixing bowl"><path d="M14 78 h212 a106 84 0 0 1 -212 0z" fill="${W_}" stroke="${INK}" stroke-width="3.5"/><path d="M30 104 h180" stroke="var(--c)" stroke-width="7"/><ellipse cx="120" cy="78" rx="106" ry="20" fill="#f6e6c9" stroke="${INK}" stroke-width="3.5"/>
+      ${pk.map((k,i) => { const a = (i/Math.max(1,pk.length))*Math.PI*2, x = 120 + Math.cos(a)*(pk.length > 1 ? 56 : 0) - 22, y = 50 + Math.sin(a)*12; return `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)})">${ingIcon(k, 44)}</g>`; }).join("")}</svg>
+      <p class="msg" style="text-align:center">${pk.length} of ${this.r.core.length} in the bowl</p>`;
+  },
+  submit(){
+    if(this.locked) return;
+    this.locked = true;
+    const r = this.r, hits = r.core.filter(k => this.picked.has(k)).length, wrong = [...this.picked].filter(k => !r.core.includes(k)).length;
+    const f = clamp((hits - .75*wrong) / r.core.length, 0, 1), pts = Math.round(1000*f);
+    this.total += pts; this.log.push({n:r.n, pts}); adapt("cook", f);
+    f >= .99 ? sfx.win() : f >= .6 ? sfx.good() : sfx.bad();
+    this.render();
+    const notes = this.pantry.filter(k => this.picked.has(k) || r.core.includes(k)).map(k => `<li class="${r.core.includes(k) ? (this.picked.has(k) ? "ok" : "miss") : "no"}">${ingIcon(k, 28)}<div><b>${ING[k][0]}</b> ${r.core.includes(k) ? (this.picked.has(k) ? "" : "· you missed this") : "· doesn't belong"}<p>Origin: ${ING[k][3]}</p></div></li>`).join("");
+    const last = this.round === this.list.length - 1;
+    $("ckGo").hidden = true;
+    $("ckRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? "Chef's kiss" : f >= .6 ? "Tasty, mostly" : "Something's off"}</span><span class="pts">+${fmt(pts)}</span><p>${r.f}</p><ul class="ingnotes">${notes}</ul>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckNext">${last ? "See results" : "Next recipe"}</button></div></div>`;
+    $("ckNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+    setSide("Score", fmt(this.total));
+  },
+  finish(){
+    const max = this.list.length*1000, f = this.total/max, stars = f >= .9 ? 3 : f >= .6 ? 2 : 1;
+    endSession({title: stars === 3 ? "Head chef" : stars === 2 ? "Sous-chef" : "Kitchen apprentice", stars, xp:20+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}</p><ul class="roundlog">${this.log.map(l => `<li><span>${l.n}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+      actions:[["Cook again", () => startRoom("cook","studio"), true], ["Lobby", goHub]]});
+  }
+};
+GEN.cook = d => {
+  if(Math.random() < .5){
+    const amer = ["avocado","chili","tomato","potato","peanut"], other = Object.keys(ING).filter(k => !amer.includes(k) && !["salt","water"].includes(k));
+    const k = pick(amer);
+    return mk("Which of these first came from the Americas?", ING[k][0], shuffle(other).slice(0,3).map(x => ING[x][0]), `${ING[k][0]}: ${ING[k][3]} Foods crossing the Atlantic after 1492 are called the Columbian Exchange.`, {text:true, visual:ingIcon(k, 70)});
+  }
+  const r = pick(poolFor(RECIPES, d)), bad = pick(r.decoy.filter(k => ING[k]));
+  return mk(`Which ingredient does <b>not</b> belong in classic ${r.n.toLowerCase()}?`, ING[bad][0], shuffle(r.core.slice()).slice(0,3).map(k => ING[k][0]), `Classic ${r.n} uses ${r.core.map(k => ING[k][0].toLowerCase()).join(", ")}. ${r.f}`, {text:true});
+};
+
+/* ---------------- THEN & NOW (timeline) ---------------- */
+const EVENTS = [
+ ["Wheel invented in Mesopotamia",-3500,"tool","The first wheels were potter's wheels; wheels for carts came a few centuries later."],
+ ["Writing (cuneiform) appears in Sumer",-3200,"art","Early writing kept track of grain, beer and livestock."],
+ ["Great Pyramid of Giza built",-2560,"build","It was the tallest structure on Earth for nearly 4,000 years."],
+ ["First recorded Olympic Games",-776,"sport","The only event was a 192-meter footrace."],
+ ["Legendary founding of Rome",-753,"build","Legend says twin brothers Romulus and Remus founded it."],
+ ["Parthenon construction begins in Athens",-447,"build","Built of marble in about 15 years."],
+ ["China unified by its first emperor",-221,"power","Qin Shi Huang standardized writing, coins and even cart-axle widths."],
+ ["Paper making improved by Cai Lun in China",105,"tool","Made from bark, hemp and rags; it spread west over 1,000 years."],
+ ["Western Roman Empire falls",476,"power","The last emperor, Romulus Augustulus, was deposed."],
+ ["Gunpowder formula first written down in China",850,"science","Alchemists searching for an elixir of life found an explosive instead."],
+ ["Vikings reach North America",1000,"explore","Leif Erikson's settlement in Newfoundland came about 500 years before Columbus."],
+ ["Magna Carta sealed in England",1215,"power","It limited the king's power and inspired later constitutions."],
+ ["Black Death reaches Europe",1347,"science","It killed roughly a third of Europe's population in a few years."],
+ ["Gutenberg's printing press",1440,"tool","Books became cheap enough for ordinary people."],
+ ["Machu Picchu built for an Inca emperor",1450,"build","The Spanish never found it."],
+ ["Columbus reaches the Americas",1492,"explore","It began a huge exchange of crops, animals and diseases between continents."],
+ ["Leonardo begins the Mona Lisa",1503,"art","He worked on it on and off for about 16 years."],
+ ["Galileo turns a telescope to the sky",1610,"science","He saw the moons of Jupiter and the craters of the Moon."],
+ ["Taj Mahal completed",1653,"build","About 20,000 workers built it."],
+ ["Newton publishes his laws of motion",1687,"science","His Principia also explained gravity."],
+ ["American Declaration of Independence",1776,"power","Signed in Philadelphia on July 4, 1776."],
+ ["French Revolution begins",1789,"power","It began with the storming of the Bastille on July 14."],
+ ["First vaccine, against smallpox",1796,"science","Edward Jenner used cowpox to protect against smallpox."],
+ ["Britain abolishes the slave trade",1807,"power","Slavery itself was abolished across most of the British Empire in 1833."],
+ ["First photograph",1826,"art","Nicéphore Niépce's exposure took about eight hours."],
+ ["Stephenson's Rocket locomotive",1829,"tool","It reached about 48 km/h, astonishing at the time."],
+ ["Darwin publishes On the Origin of Species",1859,"science","It explained evolution by natural selection."],
+ ["Telephone patented",1876,"tool","Bell's first words were “Mr. Watson, come here, I want to see you.”"],
+ ["Edison's long-lasting light bulb",1879,"tool","His carbon filament lasted over 13 hours."],
+ ["Eiffel Tower completed",1889,"build","It was the world's tallest structure until 1930."],
+ ["New Zealand gives women the vote",1893,"power","It was the first self-governing country to do so."],
+ ["Wright brothers' first powered flight",1903,"explore","The first flight lasted 12 seconds."],
+ ["First World War begins",1914,"power","More than 15 million people died."],
+ ["Television first demonstrated",1926,"tool","John Logie Baird showed moving images in London."],
+ ["Penicillin discovered",1928,"science","Alexander Fleming noticed mold killing bacteria in a dish."],
+ ["DNA double helix described",1953,"science","Rosalind Franklin's X-ray images were key evidence."],
+ ["Sputnik, first satellite, launched",1957,"explore","It beeped radio signals that anyone could pick up."],
+ ["First Moon landing",1969,"explore","Neil Armstrong and Buzz Aldrin walked on the Moon for about 2.5 hours."],
+ ["Berlin Wall falls",1989,"power","Germany reunified less than a year later."],
+ ["World Wide Web opens to the public",1991,"tool","Tim Berners-Lee made it free for everyone."],
+ ["Nelson Mandela elected president",1994,"power","South Africa's first election open to all races."],
+ ["First iPhone released",2007,"tool","Smartphones changed how billions of people live."]
+].map(([n,y,k,f]) => ({n,y,k,f}));
+const EV_ICON = {
+  tool:`<circle cx="20" cy="20" r="9" fill="none" stroke="${INK}" stroke-width="3"/><path d="M20 4 v6 M20 30 v6 M4 20 h6 M30 20 h6 M9 9 l4 4 M27 27 l4 4 M9 31 l4 -4 M27 13 l4 -4" stroke="${INK}" stroke-width="3"/>`,
+  art:`<rect x="5" y="7" width="30" height="26" rx="2" fill="#a9dcef" stroke="${INK}" stroke-width="3"/><path d="M8 30 l8 -10 l6 6 l4 -4 l6 8" fill="#78c552" stroke="${INK}" stroke-width="2"/><circle cx="27" cy="14" r="3" fill="#ffbf2e" stroke="${INK}" stroke-width="1.5"/>`,
+  build:`<path d="M6 34 h28 M8 14 l12 -8 l12 8 z M10 16 v16 M17 16 v16 M24 16 v16 M30 16 v16" fill="#f2cc8f" stroke="${INK}" stroke-width="3"/>`,
+  sport:`<circle cx="20" cy="20" r="14" fill="#ffbf2e" stroke="${INK}" stroke-width="3"/><path d="M20 10 l3 7 h7 l-6 4 l2 7 l-6 -4 l-6 4 l2 -7 l-6 -4 h7z" fill="${W_}" stroke="${INK}" stroke-width="1.5"/>`,
+  power:`<path d="M8 30 l4 -16 l8 8 l8 -8 l4 16z" fill="#ffbf2e" stroke="${INK}" stroke-width="3"/><path d="M8 34 h24" stroke="${INK}" stroke-width="3"/>`,
+  science:`<path d="M15 5 h10 M17 5 v10 l-9 16 a3 3 0 0 0 3 4 h18 a3 3 0 0 0 3 -4 l-9 -16 v-10" fill="#c7f9cc" stroke="${INK}" stroke-width="3"/><circle cx="17" cy="27" r="2" fill="${INK}"/><circle cx="24" cy="30" r="1.6" fill="${INK}"/>`,
+  explore:`<path d="M8 26 q12 6 24 0 l-3 7 h-18z" fill="#c8915a" stroke="${INK}" stroke-width="3"/><path d="M20 26 V6 l10 14 h-10" fill="${W_}" stroke="${INK}" stroke-width="2.5"/>`
+};
+const evIcon = k => `<svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">${EV_ICON[k]}</svg>`;
+STUDIO.time = {
+  start(){
+    const d = S.rating.time; this.gap = Math.round(clamp(500 - d*52, 8, 500));
+    const pool = shuffle(EVENTS.slice());
+    this.placed = [pool.shift()]; this.deck = pool; this.lives = 3; this.score = 0; this.turns = 0; this.max = 8;
+    stage.innerHTML = `<div class="studio-grid"><div class="ctl-col"><div class="brief"><span class="eyebrow">Then & Now</span><h3>Where does this go on the timeline?</h3><div id="tmCard"></div><p class="msg" id="tmMsg">Tap the gap where it belongs.</p></div><div id="tmRes"></div></div>
+      <div><ol class="timeline" id="tmLine"></ol></div></div>`;
+    this.next();
+  },
+  hearts(){ return "♥".repeat(this.lives) + "♡".repeat(3-this.lives); },
+  next(){
+    if(this.turns >= this.max || this.lives <= 0 || !this.deck.length) return this.finish();
+    const minGap = c => Math.min(...this.placed.map(p => Math.abs(p.y - c.y)));
+    let i = this.deck.findIndex(c => minGap(c) >= this.gap);
+    if(i < 0) i = 0;
+    this.card = this.deck.splice(i,1)[0]; this.locked = false;
+    $("tmCard").innerHTML = `<div class="evcard new">${evIcon(this.card.k)}<b>${this.card.n}</b><span class="yr">?</span></div>`;
+    $("tmMsg").textContent = "Tap the gap where it belongs.";
+    $("tmRes").innerHTML = "";
+    setSide("Lives", this.hearts());
+    this.render();
+  },
+  render(){
+    const P = this.placed;
+    let h = "";
+    for(let i=0;i<=P.length;i++){
+      h += `<li><button class="gap" type="button" data-i="${i}" ${this.locked ? "disabled" : ""}>${i === 0 ? "Earlier than everything" : i === P.length ? "Later than everything" : "Place here"}</button></li>`;
+      if(i < P.length) h += `<li><div class="evcard ${P[i].fresh || ""}">${evIcon(P[i].k)}<b>${P[i].n}</b><span class="yr">${yearLabel(P[i].y)}</span></div></li>`;
+    }
+    $("tmLine").innerHTML = h;
+    $("tmLine").querySelectorAll(".gap").forEach(b => b.addEventListener("click", () => this.place(+b.dataset.i)));
+  },
+  place(i){
+    if(this.locked) return;
+    this.locked = true; this.turns++;
+    const P = this.placed, c = this.card;
+    const lo = i === 0 ? -Infinity : P[i-1].y, hi = i === P.length ? Infinity : P[i].y, ok = c.y >= lo && c.y <= hi;
+    P.forEach(p => p.fresh = "");
+    c.fresh = ok ? "right" : "wrong";
+    P.push(c); P.sort((a,b) => a.y - b.y);
+    adapt("time", ok ? 1 : 0);
+    if(ok){ this.score += 100 + Math.round(this.gap/5); sfx.good(); } else { this.lives--; sfx.bad(); }
+    setSide("Lives", this.hearts());
+    this.render();
+    $("tmCard").innerHTML = `<div class="evcard ${ok ? "right" : "wrong"}">${evIcon(c.k)}<b>${c.n}</b><span class="yr">${yearLabel(c.y)}</span></div>`;
+    $("tmMsg").textContent = ok ? "Right!" : "Not quite. It moved to its real spot.";
+    $("tmRes").innerHTML = `<div class="reveal"><p>${c.f}</p><div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="tmNext">${this.turns >= this.max || this.lives <= 0 ? "See results" : "Next card"}</button></div></div>`;
+    $("tmNext").addEventListener("click", () => this.next());
+  },
+  finish(){
+    const right = this.placed.filter(p => p.fresh !== "wrong").length;
+    const stars = this.lives === 3 && this.turns >= this.max ? 3 : this.lives >= 1 && this.turns >= this.max ? 2 : 1;
+    endSession({title: stars === 3 ? "Flawless historian" : stars === 2 ? "Timeline complete" : "History is tricky", stars, xp:20+15*stars,
+      body:`<div class="big">${fmt(this.score)}</div><p class="m-note">${this.turns} cards placed, ${3-this.lives} mistake${3-this.lives===1?"":"s"}. Your timeline spans ${yearLabel(this.placed[0].y)} to ${yearLabel(this.placed[this.placed.length-1].y)}.</p>`,
+      actions:[["New timeline", () => startRoom("time","studio"), true], ["Lobby", goHub]]});
+  }
+};
+GEN.time = d => {
+  const gap = clamp(500 - d*52, 8, 500);
+  let set; let guard = 0;
+  do{ set = shuffle(EVENTS.slice()).slice(0,4); guard++; } while(guard < 60 && Math.min(...pairs(set.map(e => e.y)).map(([a,b]) => Math.abs(a-b))) < gap*.4);
+  const first = set.slice().sort((a,b) => a.y - b.y)[0];
+  return mk("Which of these happened <b>first</b>?", first.n, set.filter(e => e !== first).map(e => e.n), set.slice().sort((a,b)=>a.y-b.y).map(e => `${e.n}: ${yearLabel(e.y)}`).join(". ") + ".", {long:true});
+};
+
+/* ---------------- SCIENCE LAB ---------------- */
+const BODY = [
+ {n:"brain",t:1,k:"organ",pts:[[100,34]],shape:`<ellipse cx="100" cy="32" rx="20" ry="15"/>`,f:"Your brain uses about 20% of your body's energy, though it's only about 2% of your weight."},
+ {n:"heart",t:1,k:"organ",pts:[[108,128]],shape:`<path d="M108 142 c-14 -10 -18 -18 -12 -24 c4 -4 10 -2 12 3 c2 -5 8 -7 12 -3 c6 6 2 14 -12 24z"/>`,f:"It sits just left of center in your chest (your left, so on the right side of the picture). It beats about 100,000 times a day."},
+ {n:"lungs",t:1,k:"organ",pts:[[80,124],[120,124]],shape:`<ellipse cx="80" cy="124" rx="16" ry="28"/><ellipse cx="120" cy="124" rx="16" ry="28"/>`,f:"The left lung is slightly smaller, to make room for the heart. Spread out, the air sacs would cover about half a tennis court."},
+ {n:"stomach",t:1,k:"organ",pts:[[116,166]],shape:`<path d="M106 152 q20 -6 22 10 q2 16 -16 16 q-10 0 -8 -10 q4 -6 2 -16z"/>`,f:"It sits on your upper left. Its acid is strong enough to dissolve metal, so it renews its protective lining every few days."},
+ {n:"liver",t:2,k:"organ",pts:[[84,160]],shape:`<path d="M66 152 q30 -10 46 2 q-4 14 -22 18 q-20 2 -24 -20z"/>`,f:"Your largest internal organ sits on your right side, and it can regrow from as little as a quarter of its size."},
+ {n:"kidneys",t:2,k:"organ",pts:[[84,186],[116,186]],shape:`<ellipse cx="84" cy="186" rx="7" ry="11"/><ellipse cx="116" cy="186" rx="7" ry="11"/>`,f:"Bean-shaped and about the size of a fist, they filter your entire blood supply about 40 times a day."},
+ {n:"small intestine",t:2,k:"organ",pts:[[100,206]],shape:`<path d="M84 196 q16 -8 32 0 q4 10 -8 12 q-16 2 -16 -6 q0 12 18 14" fill="none" stroke-width="5"/>`,f:"Coiled in the middle of your belly, it's about 6 meters long. This is where most nutrients are absorbed."},
+ {n:"bladder",t:2,k:"organ",pts:[[100,236]],shape:`<ellipse cx="100" cy="236" rx="11" ry="9"/>`,f:"It sits low in your pelvis and can stretch to hold about half a liter."},
+ {n:"pancreas",t:3,k:"organ",pts:[[106,178]],shape:`<path d="M86 180 q20 -8 36 -4 q2 6 -6 6 q-14 2 -30 4z"/>`,f:"Tucked behind your stomach, it makes digestive juices and the hormone insulin."},
+ {n:"spleen",t:3,k:"organ",pts:[[134,160]],shape:`<ellipse cx="134" cy="160" rx="7" ry="11" transform="rotate(20 134 160)"/>`,f:"On your upper left, behind the stomach. It filters old red blood cells and helps fight infection."},
+ {n:"thyroid",t:3,k:"organ",pts:[[100,80]],shape:`<path d="M90 78 q4 8 10 4 q6 4 10 -4 q-2 8 -10 8 q-8 0 -10 -8z"/>`,f:"A butterfly-shaped gland in your neck. Its hormones set how fast your body burns energy."},
+ {n:"appendix",t:3,k:"organ",pts:[[80,224]],shape:`<path d="M80 216 q4 8 -2 14" fill="none" stroke-width="5"/>`,f:"On your lower right. Long thought useless, it may store good gut bacteria."},
+ {n:"skull",t:1,k:"bone",pts:[[100,38]],shape:`<ellipse cx="100" cy="38" rx="27" ry="31" fill="none" stroke-width="5"/>`,f:"It's made of 22 bones; most are fused together by adulthood."},
+ {n:"collarbone (clavicle)",t:2,k:"bone",pts:[[78,90],[122,90]],shape:`<path d="M60 92 q18 -6 36 -2 M104 90 q18 -4 36 2" fill="none" stroke-width="6"/>`,f:"The most commonly broken bone, often from falling onto an outstretched hand."},
+ {n:"thigh bone (femur)",t:1,k:"bone",pts:[[86,282],[114,282]],shape:`<path d="M86 246 V316 M114 246 V316" fill="none" stroke-width="8"/>`,f:"The longest and strongest bone in your body, about a quarter of your height."},
+ {n:"kneecap (patella)",t:2,k:"bone",pts:[[86,324],[114,324]],shape:`<circle cx="86" cy="324" r="7"/><circle cx="114" cy="324" r="7"/>`,f:"Babies are born with kneecaps made of cartilage. They harden into bone between ages 3 and 5."},
+ {n:"upper arm bone (humerus)",t:3,k:"bone",pts:[[52,126],[148,126]],shape:`<path d="M54 98 L48 156 M146 98 L152 156" fill="none" stroke-width="7"/>`,f:"Hitting the “funny bone” is actually hitting the ulnar nerve where it crosses the humerus."},
+ {n:"pelvis",t:3,k:"bone",pts:[[100,228]],shape:`<path d="M70 216 q30 -10 60 0 q-4 24 -30 26 q-26 -2 -30 -26z" fill="none" stroke-width="5"/>`,f:"It's a basin-shaped ring that carries your upper body's weight down to your legs."},
+ {n:"shin bone (tibia)",t:3,k:"bone",pts:[[86,362],[114,362]],shape:`<path d="M86 334 V390 M114 334 V390" fill="none" stroke-width="7"/>`,f:"The second-longest bone in your body. You can feel its front edge just under the skin of your shin."}
+];
+const COLOR_T = {
+  light:[["Yellow",[255,255,0],"Red light + green light = yellow. Screens make yellow without any yellow pixels."],["Cyan",[0,255,255],"Green + blue light = cyan."],["Magenta",[255,0,255],"Red + blue light = magenta, a color with no single wavelength in the rainbow."],["White",[255,255,255],"All three primaries of light together make white."],["Orange",[255,153,0],"Full red plus some green light gives orange."],["Purple",[153,0,255],"Mostly blue with some red."],["Sky blue",[102,204,255],"Lots of blue, plenty of green and a little red."]],
+  paint:[["Green",[0,255,0],"Cyan + yellow ink = green: each ink absorbs some colors and reflects the rest."],["Red",[255,0,0],"Magenta + yellow ink = red."],["Blue",[0,0,255],"Cyan + magenta ink = blue."],["Black",[0,0,0],"All three inks absorb everything. Printers still add black (the K in CMYK) because the mix is muddy and expensive."],["Orange",[255,128,0],"Full yellow, half magenta."],["Purple",[128,0,255],"Mostly cyan and magenta, more magenta."],["Brown",[128,64,0],"Plenty of every ink, especially yellow, makes brown."]]
+};
+function bodySVG(extra=""){
+  return `<svg viewBox="0 0 200 400" class="bodysvg" aria-label="Human body, front view. Tap to answer."><g fill="var(--skin)" stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M56 92 L40 232" stroke-width="20"/><path d="M144 92 L160 232" stroke-width="20"/>
+    <path d="M56 92 L40 232" stroke="var(--skin)" stroke-width="14"/><path d="M144 92 L160 232" stroke="var(--skin)" stroke-width="14"/>
+    <path d="M86 236 L84 392" stroke-width="26"/><path d="M114 236 L116 392" stroke-width="26"/>
+    <path d="M86 236 L84 392" stroke="var(--skin)" stroke-width="20"/><path d="M114 236 L116 392" stroke="var(--skin)" stroke-width="20"/>
+    <path d="M60 86 Q100 74 140 86 L146 140 L138 232 Q100 248 62 232 L54 140 Z"/><rect x="90" y="62" width="20" height="24"/><circle cx="100" cy="38" r="28"/></g>
+    <path d="M100 96 V228" stroke="${INK}" stroke-width="1" stroke-dasharray="3 5" opacity=".3"/><text x="18" y="390" font-size="11" font-family="DM Mono, monospace" fill="${INK}">their right</text><text x="182" y="390" text-anchor="end" font-size="11" font-family="DM Mono, monospace" fill="${INK}">their left</text>
+    <g id="bodyMarks">${extra}</g></svg>`;
+}
+STUDIO.lab = {
+  start(){
+    const d = S.rating.lab, pool = poolFor(BODY, d);
+    const organs = shuffle(pool.filter(b => b.k === "organ")), bones = shuffle(pool.filter(b => b.k === "bone"));
+    this.rounds = [{type:"body", it:organs[0]}, {type:"light"}, {type:"body", it:bones[0] || organs[3]}, {type:"paint"}, {type:"body", it:organs[1]}, {type:"body", it:organs[2]}];
+    this.round = 0; this.total = 0; this.log = []; this.newRound();
+  },
+  newRound(){
+    const r = this.rounds[this.round]; this.r = r; this.locked = false;
+    const head = `<span class="eyebrow">Experiment ${this.round+1} of ${this.rounds.length}</span>`;
+    if(r.type === "body"){
+      stage.innerHTML = `<div class="studio-grid"><div class="body-wrap" id="lbBody">${bodySVG()}</div>
+        <div class="ctl-col"><div class="brief">${head}<h3>Tap where the <u>${r.it.n}</u> ${r.it.n.endsWith("s") && r.it.pts.length > 1 ? "are" : "is"}</h3><p>Front view: the person is facing you, so their left side is on your right.</p></div><div id="lbRes"></div></div></div>`;
+      const svg = $("lbBody").querySelector("svg");
+      svg.addEventListener("click", e => { if(this.locked) return; const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); this.answerBody(q.x, q.y); });
+    } else {
+      const mode = r.type, [name, rgb, why] = pick(COLOR_T[mode]); r.target = rgb; r.name = name; r.why = why;
+      const keys = mode === "light" ? [["R","Red light","#ff2d2d"],["G","Green light","#22c55e"],["B","Blue light","#3b82f6"]] : [["C","Cyan ink","#00b4d8"],["M","Magenta ink","#e5007e"],["Y","Yellow ink","#ffd400"]];
+      stage.innerHTML = `<div class="studio-grid"><div class="color-stage"><div class="swatch-pair"><figure><div class="cswatch" style="background:rgb(${rgb})"></div><figcaption>Target: ${name}</figcaption></figure><figure><div class="cswatch" id="lbMine"></div><figcaption>Your mix</figcaption></figure></div>
+          <div class="mixviz" id="lbViz"></div></div>
+        <div class="ctl-col"><div class="brief">${head}<h3>${mode === "light" ? "Mix colored light (like a screen)" : "Mix ink (like a printer)"}</h3><p>${mode === "light" ? "Light adds up: more light makes it brighter." : "Ink subtracts: each ink absorbs some light, so more ink makes it darker."}</p></div>
+          ${keys.map(([k,label,c]) => `<label class="slider"><span><i style="background:${c}"></i>${label}</span><input type="range" min="0" max="100" step="10" value="0" data-k="${k}" id="lb${k}"><b id="lb${k}v">0%</b></label>`).join("")}
+          <button class="btn btn-solid" type="button" id="lbGo">Check my mix</button><div id="lbRes"></div></div></div>`;
+      r.keys = keys.map(k => k[0]);
+      stage.querySelectorAll(".slider input").forEach(inp => inp.addEventListener("input", () => this.renderMix()));
+      $("lbGo").addEventListener("click", () => this.answerColor());
+      this.renderMix();
+    }
+    setSide("Score", fmt(this.total));
+  },
+  mixRGB(){
+    const v = this.r.keys.map(k => +$("lb"+k).value / 100);
+    return this.r.type === "light" ? v.map(x => Math.round(255*x)) : v.map(x => Math.round(255*(1-x)));
+  },
+  renderMix(){
+    const r = this.r, v = r.keys.map(k => +$("lb"+k).value);
+    r.keys.forEach((k,i) => $("lb"+k+"v").textContent = v[i] + "%");
+    const rgb = this.mixRGB(); $("lbMine").style.background = `rgb(${rgb})`;
+    const cols = r.type === "light" ? ["#ff0000","#00ff00","#0000ff"] : ["#00ffff","#ff00ff","#ffff00"];
+    $("lbViz").innerHTML = `<svg viewBox="0 0 200 160" width="100%" aria-hidden="true"><rect width="200" height="160" rx="14" fill="${r.type === "light" ? "#111" : "#fff"}"/><g style="mix-blend-mode:${r.type === "light" ? "screen" : "multiply"};isolation:isolate">${[[78,62],[122,62],[100,100]].map(([x,y],i) => `<circle cx="${x}" cy="${y}" r="42" fill="${cols[i]}" opacity="${(v[i]/100).toFixed(2)}" style="mix-blend-mode:${r.type === "light" ? "screen" : "multiply"}"/>`).join("")}</g></svg>`;
+  },
+  answerBody(x, y){
+    this.locked = true;
+    const it = this.r.it, d = Math.min(...it.pts.map(([px,py]) => Math.hypot(px-x, py-y)));
+    const f = Math.exp(-Math.max(0, d-6)/22), pts = Math.round(1000*f);
+    this.finishRound(pts, f, it.n);
+    $("bodyMarks").innerHTML = `<g fill="color-mix(in srgb, var(--good) 70%, white)" stroke="${INK}" stroke-width="2.5">${it.shape}</g><circle cx="${x}" cy="${y}" r="6" fill="var(--c)" stroke="${INK}" stroke-width="2.5"/>`;
+    this.showRes(f, pts, `${cap(it.n)}: ${it.f}`);
+  },
+  answerColor(){
+    if(this.locked) return; this.locked = true;
+    const a = this.mixRGB(), t = this.r.target, dist = Math.hypot(a[0]-t[0], a[1]-t[1], a[2]-t[2]);
+    const f = clamp(1 - dist/220, 0, 1), pts = Math.round(1000*f);
+    stage.querySelectorAll(".slider input").forEach(i => i.disabled = true); $("lbGo").hidden = true;
+    this.finishRound(pts, f, `${this.r.name} (${this.r.type})`);
+    this.showRes(f, pts, this.r.why);
+  },
+  finishRound(pts, f, name){ this.total += pts; this.log.push({n:name, pts}); adapt("lab", f); f >= .85 ? sfx.win() : f >= .5 ? sfx.good() : sfx.bad(); setSide("Score", fmt(this.total)); },
+  showRes(f, pts, text){
+    const last = this.round === this.rounds.length - 1;
+    $("lbRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .85 ? "Spot on" : f >= .5 ? "Close" : "Not quite"}</span><span class="pts">+${fmt(pts)}</span><p>${text}</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="lbNext">${last ? "See results" : "Next experiment"}</button></div></div>`;
+    $("lbNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+  },
+  finish(){
+    const max = this.rounds.length*1000, f = this.total/max, stars = f >= .85 ? 3 : f >= .55 ? 2 : 1;
+    endSession({title: stars === 3 ? "Lab genius" : stars === 2 ? "Solid science" : "Back to the lab", stars, xp:20+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}</p><ul class="roundlog">${this.log.map(l => `<li><span>${cap(l.n)}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+      actions:[["New experiments", () => startRoom("lab","studio"), true], ["Lobby", goHub]]});
+  }
+};
+const LAB_BANK = [
+ [1,"Red light + green light makes…","Yellow",["Brown","White","Cyan"],"Light mixes by adding. Your screen makes yellow by lighting red and green pixels together."],
+ [1,"Which organ pumps blood around your body?","Heart",["Liver","Lungs","Stomach"],"Your heart pumps about 7,000 liters of blood a day."],
+ [1,"What is the longest bone in the body?","Femur (thigh bone)",["Tibia (shin bone)","Humerus","Spine"],"The femur is about a quarter of your height."],
+ [2,"Cyan ink + yellow ink makes…","Green",["Blue","Red","Brown"],"Cyan absorbs red light and yellow absorbs blue, so only green is reflected."],
+ [2,"Which organ can regrow after part of it is removed?","Liver",["Heart","Brain","Kidney"],"The liver can regenerate from as little as a quarter of its tissue."],
+ [2,"Which gas do your lungs take in from the air?","Oxygen",["Carbon dioxide","Nitrogen","Helium"],"You breathe in oxygen and breathe out carbon dioxide. Air is actually about 78% nitrogen."],
+ [3,"Why do printers use black ink as well as cyan, magenta and yellow?","Mixing the three gives a muddy dark brown, and uses lots of ink",["Black ink is cheaper to make than paper","Screens need it","It makes colors brighter"],"CMY inks aren't perfect absorbers. Real black ink (the K in CMYK) is sharper and cheaper."],
+ [3,"About how many bones does an adult human have?","206",["106","306","412"],"Babies have around 300; many fuse together as they grow."],
+ [3,"Where is your appendix?","Lower right abdomen",["Lower left abdomen","Upper left abdomen","Behind the heart"],"Appendicitis pain usually starts near the belly button and moves to the lower right."],
+ [4,"Which organ makes insulin?","Pancreas",["Liver","Spleen","Kidneys"],"Insulin lets cells take sugar from the blood. In type 1 diabetes, the pancreas can't make enough."]
+];
+GEN.lab = d => fromBank(LAB_BANK, d);
 
 /* every question must offer four distinct answers; regenerate if a random draw collides */
 Object.keys(GEN).forEach(k => { const raw = GEN[k]; GEN[k] = d => { let it; for(let i=0;i<25;i++){ it = raw(d); if(it.choices.length === 4 && new Set(it.choices).size === 4) return it; } return it; }; });
