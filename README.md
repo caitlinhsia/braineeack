@@ -10,7 +10,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Explorers | **Flag Maker**: rebuild 59 countries' flags across 10 layouts (stripes, crosses, saltires, triangles, discs) | Flags, symbolism |
 | Explorers | **Then & Now**: slot 80 events, from farming to the Webb telescope, into a growing timeline | History |
 | Studios | **Test Kitchen**: cook for customers who taste and react ("too salty!") until you get it right | Flavor balance, food science, food origins |
-| Studios | **Atelier**: design a dress to a client brief | Color theory, proportion, dress codes |
+| Studios | **Atelier**: design a dress and accessorize it (shoes, bag, jewelry, layers) to a client brief | Color theory, proportion, dress codes |
 | Studios | **Hair Salon**: cut by hand with scissors, clippers, comb, curling wand, flat iron and toner spray; style updos; six face shapes; photo-booth strip | Face shapes, proportion, color correction |
 | Studios | **Makeup Studio**: paint 13 products onto a face for clients' occasions, or face the judges in theme challenges, then a photo-booth strip | Color theory, skin undertones, makeup history |
 | Studios | **Sewing Room**: pick from 11 patterns, lay out the pieces, then sew by tracing each seam | Spatial planning, fine motor control |
