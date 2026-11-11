@@ -934,6 +934,19 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .tool .ti .ic,.pbottle .pe .ic{display:block}
 .dv-strikes{display:flex;gap:2px;align-items:center}
 .dive-mode .dm-art{display:flex;gap:4px}
+.mk-settings{display:flex;flex-direction:column;gap:8px;width:100%;max-width:360px;background:#fff8ea;border:2.5px solid var(--ink);border-radius:16px;padding:10px 12px;box-shadow:0 3px 0 var(--ink)}
+.mk-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mk-mode{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px;border:2px solid var(--ink);border-radius:12px;background:#fffdf8;color:var(--ink);font:600 13px Figtree,sans-serif;cursor:pointer}
+.mk-mode.sel{background:#ffe1ec;box-shadow:0 0 0 2px var(--ink) inset}
+.mk-slider{display:grid;grid-template-columns:72px 1fr 74px;align-items:center;gap:8px;font:600 12px Figtree,sans-serif}
+.mk-slider input{accent-color:#ff5d8f;width:100%}.mk-slider b{font:11px "DM Mono",monospace;text-align:right}
+.mk-fin{display:flex;align-items:center;gap:8px;font:600 12px Figtree,sans-serif;flex-wrap:wrap}
+.mk-preview{border:2px solid var(--ink);border-radius:10px;overflow:hidden;line-height:0}
+#mkFace[data-tool] svg{cursor:none}
+#mkFace{position:relative}
+.mk-warn{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--ink);color:#fffdf8;font:600 13px Figtree,sans-serif;padding:6px 12px;border-radius:99px;opacity:0;pointer-events:none;white-space:nowrap}
+.mk-warn.show{animation:mkwarn 1.6s ease-out}
+@keyframes mkwarn{0%{opacity:0;transform:translate(-50%,-6px)}12%{opacity:1;transform:translate(-50%,0)}75%{opacity:1}100%{opacity:0}}
 </style>
 </head>
 <body>
@@ -1215,7 +1228,7 @@ const ROOMS = {
     tip:"<b>Tip:</b> anchor on dates you know for sure, like 1492, 1789 and 1969, and reason outward from them.",
     modes:[["studio","Build a timeline"],["sprint","Which came first? · 60s"],["practice","Quiz"]]},
   makeup:{name:"Makeup Studio", skill:"Color & beauty", color:"var(--makeup)", wing:"studio",
-    blurb:"Paint makeup anywhere on real faces with 17 products and hundreds of shades (or any color you like), from foundation to glitter and face paint. Do clients' looks for their big day, or face the judges in theme challenges.",
+    blurb:"Paint makeup onto real faces with 17 products, hundreds of shades and pro brush settings: size, intensity, softness, finish and a blending tool. Do clients' looks for their big day, or face the judges in theme challenges.",
     tip:"<b>Tip:</b> pick a product and a brush size, then paint anywhere. Use the eraser to fix mistakes. Opposites on the color wheel make each other glow: blue eyes love copper.",
     modes:[["studio","Client appointments"],["theme","Theme challenge"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]]},
   hair:{name:"Hair Salon", skill:"Face shape & color", color:"var(--hair)", wing:"studio",
@@ -7281,6 +7294,137 @@ HOWTO.sewing = ["Choose a pattern and read the client's request.","Design it: pi
 ROOMS.dive.modes = [["studio","Choose a dive"],["theme","Daily dive"],["practice","Quiz"]];
 ROOMS.dive.blurb = "Two dives. Classic: name as many as you can, and rare answers send you plunging. Rare Pick: one answer per category, so pick the rarest you dare.";
 HOWTO.dive = ["Pick a version. Classic: list as many answers in a category as you can. Rare Pick: one answer per category.","The rarer your answer, the deeper your diver sinks through the ocean's zones.","Classic ends after 3 misses or when time runs out. In Rare Pick one wrong answer ends it, so surface early to keep your depth."];
+
+/* =========================================================
+   MAKEUP STUDIO v3: face-only painting with brush settings
+   (size, intensity, softness, finish) and a Blend tool.
+   ========================================================= */
+{
+  const MK = STUDIO.makeup, origNewRound = MK.newRound;
+  const BASE_SOFT = {foundation:3, concealer:3, bronzer:4, contour:4, blush:4, highlight:3, shadow:2, brow:1, lipstick:1, gloss:1, liner:0, lipliner:0, facepaint:0, glitter:1};
+  const SOFT_SD = [0, .45, .9, 1.4, 2, 2.7, 3.5, 4.4, 5.4];
+  const UNDER = ["foundation","concealer","bronzer","contour","blush","highlight","shadow"];
+  const OPS = {foundation:.58, concealer:.5, bronzer:.4, contour:.42, blush:.5, highlight:.58, shadow:.88, brow:.8, lipstick:.92, gloss:.5, liner:1, lipliner:.9, facepaint:.9, glitter:.4};
+  const WMUL = {gloss:1.6, lipliner:1.6};
+  const FINISHES = [["matte","Matte"],["satin","Satin"],["shimmer","Shimmer"],["gloss","Gloss"]];
+  Object.assign(MK, {
+    newRound(){
+      this.tool = "brush"; this.size = this.size || 1; this.intensity = this.intensity || .8; this.soft = this.soft ?? 1; this.finish = this.finish || "satin";
+      origNewRound.call(this);
+      ["mkErase","mkSize"].forEach(id => { const el = $(id); if(el) el.remove(); });
+      const tip = $("mkTip");
+      tip.insertAdjacentHTML("beforebegin", `<div class="mk-settings" id="mkSet">
+        <div class="mk-modes" id="mkModes">${[["brush","Brush"],["blend","Blend"],["erase","Eraser"]].map(([k,l]) => `<button type="button" class="mk-mode" data-tm="${k}">${mkToolIcon(k)}<span>${l}</span></button>`).join("")}</div>
+        <label class="mk-slider"><span>Size</span><input type="range" id="mkSz" min=".5" max="2.6" step=".1" value="${this.size}"><b id="mkSzV"></b></label>
+        <label class="mk-slider"><span>Intensity</span><input type="range" id="mkOpS" min=".15" max="1" step=".05" value="${this.intensity}"><b id="mkOpV"></b></label>
+        <label class="mk-slider"><span>Softness</span><input type="range" id="mkSoftS" min="0" max="4" step="1" value="${this.soft}"><b id="mkSoftV"></b></label>
+        <div class="mk-fin"><span>Finish</span><div class="chips" id="mkFin">${FINISHES.map(([k,l]) => `<button type="button" class="ch" data-fin="${k}">${l}</button>`).join("")}</div></div>
+        <div class="mk-preview" id="mkPrev"></div></div>`);
+      $("mkModes").onclick = e => { const b = e.target.closest("[data-tm]"); if(!b) return; this.tool = b.dataset.tm; sfx.click(); this.renderSet(); };
+      $("mkSz").oninput = e => { this.size = +e.target.value; this.renderSet(); };
+      $("mkOpS").oninput = e => { this.intensity = +e.target.value; this.renderSet(); };
+      $("mkSoftS").oninput = e => { this.soft = +e.target.value; this.renderSet(); };
+      $("mkFin").onclick = e => { const b = e.target.closest("[data-fin]"); if(!b) return; this.finish = b.dataset.fin; sfx.click(); this.renderSet(); };
+      $("mkProds").addEventListener("click", () => setTimeout(() => this.renderSet(), 0));
+      $("mkShades").addEventListener("click", () => setTimeout(() => this.renderSet(), 0));
+      this.renderSet();
+    },
+    renderSet(){
+      if(!$("mkSet")) return;
+      stage.querySelectorAll("[data-tm]").forEach(b => b.classList.toggle("sel", b.dataset.tm === this.tool));
+      stage.querySelectorAll("[data-fin]").forEach(b => b.classList.toggle("sel", b.dataset.fin === this.finish));
+      $("mkSzV").textContent = Math.round(this.size*100) + "%"; $("mkOpV").textContent = Math.round(this.intensity*100) + "%"; $("mkSoftV").textContent = ["Crisp","Soft","Softer","Diffused","Airbrushed"][this.soft];
+      const P = MK_PRODUCTS.find(p => p.k === this.prod), col = this.colorOf(P.k, this.colors[P.k]);
+      $("mkPrev").innerHTML = `<svg viewBox="0 0 120 34" width="100%" height="34" aria-hidden="true"><defs><filter id="mkPvF" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="${SOFT_SD[Math.min(8, (BASE_SOFT[P.k] || 0) + this.soft)] * 1.2}"/></filter></defs><rect width="120" height="34" rx="8" fill="${SKINS[this.c.depth][0]}"/><path d="M14 20 C34 6 58 30 80 14 S104 14 108 18" fill="none" stroke="${col}" stroke-width="${Math.max(2, P.r*this.size*1.6)}" stroke-linecap="round" opacity="${(OPS[P.k] || .9)*this.intensity}" filter="url(#mkPvF)"/>${this.finish === "shimmer" ? Array.from({length:14}, (_, i) => `<circle cx="${14 + i*7}" cy="${18 + Math.sin(i*1.7)*7}" r=".9" fill="#fff"/>`).join("") : this.finish === "gloss" ? `<path d="M20 15 C36 6 56 24 78 12" fill="none" stroke="#fff" stroke-width="1.6" opacity=".6" stroke-linecap="round"/>` : ""}</svg>`;
+      $("mkFace").dataset.tool = this.tool;
+      $("mkTip").textContent = this.tool === "blend" ? "Blend: drag over makeup to soften and diffuse its edges. Each pass blends a little more." : this.tool === "erase" ? "Eraser: drag over makeup to remove it." : `${P.name}: ${P.tip}`;
+    },
+    mountFace(mood = "neutral"){
+      const c = this.c, shapeD = FACE_SHAPES[c.shape];
+      $("mkFace").innerHTML = faceSVG({skin:SKINS[c.depth][0], shape:c.shape, hair:c.hair, hairC:c.hairC, eye:c.eye, top:c.top, mood, earring:"#ffbf2e", paintUnder:`<g id="mkUnder"></g>`, paintOver:`<g id="mkOver"></g><g id="mkGuideG"></g><path id="mkHit" d="${shapeD}" fill="none" stroke="none" pointer-events="none"/><g id="mkCursor" pointer-events="none"></g>`}, 330, "", "34 24 132 160");
+      const svg = $("mkFace").querySelector("svg"), hit = $("mkHit");
+      const pt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [+q.x.toFixed(1), +q.y.toFixed(1)]; };
+      const onFace = q => { try{ return hit.isPointInFill(new DOMPoint(q[0], q[1])); }catch(_){ const P2 = svg.createSVGPoint(); P2.x = q[0]; P2.y = q[1]; return hit.isPointInFill(P2); } };
+      const newStroke = q => { const P = MK_PRODUCTS.find(p => p.k === this.prod); const s = {p:this.prod, c:this.colors[this.prod], r:+(P.r * (P.tap ? Math.min(this.size, 1.6) : this.size)).toFixed(2), op:this.intensity, soft:this.soft, fin:this.finish, pts:[q]}; s.r0 = s.r; this.strokes.push(s); return s; };
+      let drawing = false, offWarn = -1e9;
+      const warnOff = () => { const n = performance.now(); if(n - offWarn > 1200){ offWarn = n; let w = $("mkWarn"); if(!w){ $("mkFace").insertAdjacentHTML("beforeend", `<div class="mk-warn" id="mkWarn">Makeup only goes on the face</div>`); w = $("mkWarn"); } w.classList.remove("show"); void w.offsetWidth; w.classList.add("show"); } };
+      svg.addEventListener("pointerdown", e => { if(this.locked) return; e.preventDefault(); const q = pt(e); drawing = true; this.blendSet = new Set();
+        try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+        if(this.tool === "erase"){ this.eraseAt(q); return; }
+        if(this.tool === "blend"){ this.blendAt(q); return; }
+        if(!onFace(q)){ warnOff(); this.cur = null; return; }
+        const P = MK_PRODUCTS.find(p => p.k === this.prod); this.cur = newStroke(q);
+        if(P.tap){ this.cur = null; drawing = false; sfx.click(); }
+        this.paint(); this.renderTools(); });
+      svg.addEventListener("pointermove", e => { const q = pt(e); this.cursorAt(q);
+        if(!drawing || this.locked) return;
+        if(this.tool === "erase"){ this.eraseAt(q); return; }
+        if(this.tool === "blend"){ this.blendAt(q); return; }
+        const P = MK_PRODUCTS.find(p => p.k === this.prod); if(P.tap) return;
+        if(!onFace(q)){ this.cur = null; warnOff(); return; }
+        if(!this.cur){ this.cur = newStroke(q); this.paint(); return; }
+        const l = this.cur.pts[this.cur.pts.length-1]; if(Math.hypot(q[0]-l[0], q[1]-l[1]) >= 1.2){ this.cur.pts.push(q); this.paint(); } });
+      const end = () => { drawing = false; this.cur = null; this.renderTools(); };
+      svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+      svg.addEventListener("pointerleave", () => { const cg = $("mkCursor"); if(cg) cg.innerHTML = ""; });
+      this.paint();
+    },
+    cursorAt(q){ const cg = $("mkCursor"); if(!cg || this.locked) return; const P = MK_PRODUCTS.find(p => p.k === this.prod); const r = this.tool === "blend" ? 6*this.size + 4 : this.tool === "erase" ? 5 : P.r*this.size; cg.innerHTML = `<circle cx="${q[0]}" cy="${q[1]}" r="${r}" fill="none" stroke="#fff" stroke-width=".8" stroke-dasharray="${this.tool === "blend" ? "1.5 1.5" : "0"}"/><circle cx="${q[0]}" cy="${q[1]}" r="${r}" fill="none" stroke="${INK}" stroke-width=".4" opacity=".5"/>`; },
+    blendAt(q){
+      const rad = 6*this.size + 4; let hit = false;
+      this.strokes.forEach((s, i) => { if(["gems","freckles","mascara"].includes(s.p)) return; if(this.blendSet.has(i)) return; if(s.pts.some(p => Math.hypot(p[0]-q[0], p[1]-q[1]) < rad + s.r)){ this.blendSet.add(i); if((s.soft || 0) < 6){ s.soft = (s.soft || 0) + 1; s.r = +Math.min((s.r0 || s.r)*1.6, s.r*1.07).toFixed(2); s.op = +Math.max(.2, (s.op ?? 1)*.96).toFixed(2); s.blended = true; hit = true; } } });
+      if(hit){ if(S.sound) tone(520, .03, "sine", .02); this.paint(); }
+    },
+    paint(){
+      const under = $("mkUnder"), over = $("mkOver"), guide = $("mkGuideG"); if(!under) return;
+      const shapeD = FACE_SHAPES[this.c.shape];
+      const pathOf = s => s.pts.length === 1 ? `M${s.pts[0][0]} ${s.pts[0][1]} l0.01 0` : "M" + s.pts.map(q => q.join(" ")).join(" L");
+      const lvl = s => Math.min(8, (BASE_SOFT[s.p] || 0) + (s.soft ?? 1));
+      const fx = s => { const col = this.colorOf(s.p, s.c), d = pathOf(s); let g = "";
+        if(s.fin === "shimmer") s.pts.forEach((q, qi) => { if(qi % 2) return; const R2 = rng("sh" + qi + s.r + q[0]); for(let k = 0; k < 2; k++) g += `<circle cx="${(q[0] + (R2()-.5)*s.r*1.8).toFixed(1)}" cy="${(q[1] + (R2()-.5)*s.r*1.8).toFixed(1)}" r="${(.25 + R2()*.45).toFixed(2)}" fill="#fff" opacity=".85"/>`; });
+        if(s.fin === "gloss") g += `<path d="${d}" fill="none" stroke="#fff" stroke-width="${(s.r*.5).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round" opacity=".45" transform="translate(-.5 -.7)"/>`;
+        if(s.fin === "satin") g += `<path d="${d}" fill="none" stroke="#fff" stroke-width="${(s.r*1.1).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round" opacity=".1"/>`;
+        return g; };
+      const layer = keys => { let out = "";
+        keys.forEach(k => { const list = this.strokes.filter(s => s.p === k); if(!list.length) return; const byL = {};
+          list.forEach(s => (byL[lvl(s)] = byL[lvl(s)] || []).push(s));
+          Object.entries(byL).forEach(([L, ss]) => {
+            const body = ss.map(s => `<path d="${pathOf(s)}" fill="none" stroke="${this.colorOf(k, s.c)}" stroke-opacity="${s.op ?? 1}" stroke-width="${(s.r*(WMUL[k] || 2)).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>`).join("");
+            out += `<g opacity="${OPS[k] ?? .9}" ${+L ? `filter="url(#mkS${L})"` : ""} ${k === "highlight" ? `style="mix-blend-mode:screen"` : ""}>${body}</g>`;
+            const f = ss.map(fx).join(""); if(f) out += `<g filter="url(#mkS1)">${f}</g>`;
+          }); });
+        return out; };
+      const defs = `<defs><clipPath id="mkClip"><path d="${shapeD}"/></clipPath>${SOFT_SD.map((sd, i) => i ? `<filter id="mkS${i}" filterUnits="userSpaceOnUse" x="0" y="-14" width="200" height="246"><feGaussianBlur stdDeviation="${sd}"/></filter>` : "").join("")}</defs>`;
+      under.innerHTML = defs + `<g clip-path="url(#mkClip)">${layer(UNDER)}</g>`;
+      let o = layer(["brow","lipstick","gloss","lipliner","liner","facepaint"]);
+      if(this.strokes.some(s => s.p === "lipstick")) o += `<path d="${LIP_UP}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="${LIP_LO}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="M84 141 C92 143.4 108 143.4 116 141" fill="none" stroke="${INK}" stroke-width="1.4" opacity=".8"/>`;
+      if(this.strokes.some(s => s.p === "gloss")) o += `<ellipse cx="101" cy="146.6" rx="6.5" ry="1.7" fill="#fff" opacity=".55"/><ellipse cx="96" cy="138.6" rx="2.6" ry=".9" fill="#fff" opacity=".45"/>`;
+      const gt = this.strokes.filter(s => s.p === "glitter"); if(gt.length){ o += layer(["glitter"]); gt.forEach((st, si) => st.pts.forEach((q, qi) => { if(qi % 2) return; const R2 = rng("g" + si + "-" + qi); for(let k = 0; k < 3; k++) o += `<circle cx="${(q[0] + (R2()-.5)*st.r*2).toFixed(1)}" cy="${(q[1] + (R2()-.5)*st.r*2).toFixed(1)}" r="${(.3 + R2()*.6).toFixed(2)}" fill="${k ? this.colorOf("glitter", st.c) : "#fff"}"/>`; })); }
+      const ms = this.strokes.filter(s => s.p === "mascara");
+      if(ms.length){
+        const col = this.colorOf("mascara", ms[ms.length-1].c), cov = Math.min(1, this.coverage("mascara", "lashline") * 1.4), ey = 104, op = 9;
+        const bz = (t, a, b, c, d) => (1-t)**3*a + 3*(1-t)**2*t*b + 3*(1-t)*t*t*c + t**3*d;
+        [80,120].forEach((x, i) => { const out = i === 0 ? -1 : 1;
+          o += `<path d="M${x-12} ${ey} C${x-6} ${ey-op} ${x+6} ${ey-op} ${x+12} ${ey}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round"/>`;
+          [.12,.24,.36,.48,.6,.72,.84,.95].forEach(t0 => { const t = out < 0 ? 1 - t0 : t0, px = bz(t, x-12, x-6, x+6, x+12), py = bz(t, ey, ey-op, ey-op, ey), side = (px - x)/12, len = (1.6 + cov*1.5) * (0.75 + Math.abs(side)*.6), dx = side*len*.8, dy = -len;
+            o += `<path d="M${px.toFixed(1)} ${py.toFixed(1)} q${(dx*.1).toFixed(1)} ${(dy*.75).toFixed(1)} ${dx.toFixed(1)} ${dy.toFixed(1)}" fill="none" stroke="${col}" stroke-width=".9" stroke-linecap="round"/>`; }); });
+      }
+      this.strokes.filter(s => s.p === "freckles").forEach(s => { o += `<circle cx="${s.pts[0][0]}" cy="${s.pts[0][1]}" r="${(0.7 + (s.pts[0][0]*7 % 5)/10).toFixed(2)}" fill="${this.colorOf("freckles", s.c)}" opacity="${(.7*(s.op ?? 1)).toFixed(2)}"/>`; });
+      this.strokes.filter(s => s.p === "gems").forEach(s => { const [x,y] = s.pts[0], col = this.colorOf("gems", s.c); o += `<path d="M${x} ${y-3} L${x+2.4} ${y} L${x} ${y+3} L${x-2.4} ${y}Z" fill="${col}" stroke="${INK}" stroke-width=".7"/><path d="M${x} ${y-3} L${x+.8} ${y} L${x} ${y+3}" fill="#fff" opacity=".35"/><circle cx="${x-.7}" cy="${y-1}" r=".6" fill="#fff"/>`; });
+      over.innerHTML = `<g clip-path="url(#mkClip)">${o}</g>`;
+      const P = MK_PRODUCTS.find(p => p.k === this.prod); let gz = P.zone === "blush" ? this.blushTarget() : P.zone; if(P.k === "liner") gz = null;
+      guide.innerHTML = this.showGuide && !this.locked && gz ? (MK_ZONES[gz] || []).map(([cx,cy,rx,ry,rot]) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="#fff" fill-opacity=".1" stroke="#fff" stroke-width=".9" stroke-dasharray="2 2" opacity=".9"/>`).join("") : "";
+      if(!this.locked && this.mode === "studio" && S.rating.makeup < 4){ const m = this.derive(); const lis = [...$("mkRules").children]; this.c.rules.forEach((r,i) => lis[i] && lis[i].classList.toggle("ok", r.test(m))); }
+    }
+  });
+}
+function mkToolIcon(k){
+  const L = `stroke="${INK}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"`;
+  const inner = {brush:`<path d="M27 4 L34 11 L17 28 L10 21Z" fill="#c8915a" ${L}/><path d="M10 21 L17 28 C14 33 9 35 5 35 C5 31 6 25 10 21Z" fill="#ff7db8" ${L}/>`,
+    blend:`<ellipse cx="20" cy="26" rx="13" ry="9" fill="#f7c6d0" ${L}/><path d="M14 20 C10 12 14 5 20 4 C26 5 30 12 26 20" fill="#fffdf8" ${L}/><path d="M9 26 C14 23 26 23 31 26" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>`,
+    erase:`<path d="M6 26 L20 8 L34 18 L22 34 H12Z" fill="#ff9ec7" ${L}/><path d="M13 20 L27 30" ${L}/><path d="M12 34 H34" ${L}/>`}[k];
+  return `<svg viewBox="0 0 40 40" width="28" height="28" aria-hidden="true">${inner}</svg>`;
+}
 
 renderHub();
 </script>
