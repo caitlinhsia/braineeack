@@ -745,6 +745,15 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .cookpanel .okay{color:#14864d}.cookpanel .warn{color:#c81d4a}
 .blitz-rev{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:8px;padding:10px 14px}
 .blitz-rev b{font-family:var(--display);font-size:18px}.blitz-rev span{font-size:13px;color:var(--muted)}
+
+.tile.pad{background:color-mix(in srgb, var(--tc) 28%, var(--panel));position:relative;overflow:hidden}
+.tile.pad::after{content:"";position:absolute;inset:18% 18% auto;height:22%;border-radius:99px;background:rgb(255 255 255 / .45)}
+.tile.pad.on{background:var(--tc);box-shadow:0 0 0 3px #fff inset, 0 0 26px 2px var(--tc);transform:scale(1.04)}
+.light{background:radial-gradient(circle at 40% 35%, #f4f1ea, #c9c4b8);position:relative}
+.light::after{content:"";position:absolute;left:30%;right:30%;top:42%;height:16%;border:2px solid rgb(43 29 20 / .35);border-top:none;border-radius:0 0 6px 6px}
+.light.on{background:radial-gradient(circle at 40% 35%, #fffbe0, #ffd84a 55%, #ffb000);box-shadow:0 0 0 3px #fff6c2 inset, 0 0 26px 6px rgb(255 200 40 / .75)}
+.light.on::after{border-color:#d97a00}
+.quiz-prompt.chalk{background:#2f4f3e;color:#f4f1e8;border:8px solid #b07a4a;outline:2.5px solid var(--ink);border-radius:12px;padding:14px 26px;font-family:var(--display);box-shadow:0 5px 0 var(--ink);text-shadow:0 0 1px rgb(255 255 255 / .6)}
 </style>
 </head>
 <body>
@@ -902,11 +911,11 @@ const ROOMS = {
   words:{name:"Unscramble", skill:"Vocabulary", color:"var(--word)", wing:"core",
     blurb:"Rebuild the word from its letters, using the definition as your clue. Words you miss come back later for review.",
     tip:"<b>Tip:</b> type or tap letters, and Backspace removes one. Look for familiar endings like -ous, -ent and -ity.",
-    modes:[["arcade","Arcade · 60s"],["zen","Zen · 6 words"]]},
+    modes:[["daily","Daily Words"],["arcade","Arcade · 60s"],["zen","Zen · 6 words"]]},
   logic:{name:"Switchboard", skill:"Logic", color:"var(--logic)", wing:"core",
     blurb:"Tapping a light flips it and its four neighbors. Switch every light off in as few moves as you can.",
     tip:"<b>Tip:</b> tapping the same light twice cancels out, so order doesn't matter. Clear the board row by row from the top.",
-    modes:[["arcade","Arcade · 60s"],["zen","Zen · 3 boards"]]},
+    modes:[["daily","Daily Lights"],["arcade","Arcade · 60s"],["zen","Zen · 3 boards"]]},
   daily:{name:"World Tour", skill:"Daily event", color:"var(--kitchen)", wing:"none",
     blurb:"Today's five-round tour: three dishes and two outfits, the same for every player, from easy to hard. Your first run is your official score.",
     tip:"<b>Tip:</b> you start with two clues each round. Share your result with friends and compare tomorrow.", modes:[]},
@@ -916,7 +925,7 @@ const ROOMS = {
 const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
 const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab","makeup","hair"];
 const RANKS = [[1,"Novice"],[3,"Apprentice"],[6,"Thinker"],[10,"Strategist"],[15,"Sage"],[22,"Mastermind"]];
-const MODE_NAMES = {studio:"Studio", blitz:"Blitz", theme:"Theme challenge", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
+const MODE_NAMES = {studio:"Studio", daily:"Daily puzzle", blitz:"Blitz", theme:"Theme challenge", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
 
 /* =========================================================
    SAVED PROGRESS (this browser only)
@@ -1300,7 +1309,7 @@ const QUIZ = {
     const it = this.item;
     $("qTag").textContent = this.room === "mix" ? ROOMS[r].name : "";
     $("qTag").style.setProperty("--c", ROOMS[r].color);
-    $("qP").className = "quiz-prompt" + (it.big ? " big" : "");
+    $("qP").className = "quiz-prompt" + (it.big ? " big" : "") + (r === "math" ? " chalk" : "");
     $("qP").innerHTML = it.prompt;
     $("qV").innerHTML = it.visual || "";
     $("qC").className = "choices" + (it.long ? " long" : it.text ? " text" : "");
@@ -1863,6 +1872,19 @@ function Explorer(cfg){
         actions:[["Copy result", e => copyText(text, e.currentTarget), true], ["Lobby", goHub]]});
     }
   };
+}
+
+/* ---------- Brain gym daily puzzles: same for every player, seeded by local date ---------- */
+function gymDaily(room){ const key = dayStr(new Date()), num = Math.round((new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()) - TOUR_EPOCH) / 86400000) + 1; return {key, num, rnd: seeded(hashStr(room + ":" + key))}; }
+function gymFinish(room, title, marks, body, stars){
+  const t = gymDaily(room); S.dailyGym = S.dailyGym || {}; const k = room + ":" + t.key, first = !S.dailyGym[k];
+  if(first) S.dailyGym[k] = marks;
+  const shown = S.dailyGym[k];
+  const site = /^https?:$/.test(location.protocol) && !/claude|anthropic|localhost/.test(location.hostname) ? "\n" + location.origin : "";
+  const text = `Synapse Arcade · ${title} #${t.num}\n${shown.map(m => ["🟥","🟨","🟩"][m]).join("")}${site}`;
+  endSession({title: first ? `${title} solved` : "Practice run complete", stars: first ? stars : 0, xp: first ? 20 + 10*stars : 8,
+    body:`<div class="sharegrid">${shown.map(m => `<span class="mark-tile" style="background:${["var(--bad)","var(--math)","var(--good)"][m]}"></span>`).join("")}</div>${body}<p class="m-note">${first ? "Your official result for today." : "Practice only; your official result is shown."} New puzzle in ${untilMidnight()}.</p>`,
+    actions:[["Copy result", e => copyText(text, e.currentTarget), true], ["Lobby", goHub]]});
 }
 
 /* ---------- daily World Tour event: the same five rounds for every player, seeded by local date ---------- */
@@ -3733,7 +3755,7 @@ document.addEventListener("keydown", e => { if(e.key === "Escape") closeDef(); }
 /* =========================================================
    HOME SCREEN: greeting, today, tabs, tidy tiles and a room sheet
    ========================================================= */
-const MODE_INFO = {blitz:"60 seconds: tap the map, it locks in instantly. Accurate streaks multiply your score", theme:"Paint a themed look, then face three judges", studio:"The main game: a hands-on project", sprint:"60-second quiz against the clock", practice:"10 questions, no timer, with an explanation after each", arcade:"60 seconds, build a streak for a multiplier", zen:"No timer: play at your own pace"};
+const MODE_INFO = {daily:"Today's puzzle: the same for every player, with a result you can share", blitz:"60 seconds: tap the map, it locks in instantly. Accurate streaks multiply your score", theme:"Paint a themed look, then face three judges", studio:"The main game: a hands-on project", sprint:"60-second quiz against the clock", practice:"10 questions, no timer, with an explanation after each", arcade:"60 seconds, build a streak for a multiplier", zen:"No timer: play at your own pace"};
 const lvlName = d => d < 3.5 ? "Beginner" : d < 6.5 ? "Intermediate" : "Advanced";
 function tileHTML(k){
   const r = ROOMS[k];
@@ -3820,7 +3842,7 @@ ENG.memory = {
   start(mode){
     this.mode = mode; this.done = 0; this.fails = 0; this.patFails = 0; this.maxLen = 0;
     stage.innerHTML = `<div class="status" id="memStatus">Get ready…</div>
-      <div class="mem-grid" id="memGrid">${Array.from({length:16},(_,i)=>`<button class="tile" type="button" aria-label="Tile ${i+1}" data-i="${i}"></button>`).join("")}</div>`;
+      <div class="mem-grid" id="memGrid">${Array.from({length:16},(_,i)=>`<button class="tile pad" type="button" aria-label="Tile ${i+1}" data-i="${i}" style="--tc:hsl(${i*22.5} 85% 60%)"></button>`).join("")}</div>`;
     this.grid = $("memGrid"); this.tiles = [...this.grid.children];
     this.grid.addEventListener("click", e => { const t = e.target.closest(".tile"); if(t) this.tap(+t.dataset.i); });
     if(mode === "zen") setSide("Pattern", "1/5");
@@ -3875,7 +3897,8 @@ ENG.memory = {
    ========================================================= */
 ENG.words = {
   start(mode){
-    this.mode = mode; this.count = 0; this.hintsTotal = 0; this.skips = 0; this.recent = new Set();
+    this.mode = mode; this.count = 0; this.hintsTotal = 0; this.skips = 0; this.recent = new Set(); this.marks = [];
+    if(mode === "daily"){ const g = gymDaily("words"), pk = t => { const l = WORDS[t]; return l[Math.floor(g.rnd()*l.length)][0]; }; const set = []; [1,1,2,2,3].forEach(t => { let w; do{ w = pk(t); } while(set.includes(w)); set.push(w); }); this.dailyList = set; }
     stage.innerHTML = `<div class="def"><span class="eyebrow" id="wTag">Definition</span><p id="wDef"></p></div>
       <div class="slots" id="wSlots"></div><div class="tiles" id="wTiles"></div>
       <div class="row-btns"><button class="btn-sm" type="button" id="wHint">Hint</button><button class="btn-sm" type="button" id="wShuffle">Shuffle</button><button class="btn-sm" type="button" id="wClear">Clear</button><button class="btn-sm" type="button" id="wSkip">${mode==="arcade"?"Skip":"Reveal"}</button></div>`;
@@ -3889,6 +3912,13 @@ ENG.words = {
   },
   schedule(w, gap){ const e = S.review.find(r => r.w === w); if(e) e.due = S.played + gap; else S.review.push({w, due:S.played + gap}); if(S.review.length > 40) S.review.shift(); save(); },
   next(){
+    if(this.mode === "daily" && this.count === 5){
+      const stars = this.marks.every(m => m === 2) ? 3 : this.marks.filter(m => m === 2).length >= 3 ? 2 : 1;
+      return gymFinish("words", "Daily Words", this.marks, `<p class="m-note">Green: no hints · yellow: one hint · red: two or more, or revealed.</p>`, stars);
+    }
+    if(this.mode === "daily"){ const w = this.dailyList[this.count]; this.recent.add(w); this.review = false; this.word = w; $("wTag").textContent = `Daily Words · word ${this.count+1} of 5`; $("wDef").textContent = DEF[w];
+      const r = gymDaily("words").rnd; for(let i=0;i<this.count*3;i++) r(); let letters; do{ letters = w.split("").map(ch => [r(), ch]).sort((a,b) => a[0]-b[0]).map(x => x[1]); } while(letters.join("") === w);
+      this.tiles = letters.map(ch => ({ch, used:false})); this.order = letters.map((_,i) => i); this.ans = []; this.hintN = 0; this.lock = false; $("wSlots").className = "slots"; setSide("Word", `${this.count+1}/5`); return this.render(); }
     if(this.mode === "zen" && this.count === 6){
       const pen = this.hintsTotal + this.skips*3, stars = pen === 0 ? 3 : pen <= 4 ? 2 : 1;
       return endSession({title:"Session complete", stars, xp:15+10*stars, body:`<p class="m-note">Six words, ${this.hintsTotal} hint${this.hintsTotal===1?"":"s"}, ${this.skips} reveal${this.skips===1?"":"s"}. Missed words will come back in a later session.</p>`});
@@ -3922,7 +3952,7 @@ ENG.words = {
       if(this.hintN >= 2) this.schedule(this.word, 2);
       else if(this.review && this.hintN === 0) S.review = S.review.filter(r => r.w !== this.word);
       if(this.mode === "arcade") hit(Math.max(5, this.word.length*10 - this.hintN*15));
-      else { sfx.good(); this.count++; this.hintsTotal += this.hintN; }
+      else { sfx.good(); this.count++; this.hintsTotal += this.hintN; this.marks.push(this.hintN === 0 ? 2 : this.hintN === 1 ? 1 : 0); }
       later(() => this.next(), 750);
     } else {
       shakeEl($("wSlots")); this.mode === "arcade" ? miss() : sfx.bad();
@@ -3939,7 +3969,7 @@ ENG.words = {
   skip(){
     if(this.lock) return;
     this.lock = true; adapt("words", 0); this.schedule(this.word, 1);
-    if(this.mode === "arcade") miss(); else { this.count++; this.skips++; }
+    if(this.mode === "arcade") miss(); else { this.count++; this.skips++; this.marks.push(0); }
     $("wSlots").className = "slots reveal";
     $("wSlots").innerHTML = this.word.split("").map(c => `<span class="slot">${c}</span>`).join("");
     later(() => this.next(), 1600);
@@ -3951,24 +3981,28 @@ ENG.words = {
    ========================================================= */
 ENG.logic = {
   start(mode){
-    this.mode = mode; this.boards = 0; this.scoreSum = 0;
+    this.mode = mode; this.boards = 0; this.scoreSum = 0; this.marks = []; this.rnd = null;
     stage.innerHTML = `<div class="lg-info"><span>Moves <b id="lgMoves">0</b></span><span>Target <b id="lgPar">0</b></span><span>Lights on <b id="lgOn">0</b></span></div>
       <div class="lg-grid" id="lgGrid"></div>
       <div class="row-btns"><button class="btn-sm" type="button" id="lgReset">Reset board</button><button class="btn-sm" type="button" id="lgNew">Skip board</button></div>`;
     $("lgGrid").addEventListener("click", e => { const b = e.target.closest(".light"); if(b) this.press(+b.dataset.i); });
     $("lgReset").addEventListener("click", () => { if(this.lock) return; this.grid = this.init.slice(); sfx.click(); this.render(); });
-    $("lgNew").addEventListener("click", () => { if(this.lock) return; adapt("logic", 0); if(this.mode === "arcade") miss(); this.newBoard(); });
+    $("lgNew").addEventListener("click", () => { if(this.lock) return; if(this.mode === "daily"){ this.grid = this.init.slice(); this.moves = 0; this.render(); return; } adapt("logic", 0); if(this.mode === "arcade") miss(); this.newBoard(); });
+    if(mode === "daily") $("lgNew").textContent = "Start over";
     this.newBoard();
   },
   flip(g, c, n){ const r = Math.floor(c/n), col = c%n; [[0,0],[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc]) => { const rr=r+dr, cc=col+dc; if(rr>=0&&rr<n&&cc>=0&&cc<n) g[rr*n+cc] = !g[rr*n+cc]; }); },
   newBoard(){
-    const d = S.rating.logic, n = d < 3.5 ? 3 : d < 7 ? 4 : 5, k = clamp(Math.round(d*.9)+1, 2, n===3?5:n===4?8:12);
+    const d = S.rating.logic, daily = this.mode === "daily";
+    let n = d < 3.5 ? 3 : d < 7 ? 4 : 5, k = clamp(Math.round(d*.9)+1, 2, n===3?5:n===4?8:12);
+    if(daily){ n = [3,4,5][this.boards]; k = [3,5,7][this.boards]; this.rnd = this.rnd || gymDaily("logic").rnd; }
+    const sh = daily ? (a => { a = a.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(this.rnd()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }) : shuffle;
     let g;
-    do{ g = Array(n*n).fill(false); shuffle([...Array(n*n).keys()]).slice(0,k).forEach(c => this.flip(g,c,n)); } while(!g.some(Boolean));
+    do{ g = Array(n*n).fill(false); sh([...Array(n*n).keys()]).slice(0,k).forEach(c => this.flip(g,c,n)); } while(!g.some(Boolean));
     Object.assign(this, {n, par:k, grid:g, init:g.slice(), moves:0, lock:false});
     $("lgGrid").style.gridTemplateColumns = `repeat(${n}, minmax(0,1fr))`;
     $("lgGrid").innerHTML = g.map((_,i) => `<button class="light" type="button" data-i="${i}" aria-label="Light ${i+1}"></button>`).join("");
-    if(this.mode === "zen") setSide("Board", `${this.boards+1}/3`);
+    if(this.mode === "zen" || daily) setSide("Board", `${this.boards+1}/3`);
     this.render();
   },
   render(){
@@ -3991,7 +4025,8 @@ ENG.logic = {
       if(this.moves <= this.par) setTimeout(() => fx("On target!"), 450);
       later(() => this.newBoard(), 650);
     } else {
-      sfx.good(); this.boards++; this.scoreSum += out;
+      sfx.good(); this.boards++; this.scoreSum += out; (this.marks = this.marks || []).push(this.moves <= this.par ? 2 : this.moves <= this.par*2 ? 1 : 0);
+      if(this.mode === "daily" && this.boards === 3){ const m = this.marks, stars = m.every(x => x === 2) ? 3 : m.filter(x => x === 2).length >= 2 ? 2 : 1; return later(() => gymFinish("logic", "Daily Lights", m, `<p class="m-note">Green: solved within the target moves · yellow: within double · red: more.</p>`, stars), 500); }
       if(this.boards === 3){
         const avg = this.scoreSum/3, stars = avg >= .99 ? 3 : avg >= .7 ? 2 : 1;
         later(() => endSession({title:"Boards cleared", stars, xp:15+10*stars, body:`<p class="m-note">${stars===3 ? "Every board on target. That's efficient planning." : "Try spotting which lights must be pressed before you touch anything; planning beats trial and error."}</p>`}), 500);
