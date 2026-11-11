@@ -6,9 +6,9 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | --- | --- | --- |
 | Explorers | **World Kitchen**: guess where a dish comes from on a world map (plus a 60-second Blitz) | Geography, food history |
 | Explorers | **Time & Thread**: guess where and when an outfit was worn | History, geography |
-| Explorers | **Landmark Hunt**: pin illustrated world landmarks on the map | Geography, history |
-| Explorers | **Flag Maker**: rebuild a country's flag (layout and colors) | Flags, symbolism |
-| Explorers | **Then & Now**: slot events into a growing timeline | History |
+| Explorers | **Landmark Hunt**: pin 32 illustrated world landmarks on the map | Geography, history |
+| Explorers | **Flag Maker**: rebuild 59 countries' flags across 10 layouts (stripes, crosses, saltires, triangles, discs) | Flags, symbolism |
+| Explorers | **Then & Now**: slot 80 events, from farming to the Webb telescope, into a growing timeline | History |
 | Studios | **Test Kitchen**: cook for customers who taste and react ("too salty!") until you get it right | Flavor balance, food science, food origins |
 | Studios | **Atelier**: design a dress to a client brief | Color theory, proportion, dress codes |
 | Studios | **Hair Salon**: cut by hand with scissors, clippers, comb, curling wand, flat iron and toner spray; style updos; six face shapes; photo-booth strip | Face shapes, proportion, color correction |
@@ -16,7 +16,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Studios | **Sewing Room**: pick from 11 patterns, lay out the pieces, then sew by tracing each seam | Spatial planning, fine motor control |
 | Studios | **Floorplan Lab**: draw a home that meets a client's rules, then add doors, windows and furniture (reachability, daylight, kitchen work triangle) | Spatial reasoning, area, building basics |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
-| Brain gym | **Science Lab**: find organs and bones; mix light versus ink | Biology, color science |
+| Brain gym | **Science Lab**: find organs and bones, mix light versus ink, sink or float, line up the planets | Biology, color science |
 | Brain gym | Echo Grid, Quick Sums, Unscramble, Switchboard | Memory, mental math, vocabulary, logic |
 
 There's also a daily **World Tour** event (the same five map rounds for every player, with a shareable score) and a **Daily Mix** of eight interleaved questions.

@@ -806,6 +806,18 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .booth-ctl h3{margin:0;font-family:Fredoka,sans-serif;font-size:24px}
 .booth-cap{width:100%;box-sizing:border-box;font:600 16px Figtree,sans-serif;padding:8px 12px;border:2.5px solid var(--ink);border-radius:12px;background:#fffdf8}
 @media (max-width:640px){ .booth-in{flex-direction:column;align-items:center} .toolbar{grid-template-columns:repeat(2,1fr)} }
+.tank-wrap,.orbit-wrap{display:flex;align-items:center;justify-content:center}
+.tank,.orbits{width:100%;max-width:440px;height:auto}
+.dropobj{animation:dropin .9s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes dropin{from{transform:translateY(var(--from));opacity:0}to{transform:none;opacity:1}}
+.floatlist{display:flex;flex-direction:column;gap:6px}
+.flrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 10px;border:2px solid var(--ink);border-radius:12px;background:#fffdf8}
+.flrow .fle{font-size:24px}.flrow b{flex:1;min-width:110px}
+.flrow small{width:100%;font-size:12px;opacity:.75}
+.flrow.ok{background:#dcf5e6}.flrow.no{background:#ffe1e1}
+.planetbar{display:flex;flex-wrap:wrap;gap:8px}
+.pchip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border:2.5px solid var(--ink);border-radius:14px;background:#fffdf8;color:var(--ink);font:600 12px Figtree,sans-serif;cursor:pointer;box-shadow:0 3px 0 var(--ink)}
+.pchip:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 </style>
 </head>
 <body>
@@ -2299,6 +2311,11 @@ function flagSVG(l, cols, w=150, opts={}){
   if(l === "h2") g = [0,1].map(i => `<rect x="0" y="${i*50}" width="150" height="50" fill="${f(i)}"${sel(i)}/>`).join("");
   if(l === "nordic") g = `<rect width="150" height="100" fill="${f(0)}"${sel(0)}/><path d="M40 0 h18 v41 h92 v18 h-92 v41 h-18 v-41 h-40 v-18 h40z" fill="${f(1)}"${sel(1)}/>`;
   if(l === "disc") g = `<rect width="150" height="100" fill="${f(0)}"${sel(0)}/><circle cx="${opts.cx||72}" cy="50" r="30" fill="${f(1)}"${sel(1)}/>`;
+  if(l === "v2") g = [0,1].map(i => `<rect x="${i*75}" y="0" width="75" height="100" fill="${f(i)}"${sel(i)}/>`).join("");
+  if(l === "tri") g = `<rect width="150" height="50" fill="${f(0)}"${sel(0)}/><rect y="50" width="150" height="50" fill="${f(1)}"${sel(1)}/><path d="M0 0 L75 50 L0 100Z" fill="${f(2)}"${sel(2)}/>`;
+  if(l === "cross") g = `<rect width="150" height="100" fill="${f(0)}"${sel(0)}/><path d="M65 0 h20 v40 h65 v20 h-65 v40 h-20 v-40 h-65 v-20 h65z" fill="${f(1)}"${sel(1)}/>`;
+  if(l === "plus") g = `<rect width="150" height="100" fill="${f(0)}"${sel(0)}/><path d="M65 22 h20 v18 h18 v20 h-18 v18 h-20 v-18 h-18 v-20 h18z" fill="${f(1)}"${sel(1)}/>`;
+  if(l === "saltire") g = `<rect width="150" height="100" fill="${f(0)}"${sel(0)}/><path d="M0 0 H15 L150 90 V100 H135 L0 10Z M150 0 H135 L0 90 V100 H15 L150 10Z" fill="${f(1)}"${sel(1)}/>`;
   return `<svg viewBox="0 0 150 100" width="${w}" class="flag" role="img" aria-label="Flag"><defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#f4ecdf"/><rect width="3" height="8" fill="#e2d4bd"/></pattern></defs>${g}<rect width="150" height="100" fill="none" stroke="${INK}" stroke-width="3"/></svg>`;
 }
 STUDIO.flags = {
@@ -2314,8 +2331,8 @@ STUDIO.flags = {
     stage.innerHTML = `<div class="studio-grid">
       <div class="flag-stage"><div class="flagpole"><div id="fgEdit"></div></div><div class="fpalette" id="fgPal">${Object.entries(FCOL).map(([k,v]) => `<button type="button" class="fsw" data-c="${k}" style="background:${v}" aria-label="${k}"></button>`).join("")}</div>
         <p class="msg" id="fgMsg">Tap a part of the flag, then tap a color.</p></div>
-      <div class="ctl-col">${sessionHeader(`Flag ${this.round+1} of ${this.list.length}`, `Make the flag of ${fl.n}`, this.giveLayout ? "The layout is set. Paint each part with the right color." : "Pick the layout, then paint each part.")}
-        <div class="opt-group" ${this.giveLayout ? "hidden" : ""}><h4>Layout</h4><div class="layouts" id="fgLay">${Object.keys(FLAYOUTS).map(l => `<button type="button" class="lay" data-l="${l}" title="${FLAYOUTS[l]}">${flagSVG(l, l==="nordic"||l==="disc" ? ["white","black"] : l==="h2" ? ["white","black"] : ["white","black","white"], 66)}</button>`).join("")}</div></div>
+      <div class="ctl-col">${sessionHeader(`Flag ${this.round+1} of ${this.list.length}`, `Make the flag of ${fl.n}`, (this.giveLayout ? "The layout is set. Paint each part with the right color." : "Pick the layout, then paint each part.") + (fl.e ? ` The real flag also has ${fl.e}; leave that off.` : ""))}
+        <div class="opt-group" ${this.giveLayout ? "hidden" : ""}><h4>Layout</h4><div class="layouts" id="fgLay">${Object.keys(FLAYOUTS).map(l => `<button type="button" class="lay" data-l="${l}" title="${FLAYOUTS[l]}">${flagSVG(l, FREG[l] === 2 ? ["white","black"] : ["white","black","white"], 66)}</button>`).join("")}</div></div>
         <button class="btn btn-solid" type="button" id="fgGo" disabled>Raise the flag</button><div id="fgRes"></div></div></div>`;
     $("fgLay").addEventListener("click", e => { const b = e.target.closest(".lay"); if(!b || this.locked) return; this.layout = b.dataset.l; this.cols = []; this.sel = 0; sfx.click(); this.render(); });
     $("fgPal").addEventListener("click", e => { const b = e.target.closest(".fsw"); if(!b || this.locked || !this.layout) return; this.cols[this.sel] = b.dataset.c; sfx.click();
@@ -5701,6 +5718,204 @@ function photoBooth(o){
   });
   sfx.good(); draw(); FX.confetti && FX.confetti();
 }
+
+/* =========================================================
+   CONTENT PACK: more flags (new layouts), landmarks, timeline
+   events and two new Science Lab experiments
+   ========================================================= */
+Object.assign(FLAYOUTS, {v2:"Two vertical stripes", tri:"Triangle at the pole", cross:"Centered cross", plus:"Square cross", saltire:"Diagonal cross (saltire)"});
+Object.assign(FREG, {v2:2, tri:3, cross:2, plus:2, saltire:2});
+FLAGS.push(
+ {n:"Mexico",t:1,l:"v3",c:["green","white","red"],e:"an eagle on a cactus in the middle",f:"The emblem shows an eagle eating a snake on a cactus, from the Aztec legend of where to found their capital, Tenochtitlan. Without it, the flag looks just like Italy's."},
+ {n:"Canada",t:1,l:"v3",c:["red","white","red"],e:"a red maple leaf in the middle",f:"Adopted in 1965 after a long national debate. The center band is twice as wide as the red ones, and the 11-point maple leaf sits in it."},
+ {n:"Spain",t:1,l:"h3",c:["red","yellow","red"],e:"the coat of arms near the pole",f:"The yellow band is twice as tall as each red one. Red and gold come from the old kingdoms of Castile and Aragon."},
+ {n:"Argentina",t:1,l:"h3",c:["skyblue","white","skyblue"],e:"a golden Sun of May in the middle",f:"The Sun of May, with a face, marks the May Revolution of 1810. Legend says the sun broke through the clouds as crowds gathered."},
+ {n:"India",t:1,l:"h3",c:["orange","white","green"],e:"a blue 24-spoke wheel in the middle",f:"Saffron for courage, white for truth and peace, green for faith and growth. The wheel is the Ashoka Chakra, from a 2,200-year-old pillar."},
+ {n:"England",t:1,l:"cross",c:["white","red"],f:"The Cross of St George has flown since the Middle Ages. It's one of the pieces that make up the United Kingdom's Union Jack."},
+ {n:"Switzerland",t:1,l:"plus",c:["red","white"],f:"One of only two square national flags (the other is Vatican City). The Red Cross symbol is the Swiss flag with its colors swapped."},
+ {n:"Scotland",t:1,l:"saltire",c:["blue","white"],f:"The Saltire is the cross of St Andrew. Legend says a white X of clouds appeared in a blue sky before a battle in 832."},
+ {n:"Colombia",t:2,l:"h3",c:["yellow","blue","red"],f:"The yellow band takes up the whole top half. Ecuador and Venezuela use the same colors because all three were once Gran Colombia."},
+ {n:"Ghana",t:2,l:"h3",c:["red","yellow","green"],e:"a black star in the middle",f:"In 1957 Ghana became the first sub-Saharan African colony to win independence. The black star is the lodestar of African freedom."},
+ {n:"Ethiopia",t:2,l:"h3",c:["green","yellow","red"],e:"a blue disc with a star",f:"Ethiopia was never colonized, so many newly independent African countries borrowed its colors. They're now called the pan-African colors."},
+ {n:"Egypt",t:2,l:"h3",c:["red","white","black"],e:"the golden Eagle of Saladin",f:"Red for the struggle before the 1952 revolution, white for its peaceful end, black for the end of oppression."},
+ {n:"Iran",t:2,l:"h3",c:["green","white","red"],e:"a red emblem and Arabic script along the stripe edges",f:"The phrase Allahu Akbar is written 22 times along the edges of the white stripe, for the date of the 1979 revolution in the Persian calendar."},
+ {n:"Malta",t:2,l:"v2",c:["white","red"],e:"the George Cross in the top corner",f:"The George Cross was awarded to the whole island by King George VI for its bravery under siege in the Second World War."},
+ {n:"Algeria",t:2,l:"v2",c:["green","white"],e:"a red crescent and star in the middle",f:"Green for Islam and the land, white for peace, red for those who died in the 1954–62 war of independence."},
+ {n:"Portugal",t:2,l:"v2",c:["green","red"],e:"an armillary sphere and shield",f:"The armillary sphere was a navigation instrument, a nod to Portugal's Age of Discovery sailors. The green part is narrower than the red."},
+ {n:"Czechia",t:2,l:"tri",c:["white","red","blue"],f:"When Czechoslovakia split in 1993, both new countries agreed not to use the old flag. Czechia kept it anyway."},
+ {n:"Philippines",t:2,l:"tri",c:["blue","red","white"],e:"a sun and three stars in the triangle",f:"It's flown upside down, with red on top, in a state of war. The sun's eight rays stand for the first eight provinces to revolt against Spain."},
+ {n:"Mongolia",t:3,l:"v3",c:["red","blue","red"],e:"the yellow Soyombo symbol near the pole",f:"Blue for the eternal sky, red for progress. The Soyombo is a column of symbols: fire, sun, moon and more."},
+ {n:"Moldova",t:3,l:"v3",c:["blue","yellow","red"],e:"an eagle holding a shield",f:"Its colors match Romania's, a sign of their shared history and language. The emblem is what tells them apart."},
+ {n:"Bolivia",t:3,l:"h3",c:["red","yellow","green"],f:"Red for bravery, yellow for mineral wealth, green for fertile land. Ghana's flag uses the same stripes plus a black star."},
+ {n:"Haiti",t:3,l:"h2",c:["blue","red"],e:"a coat of arms with a palm tree",f:"Legend says leader Jean-Jacques Dessalines tore the white out of the French tricolor in 1803, leaving blue and red."},
+ {n:"San Marino",t:3,l:"h2",c:["white","skyblue"],e:"a shield with three towers",f:"One of the world's oldest republics, founded in 301 CE. White for snow on Mount Titano, blue for the sky."},
+ {n:"Vatican City",t:3,l:"v2",c:["yellow","white"],e:"crossed keys and a papal crown",f:"The world's smallest country has a square flag. The gold and silver keys stand for the keys of heaven given to St Peter."},
+ {n:"Jersey",t:3,l:"saltire",c:["white","red"],e:"a shield with three lions",f:"Jersey is a Channel Island near France. Its red saltire on white is the cross of St Patrick."}
+);
+LANDMARKS.push(...[
+ {n:"Parthenon",t:1,c:"Greece",city:"Athens",ll:[37.972,23.727],clues:["A marble temple ringed by tall fluted columns, on a rocky hill above a city.","Built around 438 BCE for the goddess Athena.","It has been a temple, a church, a mosque and a gunpowder store, which exploded in 1687."],fact:"Its columns bulge slightly in the middle and lean inward, a trick so they look perfectly straight from below."},
+ {n:"Sagrada Família",t:1,c:"Spain",city:"Barcelona",ll:[41.404,2.174],clues:["A basilica with sprouting, spiky towers that look half carved and half grown.","Work began in 1882 and still isn't finished.","Its architect, Antoni Gaudí, is buried in the crypt."],fact:"Gaudí said, “My client is not in a hurry.” It has taken longer to build than the Great Pyramid."},
+ {n:"Neuschwanstein Castle",t:2,c:"Germany",city:"Schwangau, Bavaria",ll:[47.557,10.750],clues:["A white fairy-tale castle with blue turrets on a crag in the Alps.","Built in the 1870s–80s for a king who loved Wagner's operas.","King Ludwig II lived there only a few months before he died."],fact:"It helped inspire Sleeping Beauty's castle at Disneyland. It had central heating and running water when it was built."},
+ {n:"Hagia Sophia",t:2,c:"Turkey",city:"Istanbul",ll:[41.008,28.980],clues:["A vast domed building with four slim minarets at its corners.","Completed in 537 CE, it was the world's largest cathedral for nearly 1,000 years.","It stands in a city that spans two continents."],fact:"Its dome seems to float because 40 windows ring its base, so light pours in just beneath it."},
+ {n:"Forbidden City",t:2,c:"China",city:"Beijing",ll:[39.916,116.397],clues:["A walled palace complex of red walls and golden-yellow roofs.","Home to 24 emperors from 1420 to 1912.","Ordinary people couldn't enter without permission, which is how it got its name."],fact:"It has about 9,000 rooms. Yellow roof tiles were reserved for the emperor."},
+ {n:"Mount Rushmore",t:1,c:"United States of America",city:"Keystone, South Dakota",ll:[43.879,-103.459],clues:["Four giant faces carved into a granite mountainside.","Washington, Jefferson, Theodore Roosevelt and Lincoln.","About 90% of it was carved with dynamite between 1927 and 1941."],fact:"Each face is about 18 meters tall. The Black Hills are sacred to the Lakota Sioux, who call the peak Six Grandfathers."},
+ {n:"Tower Bridge",t:1,c:"United Kingdom",city:"London",ll:[51.505,-0.075],clues:["Two Gothic stone towers joined by high walkways, over a busy river.","Its road splits and lifts so tall ships can pass.","Opened in 1894, it's often mistaken for London Bridge."],fact:"The roadway can open in about five minutes. Today it lifts around 800 times a year."},
+ {n:"CN Tower",t:2,c:"Canada",city:"Toronto",ll:[43.643,-79.387],clues:["A needle-thin concrete tower with a pod halfway up, 553 meters tall.","Built as a TV and radio antenna in 1976.","Visitors can stand on a glass floor 342 meters above the ground."],fact:"It was the world's tallest free-standing structure for 32 years. It's hit by lightning about 75 times a year."},
+ {n:"Brandenburg Gate",t:2,c:"Germany",city:"Berlin",ll:[52.516,13.378],clues:["A neoclassical stone gateway with 12 columns and a four-horse chariot on top.","Completed in 1791 as a symbol of peace.","For nearly 30 years it stood just beside a wall that divided its city."],fact:"Napoleon took the chariot statue to Paris in 1806; it came back in 1814. The gate became the symbol of Germany's reunification in 1989."},
+ {n:"Victoria Falls",t:2,c:"Zimbabwe",city:"Victoria Falls",ll:[-17.925,25.857],clues:["A curtain of water about 1.7 km wide plunging into a narrow gorge.","Locals call it Mosi-oa-Tunya, “the smoke that thunders”.","It sits on the border between Zambia and Zimbabwe on the Zambezi River."],fact:"Its spray can rise over 400 meters and be seen 50 km away. At full moon you can sometimes see a “moonbow”."},
+ {n:"Borobudur",t:3,c:"Indonesia",city:"Magelang, Java",ll:[-7.608,110.204],clues:["A stepped stone temple like a giant layered cake, topped with bell-shaped stupas.","Built in the 800s, it's the world's largest Buddhist temple.","It lay hidden under volcanic ash and jungle for centuries."],fact:"Pilgrims walk about 5 km in a spiral to the top, passing 2,672 carved relief panels that tell stories."},
+ {n:"Table Mountain",t:3,c:"South Africa",city:"Cape Town",ll:[-33.963,18.403],clues:["A mountain with a perfectly flat top, about 3 km across, above a harbor city.","Clouds often spill over it, called the “tablecloth”.","It's home to more plant species than the whole of the British Isles."],fact:"Its rock is about 600 million years old, older than the Himalayas. A rotating cable car carries visitors to the top."}
+].map(x => ({...x, kind:"landmark"})));
+Object.assign(LANDMARK_ART, {
+  "Parthenon": LM(`<path d="M0 132 L30 112 H170 L200 132 Z" fill="#a8a29e"/><rect x="34" y="102" width="132" height="10" fill="#f1ece2"/>${[42,60,78,96,114,132,150].map(x => `<rect x="${x}" y="58" width="9" height="44" fill="#f1ece2" stroke-width="2"/>`).join("")}<rect x="34" y="48" width="132" height="10" fill="#f1ece2"/><path d="M30 48 L100 22 L170 48 Z" fill="#f1ece2"/><circle cx="170" cy="20" r="10" fill="#ffbf2e"/>`),
+  "Sagrada Família": LM(`<rect x="40" y="96" width="120" height="36" fill="#d6b98c"/>${[[52,40],[72,24],[92,14],[108,14],[128,24],[148,40]].map(([x,y]) => `<path d="M${x-7} 98 L${x-4} ${y+10} Q${x} ${y-6} ${x+4} ${y+10} L${x+7} 98 Z" fill="#d6b98c" stroke-width="2.5"/><circle cx="${x}" cy="${y}" r="3" fill="#e63946" stroke-width="1.5"/>${[0,1,2].map(k => `<path d="M${x-4} ${y+24+k*18} h8" stroke-width="1.5"/>`).join("")}`).join("")}<path d="M88 132 V112 a12 12 0 0 1 24 0 V132" fill="#7a5c3d"/><rect x="150" y="22" width="5" height="18" fill="#ffbf2e" stroke-width="1.5"/><path d="M146 22 h18" stroke-width="2"/>`),
+  "Neuschwanstein Castle": LM(`<path d="M0 132 L40 96 L70 104 L110 80 L160 100 L200 92 V132 Z" fill="#5a8f4a"/><rect x="60" y="62" width="70" height="42" fill="#f6f1e7"/>${[[60,40],[84,28],[130,46]].map(([x,y]) => `<rect x="${x-7}" y="${y}" width="14" height="${104-y}" fill="#f6f1e7"/><path d="M${x-10} ${y} L${x} ${y-22} L${x+10} ${y} Z" fill="#5a7ec2"/>`).join("")}<path d="M60 62 L95 44 L130 62 Z" fill="#5a7ec2"/>${[70,82,94,106,118].map(x => `<rect x="${x}" y="72" width="5" height="9" rx="2" fill="#a9dcef" stroke-width="1.5"/>`).join("")}`),
+  "Hagia Sophia": LM(`<rect x="40" y="88" width="120" height="44" fill="#e9a99a"/><path d="M58 88 Q58 60 80 60 H120 Q142 60 142 88 Z" fill="#e9a99a"/><path d="M70 62 Q70 26 100 24 Q130 26 130 62 Z" fill="#8a9bb0"/><path d="M100 24 V12" /><path d="M70 62 H130" stroke-width="2"/>${[30,170].map(x => `<rect x="${x-3}" y="40" width="6" height="92" fill="#f6f1e7" stroke-width="2"/><path d="M${x-4} 40 L${x} 26 L${x+4} 40 Z" fill="#8a9bb0" stroke-width="2"/>`).join("")}${[76,90,104,118].map(x => `<path d="M${x} 112 v-10 a3 3 0 0 1 6 0 v10" fill="#7a3b2e" stroke-width="1.5"/>`).join("")}`),
+  "Forbidden City": LM(`<rect x="10" y="104" width="180" height="28" fill="#c0392b"/><rect x="40" y="70" width="120" height="34" fill="#c0392b"/>${[56,76,96,116,136].map(x => `<rect x="${x}" y="78" width="8" height="26" fill="#7a1f16" stroke-width="1.5"/>`).join("")}<path d="M24 72 Q100 60 176 72 L160 56 Q100 46 40 56 Z" fill="#ffbf2e"/><path d="M40 56 Q100 40 160 56 L146 44 Q100 34 54 44 Z" fill="#ffbf2e"/><path d="M90 132 V116 a10 10 0 0 1 20 0 V132" fill="#7a1f16"/>`),
+  "Mount Rushmore": LM(`<path d="M0 132 L20 70 L60 40 L120 30 L170 46 L200 80 V132 Z" fill="#b8b2a7"/>${[50,84,116,150].map((x,i) => `<path d="M${x-12} ${78+i%2*4} Q${x-13} ${54+i%2*4} ${x} ${52+i%2*4} Q${x+13} ${54+i%2*4} ${x+12} ${78+i%2*4} Q${x+8} ${98+i%2*4} ${x} ${98+i%2*4} Q${x-8} ${98+i%2*4} ${x-12} ${78+i%2*4} Z" fill="#d6d0c4" stroke-width="2.5"/><path d="M${x-6} ${70+i%2*4} h3 M${x+3} ${70+i%2*4} h3 M${x} ${74+i%2*4} v8 M${x-4} ${88+i%2*4} h8" stroke-width="2"/>`).join("")}<path d="M0 132 L30 112 L70 120 L110 108 L160 118 L200 110 V132 Z" fill="#5a8f4a"/>`),
+  "Tower Bridge": LM(`<path d="M0 132 q25 -8 50 0 t50 0 t50 0 t50 0" fill="none" stroke="#3a8dff"/>${[60,140].map(x => `<rect x="${x-14}" y="36" width="28" height="96" fill="#d6c7a1"/><path d="M${x-16} 36 L${x} 14 L${x+16} 36 Z" fill="#5a6e8c"/><path d="M${x-14} 36 l-4 -8 M${x+14} 36 l4 -8" stroke-width="2"/><path d="M${x-6} 64 v-8 a6 6 0 0 1 12 0 v8 M${x-6} 98 v-8 a6 6 0 0 1 12 0 v8" fill="#5a6e8c" stroke-width="2"/>`).join("")}<rect x="74" y="44" width="52" height="8" fill="#5a7ec2"/><path d="M74 100 L100 92 L126 100 V106 H74 Z" fill="#5a7ec2"/><path d="M0 104 Q24 70 46 60 M154 60 Q176 70 200 104" fill="none" stroke="#5a7ec2" stroke-width="4"/>`),
+  "CN Tower": LM(`<path d="M94 132 L97 50 H103 L106 132 Z" fill="#d6d0c4"/><path d="M88 132 L96 70 M112 132 L104 70" stroke-width="2.5"/><ellipse cx="100" cy="56" rx="16" ry="7" fill="#a9dcef"/><rect x="92" y="44" width="16" height="10" rx="3" fill="#d6d0c4"/><path d="M100 44 V4" stroke-width="3"/><circle cx="100" cy="34" r="3" fill="#d6d0c4" stroke-width="2"/>${[[20,100,22],[46,86,18],[132,92,20],[160,80,24]].map(([x,y,w]) => `<rect x="${x}" y="${y}" width="${w}" height="${132-y}" fill="#a9dcef"/>`).join("")}`),
+  "Brandenburg Gate": LM(`<rect x="24" y="112" width="152" height="20" fill="#e6d3a3"/>${[34,58,82,110,134,158].map(x => `<rect x="${x}" y="58" width="9" height="54" fill="#f1e4c2" stroke-width="2"/>`).join("")}<rect x="24" y="46" width="152" height="12" fill="#e6d3a3"/><rect x="60" y="34" width="80" height="12" fill="#e6d3a3"/><path d="M80 34 l4 -12 h6 l3 6 l6 -8 l4 2 l-2 8 h10 l4 -6 l4 4 v6 Z" fill="#5d8a7a" stroke-width="2"/>`),
+  "Victoria Falls": LM(`<path d="M0 30 H200 V60 H0 Z" fill="#5a8f4a"/><path d="M0 56 H200 V132 H0 Z" fill="#7a5c3d"/><path d="M14 56 H186 V132 H14 Z" fill="#a9dcef"/>${[24,44,64,84,104,124,144,164].map(x => `<path d="M${x} 58 V128" stroke="#fff" stroke-width="2" opacity=".9"/>`).join("")}<path d="M0 118 Q20 96 40 112 T80 108 T120 112 T160 106 T200 116 V132 H0 Z" fill="#fff" stroke-width="2"/><path d="M62 54 a38 38 0 0 1 76 0" fill="none" stroke="#ff7db8" stroke-width="3"/><path d="M68 54 a32 32 0 0 1 64 0" fill="none" stroke="#ffbf2e" stroke-width="3"/>`),
+  "Borobudur": LM(`<path d="M0 132 Q100 118 200 132 Z" fill="#78c552"/>${[[20,180,112],[34,166,96],[48,152,82],[62,138,68]].map(([a,b,y]) => `<rect x="${a}" y="${y}" width="${b-a}" height="${(132-y) > 20 ? 18 : 14}" fill="#9c8f7a"/>`).join("")}${[[72,62],[90,62],[110,62],[128,62],[84,48],[116,48]].map(([x,y]) => `<path d="M${x-7} ${y+6} Q${x-7} ${y-6} ${x} ${y-8} Q${x+7} ${y-6} ${x+7} ${y+6} Z" fill="#9c8f7a" stroke-width="2"/>`).join("")}<path d="M90 50 Q90 26 100 22 Q110 26 110 50 Z" fill="#9c8f7a"/><path d="M100 22 V12"/>`),
+  "Table Mountain": LM(`<path d="M0 132 L30 70 L50 46 H150 L170 70 L200 132 Z" fill="#7d8b6a"/><path d="M50 46 H150 Q160 40 150 36 Q130 30 110 36 Q90 28 70 36 Q48 34 50 46 Z" fill="#fff"/><path d="M0 132 q25 -8 50 0 t50 0 t50 0 t50 0" fill="none" stroke="#3a8dff"/>${[[30,110],[52,104],[136,106],[160,112]].map(([x,y]) => `<rect x="${x}" y="${y}" width="12" height="${132-y}" fill="#f6f1e7" stroke-width="2"/>`).join("")}`)
+});
+EVENTS.push(...[
+ ["Agriculture begins in the Fertile Crescent",-9500,"tool","People in what's now Iraq, Syria and Turkey started farming wheat and barley, and soon built the first villages."],
+ ["Stonehenge's great stones raised",-2500,"build","The biggest stones weigh about 25 tonnes, and the bluestones were dragged about 240 km from Wales."],
+ ["Code of Hammurabi carved in Babylon",-1754,"art","One of the first written law codes: 282 laws on a stone pillar, including “an eye for an eye”."],
+ ["Tutankhamun becomes pharaoh",-1332,"power","He was about nine years old. His nearly untouched tomb was found in 1922."],
+ ["The Buddha teaches in India",-500,"art","Siddhartha Gautama's teachings spread across Asia along trade routes."],
+ ["Democracy begins in Athens",-508,"power","Male citizens voted directly on laws. Women, slaves and foreigners couldn't vote."],
+ ["Great Wall unified by China's first emperor",-221,"build","Qin Shi Huang joined older walls together. He was also buried with an army of 8,000 clay soldiers."],
+ ["Julius Caesar assassinated",-44,"power","Stabbed 23 times by senators on the Ides of March (15 March)."],
+ ["Mount Vesuvius buries Pompeii",79,"science","Ash preserved the Roman town so well that loaves of bread were found in ovens."],
+ ["Paper invented in China (Cai Lun)",105,"tool","Made from bark, rags and old fishing nets. Paper reached Europe about 1,000 years later."],
+ ["Islam founded by the Prophet Muhammad",610,"art","Within a century, Islamic rule stretched from Spain to Central Asia."],
+ ["Gunpowder recipe first written down in China",1044,"science","It appeared in a military manual; alchemists had discovered it while searching for a potion for long life."],
+ ["Magna Carta sealed",1215,"power","English barons forced King John to accept that even a king must obey the law."],
+ ["Marco Polo reaches China",1275,"explore","His book about the court of Kublai Khan amazed Europeans, though some doubted it."],
+ ["Aztecs found Tenochtitlan",1325,"build","Built on an island in a lake, it became one of the largest cities in the world."],
+ ["Magellan's crew completes the first voyage around the world",1522,"explore","Only 18 of about 270 sailors made it back. Magellan himself died on the way."],
+ ["Shakespeare writes Hamlet",1600,"art","He invented or first recorded more than 1,700 English words, like “eyeball” and “lonely”."],
+ ["First modern newspaper printed",1605,"art","It was published weekly in Strasbourg."],
+ ["Steam engine improved by James Watt",1769,"power","His separate condenser made engines far more efficient and powered the Industrial Revolution."],
+ ["Captain Cook reaches Australia's east coast",1770,"explore","Indigenous Australians had lived there for at least 65,000 years."],
+ ["Battery invented by Alessandro Volta",1800,"science","The unit of electrical potential, the volt, is named after him."],
+ ["Braille published",1829,"art","Louis Braille invented his raised-dot alphabet at age 15."],
+ ["Morse code telegraph message sent",1844,"power","The first long-distance message was “What hath God wrought”."],
+ ["Abraham Lincoln's Emancipation Proclamation",1863,"power","It declared enslaved people in the Confederate states free."],
+ ["Periodic table published by Mendeleev",1869,"science","He left gaps for elements no one had found yet, and predicted their properties correctly."],
+ ["First modern Olympics in Athens",1896,"sport","241 athletes from 14 countries competed. Women joined in 1900."],
+ ["Titanic sinks",1912,"explore","About 1,500 people died. It led to rules requiring enough lifeboats for everyone."],
+ ["Women win the vote across the USA",1920,"power","The 19th Amendment. New Zealand had done it 27 years earlier."],
+ ["Second World War ends",1945,"power","The deadliest conflict in history. The United Nations was founded the same year."],
+ ["India becomes independent",1947,"power","Gandhi's campaign of nonviolent resistance inspired movements worldwide."],
+ ["First FIFA Women's World Cup",1991,"sport","Held in China and won by the USA."],
+ ["Martin Luther King's “I Have a Dream” speech",1963,"power","Delivered to about 250,000 people at the March on Washington."],
+ ["First email sent",1971,"tool","Ray Tomlinson chose the @ sign to separate the user from the computer."],
+ ["Hubble Space Telescope launched",1990,"science","Its first images were blurry: the mirror was off by 1/50th of a hair's width. Astronauts fixed it in 1993."],
+ ["Human genome fully sequenced",2003,"science","It took 13 years. Today a genome can be read in about a day."],
+ ["First image of a black hole",2019,"science","Eight telescopes around the world worked together as one Earth-sized telescope."],
+ ["James Webb Space Telescope's first images",2022,"science","It sees infrared light, so it can look back at galaxies from over 13 billion years ago."],
+ ["Penny Black, first postage stamp",1840,"art","Before stamps, the person receiving a letter usually paid for it."]
+].map(([n,y,k,f]) => ({n,y,k,f})));
+BODY.push(
+ {n:"ribs",t:2,k:"bone",pts:[[80,130],[120,130]],shape:[0,1,2,3].map(i => `<path d="M98 ${104+i*14} Q70 ${102+i*14} 64 ${118+i*14} M102 ${104+i*14} Q130 ${102+i*14} 136 ${118+i*14}" fill="none" stroke-width="4"/>`).join(""),f:"Most people have 12 pairs. They protect the heart and lungs and lift with every breath."},
+ {n:"spine",t:1,k:"bone",pts:[[100,160]],shape:`<path d="M100 88 V226" fill="none" stroke-width="7" stroke-dasharray="7 3"/>`,f:"It's made of 33 vertebrae. You're about 1 cm taller in the morning, because the discs between them squash during the day."},
+ {n:"jawbone (mandible)",t:2,k:"bone",pts:[[100,58]],shape:`<path d="M80 46 Q82 66 100 68 Q118 66 120 46" fill="none" stroke-width="6"/>`,f:"The only bone in your skull that moves, and the strongest bone in your face."},
+ {n:"esophagus",t:3,k:"organ",pts:[[100,110]],shape:`<path d="M100 76 V150" fill="none" stroke-width="7"/>`,f:"A muscular tube about 25 cm long. Muscles squeeze food down in waves, so you could even swallow upside down."},
+ {n:"large intestine",t:3,k:"organ",pts:[[100,192],[72,210],[128,210]],shape:`<path d="M72 230 V192 H128 V230" fill="none" stroke-width="8"/>`,f:"It frames the small intestine and absorbs water. It's home to trillions of helpful bacteria."},
+ {n:"gallbladder",t:3,k:"organ",pts:[[94,172]],shape:`<ellipse cx="94" cy="172" rx="5" ry="7"/>`,f:"Tucked under the liver, it stores bile that helps digest fat. You can live without it."}
+);
+COLOR_T.light.push(["Pink",[255,102,204],"Full red, plus some green and plenty of blue."],["Lime",[153,255,0],"Full green with a good amount of red."],["Teal",[0,153,153],"Equal green and blue at medium strength, no red."]);
+COLOR_T.paint.push(["Pink",[255,153,204],"A little magenta and a touch of yellow on white paper."],["Navy",[0,0,128],"Full cyan and magenta, half yellow."],["Olive",[128,128,0],"Half cyan, half magenta, full yellow."]);
+LAB_BANK.push(
+ [1,"Why does an ice cube float in water?","Ice is less dense than liquid water",["Ice is full of air bubbles only","Cold things always float","Water pushes all solids up"],"Water expands as it freezes, so lakes freeze from the top down and fish survive below."],
+ [1,"Which planet is closest to the Sun?","Mercury",["Venus","Mars","Earth"],"Yet Venus is hotter, because its thick atmosphere traps heat."],
+ [2,"A fresh egg sinks in a glass of water. What makes it float?","Stirring in lots of salt",["Adding ice","Adding sugar cubes whole","Warming the glass"],"Salt water is denser than the egg, so it pushes the egg up."],
+ [2,"Which planet is the largest?","Jupiter",["Saturn","Neptune","Earth"],"More than 1,300 Earths could fit inside it."],
+ [2,"How many bones does an adult human have?","206",["106","306","156"],"Babies have about 300; many fuse together as they grow."],
+ [3,"Why does a steel ship float when a steel bolt sinks?","Its hollow shape displaces water heavier than the ship",["Steel in ships is lighter","Paint makes it float","Engines hold it up"],"Archimedes worked this out over 2,000 years ago: a floating object displaces its own weight in water."],
+ [3,"Which planet spins on its side?","Uranus",["Mars","Saturn","Mercury"],"It's tilted about 98°, probably after a huge collision long ago."],
+ [4,"Density is…","Mass divided by volume",["Volume divided by mass","Weight times height","Mass plus volume"],"Water's density is 1 gram per cubic centimeter, which makes comparisons easy."]
+);
+const FLOATERS = [["Apple","🍎",.8,"Apples are about 25% air, which is why you can bob for them."],["Ice cube","🧊",.92,"Water expands when it freezes, so ice is less dense than liquid water."],["Coin","🪙",8.9,"Metal is about nine times denser than water."],["Rock","🪨",2.6,"Most rock is about two and a half times denser than water. Pumice, a volcanic rock full of bubbles, is an exception and floats!"],
+  ["Wooden block","🪵",.7,"Wood is full of tiny air-filled cells. Only a few very dense woods, like ebony, sink."],["Candle","🕯️",.9,"Wax is just a little less dense than water, so it floats low."],["Egg","🥚",1.03,"A fresh egg sinks; an old one floats because air builds up inside. Salt water makes even fresh eggs float."],
+  ["Orange (with peel)","🍊",.85,"The peel is full of air pockets, like a life jacket. Peel it and the orange sinks!"],["Key","🔑",8.5,"Brass is dense, so keys sink fast."],["Rubber duck","🦆",.3,"Hollow and full of air, so it rides high."],["Grape","🍇",1.1,"Grapes are mostly water plus sugar, which makes them slightly denser than water."],
+  ["Sponge","🧽",.2,"Dry sponges are mostly air. Once they soak up water they sit lower."],["Marble","🔮",2.5,"Glass is two and a half times denser than water."],["Pencil","✏️",.6,"Wood floats; the thin graphite core isn't enough to sink it."],["Spoon","🥄",7.9,"Steel sinks, unless it's shaped into a boat."]];
+const PLANETS = [["Mercury","#a9a29b",5,"A year on Mercury is only 88 Earth days."],["Venus","#e9c46a",8,"The hottest planet, about 465 °C, thanks to its thick atmosphere."],["Earth","#3a8dff",8.5,"The only planet known to have life, and liquid water on its surface."],["Mars","#e76f51",6,"Its red color is rust: iron oxide in the dust."],
+  ["Jupiter","#d4a373",19,"So big that all the other planets would fit inside it."],["Saturn","#e9d8a6",16,"Its rings are made of ice and rock, but are only about 10 m thick."],["Uranus","#8ecae6",12,"It rolls around the Sun on its side."],["Neptune","#4f6ef7",11.5,"The windiest planet, with winds over 2,000 km/h."]];
+const LAB_NEW = {
+  density(){
+    const r = this.r; let set;
+    do{ set = shuffle(FLOATERS.slice()).slice(0, 6); } while(set.filter(o => o[2] < 1).length < 2 || set.filter(o => o[2] > 1).length < 2);
+    r.items = set; r.guess = set.map(() => null);
+    const head = `<span class="eyebrow">Experiment ${this.round+1} of ${this.rounds.length}</span>`;
+    stage.innerHTML = `<div class="studio-grid"><div class="tank-wrap"><svg viewBox="0 0 300 220" class="tank" id="lbTank" aria-label="Water tank"><rect x="10" y="40" width="280" height="170" rx="10" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><rect x="12" y="78" width="276" height="130" rx="8" fill="#a9dcef" opacity=".85"/><path d="M12 78 q23 -6 46 0 t46 0 t46 0 t46 0 t46 0 t46 0" fill="none" stroke="#fff" stroke-width="2"/><g id="lbDrop"></g></svg></div>
+      <div class="ctl-col"><div class="brief">${head}<h3>Sink or float?</h3><p>Predict what each object will do in water, then drop them in. Anything less dense than water (1 g/cm³) floats.</p></div>
+        <div class="floatlist" id="lbFl">${set.map(([n, e], i) => `<div class="flrow"><span class="fle">${e}</span><b>${n}</b><span class="chips"><button type="button" class="ch" data-i="${i}" data-g="float">Floats</button><button type="button" class="ch" data-i="${i}" data-g="sink">Sinks</button></span></div>`).join("")}</div>
+        <button class="btn btn-solid" type="button" id="lbGo" disabled>Drop them in</button><div id="lbRes"></div></div></div>`;
+    $("lbFl").addEventListener("click", e => { const b = e.target.closest("[data-g]"); if(!b || this.locked) return; r.guess[+b.dataset.i] = b.dataset.g; sfx.click();
+      $("lbFl").querySelectorAll("[data-g]").forEach(x => x.classList.toggle("sel", r.guess[+x.dataset.i] === x.dataset.g)); $("lbGo").disabled = r.guess.includes(null); });
+    $("lbGo").addEventListener("click", () => this.answerDensity());
+  },
+  answerDensity(){
+    if(this.locked) return; this.locked = true; $("lbGo").hidden = true;
+    const r = this.r, ok = r.items.map((o, i) => (o[2] < 1 ? "float" : "sink") === r.guess[i]), f = ok.filter(Boolean).length / ok.length, pts = Math.round(1000*f);
+    $("lbDrop").innerHTML = r.items.map(([n, e, d], i) => { const x = 36 + i*45, y = d < 1 ? 74 + (d > .85 ? 10 : 0) : 196; return `<text class="dropobj" x="${x}" y="${y}" font-size="30" text-anchor="middle" style="--from:${-y + 30}px;animation-delay:${i*.12}s">${e}</text>`; }).join("");
+    $("lbFl").querySelectorAll(".flrow").forEach((row, i) => { row.classList.add(ok[i] ? "ok" : "no"); row.insertAdjacentHTML("beforeend", `<small>${r.items[i][2]} g/cm³ · ${r.items[i][2] < 1 ? "floats" : "sinks"}</small>`); });
+    const miss = r.items.find((o, i) => !ok[i]) || r.items.find(o => o[0].includes("Orange") || o[0] === "Egg") || r.items[0];
+    this.finishRound(pts, f, "Sink or float");
+    this.showRes(f, pts, `${ok.filter(Boolean).length} of ${ok.length} right. ${miss[0]}: ${miss[3]}`);
+  },
+  planets(){
+    const r = this.r; r.order = []; r.deck = shuffle(PLANETS.map(p => p[0]));
+    const head = `<span class="eyebrow">Experiment ${this.round+1} of ${this.rounds.length}</span>`;
+    stage.innerHTML = `<div class="studio-grid"><div class="orbit-wrap"><svg viewBox="0 0 340 200" class="orbits" id="lbOrb" aria-label="Solar system"></svg></div>
+      <div class="ctl-col"><div class="brief">${head}<h3>Line up the planets</h3><p>Tap the planets in order, starting with the one closest to the Sun.</p></div>
+        <div class="planetbar" id="lbPl"></div><div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="lbUndo">Undo</button></div>
+        <button class="btn btn-solid" type="button" id="lbGo" disabled>Check the order</button><div id="lbRes"></div></div></div>`;
+    $("lbPl").addEventListener("click", e => { const b = e.target.closest("[data-p]"); if(!b || this.locked) return; r.order.push(b.dataset.p); sfx.click(); this.renderPlanets(); });
+    $("lbUndo").addEventListener("click", () => { if(this.locked) return; r.order.pop(); this.renderPlanets(); });
+    $("lbGo").addEventListener("click", () => this.answerPlanets());
+    this.renderPlanets();
+  },
+  planetDot(name, x, y, s = 1){ const p = PLANETS.find(q => q[0] === name), rr = p[2]*s; return `<g><circle cx="${x}" cy="${y}" r="${rr}" fill="${p[1]}" stroke="${INK}" stroke-width="2"/>${name === "Saturn" ? `<ellipse cx="${x}" cy="${y}" rx="${rr*1.7}" ry="${rr*.45}" fill="none" stroke="${INK}" stroke-width="2"/>` : ""}</g>`; },
+  renderPlanets(mark){
+    const r = this.r;
+    let g = `<rect width="340" height="200" rx="14" fill="#1f2340"/>${Array.from({length:30}, (_, i) => `<circle cx="${(i*73) % 340}" cy="${(i*41) % 200}" r="${i % 3 ? .8 : 1.4}" fill="#fff" opacity=".7"/>`).join("")}<circle cx="-30" cy="100" r="70" fill="#ffbf2e" stroke="${INK}" stroke-width="3"/>`;
+    for(let i = 0; i < 8; i++){ const x = 58 + i*36; g += `<circle cx="-30" cy="100" r="${x+30}" fill="none" stroke="#fff" stroke-opacity=".18" stroke-dasharray="3 4"/>`;
+      const n = r.order[i]; if(n){ g += this.planetDot(n, x, 100, .9); if(mark) g += `<text x="${x}" y="150" text-anchor="middle" font-size="14" fill="${mark[i] ? "#7ee2a8" : "#ff8a8a"}">${mark[i] ? "✓" : "✗"}</text><text x="${x}" y="${i % 2 ? 172 : 186}" text-anchor="middle" font-size="9" font-family="DM Mono, monospace" fill="#fff">${PLANETS[i][0]}</text>`; } else g += `<circle cx="${x}" cy="100" r="4" fill="none" stroke="#fff" stroke-opacity=".5"/>`; }
+    $("lbOrb").innerHTML = g;
+    $("lbPl").innerHTML = r.deck.filter(n => !r.order.includes(n)).map(n => `<button type="button" class="pchip" data-p="${n}"><svg viewBox="0 0 50 40" width="44">${this.planetDot(n, 25, 20, .9)}</svg>${n}</button>`).join("") || `<p class="msg">All placed. Check your order!</p>`;
+    $("lbGo").disabled = r.order.length < 8;
+  },
+  answerPlanets(){
+    if(this.locked) return; this.locked = true; $("lbGo").hidden = true; $("lbUndo").hidden = true;
+    const r = this.r, ok = r.order.map((n, i) => n === PLANETS[i][0]), f = ok.filter(Boolean).length / 8, pts = Math.round(1000*f);
+    this.renderPlanets(ok);
+    const p = PLANETS[ok.indexOf(false) >= 0 ? ok.indexOf(false) : R(0, 7)];
+    this.finishRound(pts, f, "Planet order");
+    this.showRes(f, pts, `${ok.filter(Boolean).length} of 8 in place. Remember: <b>M</b>y <b>V</b>ery <b>E</b>ducated <b>M</b>other <b>J</b>ust <b>S</b>erved <b>U</b>s <b>N</b>oodles. ${p[0]}: ${p[3]}`);
+  }
+};
+Object.assign(STUDIO.lab, LAB_NEW);
+{
+  const origStart = STUDIO.lab.start, origRound = STUDIO.lab.newRound;
+  STUDIO.lab.start = function(){
+    const d = S.rating.lab, pool = poolFor(BODY, d);
+    const organs = freshItems("lab", pool.filter(b => b.k === "organ"), 3), bones = freshItems("labbones", pool.filter(b => b.k === "bone"), 1);
+    this.rounds = [{type:"body", it:organs[0]}, {type:"light"}, {type:"density"}, {type:"body", it:bones[0] || organs[2]}, {type:"paint"}, {type:"planets"}, {type:"body", it:organs[1]}];
+    this.round = 0; this.total = 0; this.log = []; this.newRound();
+  };
+  STUDIO.lab.newRound = function(){
+    const r = this.rounds[this.round];
+    if(r.type === "density" || r.type === "planets"){ this.r = r; this.locked = false; this[r.type](); setSide("Score", fmt(this.total)); return; }
+    origRound.call(this);
+  };
+}
+ROOMS.lab.blurb = "Find organs and bones on the body, mix colored light and ink, predict what sinks or floats, and line up the planets.";
 
 renderHub();
 </script>
