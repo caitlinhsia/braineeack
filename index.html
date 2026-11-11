@@ -3282,7 +3282,7 @@ function faceInner(p){
     g += `<path d="M${x-12} ${ey} C${x-6} ${ey-open+lidDrop} ${x+6} ${ey-open+lidDrop} ${x+12} ${ey}" fill="none" stroke="${INK}" stroke-width="${lw}" stroke-linecap="round"/>`;
     if(mk.liner === "winged") g += `<path d="M${x + 12*dir} ${ey} L${x + 20*dir} ${ey-6}" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
     // brows
-    const bc = shade(hc, -.25), inner = x - 9*dir*-1;
+    const bc = p.browC || shade(hc, -.25), inner = x - 9*dir*-1;
     const by = {neutral:[88,86,88], happy:[86,84,87], angry:[93,86,84], sad:[84,86,91], tense:[90,87,88], surprised:[80,78,82]}[mood] || [88,86,88];
     const xi = x + (i === 0 ? 11 : -11), xo = x + (i === 0 ? -13 : 13);
     g += `<path d="M${xi} ${by[0]-2.4} Q${x} ${by[1]-5.4} ${xo} ${by[2]-.4} Q${x} ${by[1]-.6} ${xi} ${by[0]+2.4}Z" fill="${bc}" stroke="${bc}" stroke-width="1" stroke-linejoin="round"/>` + [0.15,0.35,0.55].map(t => { const hx = xi + (xo-xi)*t; return `<path d="M${hx} ${by[0]+1.6 - t*2} l${(xo-xi)*.05} -3" stroke="${shade(bc,.25)}" stroke-width=".6" opacity=".6"/>`; }).join("");
@@ -3720,12 +3720,12 @@ const FACE_RULE = {
   heart:{label:"Balance a heart-shaped face", why:"Heart faces are widest at the forehead. Lengths that add fullness near the jaw, or side-swept and curtain bangs, even it out.", test:h=>["bob","lob","layers","curls"].includes(h.cut) || ["side","curtain"].includes(h.bangs)}
 };
 const GOALS = {
-  natural:{label:"Keep her natural curls and coils", why:"Textured hair is often cut dry, curl by curl, so each curl's shape shows. Styles that work with texture keep it healthy without heat damage.", test:h=>["curls","afro","braids","bun"].includes(h.cut), textured:true},
+  natural:{label:"Keep their natural curls and coils", why:"Textured hair is often cut dry, curl by curl, so each curl's shape shows. Styles that work with texture keep it healthy without heat damage.", test:h=>["curls","afro","braids","bun"].includes(h.cut), textured:true},
   swim:{label:"Out of the way for daily swim training", why:"Swimmers need hair secured or short: chlorine and drag punish loose long hair.", test:h=>["bun","ponytail","braids","pixie","buzz"].includes(h.cut)},
-  lowmaint:{label:"Low maintenance: she visits the salon twice a year", why:"Pixies, buzz cuts and bobs need trims every 4–6 weeks, and bangs every 3–4. Longer, layered or curly cuts grow out gracefully.", test:h=>["long","layers","lob","curls","afro"].includes(h.cut) && ["none","curtain"].includes(h.bangs)},
+  lowmaint:{label:"Low maintenance: visits the salon twice a year", why:"Pixies, buzz cuts and bobs need trims every 4–6 weeks, and bangs every 3–4. Longer, layered or curly cuts grow out gracefully.", test:h=>["long","layers","lob","curls","afro"].includes(h.cut) && ["none","curtain"].includes(h.bangs)},
   brassy:{label:"Neutralize brassy yellow color", why:"Toners cancel unwanted tones with their opposite on the color wheel: violet cancels yellow, blue cancels orange, green cancels red.", test:h=>h.toner === "violet", color:"brassy"},
   brassyorange:{label:"Neutralize brassy orange tones", why:"Blue sits opposite orange on the color wheel, so a blue toner turns orange brass into a cool ash brown.", test:h=>h.toner === "blue", color:"brassyorange"},
-  volume:{label:"She wants more volume", why:"Layers, curls and height remove weight and add movement; one-length straight hair lies flat.", test:h=>["layers","curls","afro","bun","pixie"].includes(h.cut)}
+  volume:{label:"Wants more volume", why:"Layers, curls and height remove weight and add movement; one-length straight hair lies flat.", test:h=>["layers","curls","afro","bun","pixie"].includes(h.cut)}
 };
 function tonedColor(base, toner){
   if(base === "brassy") return toner === "violet" ? "platinum" : toner === "blue" ? "greenish" : toner === "green" ? "greenish" : "brassy";
@@ -3780,7 +3780,7 @@ STUDIO.hair = {
     this.render();
     const last = this.round === this.n - 1;
     $("hsGo").hidden = true;
-    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? `${this.c.name} is thrilled` : f >= .5 ? "Nearly perfect" : "Not what she asked for"}</span><span class="pts">+${fmt(pts)}</span>${checklist(res)}
+    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? `${this.c.name} is thrilled` : f >= .5 ? "Nearly perfect" : "Not what they asked for"}</span><span class="pts">+${fmt(pts)}</span>${checklist(res)}
       <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="hsNext">${last ? "See results" : "Next client"}</button></div></div>`;
     $("hsNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
     setSide("Score", fmt(this.total));
@@ -5071,7 +5071,7 @@ STUDIO.peace = {
     this.sc = freshItems("peace", pool, 1, x => x.id)[0]; S.lastScen = this.sc.id;
     this.blind = d >= 5.5;
     this.t = this.sc.tension; this.trust = [35,35]; this.beat = 0; this.log = [];
-    const sc = this.sc, ac = ["var(--atelier)","var(--floor)"];
+    const sc = this.sc, ac = [0,1].map(i => ((CAST_LOOK[sc.id] || [])[i] || {}).top || ["var(--atelier)","var(--floor)"][i]);
     stage.innerHTML = `<div class="drama ${this.blind?"blind":""}">
       <div class="scene">
         <span class="eyebrow">Scene ${sc.tier} · ${this.blind ? "Blind mode: read their words, the meters are hidden" : "Watch the meters as you mediate"}</span>
@@ -5645,7 +5645,7 @@ GOALS.volume.test = h => ["layers","curls","afro","bun","pixie","spacebuns"].inc
 GOALS.volume.why = "Layers, waves, curls and height remove weight and add movement; one-length straight hair lies flat.";
 GOALS.swim.test = h => ["bun","ponytail","braids","pixie","buzz","spacebuns"].includes(h.cut);
 Object.assign(GOALS, {
-  chop:{label:"She wants a dramatic chop: above the shoulders", why:"Anything ending above the shoulders reads as a big change: a bob, a pixie or a buzz. A lob that brushes the shoulders still looks long.", test:h=>["pixie","bob","buzz","afro"].includes(h.cut)},
+  chop:{label:"Wants a dramatic chop: above the shoulders", why:"Anything ending above the shoulders reads as a big change: a bob, a pixie or a buzz. A lob that brushes the shoulders still looks long.", test:h=>["pixie","bob","buzz","afro"].includes(h.cut)},
   frame:{label:"Face-framing layers, but keep the length", why:"Layers are cut shorter around the face and longer at the back, so the hair moves without losing length. Graduate the cut smoothly instead of chopping.", test:h=>h.cut === "layers"},
   festival:{label:"Festival weekend: a playful updo", why:"Space buns, half-up styles and braids keep hair off the neck in the heat while still showing off length.", test:h=>["spacebuns","halfup","braids"].includes(h.cut)},
   waves:{label:"Beachy waves for a wedding on the coast", why:"Waves catch the light and look relaxed. A curling wand bends the hair while the heat sets a new shape in its hydrogen bonds; humidity can undo it.", test:h=>h.tex === 1 && !["buzz","pixie","bun","ponytail","braids","spacebuns"].includes(h.cut)}
@@ -5891,7 +5891,7 @@ STUDIO.hair = {
     this.render();
     const last = this.round === this.n - 1;
     $("hsGo").hidden = true;
-    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? `${this.c.name} is thrilled` : f >= .5 ? "Nearly perfect" : "Not what she asked for"}</span><span class="pts">+${fmt(pts)}</span>
+    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? `${this.c.name} is thrilled` : f >= .5 ? "Nearly perfect" : "Not what they asked for"}</span><span class="pts">+${fmt(pts)}</span>
       <div class="salon-pair mini"><figure>${faceSVG({...this.faceParams("tense"), strands:undefined, hair:this.c.textured ? "afro" : "long", bangs:"none", hairC:this.c.hairC}, 96)}<figcaption>Before</figcaption></figure><figure>${faceSVG(this.faceParams(f >= .99 ? "happy" : f >= .5 ? "neutral" : "sad"), 96)}<figcaption>After</figcaption></figure></div>
       ${checklist(res)}
       <div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="hsBooth">📸 Photo booth</button><button class="btn btn-solid" type="button" id="hsNext">${last ? "See results" : "Next client"}</button></div></div>`;
@@ -6526,9 +6526,9 @@ const HS_NATURAL = ["black","darkbrown","brown","auburn","copper","blonde"];
 const HS_PRODUCTS = [["leavein","Leave-in conditioner","🧴","Light moisture that stays in. Great for dry, curly and coily hair."],["mousse","Volumizing mousse","🫧","Lifts fine, flat hair at the roots. Too drying for coils."],["curlcream","Curl cream","🍯","Defines curls and coils and fights frizz. Weighs fine straight hair down."],["serum","Anti-frizz serum","💧","Smooths thick or frizzy hair. A drop is enough."],["oil","Shine oil","🫒","Glossy finish for dry ends. Makes oily or fine hair greasy."],["texture","Texture spray","🌬️","Gritty, piecey texture and grip. Good for fine or oily hair."]];
 const LIGHT_TAKE = {platinum:.95, brassy:.85, blonde:.8, grey:.85, greenish:.8, ash:.6, brassyorange:.62, copper:.45, auburn:.35, brown:.3, darkbrown:.2, black:.12, pink:.7, blue:.4};
 Object.assign(GOALS, {
-  pastel:{label:"She wants pastel pink hair", why:"Dye is see-through, so it only shows on light hair. Dark hair has to be lifted with bleach first (twice for very dark hair), then the pink goes on top.", test:h => h.pastel},
+  pastel:{label:"Wants pastel pink hair", why:"Dye is see-through, so it only shows on light hair. Dark hair has to be lifted with bleach first (twice for very dark hair), then the pink goes on top.", test:h => h.pastel},
   highlights:{label:"Sun-kissed highlights, not all over", why:"Highlights lighten thin strands spread through the hair, about a quarter to half of it, so the natural color still shows between them.", test:h => h.hl, hl:true},
-  greys:{label:"Cover her greys with a natural shade", why:"Grey hair has lost its pigment. A natural-shade permanent dye over all of it gives even coverage; fantasy colors read as a fashion choice, not coverage.", test:h => h.covered, color:"grey"}
+  greys:{label:"Cover the greys with a natural shade", why:"Grey hair has lost its pigment. A natural-shade permanent dye over all of it gives even coverage; fantasy colors read as a fashion choice, not coverage.", test:h => h.covered, color:"grey"}
 });
 const HS_TYPE_NOTE = {straight:"straight", wavy:"wavy", coily:"coily"};
 function hsProductRule(c){
@@ -6654,6 +6654,7 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
     const wet = this.wetLevel(); if(wet > 0) c = shade(c, -.32*wet);
     return c;
   },
+  faceParams(mood){ const p = HS_V2.faceParams.call(this, mood); p.browC = shade(HAIRC[this.c.hairC] || HAIRC.brown, -.25); return p; },
   capColor(){ const cnt = {}; this.all().forEach(s => { const col = this.colorOf(s); cnt[col] = (cnt[col] || 0) + 1; }); return Object.keys(cnt).sort((a,b) => cnt[b]-cnt[a])[0]; },
   wetLevel(){ const st = HS_STAGES[this.stage][0]; if(!["wash","dry"].includes(st) || !this.w) return 0; const p = this.w.pts; return p.reduce((a, q) => a + q.wet, 0) / (2*p.length); },
   colorStats(){
@@ -6666,11 +6667,14 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
   },
   look(raw){
     const L = HS_V2.look.call(this, true), cs = this.colorStats();
-    if(this.backCut && !L.buzz && L.tex !== 2){
+    if(this.backCut && !L.buzz){
       const med = a => { const b = a.slice().sort((x,y) => x-y); return b[Math.floor(b.length/2)]; };
-      const uE = med(this.bk.U.map(s => s.end)), tE = med(this.bk.T.map(s => s.end)), E = Math.min(uE, Math.max(L.E, uE - 4));
+      const outer = med([...this.hs.L.slice(5), ...this.hs.Rt.slice(5)].map(s => s.end));
+      const uE = med(this.bk.U.map(s => s.end)), tE = med(this.bk.T.map(s => s.end)), E = Math.min(uE, outer + 2);
       const layered = uE - tE >= 16 || L.cut === "layers";
-      L.E = E; L.cut = E <= 122 ? "pixie" : E <= 170 ? "bob" : E <= 198 ? (layered && E > 172 ? "layers" : "lob") : (layered ? "layers" : "long");
+      L.E = E;
+      if(L.tex === 2) L.cut = E > 150 ? "curls" : "afro";
+      else L.cut = E <= 122 ? "pixie" : E <= 170 ? "bob" : E <= 198 ? (layered && E > 172 ? "layers" : "lob") : (layered ? "layers" : "long");
       const sd = Math.sqrt(this.bk.U.reduce((a, s) => a + (s.end - uE)**2, 0) / this.bk.U.length);
       if(sd > 12) L.issues.push("the back is uneven");
     }
@@ -6819,7 +6823,7 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
     this.render();
     const last = this.round === this.n - 1;
     $("hsNextStage").hidden = true; $("hsUndo").hidden = true;
-    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .9 ? `${this.c.name} is thrilled` : f >= .6 ? "Nearly perfect" : "Not quite what she asked for"}</span><span class="pts">+${fmt(pts)}</span>
+    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .9 ? `${this.c.name} is thrilled` : f >= .6 ? "Nearly perfect" : "Not quite what they asked for"}</span><span class="pts">+${fmt(pts)}</span>
       <div class="salon-pair mini"><figure>${faceSVG({...this.faceParams("tense"), strands:undefined, hair:this.c.textured ? "afro" : "long", bangs:"none", hairC:HAIRC[this.c.hairC], top:this.c.top}, 96)}<figcaption>Before</figcaption></figure><figure>${faceSVG(this.faceParams(f >= .9 ? "happy" : f >= .6 ? "neutral" : "sad"), 96)}<figcaption>After</figcaption></figure></div>
       ${checklist(res)}
       <div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="hsBooth">📸 Photo booth</button><button class="btn btn-solid" type="button" id="hsNext">${last ? "See results" : "Next client"}</button></div></div>`;
@@ -6900,7 +6904,7 @@ const SR = {
   minimal:{label:"Keep it minimal: one accessory at most", why:"Minimalist design lets the cut and fabric speak for themselves.", test:st => st.acc.length <= 1}
 };
 const COMM = {
-  "Prom gown":[["Maya's prom: she wants a full skirt that floats when she dances", ["full","sparkle"]],["Ava's winter formal: elegant and warm", ["floor","warm"]]],
+  "Prom gown":[["Maya's prom: a full skirt that floats on the dance floor", ["full","sparkle"]],["Ava's winter formal: elegant and warm", ["floor","warm"]]],
   "Wrap dress":[["Noor's work trips: a dress that packs without creasing", ["minimal"]],["June's garden party: a romantic touch", ["lace","breezy"]]],
   "Tiered skirt":[["Rosa's festival weekend: twirly and fun", ["playful","breezy"]],["Bea's summer picnic: light and simple", ["breezy","minimal"]]],
   "Tutu":[["Lily's ballet recital: full and fluffy", ["full","sparkle"]],["A birthday party costume: as fun as possible", ["playful","full"]]],
@@ -6928,7 +6932,7 @@ Object.assign(STUDIO.sewing, {
   chooseFabric(g){
     const comm = pick(COMM[g.name] || [["A customer who wants it well made", []]]);
     this.comm = {who:comm[0], rules:[SR.material(g), SR.machine, ...comm[1].map(k => SR[k])]};
-    this.g0 = g; this.mat = MATERIALS.find(m => m.k === SUITS[g.name][0]) && MATERIALS[0]; this.color = "pink"; this.print = null; this.acc = [];
+    this.g0 = g; this.mat = MATERIALS[0]; this.color = "pink"; this.print = null; this.acc = [];
     this.d = {...(DRESSY[g.name] || {}), lining:false, overlay:false, lace:false, petticoat:!!(DRESSY[g.name] || {}).petticoat};
     this.needle = "universal"; this.stitch = "straight"; this.renderDesign();
   },
