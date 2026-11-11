@@ -6556,6 +6556,7 @@ function dish2SVG(name, w = 220){
     if(v.v === "pan" && v.sp === "shakshuka") g += `<ellipse cx="${cx}" cy="${cy}" rx="68" ry="35" fill="${v.fill}"/>${Array.from({length:16}, () => `<path d="M${(cx + (R2()-.5)*110).toFixed(1)} ${(cy + (R2()-.5)*50).toFixed(1)} q4 -3 8 0" stroke="#e8553b" stroke-width="3" fill="none" stroke-linecap="round"/>`).join("")}${[[-34,-6],[0,-14],[30,0],[-8,14]].map(([x,y]) => `<path d="M${cx+x-15} ${cy+y} q2 -11 15 -10 q14 1 15 10 q-3 9 -15 9 q-13 0 -15 -9z" fill="#fffdf8" stroke="${INK}" stroke-width="1.4"/><circle cx="${cx+x+1}" cy="${cy+y-1}" r="6" fill="#ffb703" stroke="${INK}" stroke-width="1.2"/><circle cx="${cx+x-1}" cy="${cy+y-3}" r="1.6" fill="#fff" opacity=".8"/>`).join("")}`;
     else if(v.v === "pan") g += `<defs><clipPath id="${id}in"><ellipse cx="${cx}" cy="${cy}" rx="68" ry="35"/></clipPath></defs><g clip-path="url(#${id}in)">${rice(68, 35, v.fill)}</g>`;
     else if(v.sp === "rice") g += rice(v.v === "tray" ? 58 : 46, v.v === "tray" ? 30 : 24, v.fill) + (v.chunks ? chunks(6, v.chunks, 40, 16) : "");
+    if(v.beans2) g += Array.from({length:30}, () => `<ellipse cx="${(cx + (R2()-.5)*80).toFixed(1)}" cy="${(cy + (R2()-.5)*36).toFixed(1)}" rx="2.6" ry="1.8" fill="#2b1d1d"/>`).join("");
     if(v.sp === "noodles" && v.v === "plate") g += `<defs><clipPath id="${id}in"><ellipse cx="${cx}" cy="${cy}" rx="48" ry="26"/></clipPath></defs><ellipse cx="${cx}" cy="${cy}" rx="48" ry="26" fill="${shade(v.fill,-.1)}"/>` + noodles(48, 26, v.fill);
     if(v.pesto) g += Array.from({length:9}, () => `<circle cx="${(cx + (R2()-.5)*70).toFixed(1)}" cy="${(cy + (R2()-.5)*30).toFixed(1)}" r="${(3 + R2()*4).toFixed(1)}" fill="#4f8a2a" stroke="${INK}" stroke-width=".8" opacity=".95"/>`).join("");
     if(v.sp === "sauce") g += `<path d="M${cx-46} ${cy} q10 -26 46 -24 q40 2 44 22 q-6 22 -46 24 q-40 0 -44 -22z" fill="${v.fill}" ${L}/><path d="M${cx-20} ${cy-10} q20 -6 40 0" stroke="#fff" stroke-width="2" opacity=".25" fill="none"/>${Array.from({length:14}, () => `<circle cx="${(cx + (R2()-.5)*70).toFixed(1)}" cy="${(cy + (R2()-.5)*30).toFixed(1)}" r="1.4" fill="#f3e6c0"/>`).join("")}`;
@@ -6575,6 +6576,9 @@ function dish2SVG(name, w = 220){
     baklava:() => [[-34,6],[-12,-4],[10,6],[32,-4]].map(([x,y]) => `<path d="M${cx+x} ${cy+y-14} l14 14 l-14 14 l-14 -14z" fill="#d9a35b" ${L}/><path d="M${cx+x-9} ${cy+y-5} l9 9 l9 -9" fill="none" stroke="#a8743e" stroke-width="1.2"/><circle cx="${cx+x}" cy="${cy+y-4}" r="3.4" fill="#7cb342" stroke="${INK}" stroke-width="1"/>`).join(""),
     mounds:() => [[-30,"#5b3a26"],[2,"#f08c2e"],[32,"#f3ead0"]].map(([x,c]) => `<path d="M${cx+x-20} ${cy+10} q4 -30 20 -28 q16 -2 20 28z" fill="${c}" ${L}/>`).join("") + `<path d="M${cx-30} ${cy+12} q30 10 60 0" stroke="#7a4a2a" stroke-width="3" fill="none" opacity=".6"/>`,
     arepa:() => `<ellipse cx="${cx}" cy="${cy+8}" rx="38" ry="16" fill="#efd28e" ${L}/><path d="M${cx-36} ${cy+2} q36 -14 72 0" fill="#7a3b1f" stroke="${INK}" stroke-width="1.4"/><path d="M${cx-34} ${cy} q34 -10 68 0" fill="none" stroke="#5fa04e" stroke-width="3"/><ellipse cx="${cx}" cy="${cy-8}" rx="38" ry="15" fill="#f3dc9c" ${L}/>${Array.from({length:6}, () => `<circle cx="${(cx - 26 + R2()*52).toFixed(1)}" cy="${(cy - 12 + R2()*8).toFixed(1)}" r="2" fill="#c9a050" opacity=".7"/>`).join("")}`,
+    pavlova:() => `<ellipse cx="${cx}" cy="${cy+6}" rx="40" ry="16" fill="#fffaf0" stroke="${INK}" stroke-width="2"/><path d="M${cx-40} ${cy+6} Q${cx-40} ${cy-14} ${cx} ${cy-16} Q${cx+40} ${cy-14} ${cx+40} ${cy+6}" fill="#fffaf0" stroke="${INK}" stroke-width="2"/><ellipse cx="${cx}" cy="${cy-12}" rx="32" ry="8" fill="#fff" stroke="${INK}" stroke-width="1.4"/>${[[-18,-14],[0,-18],[18,-13],[-6,-10],[10,-10]].map(([x,y], i) => i % 2 ? iconG("🍓", cx+x, cy+y, 15) : `<circle cx="${cx+x}" cy="${cy+y}" r="6" fill="#8bd16a" stroke="${INK}" stroke-width="1.2"/><circle cx="${cx+x}" cy="${cy+y}" r="2.4" fill="#fffdf8"/>`).join("")}`,
+    fondue:() => `<ellipse cx="${cx}" cy="${cy}" rx="40" ry="20" fill="#ffd25e" stroke="${INK}" stroke-width="1.6"/><path d="M${cx-26} ${cy-2} q10 -6 20 0 q10 6 20 0" fill="none" stroke="#fff3b0" stroke-width="3" stroke-linecap="round"/>${[[-56,-40],[48,-44],[60,-6]].map(([x,y]) => `<path d="M${cx+x*.4} ${cy+y*.2} L${cx+x} ${cy+y}" stroke="#9aa5b1" stroke-width="2"/><rect x="${cx+x-5}" y="${cy+y-5}" width="10" height="9" rx="2" fill="#e2b46b" stroke="${INK}" stroke-width="1.4"/>`).join("")}`,
+    bruschetta:() => [[-40,-6],[0,0],[40,-6]].map(([x,y]) => `<path d="M${cx+x-18} ${cy+y+10} Q${cx+x-20} ${cy+y-10} ${cx+x} ${cy+y-12} Q${cx+x+20} ${cy+y-10} ${cx+x+18} ${cy+y+10}Z" fill="#d9a35b" stroke="${INK}" stroke-width="2"/>${Array.from({length:6}, (_, k) => `<rect x="${cx+x-12+(k%3)*8}" y="${cy+y-8+Math.floor(k/3)*7}" width="6" height="5" rx="1" fill="#e63946" stroke="${INK}" stroke-width=".8"/>`).join("")}`).join(""),
     caprese:() => Array.from({length:10}, (_, i) => { const a = i/10*Math.PI*2, x = cx + Math.cos(a)*36, y = cy + Math.sin(a)*18; return i % 2 ? `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="13" ry="9" fill="#fffdf8" stroke="${INK}" stroke-width="1.4"/>` : `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="13" ry="9" fill="#e63946" stroke="${INK}" stroke-width="1.4"/><ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="7" ry="4.6" fill="#ff8a80"/>`; }).join("") + `<path d="M${cx-24} ${cy-6} q24 -10 48 2" stroke="#2f9e44" stroke-width="2" fill="none"/>`,
     crepe:() => [[-26,4,-18],[4,-4,8],[30,6,26]].map(([x,y,r]) => `<path d="M${cx+x-22} ${cy+y+10} L${cx+x+20} ${cy+y+12} L${cx+x-4} ${cy+y-22} Z" fill="#f2c56b" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round" transform="rotate(${r} ${cx+x} ${cy+y})"/>${Array.from({length:4}, () => `<circle cx="${(cx + x - 8 + R2()*14).toFixed(1)}" cy="${(cy + y - 4 + R2()*10).toFixed(1)}" r="1.6" fill="#c98a2e"/>`).join("")}`).join("") + `<path d="M${cx-40} ${cy-14} q40 -12 80 0" stroke="#fffaf0" stroke-width="3" fill="none" stroke-dasharray="1 5" stroke-linecap="round"/>`,
     omelette:() => `<path d="M${cx-46} ${cy+4} Q${cx-40} ${cy-20} ${cx} ${cy-20} Q${cx+44} ${cy-20} ${cx+46} ${cy+4} Q${cx+40} ${cy+20} ${cx} ${cy+20} Q${cx-40} ${cy+20} ${cx-46} ${cy+4}Z" fill="#ffd25e" stroke="${INK}" stroke-width="2.2"/><path d="M${cx-34} ${cy-4} Q${cx} ${cy-14} ${cx+34} ${cy-4}" stroke="#fff6c9" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/><path d="M${cx-40} ${cy+6} Q${cx} ${cy+12} ${cx+40} ${cy+6}" stroke="#e8b33a" stroke-width="1.6" fill="none"/>`,
@@ -8477,6 +8481,58 @@ STUDIO.history = {
 };
 HOWTO.history = ["A mystery guest from history steps into the spotlight.","Read the clues one at a time: the fewer you need, the more points you score.","Pick who they are, then learn their story."];
 GEN.history = d => { const g = pick(H_GUESTS), others = shuffle(H_GUESTS.filter(x => x.n !== g.n)).slice(0, 3).map(x => x.n); return mk(`Who said this? “${g.c[1]}”<br><span style="font-size:15px;color:var(--muted)">${g.c[3]}</span>`, g.n, others, `${g.n} (${g.y}). ${g.f}`, {text:true}); };
+
+/* ---------- Food pack 3: 12 dishes, 5 recipes ---------- */
+DISHES.push(
+ {n:"Cheese fondue",t:2,c:"Switzerland",city:"Fribourg",ll:[46.80,7.15],clues:["A pot of melted cheese and wine kept bubbling at the table.","Diners dip cubes of bread on long forks.","Lose your bread in the pot and tradition says you buy the next round."],fact:"It began as a way for mountain villagers to use up hard cheese and stale bread in winter."},
+ {n:"Gyros",t:1,c:"Greece",city:"Athens",ll:[37.98,23.73],clues:["Meat roasted on a tall vertical spit and shaved off in thin slices.","Wrapped in a soft pita with tomato, onion and fries.","Topped with a garlicky yogurt-cucumber sauce called tzatziki."],fact:"The name comes from the Greek word for “turn”, because the spit keeps rotating."},
+ {n:"Empanadas",t:2,c:"Argentina",city:"Salta",ll:[-24.79,-65.41],clues:["Half-moon pastries with crimped, twisted edges.","Filled with spiced beef, onion, egg and olives.","Each region of the country claims its own pleat pattern."],fact:"The name comes from the Spanish empanar, “to wrap in bread”."},
+ {n:"Masala dosa",t:2,c:"India",city:"Bengaluru",ll:[12.97,77.59],clues:["A huge, paper-thin crispy crêpe made from fermented rice and lentil batter.","Rolled around a spiced potato filling.","Served with coconut chutney and a lentil soup called sambar."],fact:"The batter ferments overnight, which makes it light, tangy and easy to digest."},
+ {n:"Couscous with seven vegetables",t:2,c:"Morocco",city:"Fez",ll:[34.03,-5.00],clues:["Tiny steamed grains of durum wheat, fluffed by hand.","Piled high with carrots, squash, turnips and chickpeas.","Traditionally shared from one big dish after Friday prayers."],fact:"In 2020 UNESCO listed couscous traditions of North Africa as shared cultural heritage."},
+ {n:"Wiener schnitzel",t:1,c:"Austria",city:"Vienna",ll:[48.21,16.37],clues:["A veal cutlet pounded thin, breaded and fried until golden.","The crust should puff up in wavy bubbles away from the meat.","Served with a wedge of lemon and potato salad."],fact:"By Austrian law, a dish called Wiener schnitzel must be made with veal."},
+ {n:"Tom yum goong",t:2,c:"Thailand",city:"Bangkok",ll:[13.76,100.50],clues:["A hot and sour soup fragrant with lemongrass and lime leaves.","Plump shrimp float with straw mushrooms.","Galangal, chili and fish sauce make it fiery and tangy."],fact:"Scientists have studied its herbs, like galangal and lemongrass, for their health benefits."},
+ {n:"Nasi lemak",t:3,c:"Malaysia",city:"Kuala Lumpur",ll:[3.14,101.69],clues:["Rice cooked in coconut milk and pandan leaf.","Served with a fiery chili paste called sambal.","Comes with crispy anchovies, roasted peanuts, cucumber and a boiled egg."],fact:"It's often eaten for breakfast, wrapped in a banana leaf to go."},
+ {n:"Jerk chicken",t:2,c:"Jamaica",city:"Boston Bay",ll:[18.17,-76.33],clues:["Meat rubbed with a fiery paste of Scotch bonnet chilies and allspice.","Slow-smoked over pimento wood.","Served with rice and peas and fried plantain."],fact:"The jerk method traces back to the Maroons, who escaped slavery and cooked in hidden mountain pits."},
+ {n:"Pavlova",t:2,c:"New Zealand",city:"Wellington",ll:[-41.29,174.78],clues:["A crisp meringue shell with a soft, marshmallowy middle.","Topped with whipped cream and fresh fruit like kiwi and berries.","Named after a famous Russian ballerina who toured in the 1920s."],fact:"New Zealand and Australia have argued for a century over which invented it."},
+ {n:"New England clam chowder",t:2,c:"United States of America",city:"Boston",ll:[42.36,-71.06],clues:["A thick, creamy white soup.","Full of clams, potatoes, onion and salt pork.","Often served in a hollowed-out bread bowl by the harbor."],fact:"Maine once considered a law banning tomatoes in chowder after the red Manhattan version appeared."},
+ {n:"Gallo pinto",t:3,c:"Costa Rica",city:"San José",ll:[9.93,-84.08],clues:["Rice and black beans fried together until speckled.","Seasoned with a tangy local sauce called Salsa Lizano.","A classic breakfast with eggs, sweet plantains and sour cream."],fact:"The name means “spotted rooster”, from the speckled look of the beans in the rice."}
+);
+Object.assign(DISH2, {
+  "Cheese fondue":{v:"pan", sp:"fondue", fill:"#ffd25e", g:["🍞","🍞","🥔"], ut:"fork", steam:true},
+  "Gyros":{v:"plate", hero:["🥙"], g:["🍟","🍅","🧅"], side:"🥒", ut:"hand"},
+  "Empanadas":{v:"board", hero:["🥟","🥟","🥟"], g:["🌶️"], ut:"hand"},
+  "Masala dosa":{v:"plate", sp:"crepe", g:["🥥","🌶️","🥔"], side:"🍚", ut:"hand"},
+  "Couscous with seven vegetables":{v:"tray", fill:"#e8c27e", sp:"rice", g:["🥕","🥕","🫑","🥔"], ut:"spoon"},
+  "Wiener schnitzel":{v:"plate", sp:"fish", g:["🍋","🥔","🌿"], ut:"fork"},
+  "Tom yum goong":{v:"bowl", fill:"#e8763a", g:["🦐","🍋","🌶️","🍄"], ut:"spoon", steam:true},
+  "Nasi lemak":{v:"plate", fill:"#fffdf8", sp:"rice", g:["🥚","🥜","🥒","🌶️"], ut:"spoon"},
+  "Jerk chicken":{v:"plate", hero:["🍗","🍗"], g:["🌶️","🍌"], side:"🍚", ut:"fork"},
+  "Pavlova":{v:"plate", sp:"pavlova", ut:"fork"},
+  "New England clam chowder":{v:"bowl", fill:"#f4ecd8", g:["🦪","🥔","🌿"], side:"🍞", ut:"spoon", steam:true},
+  "Gallo pinto":{v:"plate", fill:"#d9c8a8", sp:"rice", beans2:true, g:["🥚","🍌"], ut:"fork"}
+});
+RECIPES.push(
+ {n:"Lemonade",t:1,from:"Around the world",core:["lemon","sugar","water","mint"],decoy:["salt","milk","soy","cream","oil","onion"],f:"Lemonade was sold on the streets of 17th-century Paris by vendors carrying tanks on their backs."},
+ {n:"Bruschetta",t:1,from:"Central Italy",core:["bread","tomato","garlic","basil","oil","salt"],decoy:["cheddar","mayo","sugar","cream","soy","rice"],f:"Bruschetta began as a way for olive growers to taste the new season's oil on toasted bread."},
+ {n:"Tomato soup",t:1,from:"Around the world",core:["tomato","onion","garlic","oil","salt","cream"],decoy:["sugar","rice","cheddar","soy","milk","chocolate"],f:"A pinch of sugar or a splash of cream tames the acidity of tomatoes."},
+ {n:"Pasta al pomodoro",t:2,from:"Italy",core:["pasta","tomato","garlic","basil","oil","salt"],decoy:["cream","cheddar","butter","soy","onion","sugar"],f:"Tomatoes only arrived in Italy from the Americas in the 1500s; at first people thought they were poisonous."},
+ {n:"Chocolate mug cake",t:2,from:"United States",core:["flour","sugar","chocolate","milk","oil","bakingpowder"],decoy:["salt","yeast","cheddar","soy","garlic","egg"],f:"A microwave heats the water inside the batter, turning it to steam that puffs the cake up in about a minute."}
+);
+Object.assign(AMT, {
+  "Lemonade":{lemon:[4,"lemons",1,8], sugar:[4,"tbsp",1,8], water:[4,"cups",1,8], mint:[1,"sprig",1,4]},
+  "Bruschetta":{bread:[4,"slices",1,8], tomato:[3,"tomatoes",1,6], garlic:[1,"clove",1,4], basil:[1,"handful",1,4], oil:[3,"tbsp",1,6], salt:[1,"pinch",1,4]},
+  "Tomato soup":{tomato:[8,"tomatoes",1,12], onion:[1,"onion",1,3], garlic:[2,"cloves",1,6], oil:[2,"tbsp",1,5], salt:[1,"tsp",.5,3], cream:[3,"tbsp",1,6]},
+  "Pasta al pomodoro":{pasta:[400,"g",50,800], tomato:[6,"tomatoes",1,10], garlic:[2,"cloves",1,6], basil:[1,"handful",1,4], oil:[4,"tbsp",1,8], salt:[1,"tsp",.5,3]},
+  "Chocolate mug cake":{flour:[4,"tbsp",1,8], sugar:[3,"tbsp",1,6], chocolate:[2,"tbsp",1,5], milk:[3,"tbsp",1,6], oil:[2,"tbsp",1,5], bakingpowder:[.25,"tsp",.25,2]}
+});
+Object.assign(PREP, {"Lemonade":[["mash","lemon"]], "Bruschetta":[["chop","tomato"],["bake",null]], "Tomato soup":[["chop","onion"],["simmer",null],["blend",null]], "Pasta al pomodoro":[["chop","tomato"],["simmer",null]], "Chocolate mug cake":[["whisk",null],["bake",null]]});
+Object.assign(DISH2, {
+  "Lemonade":{v:"glass", fill:"#fff3a8", g:["🍋"], ut:"hand"},
+  "Bruschetta":{v:"board", sp:"bruschetta", g:["🌿"], ut:"hand"},
+  "Tomato soup":{v:"bowl", fill:"#d9442b", cream:true, side:"🍞", ut:"spoon", steam:true},
+  "Pasta al pomodoro":{v:"plate", hero:["🍝"], g:["🍅","🌿","🧄"], ut:"fork"},
+  "Chocolate mug cake":{v:"glass", fill:"#5a3222", g:["🍓"], ut:"spoon", steam:true}
+});
 
 renderHub();
 </script>
