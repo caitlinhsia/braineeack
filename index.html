@@ -754,6 +754,20 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .light.on{background:radial-gradient(circle at 40% 35%, #fffbe0, #ffd84a 55%, #ffb000);box-shadow:0 0 0 3px #fff6c2 inset, 0 0 26px 6px rgb(255 200 40 / .75)}
 .light.on::after{border-color:#d97a00}
 .quiz-prompt.chalk{background:#2f4f3e;color:#f4f1e8;border:8px solid #b07a4a;outline:2.5px solid var(--ink);border-radius:12px;padding:14px 26px;font-family:var(--display);box-shadow:0 5px 0 var(--ink);text-shadow:0 0 1px rgb(255 255 255 / .6)}
+
+.fabrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.fabcard{display:flex;flex-direction:column;gap:6px;text-align:left;padding:10px;border:2.5px solid var(--ink);border-radius:16px;background:var(--panel);box-shadow:0 4px 0 var(--ink);transition:transform .12s}
+.fabcard:hover{transform:translateY(-3px) rotate(-.5deg)}
+.fabsw{height:84px;border-radius:10px;border:2px solid var(--ink)}
+.fabcard b{font-family:var(--display);font-size:18px}.fabcard small{font-size:12px;color:var(--muted);line-height:1.35}
+.piece{background:rgb(255 251 236 / .62);border:2px dashed var(--ink);color:var(--ink);touch-action:none;cursor:grab}
+.piece:active{cursor:grabbing}
+.tp{touch-action:none;cursor:grab}
+body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
+.drag-av{position:fixed;z-index:90;pointer-events:none;background:rgb(255 251 236 / .8);border:2px dashed var(--ink);border-radius:4px;box-shadow:0 8px 18px rgb(43 29 20 / .25);transform:rotate(-2deg)}
+.runway{display:flex;flex-direction:column;align-items:center;gap:8px}
+.runway-model{background:radial-gradient(ellipse at 50% 30%, #fffdf8, var(--panel2));border:2.5px solid var(--ink);border-radius:18px;padding:12px 30px 6px;box-shadow:0 4px 0 var(--ink)}
+.runway-model svg{display:block;height:auto}
 </style>
 </head>
 <body>
@@ -2066,6 +2080,8 @@ function patternDef(id, kind, c1, c2, c3){
     case "floral": return P(16,16,`<g fill="${c2}"><circle cx="8" cy="5" r="2.2"/><circle cx="5" cy="8" r="2.2"/><circle cx="11" cy="8" r="2.2"/><circle cx="8" cy="11" r="2.2"/></g><circle cx="8" cy="8" r="1.6" fill="${c3}"/>`);
     case "dots": return P(10,10,`<circle cx="5" cy="5" r="1.8" fill="${c2}"/>`);
     case "stripes": return P(8,8,`<rect width="3" height="8" fill="${c2}"/>`);
+    case "hstripes": return P(8,8,`<rect width="8" height="3" fill="${c2}"/>`);
+    case "gingham": return P(10,10,`<rect width="5" height="10" fill="${c2}" opacity=".5"/><rect width="10" height="5" fill="${c2}" opacity=".5"/>`);
     case "pleats": return P(8,8,`<rect width="1.4" height="8" fill="${c2}" opacity=".5"/>`);
     case "fringe": return P(5,8,`<rect width="1.4" height="8" fill="${c2}"/>`);
     case "denim": return P(6,6,`<path d="M0 6 L6 0" stroke="${c2}" stroke-width="1" opacity=".55"/>`);
@@ -2113,6 +2129,7 @@ const ACC = {
   apron:(c) => `<path d="M66 122 L62 214 L98 214 L94 122 Z" fill="${c}" ${OL}/>`,
   belt:(c) => `<rect x="54" y="118" width="52" height="7" rx="2" fill="${c}" stroke="${INK}" stroke-width="2"/>`,
   rivets:() => `<circle cx="62" cy="134" r="2" fill="#e09f3e" stroke="${INK}" stroke-width="1"/><circle cx="98" cy="134" r="2" fill="#e09f3e" stroke="${INK}" stroke-width="1"/><path d="M60 128 q8 10 16 0 M84 128 q8 10 16 0" fill="none" stroke="#e09f3e" stroke-width="1.6"/>`,
+  hood:(c) => `<path d="M56 66 Q80 46 104 66 Q98 84 80 84 Q62 84 56 66Z" fill="${c}" stroke="${INK}" stroke-width="2.5"/><path d="M66 70 Q80 62 94 70" fill="none" stroke="${INK}" stroke-width="1.5"/>`,
   pads:(c) => `<path d="M42 68 q-4 8 2 14 M118 68 q4 8 -2 14" fill="none" stroke="${INK}" stroke-width="2.4"/>`
 };
 const OUTFIT_VIS = {
@@ -2144,8 +2161,8 @@ const OUTFIT_VIS = {
   "Punk safety-pin look":{top:"tee", t1:"#222", bottom:"trousers", c1:"#c1121f", pat:"tartan", c2:"#222", c3:"#ffbf2e", acc:[["pins"]]},
   "Shoulder-pad power suit":{top:"jacket", t1:"#e63946", bottom:"pencil", c1:"#e63946", legs:true, acc:[["pads"]]}
 };
-function outfitSVG(name, w=170){
-  const v = OUTFIT_VIS[name] || {bottom:"long", c1:"#ccc"};
+function outfitSVG(name, w=170, spec){
+  const v = spec || OUTFIT_VIS[name] || {bottom:"long", c1:"#ccc"};
   const id = "op" + (++SVGID);
   const fill = v.pat ? `url(#${id})` : v.c1;
   const skin = `fill="var(--skin)" ${OL}`;
@@ -2161,7 +2178,7 @@ function outfitSVG(name, w=170){
   if(v.bottom) g += `<path d="${BOTTOMS[v.bottom]}" fill="${v.b1 || fill}" ${OL}/>`;
   if(v.top) g += `<path d="${TOPS[v.top]}" fill="${v.t1 ? (v.tPat ? fill : v.t1) : fill}" ${OL}/>`;
   if(v.top === "robe") g += `<path d="M70 60 L92 140 M90 60 L72 120" fill="none" stroke="${INK}" stroke-width="2.4"/>`;
-  (v.acc || []).filter(([k]) => k !== "kokoshnik").forEach(([k,c]) => g += ACC[k](c));
+  (v.acc || []).filter(([k]) => k !== "kokoshnik").forEach(([k,c]) => g += ACC[k](c === "PAT" ? fill : c));
   return `<svg viewBox="0 -44 160 344" width="${w}" role="img" aria-label="Illustration of ${name}"><defs>${patternDef(id, v.pat, v.c1, v.c2 || INK, v.c3 || W_)}</defs>${g}</svg>`;
 }
 
@@ -4215,6 +4232,47 @@ const SEW_STEPS = {
            ["Set the sleeve, easing in the cap","The sleeve cap is slightly bigger than the armhole. Easing it in gives the shoulder room to move.","M220 32 Q240 62 222 90"],
            ["Bag the lining along the front edge","Shell and lining are sewn right sides together around the edge, then turned out.","M140 24 L126 112 L128 202"]]}
 };
+const FABRIC_PRINTS = [
+  {k:"solid", name:"Cotton poplin", c1:"#ff7db8", pat:null, fact:"A crisp, tightly plain-woven cotton. Poplin once meant a silk-and-wool cloth made in the papal city of Avignon."},
+  {k:"gingham", name:"Gingham", c1:"#fffdf8", c2:"#3a8dff", pat:"gingham", fact:"Woven checks of white and one color. The name likely comes from the Malay word genggang, “striped”."},
+  {k:"breton", name:"Breton stripe", c1:"#fffdf8", c2:"#1d3557", pat:"hstripes", fact:"In 1858 French navy sailors were issued striped knit shirts; Coco Chanel made the stripes fashionable in the 1910s."},
+  {k:"dots", name:"Polka dot", c1:"#e63946", c2:"#fffdf8", pat:"dots", fact:"Named during the polka dance craze of the 1840s, when everything from candy to fabric was branded “polka”."},
+  {k:"calico", name:"Calico floral", c1:"#fdf0d5", c2:"#e85d3a", c3:"#2a9d8f", pat:"floral", fact:"Calico was first woven in Calicut (Kozhikode), India. Printed Indian cottons were so popular that Britain banned them in 1721 to protect wool weavers."},
+  {k:"tartan", name:"Tartan", c1:"#1d3557", c2:"#2a9d8f", c3:"#e63946", pat:"tartan", fact:"Tartans are woven, not printed: colored threads cross at right angles in a repeating sett."},
+  {k:"denim", name:"Denim", c1:"#3d5a80", c2:"#98c1d9", pat:"denim", fact:"Its name comes from serge de Nîmes, a sturdy fabric from Nîmes in France. Real denim is a diagonal twill weave."}
+];
+function printCSS(f, sz = 14){
+  const mix = (c, a) => `color-mix(in srgb, ${c} ${a}%, transparent)`;
+  const L = {
+    gingham:[[`linear-gradient(90deg, ${mix(f.c2,50)} 50%, transparent 50%)`, `${sz}px ${sz}px`],[`linear-gradient(${mix(f.c2,50)} 50%, transparent 50%)`, `${sz}px ${sz}px`]],
+    hstripes:[[`repeating-linear-gradient(0deg, ${f.c2} 0 ${sz*.3}px, transparent ${sz*.3}px ${sz*.8}px)`, "auto"]],
+    dots:[[`radial-gradient(${f.c2} 22%, transparent 25%)`, `${sz}px ${sz}px`]],
+    floral:[[`radial-gradient(circle at 30% 30%, ${f.c2} 0 ${sz*.2}px, transparent ${sz*.23}px)`, `${sz*1.3}px ${sz*1.3}px`],[`radial-gradient(circle at 75% 70%, ${f.c3} 0 ${sz*.14}px, transparent ${sz*.17}px)`, `${sz*1.3}px ${sz*1.3}px`]],
+    tartan:[[`repeating-linear-gradient(90deg, ${mix(f.c2,60)} 0 ${sz*.4}px, transparent ${sz*.4}px ${sz*1.2}px)`, "auto"],[`repeating-linear-gradient(0deg, ${mix(f.c2,60)} 0 ${sz*.4}px, transparent ${sz*.4}px ${sz*1.2}px)`, "auto"],[`repeating-linear-gradient(90deg, ${f.c3} 0 2px, transparent 2px ${sz*1.2}px)`, "auto"]],
+    denim:[[`repeating-linear-gradient(45deg, ${mix(f.c2,55)} 0 1px, transparent 1px 4px)`, "auto"]]
+  }[f.pat] || [];
+  return {color:f.c1, images:L.map(x => x[0]), sizes:L.map(x => x[1])};
+}
+function swatchStyle(f){ const p = printCSS(f, 12); return `background-color:${p.color};${p.images.length ? `background-image:${p.images.join(",")};background-size:${p.sizes.join(",")};` : ""}`; }
+function garmentModel(g, f, w = 170){
+  const fill = f.pat ? "url(#gmP)" : f.c1;
+  const defs = `<defs>${f.pat ? patternDef("gmP", f.pat, f.c1, f.c2 || INK, f.c3 || W_) : ""}</defs>`;
+  if(g.name === "Canvas tote bag") return `<svg viewBox="0 0 160 200" width="${w*.8}" aria-label="Finished tote bag">${defs}<path d="M44 70 q0 -50 36 -50 q36 0 36 50" fill="none" stroke="${INK}" stroke-width="9"/><path d="M44 70 q0 -50 36 -50 q36 0 36 50" fill="none" stroke="${f.c1}" stroke-width="5"/><path d="M24 66 H136 L128 186 H32 Z" fill="${fill}" stroke="${INK}" stroke-width="3"/><rect x="58" y="110" width="44" height="40" fill="${fill}" stroke="${INK}" stroke-width="2.5"/><path d="M58 116 H102" stroke="${INK}" stroke-width="1.5" stroke-dasharray="3 3"/></svg>`;
+  if(g.name === "Envelope pillow cover") return `<svg viewBox="0 0 200 170" width="${w}" aria-label="Finished pillow">${defs}<path d="M20 30 Q100 10 180 30 Q192 85 180 140 Q100 160 20 140 Q8 85 20 30Z" fill="${fill}" stroke="${INK}" stroke-width="3"/><path d="M36 44 Q100 30 164 44 Q172 85 164 126 Q100 140 36 126 Q28 85 36 44Z" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="4 3"/></svg>`;
+  const specs = {
+    "Kitchen apron":{top:"tee", t1:"#fbfaf5", bottom:"trousers", b1:"#3d5a80", acc:[["apron","PAT"]]},
+    "Pajama pants":{top:"tee", t1:"#fbfaf5", bottom:"trousers"},
+    "Tank top":{top:"bodice", bottom:"trousers", b1:"#3d5a80"},
+    "Kimono robe":{top:"robe"},
+    "Zip-free hoodie":{top:"shirt", bottom:"trousers", b1:"#264653", acc:[["hood","PAT"]]},
+    "A-line skirt":{top:"tee", t1:"#fbfaf5", bottom:"midi", legs:true},
+    "Button-up shirt":{top:"shirt", bottom:"trousers", b1:"#3d5a80"},
+    "Summer dress":{top:"bodice", bottom:"midi", legs:true},
+    "Lined jacket":{top:"jacket", bottom:"trousers", b1:"#264653", acc:[["pads"]]}
+  };
+  const sp = {...(specs[g.name] || {bottom:"long"}), c1:f.c1, pat:f.pat, c2:f.c2, c3:f.c3};
+  return outfitSVG(g.name, w, sp);
+}
 function expandPieces(g){
   const out = [];
   g.pieces.forEach(([name,w,h,count,flag]) => { for(let i=0;i<count;i++) out.push({id:out.length, name:count>1?`${name} ${i+1}`:name, w, h, fold:flag==="f", cross:flag==="x", x:null, y:null, rot:false}); });
@@ -4243,11 +4301,16 @@ STUDIO.sewing = {
     const opts = freshOrder("sewing", GARMENTS.filter(g => Math.abs(g.tier - lvl) <= 1), g => g.name).slice(0, 3);
     stage.innerHTML = `<div class="ctl-col">${sessionHeader("Choose a pattern", "What would you like to sew?", "Each envelope holds the pattern pieces. Harder garments have more pieces and trickier seams.")}
       <div class="envelopes">${opts.map(g => `<button type="button" class="envelope" data-g="${g.name}"><svg viewBox="0 0 320 220" aria-hidden="true"><rect width="320" height="220" fill="#efe2c8"/><path d="${SEW_STEPS[g.name].outline}" fill="color-mix(in srgb, var(--c) 45%, white)" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/></svg><b>${g.name}</b><span>${"●".repeat(g.tier)}<span class="off">${"●".repeat(5-g.tier)}</span> · ${expandPieces(g).length} pieces</span></button>`).join("")}</div></div>`;
-    stage.querySelectorAll(".envelope").forEach(b => b.addEventListener("click", () => { const g = GARMENTS.find(x => x.name === b.dataset.g); markSeen("sewing", g.name); save(); this.begin(g); }));
+    stage.querySelectorAll(".envelope").forEach(b => b.addEventListener("click", () => { const g = GARMENTS.find(x => x.name === b.dataset.g); markSeen("sewing", g.name); save(); this.chooseFabric(g); }));
     setSide("Pattern", "–");
   },
+  chooseFabric(g){
+    stage.innerHTML = `<div class="ctl-col">${sessionHeader(g.name, "Choose your fabric", "Every print has a story. Tap one to lay it out on the cutting table.")}
+      <div class="fabrics">${FABRIC_PRINTS.map(f => `<button type="button" class="fabcard" data-f="${f.k}"><span class="fabsw" style="${swatchStyle(f)}"></span><b>${f.name}</b><small>${f.fact}</small></button>`).join("")}</div></div>`;
+    stage.querySelectorAll(".fabcard").forEach(b => b.addEventListener("click", () => { this.fabric = FABRIC_PRINTS.find(f => f.k === b.dataset.f); sfx.click(); this.begin(g); }));
+  },
   begin(g){
-    const d = S.rating.sewing;
+    const d = S.rating.sewing; this.fabric = this.fabric || FABRIC_PRINTS[0];
     this.g = g; this.pieces = expandPieces(this.g);
     let best = 999, plan = null;
     for(let t=0;t<60;t++){
@@ -4278,7 +4341,7 @@ STUDIO.sewing = {
   renderLayout(){
     stage.innerHTML = `<div class="studio-grid">
       <div><div class="fab-head"><span>← Fold</span><span>150 cm wide · 1 square = 15 cm</span><span>Selvage →</span></div>
-        <div class="fabric" id="fab" style="aspect-ratio:${COLS}/${this.rows};background-size:${100/COLS}% ${100/this.rows}%"></div></div>
+        <div class="fabric" id="fab" style="aspect-ratio:${COLS}/${this.rows};${(() => { const pc = printCSS(this.fabric, 16); return `background-color:${pc.color};background-image:linear-gradient(to right, rgb(43 29 20 / .12) 1px, transparent 1px),linear-gradient(to bottom, rgb(43 29 20 / .12) 1px, transparent 1px)${pc.images.length ? "," + pc.images.join(",") : ""};background-size:${100/COLS}% ${100/this.rows}%,${100/COLS}% ${100/this.rows}%${pc.sizes.length ? "," + pc.sizes.join(",") : ""}`; })()}"></div></div>
       <div class="ctl-col">
         <div class="brief"><span class="eyebrow">Project · step 1 of 2 · then you'll sew it</span><h3>${this.g.name}: cutting layout</h3>
           <p>Place every pattern piece on the fabric. The less length you use, the less fabric the customer pays for.</p>
@@ -4287,15 +4350,36 @@ STUDIO.sewing = {
           <li>FOLD pieces are half a pattern and must touch the fold on the left.</li></ul></div>
         <div class="tray" id="tray"></div>
         <div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="sRot">Rotate piece (R)</button><button class="btn-sm" type="button" id="sClear">Clear fabric</button></div>
-        <p class="msg" id="sMsg">Pick a piece, then tap the fabric where its top-left corner should go. Tap a placed piece to pick it back up.</p>
+        <p class="msg" id="sMsg">Drag a piece onto the fabric (or tap it, then tap the fabric). Press R or Rotate while holding a piece marked ↻. Drag placed pieces to move them.</p>
         <p class="usage" id="sUse"></p>
         <button class="btn btn-solid" type="button" id="sNext" disabled>Cut the pieces →</button>
       </div></div>`;
     const fab = $("fab");
     const cellOf = e => { const r = fab.getBoundingClientRect(); return {x:Math.floor((e.clientX-r.left)/r.width*COLS), y:Math.floor((e.clientY-r.top)/r.height*this.rows)}; };
-    fab.addEventListener("pointermove", e => { if(e.pointerType === "mouse"){ this.hover = cellOf(e); this.renderFabric(); } });
-    fab.addEventListener("pointerleave", () => { this.hover = null; this.renderFabric(); });
+    fab.addEventListener("pointermove", e => { if(e.pointerType === "mouse" && !this.drag){ this.hover = cellOf(e); this.renderFabric(); } });
+    fab.addEventListener("pointerleave", () => { if(!this.drag){ this.hover = null; this.renderFabric(); } });
+    const startDrag = (e, p, fromFab) => { const r = this.rect(p), c = cellOf(e);
+      this.drag = {p, sx:e.clientX, sy:e.clientY, moved:false, fromFab, prev: fromFab ? {x:p.x, y:p.y} : null, ox: fromFab ? clamp(c.x - p.x, 0, r.w-1) : Math.floor(r.w/2), oy: fromFab ? clamp(c.y - p.y, 0, r.h-1) : Math.floor(r.h/2)}; };
+    fab.addEventListener("pointerdown", e => { const pc = e.target.closest(".piece"); if(pc){ e.preventDefault(); startDrag(e, this.pieces[+pc.dataset.id], true); } });
+    $("tray").addEventListener("pointerdown", e => { const b = e.target.closest(".tp"); if(b && !b.disabled){ startDrag(e, this.pieces[+b.dataset.id], false); } });
+    if(this._mv){ window.removeEventListener("pointermove", this._mv); window.removeEventListener("pointerup", this._up); }
+    this._mv = e => { const d = this.drag; if(!d || !$("fab")) return;
+      if(!d.moved){ if(Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 6) return; d.moved = true; this.sel = d.p.id; if(d.fromFab){ d.p.x = d.p.y = null; } document.body.classList.add("dragging"); this.renderTray(); }
+      const fr = $("fab").getBoundingClientRect(), inside = e.clientX >= fr.left && e.clientX <= fr.right && e.clientY >= fr.top && e.clientY <= fr.bottom, rr = this.rect(d.p);
+      this.hover = inside ? (() => { const c = cellOf(e); return {x: clamp(c.x - Math.min(d.ox, rr.w-1), 0, COLS-1), y: Math.max(0, c.y - Math.min(d.oy, rr.h-1))}; })() : null;
+      let av = $("dragAv"); if(!av){ av = document.createElement("div"); av.id = "dragAv"; av.className = "drag-av"; document.body.appendChild(av); }
+      const cw = fr.width / COLS; av.style.width = rr.w*cw + "px"; av.style.height = rr.h*cw + "px"; av.style.left = (e.clientX - (Math.min(d.ox, rr.w-1) + .5)*cw) + "px"; av.style.top = (e.clientY - (Math.min(d.oy, rr.h-1) + .5)*cw) + "px"; av.hidden = inside;
+      this.renderFabric(); };
+    this._up = () => { const d = this.drag; if(!d) return; this.drag = null; document.body.classList.remove("dragging"); const av = $("dragAv"); if(av) av.remove();
+      if(!d.moved || !$("fab")) return;
+      this.suppressClick = true; setTimeout(() => this.suppressClick = false, 60);
+      const h = this.hover, p = d.p; this.hover = null;
+      if(h){ const err = this.why(p, h.x, h.y); if(!err){ p.x = h.x; p.y = h.y; sfx.click(); this.msg(""); const nx = this.pieces.find(q => q.x == null); this.sel = nx ? nx.id : null; return this.renderAll(); } this.msg(err, true); sfx.bad(); }
+      if(d.prev){ p.x = d.prev.x; p.y = d.prev.y; }
+      this.renderAll(); };
+    window.addEventListener("pointermove", this._mv); window.addEventListener("pointerup", this._up);
     fab.addEventListener("click", e => {
+      if(this.suppressClick) return;
       const pc = e.target.closest(".piece");
       if(pc){ const p = this.pieces[+pc.dataset.id]; p.x = p.y = null; this.sel = p.id; sfx.click(); this.msg(""); this.renderAll(); return; }
       if(this.sel == null){ this.msg("Pick a piece from the list first."); return; }
@@ -4305,7 +4389,7 @@ STUDIO.sewing = {
       const nextP = this.pieces.find(q => q.x == null); this.sel = nextP ? nextP.id : null;
       this.renderAll();
     });
-    $("tray").addEventListener("click", e => { const b = e.target.closest(".tp"); if(b){ this.sel = +b.dataset.id; this.renderAll(); } });
+    $("tray").addEventListener("click", e => { if(this.suppressClick) return; const b = e.target.closest(".tp"); if(b){ this.sel = +b.dataset.id; this.renderAll(); } });
     $("sRot").addEventListener("click", () => this.rotate());
     $("sClear").addEventListener("click", () => { this.pieces.forEach(p => { p.x = p.y = null; p.rot = false; }); this.sel = 0; this.renderAll(); });
     $("sNext").addEventListener("click", () => this.startSew());
@@ -4337,7 +4421,7 @@ STUDIO.sewing = {
   },
   renderTray(){
     $("tray").innerHTML = this.pieces.map(p => { const r = this.rect(p);
-      return `<button class="tp ${this.sel===p.id?"sel":""}" type="button" data-id="${p.id}" ${p.x!=null?"disabled":""}><span class="shape" style="width:${r.w*8}px;height:${r.h*8}px"></span><span><b>${p.name}</b>${r.w*CELL_CM} × ${r.h*CELL_CM} cm${p.fold?" · FOLD":""}${p.cross?" · ↻":""}</span></button>`; }).join("");
+      return `<button class="tp ${this.sel===p.id?"sel":""}" type="button" data-id="${p.id}" ${p.x!=null?"disabled":""}><span class="shape" style="width:${r.w*8}px;height:${r.h*8}px;${swatchStyle(this.fabric)}"></span><span><b>${p.name}</b>${r.w*CELL_CM} × ${r.h*CELL_CM} cm${p.fold?" · FOLD":""}${p.cross?" · ↻":""}</span></button>`; }).join("");
   },
   startSew(){
     this.layoutUsed = this.used();
@@ -4423,7 +4507,7 @@ STUDIO.sewing = {
     adapt("sewing", f);
     const stars = f >= .92 ? 3 : f >= .7 ? 2 : 1;
     endSession({title: stars === 3 ? "Runway ready" : stars === 2 ? "Wearable, with notes" : "Unpick and try again", stars, xp:25+15*stars,
-      body:`<div class="sewbox" style="max-width:260px;align-self:center"><svg viewBox="0 0 320 220"><rect width="320" height="220" fill="#efe2c8"/><path d="${sd.outline}" fill="color-mix(in srgb, var(--c) 45%, white)" stroke="${INK}" stroke-width="2.5"/>${sd.seams.map(sm => `<path d="${sm[2]}" fill="none" stroke="#e63946" stroke-width="2.6" stroke-dasharray="5 3"/>`).join("")}</svg></div>
+      body:`<div class="runway"><div class="runway-model">${garmentModel(this.g, this.fabric, 170)}</div><p class="m-note"><b>${this.g.name}</b> in ${this.fabric.name.toLowerCase()}. ${this.fabric.fact}</p></div>
         <div class="m-row"><span><b>${m(u)}</b>fabric used</span><span><b>${m(this.target)}</b>target</span><span><b>${Math.round(sewF*100)}%</b>stitch accuracy</span></div>
         <p class="m-note">${u <= this.best ? `Your layout used ${m(u)}: as tight as it gets. No fabric wasted.` : u <= this.target ? `Your layout used ${m(u)}, within the goal. The tightest layout we found uses ${m(this.best)}.` : `Your layout used ${m(u)}, but the pieces can fit in ${m(this.best)}. That's ${m(u-this.best)} of fabric you'd pay for and throw away.`}</p>
         ${u > this.best ? `<div class="layout-compare"><figure>${this.miniLayout(this.pieces.filter(p => p.x != null).map(p => ({x:p.x, y:p.y, ...this.rect(p)})), u)}<figcaption>Yours · ${m(u)}</figcaption></figure><figure>${this.miniLayout(this.bestPlan, this.best)}<figcaption>Tighter · ${m(this.best)}</figcaption></figure></div>` : ""}
@@ -4885,7 +4969,7 @@ const HOWTO = {
   atelier:["Read the client brief: occasion, colors and style rules.","Pick a silhouette, neckline, sleeves, fabric, then tap a part and a swatch to color it.","Watch the color wheel: the shape between your colors shows the harmony."],
   hair:["Check the client's face shape and their goals.","Choose a cut, bangs and, if needed, a toner to fix brassy color.","Spin the chair to see the after mirror and find out why each choice works."],
   makeup:["Pick a product from the list, then a shade.","Draw on the face with your finger or mouse; the dotted guide shows where it goes.","Stay neat, match the brief or theme, then show the mirror or face the judges."],
-  sewing:["Choose a pattern envelope.","Tap a piece, then tap the fabric to place it. Fit everything above the goal line.","Then trace each dashed seam from the green dot to sew the garment."],
+  sewing:["Choose a pattern envelope and a fabric print.","Drag pattern pieces onto the fabric and fit everything above the goal line. Press R to rotate pieces marked ↻.","Trace each dashed seam to sew it, then see your garment on the model."],
   floor:["Read the client's rules for room sizes, neighbors and sunlight.","Pick a room, then drag across the plot to draw it.","Present the plan when every room is placed; compare with a sample solution."],
   cook:["Tap ingredients in the pantry to add them to the pot.","Set the amounts with + and −, then serve it.","Listen to the customer (too salty? too sour?), adjust and serve again."],
   peace:["Read the scene and watch both people's faces.","Choose what the mediator says. Some replies calm things down; others backfire.","Every choice comes with the psychology behind it."],
