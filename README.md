@@ -15,6 +15,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Studios | **Makeup Studio**: paint 17 products onto the face with brush size, intensity, softness, finish and a blending tool | Color theory, skin undertones, makeup history |
 | Studios | **Sewing Room**: take a commission, design it (12 materials, prints, bodice, sleeves, skirt, layers), set up the machine, lay out and sew 24 garments, then hands-on finishing (boning, grommets, lacing, buttons, pleats, gathering, pressing) and trims | Materials, construction, spatial planning |
 | Studios | **Floorplan Lab**: draw a home that meets a client's rules, then add doors, windows and furniture (reachability, daylight, kitchen work triangle) | Spatial reasoning, area, building basics |
+| Studios | **Gift Detective**: read a person's blog, infer what they need, love and must avoid, then shop an online store within budget (shipping included) | Reading comprehension, inference, empathy, budgeting |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
 | Brain gym | **Deep Dive**: two versions. Classic: name as many as you can; rare answers sink you deeper. Rare Pick: one answer per category, so pick the rarest you dare | Knowledge breadth, recall |
 | Brain gym | **Science Lab**: find organs and bones, mix light versus ink, sink or float, line up the planets | Biology, color science |

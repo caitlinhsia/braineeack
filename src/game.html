@@ -11,7 +11,7 @@
   --bg:#fbf2e2; --ink:#2b1d14; --text:#2b1d14; --muted:#7b6553; --panel:#fffdf8; --panel2:#f6e6c9; --line:#e5d2b2; --skin:#d9c3ea;
   --mem:#ff6b57; --math:#ffbf2e; --word:#22b8a7; --logic:#6f62ff;
   --atelier:#ff7db8; --sew:#78c552; --floor:#3a8dff; --peace:#ff9a1f; --kitchen:#e85d3a; --thread:#b97cf6; --mix:#ffd166;
-  --flag:#e63946; --land-c:#2a9d8f; --cook:#f4a259; --time:#577590; --lab:#00b4d8; --makeup:#ff5d8f; --dive:#1f8fd6; --hair:#9c6644;
+  --flag:#e63946; --land-c:#2a9d8f; --cook:#f4a259; --time:#577590; --lab:#00b4d8; --makeup:#ff5d8f; --dive:#1f8fd6; --gift:#e5383b; --hair:#9c6644;
   --good:#22b26b; --bad:#ef476f; --scrim:rgb(43 29 20 / .45);
   --sea:#a9dcef; --land:#f7e4bd;
   --shadow:0 5px 0 var(--ink); --shadow-sm:0 3px 0 var(--ink); --bw:2.5px;
@@ -977,6 +977,32 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .secbtn small{font:10px "DM Mono",monospace;opacity:.75}.secbtn.s-clip{background:#ff9ec7}.secbtn.s-lift{background:#ffd166}
 .tech-stage{border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;line-height:0;touch-action:none}
 .tech-stage svg{width:100%;height:auto;display:block}
+.gift-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:860px){ .gift-grid{grid-template-columns:1fr} }
+.blog{background:#fffdf8;border:2.5px solid var(--ink);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 0 var(--ink)}
+@media (min-width:861px){ .blog{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto} }
+.blog-head{display:flex;gap:12px;align-items:center;border-bottom:2px dashed rgb(43 29 20 / .2);padding-bottom:10px}
+.blog-head h3{margin:0;font-family:Fredoka,sans-serif}.blog-head p{margin:2px 0 0;font-size:13px;opacity:.75}
+.blog-av{width:72px;height:72px;border-radius:50%;overflow:hidden;border:2.5px solid var(--ink);background:#ffe1ec;flex:0 0 auto}
+.post{background:#fbf6ec;border:2px solid var(--ink);border-radius:12px;padding:10px 12px}
+.post header{display:flex;justify-content:space-between;gap:8px}.post header small{font:11px "DM Mono",monospace;opacity:.6}
+.post p{margin:6px 0 0;font-size:14px;line-height:1.5}
+.clue{transition:background .3s}.clue.show[data-k="n"]{background:#c8f0d8}.clue.show[data-k="l"]{background:#fff0b3}.clue.show[data-k="a"]{background:#ffd6d6}
+.clue.show{border-radius:4px;padding:0 2px}
+.shop-bar{display:flex;flex-direction:column;gap:8px}
+.shop-bar input{font:600 15px Figtree,sans-serif;padding:9px 12px;border:2.5px solid var(--ink);border-radius:12px;background:#fffdf8}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;max-height:520px;overflow:auto;padding:2px}
+.prod-card{display:flex;flex-direction:column;gap:3px;background:#fffdf8;border:2px solid var(--ink);border-radius:12px;padding:8px}
+.prod-card.in{background:#dcf5e6;box-shadow:0 0 0 2px var(--good,#2bb673) inset}
+.prod-card b{font-size:13px}.prod-card small{font-size:11px;opacity:.7;line-height:1.3;flex:1}
+.pc-ic{display:flex;justify-content:center;background:#f4ecdf;border-radius:8px;padding:4px}
+.pc-row{display:flex;justify-content:space-between;align-items:center;margin-top:4px}.price{font:700 14px "DM Mono",monospace}
+.cart{position:sticky;bottom:0}
+.cart-in{background:#fff8ea;border:2.5px solid var(--ink);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;box-shadow:0 3px 0 var(--ink)}
+.cart-item{display:flex;align-items:center;gap:6px;font-size:13px}.cart-item.muted{opacity:.5}
+.cart-sum{display:flex;flex-wrap:wrap;gap:12px;font:12px "DM Mono",monospace}.cart-sum .over{color:#c0392b}
+.reply{display:flex;gap:10px;align-items:center}.reply-av{width:54px;height:54px;border-radius:50%;overflow:hidden;border:2px solid var(--ink);flex:0 0 auto;background:#ffe1ec}
+.reply p{margin:0;background:#fffdf8;border:2px solid var(--ink);border-radius:14px;padding:8px 12px;font-weight:600}
 </style>
 
 <div class="wrap">
@@ -1268,6 +1294,10 @@ const ROOMS = {
     blurb:"Cook for real customers. Pick ingredients, set the amounts, then chop, mash, whisk, flip and bake it yourself. They'll tell you if it's too salty or missing something, so adjust and serve again until they love it.",
     tip:"<b>Tip:</b> fix the biggest complaint first. Salt, acid, fat and heat balance each other, and every complaint comes with a chef's note on why.",
     modes:[["studio","Start cooking"],["sprint","Pantry sprint · 60s"],["practice","Quiz"]]},
+  gift:{name:"Gift Detective", skill:"Reading & empathy", color:"var(--gift)", wing:"studio",
+    blurb:"Read someone's blog, spot what they need, love and must avoid, then shop an online store within budget for the perfect gift.",
+    tip:"<b>Tip:</b> the best clues hide in complaints and throwaway lines: “my earbuds died”, “I'm allergic to…”, “I have no space”.",
+    modes:[["studio","Find the perfect gift"],["practice","Quiz"]]},
   dive:{name:"Deep Dive", skill:"Knowledge breadth", color:"var(--dive)", wing:"core",
     blurb:"Name as many things in a category as you can. Common answers keep you shallow; rare ones send your diver plunging into the abyss.",
     tip:"<b>Tip:</b> skip the first answers everyone thinks of and go for the obscure ones. A legendary answer is worth sixteen common ones.",
@@ -1298,7 +1328,7 @@ const ROOMS = {
   mix:{name:"Daily Mix", skill:"Interleaved practice", color:"var(--mix)", wing:"none",
     blurb:"Eight questions from across the arcade, mixed together.", tip:"<b>Why mix?</b> Switching topics forces your brain to pick the right strategy each time, and that is what makes it stick.", modes:[]}
 };
-const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["dive","lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
+const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","gift","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["dive","lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
 const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab","makeup","hair"];
 const RANKS = [[1,"Novice"],[3,"Apprentice"],[6,"Thinker"],[10,"Strategist"],[15,"Sage"],[22,"Mastermind"]];
 const MODE_NAMES = {studio:"Studio", daily:"Daily puzzle", blitz:"Blitz", theme:"Theme challenge", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
@@ -1478,6 +1508,7 @@ const ART = {
   flags: svgA(`<path d="M30 104 V8" stroke-width="5"/><path d="M32 12 q30 -8 56 2 t52 0 v52 q-26 8 -52 -2 t-56 2z"/><path d="M32 12 q14 -4 28 -2 v54 q-14 -2 -28 2z" fill="#3a8dff"/><path d="M60 10 q14 2 28 6 v52 q-14 -4 -28 -6z"/><path d="M88 16 q26 8 52 0 v52 q-26 8 -52 0z" fill="#ef476f"/><circle cx="30" cy="8" r="5" fill="#ffbf2e"/>`),
   time: svgA(`<path d="M10 70 H150" stroke-width="4"/>${[24,62,100,138].map((x,i) => `<circle cx="${x}" cy="70" r="7" fill="${["#ffbf2e","#ef476f","#22b8a7","#6f62ff"][i]}"/><rect x="${x-16}" y="${i%2 ? 82 : 22}" width="32" height="26" rx="5"/><path d="M${x} ${i%2 ? 82 : 48} V${i%2 ? 77 : 63}" fill="none"/>`).join("")}`),
   cook: svgA(`<path d="M26 54 h108 v30 a20 20 0 0 1 -20 20 h-68 a20 20 0 0 1 -20 -20z" fill="#e85d3a"/><path d="M14 62 h12 M134 62 h12" stroke-width="7"/><ellipse cx="80" cy="54" rx="54" ry="10"/><path d="M60 40 q-6 -8 0 -16 M80 36 q-6 -8 0 -16 M100 40 q-6 -8 0 -16" fill="none"/><path d="M118 10 L100 50" stroke-width="5"/><ellipse cx="122" cy="10" rx="8" ry="5" transform="rotate(-60 122 10)" fill="#c8915a"/><circle cx="56" cy="52" r="5" fill="#e63946"/><circle cx="72" cy="50" r="4" fill="#78c552"/><circle cx="96" cy="52" r="5" fill="#ffbf2e"/>`),
+  gift: svgA(`<rect x="34" y="40" width="92" height="64" rx="6" fill="#e5383b"/><rect x="28" y="28" width="104" height="18" rx="4" fill="#ff7db8"/><path d="M80 28 V104" stroke-width="10" stroke="#ffd166"/><path d="M80 28 V104" fill="none"/><path d="M80 28 C64 8 44 14 56 26 C62 30 72 30 80 28 C88 30 98 30 104 26 C116 14 96 8 80 28Z" fill="#ffd166"/><circle cx="130" cy="22" r="12" fill="#fffdf8"/><path d="M138 30 L146 38" stroke-width="4"/>`),
   dive: svgA(`<rect x="6" y="20" width="148" height="86" rx="10" fill="#3f8fc7"/><rect x="6" y="64" width="148" height="42" rx="10" fill="#1f4f86" stroke="none"/><path d="M6 24 q18 -8 37 0 t37 0 t37 0 t37 0" fill="none" stroke="#fff"/><path d="M80 24 V58" stroke="#fff" stroke-dasharray="4 4"/><circle cx="80" cy="66" r="12" fill="#ffbf2e"/><rect x="72" y="61" width="16" height="9" rx="3" fill="#a9dcef"/><circle cx="96" cy="50" r="3" fill="none" stroke="#fff"/><circle cx="102" cy="40" r="4" fill="none" stroke="#fff"/><path d="M28 86 q8 -8 16 0 q-8 8 -16 0z M44 86 l6 -5 v10z" fill="#ff7db8"/><path d="M120 90 q6 -10 12 0 l-2 8 h-8z" fill="#c77dff"/>`),
   lab: svgA(`<path d="M52 10 h28 M58 10 v28 l-26 50 a8 8 0 0 0 7 12 h54 a8 8 0 0 0 7 -12 l-26 -50 v-28"/><path d="M40 74 h60 l10 18 a6 6 0 0 1 -5 8 h-70 a6 6 0 0 1 -5 -8z" fill="#22b8a7" stroke="none"/><path d="M58 38 l-26 50 a8 8 0 0 0 7 12 h54 a8 8 0 0 0 7 -12 l-26 -50" fill="none"/><circle cx="60" cy="86" r="4"/><circle cx="76" cy="80" r="3"/><circle cx="120" cy="40" r="16" fill="#ff6b57" opacity=".85"/><circle cx="136" cy="40" r="16" fill="#3a8dff" opacity=".85"/><circle cx="128" cy="54" r="16" fill="#78c552" opacity=".85"/>`),
   makeup: svgA(`<circle cx="56" cy="58" r="38"/><circle cx="56" cy="58" r="28" fill="#a9dcef"/><path d="M42 44 q8 -6 16 0" fill="none" stroke="${W_}" stroke-width="4"/><rect x="104" y="44" width="24" height="56" rx="4" fill="#2b1d14"/><rect x="106" y="22" width="20" height="24" rx="3" fill="#ffbf2e"/><path d="M108 22 L116 4 L124 22Z" fill="#e63946"/><path d="M138 100 L150 30" stroke-width="5"/><path d="M146 36 q6 -18 12 -30 q2 16 -4 32z" fill="#ff7db8"/>`),
@@ -8088,6 +8119,193 @@ Object.assign(STUDIO.sewing, {
     if(this.techNotes && this.techNotes.length) $("mBody").insertAdjacentHTML("beforeend", `<ol class="order-review" style="text-align:left">${this.techNotes.map(([t, s, n]) => `<li><span class="eyebrow">${Math.round(s*100)}%</span><div><b>${t}</b><p>${n}</p></div></li>`).join("")}</ol>`);
   };
 }
+
+/* =========================================================
+   GIFT DETECTIVE: read someone's blog, find what they need,
+   love and must avoid, then shop within budget.
+   ========================================================= */
+Object.assign(ICONS, {
+  "g:headphones":`<path d="M8 24 V20 C8 10 13 5 20 5 C27 5 32 10 32 20 V24" fill="none" ${IL}/><rect x="4" y="22" width="9" height="13" rx="3" fill="#ff7db8" ${IL}/><rect x="27" y="22" width="9" height="13" rx="3" fill="#ff7db8" ${IL}/>`,
+  "g:earbuds":`<path d="M12 8 C6 8 6 18 12 18 L14 34" fill="#fffdf8" ${IL}/><path d="M28 8 C34 8 34 18 28 18 L26 34" fill="#fffdf8" ${IL}/><circle cx="12" cy="13" r="5" fill="#fffdf8" ${IL}/><circle cx="28" cy="13" r="5" fill="#fffdf8" ${IL}/>`,
+  "g:vinyl":`<circle cx="20" cy="20" r="16" fill="#2b2f3a" ${IL}/><circle cx="20" cy="20" r="10" fill="none" stroke="#596173" stroke-width="1"/><circle cx="20" cy="20" r="5" fill="#ff7db8" ${IL}/><circle cx="20" cy="20" r="1.2" fill="${IK}"/>`,
+  "g:gloves":`<path d="M10 36 V20 L8 10 C8 8 11 8 11 10 L13 18 V6 C13 4 16 4 16 6 V17 V5 C16 3 19 3 19 5 V17 V7 C19 5 22 5 22 7 V20 C24 16 28 16 28 19 L24 28 V36Z" fill="#57cc99" ${IL}/><rect x="9" y="32" width="16" height="5" fill="#2b9348" ${IL}/>`,
+  "g:seeds":`<path d="M8 8 H32 V34 H8Z" fill="#e9c46a" ${IL}/><path d="M20 30 V18 M20 22 C14 22 13 17 14 15 C18 15 20 18 20 22 M20 20 C26 20 27 15 26 13 C22 13 20 16 20 20" fill="#55b36b" ${IN}/><path d="M8 13 H32" ${IN}/>`,
+  "g:crossword":`<rect x="6" y="6" width="28" height="28" rx="2" fill="#fffdf8" ${IL}/>${[0,1,2,3].map(r => [0,1,2,3].map(c => `<rect x="${8 + c*6}" y="${8 + r*6}" width="5" height="5" fill="${(r+c*3) % 4 === 0 ? IK : "#fffdf8"}" stroke="${IK}" stroke-width=".6"/>`).join("")).join("")}<path d="M10 33 l3 -6" stroke="#e63946" stroke-width="2"/>`,
+  "g:puzzle":`<path d="M6 6 H16 C16 2 22 2 22 6 H32 V16 C36 16 36 22 32 22 V34 H22 C22 30 16 30 16 34 H6 V22 C10 22 10 16 6 16Z" fill="#3a8dff" ${IL}/>`,
+  "g:speaker":`<rect x="10" y="4" width="20" height="32" rx="6" fill="#3d405b" ${IL}/><circle cx="20" cy="25" r="6" fill="#596173" ${IL}/><circle cx="20" cy="12" r="3" fill="#596173" ${IN}/>`,
+  "g:bottle":`<rect x="14" y="3" width="12" height="6" rx="2" fill="#3d405b" ${IL}/><path d="M13 9 H27 C29 9 30 11 30 13 V34 C30 36 28 37 26 37 H14 C12 37 10 36 10 34 V13 C10 11 11 9 13 9Z" fill="#2ec4b6" ${IL}/><path d="M14 16 V30" stroke="#fff" stroke-width="2.4" opacity=".6" stroke-linecap="round"/>`,
+  "g:belt":`<rect x="3" y="16" width="34" height="9" rx="4" fill="#3d405b" ${IL}/><rect x="13" y="13" width="14" height="15" rx="3" fill="#ff8a3d" ${IL}/><path d="M16 20 H24" ${IN}/>`,
+  "g:candle":`<path d="M9 16 H31 V33 C31 35 29 36 27 36 H13 C11 36 9 35 9 33Z" fill="#c8a2f0" ${IL}/><path d="M20 16 V11" ${IL}/><path d="M20 2 C23 5 23 9 20 11 C17 9 17 5 20 2Z" fill="#ffb703" ${IL}/><rect x="12" y="22" width="16" height="7" rx="1.5" fill="#fffdf8" ${IN}/>`,
+  "g:telescope":`<path d="M6 14 L30 6 L33 14 L9 22Z" fill="#3a6df0" ${IL}/><path d="M30 6 L36 4 L38 12 L33 14Z" fill="#9fd3f5" ${IL}/><path d="M18 18 L12 36 M20 18 L26 36 M19 18 V36" ${IL}/>`,
+  "g:stars":`<rect x="4" y="4" width="32" height="32" rx="4" fill="#2c2a6b" ${IL}/><path d="M14 10 l2 4 4 .5 -3 3 1 4 -4 -2 -4 2 1 -4 -3 -3 4 -.5z" fill="#d7ffb0"/><circle cx="27" cy="12" r="2" fill="#d7ffb0"/><path d="M25 24 a5 5 0 1 0 6 6 a4 4 0 0 1 -6 -6z" fill="#d7ffb0"/>`,
+  "g:tablet":`<rect x="7" y="4" width="26" height="32" rx="4" fill="#3d405b" ${IL}/><rect x="10" y="8" width="20" height="23" rx="1.5" fill="#9fd3f5"/><circle cx="20" cy="33" r="1.4" fill="#fff"/>`,
+  "g:book":`<path d="M6 8 C12 6 17 7 20 10 C23 7 28 6 34 8 V33 C28 31 23 32 20 35 C17 32 12 31 6 33Z" fill="#fffdf8" ${IL}/><path d="M20 10 V35" ${IN}/><path d="M6 8 V33" stroke="#e63946" stroke-width="3"/>`,
+  "g:mug":`<path d="M8 10 H28 V30 C28 34 25 36 22 36 H14 C11 36 8 34 8 30Z" fill="#ff7db8" ${IL}/><path d="M28 14 C35 14 35 26 28 26" fill="none" ${IL}/><path d="M12 18 q6 4 12 0" fill="none" stroke="#fff" stroke-width="2"/>`,
+  "g:bathbomb":`<circle cx="20" cy="21" r="14" fill="#9fd3f5" ${IL}/><path d="M8 18 Q20 26 32 18" fill="none" stroke="#ff7db8" stroke-width="3"/><circle cx="15" cy="13" r="1.5" fill="#fff"/><circle cx="25" cy="27" r="1.5" fill="#ffd43b"/>`,
+  "g:voucher":`<path d="M4 10 H36 V17 C33 17 33 23 36 23 V30 H4 V23 C7 23 7 17 4 17Z" fill="#ffd166" ${IL}/><path d="M14 10 V30" stroke="${IK}" stroke-width="1.4" stroke-dasharray="2 2"/><text x="25" y="23" font-size="9" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" fill="${IK}">£</text>`,
+  "g:bikelight":`<rect x="6" y="14" width="22" height="12" rx="6" fill="#e63946" ${IL}/><circle cx="12" cy="20" r="3" fill="#ffd166"/><path d="M28 20 H33 M32 14 L37 11 M32 26 L37 29" stroke="#ffd166" stroke-width="2.6" stroke-linecap="round"/>`,
+  "g:jacket":`<path d="M12 6 L20 10 L28 6 L36 14 L32 20 L30 18 V36 H10 V18 L8 20 L4 14Z" fill="#ffd43b" ${IL}/><path d="M20 10 V36" ${IN}/><path d="M14 6 C14 2 26 2 26 6" fill="none" ${IL}/>`,
+  "g:umbrella":`<path d="M3 20 C3 10 11 4 20 4 C29 4 37 10 37 20 C34 17 30 17 28 20 C26 17 22 17 20 20 C18 17 14 17 12 20 C10 17 6 17 3 20Z" fill="#6f62ff" ${IL}/><path d="M20 20 V32 C20 36 14 36 14 32" fill="none" ${IL}/>`,
+  "g:sketchbook":`<rect x="7" y="5" width="26" height="31" rx="2" fill="#fffdf8" ${IL}/>${[9,14,19,24,29].map(y => `<circle cx="7" cy="${y}" r="1.6" fill="none" ${IN}/>`).join("")}<path d="M12 26 C16 16 20 22 24 14 C26 11 28 12 28 14" fill="none" stroke="#3a8dff" stroke-width="2" stroke-linecap="round"/>`,
+  "g:paints":`<rect x="4" y="10" width="32" height="20" rx="4" fill="#fffdf8" ${IL}/>${["#e63946","#ffd43b","#3a8dff","#57cc99","#ff7db8","#8e5bd1"].map((c, i) => `<ellipse cx="${10 + (i % 3)*10}" cy="${16 + Math.floor(i/3)*8}" rx="3.6" ry="2.6" fill="${c}" ${IN}/>`).join("")}`,
+  "g:beanie":`<path d="M6 26 C6 14 12 8 20 8 C28 8 34 14 34 26Z" fill="#e85d3a" ${IL}/><rect x="5" y="25" width="30" height="8" rx="3" fill="#c0392b" ${IL}/><circle cx="20" cy="6" r="4" fill="#fffdf8" ${IL}/><path d="M12 25 V14 M20 25 V9 M28 25 V14" stroke="#c0392b" stroke-width="1.4"/>`,
+  "g:scarf":`<path d="M8 8 C16 12 24 12 32 8 V14 C24 18 16 18 8 14Z" fill="#8e5bd1" ${IL}/><path d="M24 15 L30 36 H22 L18 16" fill="#8e5bd1" ${IL}/><path d="M22 36 v2 M25 36 v2 M28 36 v2" ${IN}/>`,
+  "g:strings":`<circle cx="20" cy="20" r="14" fill="#ffd166" ${IL}/>${[0,1,2,3].map(i => `<circle cx="20" cy="20" r="${4 + i*2.4}" fill="none" stroke="#9aa5b1" stroke-width="1"/>`).join("")}<circle cx="20" cy="20" r="2.4" fill="${IK}"/>`,
+  "g:tea":`<rect x="8" y="10" width="24" height="24" rx="3" fill="#57cc99" ${IL}/><path d="M8 18 H32" ${IN}/><path d="M14 24 q6 6 12 0" fill="none" stroke="#fffdf8" stroke-width="2"/><path d="M20 4 V10" stroke="#9aa5b1" stroke-width="1.4"/><rect x="17" y="2" width="6" height="4" fill="#fffdf8" ${IN}/>`,
+  "g:ereader":`<rect x="9" y="4" width="22" height="32" rx="3" fill="#d9dde3" ${IL}/><rect x="12" y="8" width="16" height="22" fill="#fffdf8"/>${[11,15,19,23].map(y => `<path d="M14 ${y} H26" stroke="#9aa5b1" stroke-width="1.4"/>`).join("")}`,
+  "g:spices":`${[[8,"#e85d3a"],[16,"#ffd43b"],[24,"#8b4a2b"]].map(([x, c]) => `<rect x="${x}" y="12" width="8" height="22" rx="2" fill="#fffdf8" ${IL}/><rect x="${x}" y="20" width="8" height="14" fill="${c}" ${IN}/><rect x="${x}" y="8" width="8" height="5" fill="#3d405b" ${IN}/>`).join("")}`,
+  "g:airfryer":`<path d="M8 10 C8 6 32 6 32 10 V34 H8Z" fill="#2b2f3a" ${IL}/><rect x="12" y="20" width="16" height="10" rx="2" fill="#596173" ${IN}/><circle cx="20" cy="14" r="3" fill="#ff8a3d" ${IN}/>`,
+  "g:plushcat":`<path d="M8 14 L10 4 L16 10 H24 L30 4 L32 14 C34 20 32 34 20 34 C8 34 6 20 8 14Z" fill="#f4a261" ${IL}/><circle cx="15" cy="18" r="1.8" fill="${IK}"/><circle cx="25" cy="18" r="1.8" fill="${IK}"/><path d="M18 23 q2 2 4 0 M20 22 v2" fill="none" ${IN}/>`,
+  "g:wallet":`<rect x="4" y="10" width="32" height="22" rx="3" fill="#8b5a2b" ${IL}/><path d="M24 17 H36 V26 H24 C21 26 21 17 24 17Z" fill="#a0662d" ${IL}/><circle cx="27" cy="21.5" r="1.6" fill="#ffd166"/>`,
+  "g:blanket":`<path d="M4 10 H36 V26 C30 30 22 22 14 28 C10 31 6 30 4 28Z" fill="#ff9ec7" ${IL}/>${[10,16,22].map(x => `<path d="M${x} 10 V24" stroke="#fffdf8" stroke-width="2"/>`).join("")}`,
+  "g:powerbank":`<rect x="10" y="4" width="20" height="32" rx="4" fill="#57cc99" ${IL}/><path d="M22 10 L16 21 H21 L18 30 L25 18 H20Z" fill="#fffdf8" ${IN}/>`,
+  "g:journal":`<rect x="8" y="4" width="24" height="32" rx="2" fill="#2a9d8f" ${IL}/><path d="M26 4 V36" stroke="#264653" stroke-width="3"/><rect x="12" y="12" width="12" height="7" rx="1.5" fill="#fffdf8" ${IN}/>`,
+  "g:pens":`${[["#e63946",10],["#3a8dff",18],["#57cc99",26]].map(([c, x]) => `<path d="M${x} 6 L${x+5} 6 L${x+5} 30 L${x+2.5} 36 L${x} 30Z" fill="${c}" ${IL}/>`).join("")}`,
+  "g:kneeler":`<rect x="4" y="18" width="32" height="12" rx="5" fill="#57cc99" ${IL}/><path d="M10 18 V8 C10 6 12 6 12 8 V18 M28 18 V8 C28 6 30 6 30 8 V18" fill="none" ${IL}/>`,
+  "g:nonslip":`<path d="M6 30 C6 22 12 18 20 18 H30 C34 18 36 22 36 26 V30Z" fill="#3a8dff" ${IL}/><path d="M6 30 H36 V34 H6Z" fill="#2b2f3a" ${IL}/><path d="M14 18 V10 C14 8 20 8 20 10 V18" fill="none" ${IL}/>`
+});
+const GIFT_ITEMS = [
+  {n:"Wireless earbuds", p:35, i:"g:earbuds", c:"Tech", t:["music","tech","headphones","small"], d:"Bluetooth, 24-hour case battery."},
+  {n:"Over-ear headphones", p:65, i:"g:headphones", c:"Tech", t:["music","tech","headphones"], d:"Big noise-cancelling cans."},
+  {n:"Lo-fi vinyl record", p:22, i:"g:vinyl", c:"Music", t:["music"], d:"Chill beats to study to. Needs a record player."},
+  {n:"Ukulele strings", p:7, i:"g:strings", c:"Music", t:["music","ukulele","small"], d:"A set of four nylon strings."},
+  {n:"Bluetooth speaker", p:45, i:"g:speaker", c:"Tech", t:["music","tech"], d:"Waterproof, pocket-sized."},
+  {n:"Phone power bank", p:20, i:"g:powerbank", c:"Tech", t:["tech","small"], d:"Charges a phone three times."},
+  {n:"Kids' tablet game card", p:25, i:"g:tablet", c:"Tech", t:["tech","screen","kids"], d:"Credit for app-store games."},
+  {n:"Gardening gloves", p:12, i:"g:gloves", c:"Outdoors", t:["garden","small"], d:"Thorn-proof, washable."},
+  {n:"Garden kneeler", p:24, i:"g:kneeler", c:"Outdoors", t:["garden","knees"], d:"Padded cushion with handles to help you stand up."},
+  {n:"Seed starter kit", p:18, i:"g:seeds", c:"Outdoors", t:["garden"], d:"Grow tomatoes, basil and chilies."},
+  {n:"Crossword book", p:8, i:"g:crossword", c:"Books", t:["puzzle","paperbook","small"], d:"200 classic crosswords."},
+  {n:"1000-piece jigsaw", p:20, i:"g:puzzle", c:"Home", t:["puzzle","slow"], d:"A stunning map of the world. Takes hours."},
+  {n:"Insulated water bottle", p:28, i:"g:bottle", c:"Outdoors", t:["sport","running","bottle"], d:"Keeps water cold for 24 hours. Has a strap."},
+  {n:"Running belt", p:18, i:"g:belt", c:"Outdoors", t:["sport","running","small"], d:"Holds a phone and keys on long runs."},
+  {n:"Lavender hand cream", p:12, i:"🧴", c:"Self-care", t:["selfcare","scented","small"], d:"Strongly scented, very soothing."},
+  {n:"Scented candle", p:16, i:"g:candle", c:"Home", t:["selfcare","scented","cozy"], d:"Vanilla and sandalwood."},
+  {n:"Bath bombs", p:14, i:"g:bathbomb", c:"Self-care", t:["selfcare","scented"], d:"Six fizzy, fragrant bath bombs."},
+  {n:"Beginner telescope", p:58, i:"g:telescope", c:"Kids", t:["space","kids","telescope"], d:"Strong enough to see Saturn's rings."},
+  {n:"Glow-in-the-dark stars", p:9, i:"g:stars", c:"Kids", t:["space","kids","small"], d:"Turn a ceiling into a night sky."},
+  {n:"Space encyclopedia", p:15, i:"g:book", c:"Books", t:["space","paperbook","kids"], d:"Planets, rockets and black holes."},
+  {n:"Speciality coffee beans", p:14, i:"☕", c:"Food", t:["coffee","food","vegan"], d:"Single-origin, freshly roasted."},
+  {n:"Travel mug", p:16, i:"g:mug", c:"Home", t:["coffee","tea","small"], d:"Leak-proof, keeps drinks hot."},
+  {n:"Meal delivery voucher", p:30, i:"g:voucher", c:"Food", t:["food","timesaver"], d:"Three ready-to-heat dinners, delivered."},
+  {n:"Bike light set", p:22, i:"g:bikelight", c:"Outdoors", t:["cycling","safety","small"], d:"Bright front and rear lights, rechargeable."},
+  {n:"Waterproof cycling jacket", p:48, i:"g:jacket", c:"Outdoors", t:["cycling","rain"], d:"Hi-vis yellow, packs into its own pocket."},
+  {n:"Compact umbrella", p:15, i:"g:umbrella", c:"Outdoors", t:["rain","umbrella","small"], d:"Wind-proof, folds tiny."},
+  {n:"A4 sketchbook", p:12, i:"g:sketchbook", c:"Art", t:["art","sketchbook"], d:"120 pages of thick drawing paper."},
+  {n:"Watercolor set", p:19, i:"g:paints", c:"Art", t:["art"], d:"24 colors and two brushes."},
+  {n:"Brush pen set", p:14, i:"g:pens", c:"Art", t:["art","small"], d:"12 colors for drawing and lettering."},
+  {n:"Wool beanie", p:14, i:"g:beanie", c:"Fashion", t:["wool","winter","small"], d:"100% merino wool."},
+  {n:"Wool-cashmere scarf", p:40, i:"g:scarf", c:"Fashion", t:["wool","winter"], d:"Super soft and warm."},
+  {n:"Loose-leaf tea sampler", p:13, i:"g:tea", c:"Food", t:["tea","food","vegan"], d:"Eight teas from around the world."},
+  {n:"Mystery novel (hardback)", p:18, i:"g:book", c:"Books", t:["books","mystery","paperbook"], d:"The bestselling detective story of the year."},
+  {n:"E-book gift card", p:15, i:"g:ereader", c:"Books", t:["books","ereader","mystery","small"], d:"Buy any e-book instantly. Takes up zero shelf space."},
+  {n:"Indian spice starter set", p:20, i:"g:spices", c:"Food", t:["cooking","spices","vegan"], d:"Cumin, turmeric, garam masala and more."},
+  {n:"Beginner cookbook", p:16, i:"g:book", c:"Books", t:["cooking","paperbook"], d:"50 easy recipes for one-pot meals."},
+  {n:"Air fryer", p:70, i:"g:airfryer", c:"Home", t:["cooking","big"], d:"Big countertop appliance."},
+  {n:"Plush cat", p:12, i:"g:plushcat", c:"Kids", t:["kids","cozy","small"], d:"Very squishy."},
+  {n:"Vegan chocolate box", p:10, i:"🍫", c:"Food", t:["food","vegan","chocolate","small"], d:"Dark and oat-milk chocolates."},
+  {n:"Honey gift jar", p:9, i:"🍯", c:"Food", t:["food","honey","small"], d:"Wildflower honey from local bees."},
+  {n:"Leather wallet", p:30, i:"g:wallet", c:"Fashion", t:["leather","small"], d:"Genuine cowhide."},
+  {n:"Cozy fleece blanket", p:25, i:"g:blanket", c:"Home", t:["cozy"], d:"Big, soft and machine-washable."},
+  {n:"Dot-grid journal", p:11, i:"g:journal", c:"Books", t:["writing","small"], d:"For notes, lists and doodles."}
+];
+const GIFT_PEOPLE = [
+  {name:"Maya", rel:"your cousin", bio:"Second-year design student · bus commuter · plant mum", budget:40, look:{skin:SKINS[2][0], hair:"bun", hairC:"black", eye:"brown", top:"#ff7db8", shape:"heart"},
+   need:["headphones"], like:["music","cozy"], avoid:["honey","leather","big"], why:{need:"Her earbuds died, and she lives on the bus.", avoid:"She's vegan (no honey or leather) and her dorm is tiny."},
+   posts:[["Worst commute ever","Monday","<<n:My earbuds died halfway through the 45-minute bus ride to campus.>> Just me and someone's very loud phone call. Send help."],["Dorm room tour","Last week","Here's my room! Yes it's <<a:the size of a cupboard, so I genuinely have nowhere to put anything new.>> But the fairy lights make it cozy."],["Lunch prep","Sunday","Made lentil curry for the week. <<a:Two years vegan now, and I still love finding new recipes!>> <<l:Studying with lo-fi beats on repeat.>>"]]},
+  {name:"Grandpa Joe", rel:"your grandad", bio:"Retired teacher · new allotment owner · crossword champion", budget:30, look:{skin:SKINS[1][0], hair:"buzz", hairC:"grey", eye:"blue", top:"#3a8dff", shape:"square", glasses:true},
+   need:["garden"], like:["puzzle"], avoid:["tech","screen","slow"], why:{need:"He's just started an allotment and his knees ache.", avoid:"Gadgets confuse him."},
+   posts:[["My allotment!","Saturday","<<n:Got my own allotment plot at last. Planted potatoes today, but my knees did NOT enjoy all that kneeling.>>"],["Grandson set up my new phone","Thursday","<<a:I pressed one button and it started talking to me. I don't trust these gadgets.>> Back to my trusty radio."],["Sunday puzzles","Sunday","<<l:Finished the newspaper crossword in record time, 11 minutes!>> The jigsaw on the dining table is another story; it's been there since March."]]},
+  {name:"Priya", rel:"your friend from work", bio:"Training for my first marathon · dog walker · tea addict", budget:50, look:{skin:SKINS[4][0], hair:"ponytail", hairC:"black", eye:"darkbrown", top:"#22b8a7", shape:"oval"},
+   need:["bottle","running"], like:["tea","sport"], avoid:["scented"], why:{need:"She keeps losing her water bottle on long runs.", avoid:"Strong scents give her migraines."},
+   posts:[["Long run Sunday","Sunday","18 km today! <<n:Left my third water bottle of the month at the park bench. Running out of bottles AND patience.>>"],["Office secret Santa trauma","December","<<a:Someone got me a candle last year and the smell gave me a migraine for two days.>> Strong perfumes are my nemesis."],["Morning routine","Tuesday","Up at 6, run, shower, <<l:a big pot of chai.>> Repeat."]]},
+  {name:"Leo", rel:"your nephew (age 9)", bio:"Future astronaut · LEGO builder · dinosaur expert", budget:60, look:{skin:SKINS[5][0], hair:"curls", hairC:"black", eye:"brown", top:"#ffbf2e", shape:"round"},
+   need:["telescope"], like:["space","kids"], avoid:["screen"], why:{need:"He's desperate to see Saturn's rings.", avoid:"His parents have a no-screens rule."},
+   posts:[["(Written by Leo's mum)","Friday","Leo watched a documentary about the planets and now <<n:talks nonstop about wanting to see Saturn's rings with his own eyes.>>"],["House rules","Last month","<<a:We've gone screen-free on weekdays, so no tablets or games for now.>> It's going surprisingly well!"],["Birthday list","Monday","Leo's list: rockets, <<l:anything about space,>> and “a real astronaut suit” (sorry, Leo)."]]},
+  {name:"Sofia", rel:"your old roommate", bio:"New mum to baby Ana · used to be a barista · sleep-deprived", budget:35, look:{skin:SKINS[3][0], hair:"lob", hairC:"darkbrown", eye:"hazel", top:"#6f62ff", shape:"oval"},
+   need:["timesaver","coffee"], like:["coffee","selfcare"], avoid:["slow","big"], why:{need:"She has no time to cook and runs on coffee.", avoid:"Nothing that needs hours or space."},
+   posts:[["Week 3 of motherhood","Today","Ana is perfect. I have not slept since 2025. <<n:I ate cereal for dinner again because cooking feels impossible.>>"],["Things I miss","Wednesday","<<l:Proper coffee.>> <<n:I used to make the best flat whites in the city; now I drink cold instant coffee at 4 a.m.>>"],["Nesting","Last week","<<a:The flat is FULL of baby stuff. There is not one centimeter of free counter space.>> <<a:And no, I don't have time for hobbies right now!>>"]]},
+  {name:"Kenji", rel:"your college friend", bio:"Moving to Vancouver · cycles everywhere · board-game host", budget:55, look:{skin:SKINS[2][0], hair:"pixie", hairC:"black", eye:"darkbrown", top:"#2a9d8f", shape:"long"},
+   need:["cycling"], like:["rain","puzzle"], avoid:["umbrella"], why:{need:"He'll be cycling to work in a dark, rainy city.", avoid:"He already has a great umbrella."},
+   posts:[["Big move!","Monday","Moving to Vancouver next month! <<n:I'll be cycling to the new office every day, and apparently it's dark by 4:30 in winter.>>"],["Packing","Thursday","Found the umbrella my mum gave me. <<a:Seriously the best umbrella ever, it's coming with me.>>"],["Game night","Saturday","<<l:Hosted my last board-game night here.>> I'll miss these people."]]},
+  {name:"Aisha", rel:"your sister", bio:"Illustrator · draws every single day · runs a comic blog", budget:25, look:{skin:SKINS[6][0], hair:"braids", hairC:"black", eye:"darkbrown", top:"#e85d3a", shape:"oval"},
+   need:["sketchbook"], like:["art"], avoid:["wool"], why:{need:"She filled her last sketchbook.", avoid:"She's allergic to wool."},
+   posts:[["Day 365!","Today","One year of a drawing every day! <<n:And I just used the very last page of my sketchbook.>>"],["Winter woes","January","<<a:Wore a wool sweater for an hour and my skin broke out in hives. Allergic, as always.>>"],["New comic page","Friday","<<l:Inked this page with brush pens; I'm obsessed with the texture.>>"]]},
+  {name:"Tom", rel:"your neighbor", bio:"Learning ukulele · tea snob · saving up for a trip", budget:15, look:{skin:SKINS[0][0], hair:"curls", hairC:"auburn", eye:"green", top:"#78c552", shape:"round"},
+   need:["ukulele"], like:["tea","music"], avoid:[], why:{need:"His ukulele string snapped.", avoid:"Keep it within a small budget."},
+   posts:[["Disaster","Yesterday","Three weeks into ukulele lessons and <<n:the C string snapped mid-song.>> Can't practice until I replace it."],["Tea of the week","Monday","<<l:Trying an oolong from Taiwan this week. Floral, smooth, wonderful.>>"],["Trip fund","Last month","<<a:Every penny is going toward my trip to Japan, so tiny treats only!>>"]]},
+  {name:"Nora", rel:"your aunt", bio:"Reads 100 books a year · tiny flat · mystery fan", budget:20, look:{skin:SKINS[1][0], hair:"bob", hairC:"grey", eye:"brown", top:"#c8a2f0", shape:"heart", glasses:true},
+   need:["books"], like:["mystery","tea"], avoid:["paperbook","big"], why:{need:"She devours books, especially mysteries.", avoid:"No shelf space: she reads on her e-reader."},
+   posts:[["Book 87","Sunday","<<l:Finished another whodunit. I guessed the culprit by chapter 3!>> <<n:Already need my next read.>>"],["Shelf crisis","Wednesday","<<a:My bookshelves are officially full; I've switched to reading everything on my e-reader.>>"],["Cozy evening","Friday","Rain, a blanket and a pot of tea. Perfect."]]},
+  {name:"Ravi", rel:"your roommate", bio:"First year at uni · homesick · learning to cook", budget:30, look:{skin:SKINS[4][0], hair:"buzz", hairC:"black", eye:"darkbrown", top:"#ff7db8", shape:"square"},
+   need:["spices","cooking"], like:["food"], avoid:["big"], why:{need:"He misses his mum's cooking and is learning to cook.", avoid:"Tiny shared kitchen."},
+   posts:[["Homesick","Tuesday","<<n:I really miss my mum's dal. I tried to make it but our kitchen only has salt and pepper.>>"],["Kitchen wars","Sunday","<<a:Six of us share one tiny kitchen. There's literally no room for another appliance.>>"],["Cooking win","Thursday","<<l:Made my first ever omelette without burning it!>>"]]}
+];
+const GIFT_SHIP = 4, GIFT_FREE = 40;
+STUDIO.gift = {
+  start(){ this.people = freshItems("gift", GIFT_PEOPLE, 3, x => x.name); this.round = 0; this.total = 0; this.log = []; this.newRound(); },
+  newRound(){
+    const g = this.people[this.round]; this.g = g; this.cart = []; this.cat = "All"; this.q = ""; this.locked = false;
+    const blog = g.posts.map(([title, date, body]) => `<article class="post"><header><b>${title}</b><small>${date}</small></header><p>${body.replace(/<<([nla]):(.*?)>>/g, (_, k, t) => `<span class="clue" data-k="${k}">${t}</span>`)}</p></article>`).join("");
+    stage.innerHTML = `<div class="gift-grid">
+      <section class="blog"><div class="blog-head"><div class="blog-av">${faceSVG({...g.look, ...randomFeatures(g.name), mood:"happy"}, 72)}</div><div><span class="eyebrow">${g.rel}'s blog</span><h3>${g.name}</h3><p>${g.bio}</p></div></div>${blog}</section>
+      <section class="shop"><div class="brief"><span class="eyebrow">Gift ${this.round+1} of ${this.people.length}</span><h3>Find ${g.name} the perfect gift</h3><p>Read the blog for what they need, love and must avoid. Budget <b>£${g.budget}</b>, including shipping (£${GIFT_SHIP}, free over £${GIFT_FREE}). Pick up to 2 items.</p></div>
+        <div class="shop-bar"><input id="gfQ" placeholder="Search the store…" aria-label="Search"><div class="chips" id="gfCats">${["All", ...new Set(GIFT_ITEMS.map(x => x.c))].map(c => `<button type="button" class="ch" data-cat="${c}">${c}</button>`).join("")}</div></div>
+        <div class="shop-grid" id="gfGrid"></div>
+        <div class="cart" id="gfCart"></div><div id="gfRes"></div></section></div>`;
+    $("gfQ").oninput = e => { this.q = e.target.value.toLowerCase(); this.renderShop(); };
+    $("gfCats").onclick = e => { const b = e.target.closest("[data-cat]"); if(b){ this.cat = b.dataset.cat; sfx.click(); this.renderShop(); } };
+    $("gfGrid").onclick = e => { const b = e.target.closest("[data-add]"); if(!b || this.locked) return; const it = GIFT_ITEMS[+b.dataset.add]; const i = this.cart.indexOf(it); if(i >= 0) this.cart.splice(i, 1); else if(this.cart.length < 2) this.cart.push(it); else { $("gfCartMsg") && ($("gfCartMsg").textContent = "Two gifts max: remove one first."); return; } sfx.click(); this.renderShop(); };
+    setSide("Score", fmt(this.total));
+    this.renderShop();
+  },
+  totals(){ const sub = this.cart.reduce((a, x) => a + x.p, 0), ship = sub >= GIFT_FREE || !sub ? 0 : GIFT_SHIP; return {sub, ship, tot:sub + ship}; },
+  renderShop(){
+    const list = GIFT_ITEMS.map((x, i) => [x, i]).filter(([x]) => (this.cat === "All" || x.c === this.cat) && (!this.q || (x.n + " " + x.d + " " + x.t.join(" ")).toLowerCase().includes(this.q)));
+    $("gfGrid").innerHTML = list.map(([x, i]) => `<article class="prod-card${this.cart.includes(x) ? " in" : ""}"><div class="pc-ic">${icon(x.i, 46)}</div><b>${x.n}</b><small>${x.d}</small><div class="pc-row"><span class="price">£${x.p}</span><button type="button" class="btn-sm" data-add="${i}">${this.cart.includes(x) ? "Remove" : "Add"}</button></div></article>`).join("") || `<p class="msg">No products match.</p>`;
+    stage.querySelectorAll("[data-cat]").forEach(b => b.classList.toggle("sel", b.dataset.cat === this.cat));
+    const t = this.totals(), over = t.tot > this.g.budget;
+    $("gfCart").innerHTML = `<div class="cart-in"><b>Basket</b>${this.cart.map(x => `<span class="cart-item">${icon(x.i, 22)} ${x.n} · £${x.p}</span>`).join("") || `<span class="cart-item muted">Empty</span>`}
+      <div class="cart-sum"><span>Items £${t.sub}</span><span>Shipping ${t.ship ? "£" + t.ship : "free"}</span><span class="${over ? "over" : ""}">Total <b>£${t.tot}</b> / £${this.g.budget}</span></div>
+      <p class="msg" id="gfCartMsg">${over ? `Over budget by £${t.tot - this.g.budget}.` : ""}</p>
+      <button class="btn btn-solid" type="button" id="gfGo" ${!this.cart.length || over || this.locked ? "disabled" : ""}>Wrap it & send</button></div>`;
+    $("gfGo").onclick = () => this.send();
+  },
+  send(){
+    if(this.locked) return; this.locked = true;
+    const g = this.g, tags = new Set(this.cart.flatMap(x => x.t));
+    const needOk = g.need.some(n => tags.has(n)), likeOk = g.like.some(n => tags.has(n)), bad = g.avoid.filter(a => tags.has(a));
+    const res = [
+      {label:"Something they actually need", ok:needOk, why:g.why.need},
+      {label:"Matches what they love", ok:likeOk, why:`Clues: ${g.like.join(", ")}.`},
+      {label:"Avoids anything they'd hate", ok:!bad.length, why: bad.length ? `Oops: ${listAnd(bad.map(b => ({honey:"honey isn't vegan", leather:"leather isn't vegan", big:"it's too big for their space", tech:"gadgets confuse them", screen:"screens are off-limits", slow:"it takes hours they don't have", scented:"strong scents trigger migraines", umbrella:"they already have one", wool:"wool allergy", paperbook:"no shelf space for paper books"})[b] || b))}. ${g.why.avoid}` : g.why.avoid},
+      {label:"Within budget, shipping included", ok:true, why:`£${this.totals().tot} of £${g.budget}.`}
+    ];
+    const f = (needOk ? .5 : 0) + (likeOk ? .2 : 0) + (bad.length ? 0 : .2) + .1, pts = Math.round(1000*(bad.length ? Math.min(f, .4) : f));
+    this.total += pts; this.log.push({n:g.name, pts}); adapt("gift", pts/1000);
+    pts >= 900 ? sfx.win() : pts >= 500 ? sfx.good() : sfx.bad();
+    stage.querySelectorAll(".clue").forEach(s => s.classList.add("show"));
+    const reply = bad.length ? `Oh… thank you. ${bad.includes("scented") ? "I'll have to give this one away, the smell…" : bad.includes("wool") ? "Sadly I can't wear wool." : "I'm not sure I can use this."}` : needOk && likeOk ? "THIS IS PERFECT. How did you know?! 😍".replace(" 😍", "") : needOk ? "Oh, I really needed this. Thank you!" : likeOk ? "Aw, that's so me. Thanks!" : "Thank you, that's kind.";
+    const last = this.round === this.people.length - 1;
+    $("gfRes").innerHTML = `<div class="reveal"><span class="eyebrow">${pts >= 900 ? "Perfect gift" : pts >= 500 ? "Good gift" : "Missed the mark"}</span><span class="pts">+${fmt(pts)}</span>
+      <div class="reply"><div class="reply-av">${faceSVG({...g.look, ...randomFeatures(g.name), mood: pts >= 900 ? "happy" : pts >= 500 ? "neutral" : "sad"}, 54)}</div><p>“${reply}”</p></div>
+      ${checklist(res)}<p class="m-note">The highlighted sentences in the blog were the clues: <span class="clue show" data-k="n">need</span> <span class="clue show" data-k="l">love</span> <span class="clue show" data-k="a">avoid</span>.</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="gfNext">${last ? "See results" : "Next person"}</button></div></div>`;
+    $("gfNext").onclick = () => { if(last) this.finish(); else { this.round++; this.newRound(); } };
+    this.renderShop(); setSide("Score", fmt(this.total));
+    $("gfRes").scrollIntoView({block:"nearest", behavior:"smooth"});
+  },
+  finish(){
+    const max = this.people.length*1000, f = this.total/max, stars = f >= .9 ? 3 : f >= .6 ? 2 : 1;
+    endSession({title: stars === 3 ? "Gift genius" : stars === 2 ? "Thoughtful giver" : "Back to the blogs", stars, xp:20+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}. The best gifts solve a real problem and respect the person's limits.</p><ul class="roundlog">${this.log.map(l => `<li><span>${l.n}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+      actions:[["Shop again", () => startRoom("gift","studio"), true], ["Lobby", goHub]]});
+  }
+};
+HOWTO.gift = ["Read the person's blog posts carefully.","Look for what they need, what they love and anything they'd hate (allergies, no space, already own it).","Shop within budget, including shipping, and send the gift."];
+GEN.gift = d => { const g = pick(GIFT_PEOPLE), good = GIFT_ITEMS.filter(x => g.need.some(n => x.t.includes(n)) && !g.avoid.some(a => x.t.includes(a)) && x.p <= g.budget), it = pick(good.length ? good : GIFT_ITEMS);
+  const others = shuffle(GIFT_ITEMS.filter(x => x !== it && !g.need.some(n => x.t.includes(n)))).slice(0, 3).map(x => x.n);
+  const clue = g.posts.map(p => p[2]).join(" ").match(/<<n:(.*?)>>/); return mk(`${g.name} wrote: “${clue ? clue[1] : g.bio}”<br>Which gift fits best?`, it.n, others, `${it.n}: ${g.why.need}`, {text:true}); };
 
 renderHub();
 </script>
