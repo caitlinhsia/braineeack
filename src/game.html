@@ -3401,7 +3401,7 @@ GEN.lab = d => fromBank(LAB_BANK, d);
    FACES: one detailed portrait renderer shared by the Hair Salon,
    Makeup Studio, Peacemaker cast and the Atelier figure
    ========================================================= */
-const SKINS = [["#f9dcc8","porcelain"],["#f1c6a6","light"],["#e2aa83","light-medium"],["#c98e62","medium"],["#a86b43","tan"],["#8a5233","deep"],["#6b3c22","rich"],["#4b2818","ebony"]];
+const SKINS = [["#f9dcc8","porcelain"],["#f1c6a6","light"],["#e2aa83","light-medium"],["#c98e62","medium"],["#a86b43","tan"],["#8a5233","deep"],["#6b3c22","rich"],["#4b2818","ebony"],["#3a1e12","espresso"]];
 const HAIRC = {black:"#1f1a17", darkbrown:"#4a2c1d", brown:"#7a4a2a", auburn:"#a0451f", copper:"#c8641e", blonde:"#e8c77b", platinum:"#efe6d2", ash:"#a89c8c", grey:"#b7b2ad", pink:"#ff8fc2", blue:"#4f7cff", brassy:"#e9b53f", brassyorange:"#d9822b", greenish:"#c4c98a"};
 const EYEC = {brown:"#6b3e1f", darkbrown:"#3f2414", blue:"#4a90d9", green:"#4f9a5a", hazel:"#8f7a3b", grey:"#8a9aa6"};
 function hexRGB(h){ const n = parseInt(h.slice(1),16); return [n>>16, (n>>8)&255, n&255]; }
@@ -3463,26 +3463,38 @@ function faceInner(p){
   if(!mk.blush && (mood === "angry")) g += `<g fill="#e63946" opacity=".22"><ellipse cx="74" cy="126" rx="12" ry="7"/><ellipse cx="126" cy="126" rx="12" ry="7"/></g>`;
   // eyes
   const eyeC = EYEC[p.eye] || p.eye || EYEC.brown, ey = 104;
-  const lidDrop = mood === "angry" ? 4 : mood === "sad" ? 2 : mood === "tense" ? 1 : 0, open = mood === "surprised" ? 11 : 9;
+  const lidDrop = mood === "angry" ? 4 : mood === "sad" ? 2 : mood === "tense" ? 1 : 0, open = (mood === "surprised" ? 11 : 9) + ({round:2, monolid:-2.5, hooded:-1}[p.eyeShape] || 0);
   [80, 120].forEach((x, i) => {
     const dir = i === 0 ? -1 : 1;
+    const tilt = p.eyeShape === "upturned" ? -7*dir : p.eyeShape === "downturned" ? 6*dir : 0; g += `<g transform="rotate(${tilt} ${x} ${ey})">`;
     if(mk.shadow) g += `<path d="M${x-15} ${ey-1} C${x-10} ${ey-17} ${x+10} ${ey-17} ${x+15} ${ey-1} C${x+8} ${ey-8} ${x-8} ${ey-8} ${x-15} ${ey-1}Z" fill="${mk.shadow}" opacity=".85"/>`;
     g += `<path d="M${x-12} ${ey} C${x-6} ${ey-open} ${x+6} ${ey-open} ${x+12} ${ey} C${x+6} ${ey+7} ${x-6} ${ey+7} ${x-12} ${ey}Z" fill="#fff" stroke="${INK}" stroke-width="1.6"/>`;
-    g += `<path d="M${x-12} ${ey-11} Q${x} ${ey-17.5} ${x+12} ${ey-11}" fill="none" stroke="${shade(skin,-.4)}" stroke-width="1.2" stroke-linecap="round" opacity=".55"/>`;
+    if(p.eyeShape !== "monolid") g += p.eyeShape === "hooded" ? `<path d="M${x-13} ${ey-6} Q${x} ${ey-12.5} ${x+13} ${ey-6}" fill="none" stroke="${shade(skin,-.4)}" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>` : `<path d="M${x-12} ${ey-11} Q${x} ${ey-17.5} ${x+12} ${ey-11}" fill="none" stroke="${shade(skin,-.4)}" stroke-width="1.2" stroke-linecap="round" opacity=".55"/>`;
     g += `<circle cx="${x}" cy="${ey-1}" r="5.6" fill="${eyeC}" stroke="${shade(eyeC,-.45)}" stroke-width="1"/><circle cx="${x}" cy="${ey-1}" r="3.6" fill="${shade(eyeC,.18)}" opacity=".55"/><circle cx="${x}" cy="${ey-1}" r="2.5" fill="${INK}"/><circle cx="${x+1.8}" cy="${ey-3}" r="1.4" fill="#fff"/><circle cx="${x-1.6}" cy="${ey+.6}" r=".6" fill="#fff" opacity=".8"/>`;
     g += `<path d="M${x-10} ${ey+3} Q${x} ${ey+7.5} ${x+10} ${ey+3}" fill="none" stroke="${shade(skin,-.35)}" stroke-width="1" opacity=".5"/>`;
     if(lidDrop) g += `<path d="M${x-13} ${ey} C${x-6} ${ey-open-2} ${x+6} ${ey-open-2} ${x+13} ${ey} L${x+13} ${ey-4+lidDrop*(mood==="sad" ? (dir>0?.2:1) : 1)} C${x+6} ${ey-open+lidDrop+2} ${x-6} ${ey-open+lidDrop+2} ${x-13} ${ey-4+lidDrop}Z" fill="${mk.foundation ? mixHex(skin, mk.foundation, .62) : skin}"/>`;
     const lw = mk.liner === "thin" || mk.liner === "winged" ? 3.6 : 2.4;
     g += `<path d="M${x-12} ${ey} C${x-6} ${ey-open+lidDrop} ${x+6} ${ey-open+lidDrop} ${x+12} ${ey}" fill="none" stroke="${INK}" stroke-width="${lw}" stroke-linecap="round"/>`;
     if(mk.liner === "winged") g += `<path d="M${x + 12*dir} ${ey} L${x + 20*dir} ${ey-6}" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
+    if(p.lashes) g += [.55,.72,.88,1].map(t => { const lx = x + dir*12*t, ly = ey - open*Math.sin(Math.PI*(1 - t)/2)*1.02 + (t > .95 ? 0 : 0); return `<path d="M${lx.toFixed(1)} ${(ly).toFixed(1)} q${(dir*1.2).toFixed(1)} -1.6 ${(dir*2.6).toFixed(1)} -2.4" fill="none" stroke="${INK}" stroke-width="1.1" stroke-linecap="round"/>`; }).join("");
+    g += `</g>`;
     // brows
     const bc = p.browC || shade(hc, -.25), inner = x - 9*dir*-1;
-    const by = {neutral:[88,86,88], happy:[86,84,87], angry:[93,86,84], sad:[84,86,91], tense:[90,87,88], surprised:[80,78,82]}[mood] || [88,86,88];
+    let by = {neutral:[88,86,88], happy:[86,84,87], angry:[93,86,84], sad:[84,86,91], tense:[90,87,88], surprised:[80,78,82]}[mood] || [88,86,88];
+    if(p.brow === "arched") by = [by[0], by[1] - 3, by[2] + 1]; else if(p.brow === "straight") by = [by[0] - 1, by[0] - 1.6, by[2] - 1.4];
     const xi = x + (i === 0 ? 11 : -11), xo = x + (i === 0 ? -13 : 13);
     g += `<path d="M${xi} ${by[0]-2.4} Q${x} ${by[1]-5.4} ${xo} ${by[2]-.4} Q${x} ${by[1]-.6} ${xi} ${by[0]+2.4}Z" fill="${bc}" stroke="${bc}" stroke-width="1" stroke-linejoin="round"/>` + [0.15,0.35,0.55].map(t => { const hx = xi + (xo-xi)*t; return `<path d="M${hx} ${by[0]+1.6 - t*2} l${(xo-xi)*.05} -3" stroke="${shade(bc,.25)}" stroke-width=".6" opacity=".6"/>`; }).join("");
+    if(p.brow === "thick") g += `<path d="M${xi} ${by[0]-2.4} Q${x} ${by[1]-5.4} ${xo} ${by[2]-.4} Q${x} ${by[1]-.6} ${xi} ${by[0]+2.4}Z" fill="none" stroke="${bc}" stroke-width="2.8" stroke-linejoin="round"/>`;
   });
   // nose
+  const nT = {wide:[1.32,1], narrow:[.8,1.04], long:[.95,1.18], button:[.85,.82], round:[1.15,.95]}[p.nose] || [1,1];
+  g += `<g transform="translate(100 126) scale(${nT[0]} ${nT[1]}) translate(-100 -126)">`;
   g += `<path d="M101 108 C99 117 97 122 96 126" fill="none" stroke="${shade(skin,-.3)}" stroke-width="1.6" stroke-linecap="round" opacity=".7"/><path d="M92 127 C94 131 98 131.5 100 130 C102 131.5 106 131 108 127" fill="none" stroke="${shade(skin,-.45)}" stroke-width="2" stroke-linecap="round"/><path d="M94.5 128.5 q2 1.5 3.6 .6 M105.5 128.5 q-2 1.5 -3.6 .6" stroke="${shade(skin,-.55)}" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+  g += `</g>`;
+  if(p.stud) g += `<circle cx="${p.stud === "left" ? 93 : 107}" cy="127.5" r="1.4" fill="#ffd166" stroke="${INK}" stroke-width=".6"/>`;
+  if(p.freckles) { const R2 = rng("fr" + skin + (p.shape || "")); g += Array.from({length:18}, () => { const side = R2() < .5 ? -1 : 1; return `<circle cx="${(100 + side*(8 + R2()*24)).toFixed(1)}" cy="${(112 + R2()*14).toFixed(1)}" r="${(.5 + R2()*.6).toFixed(2)}" fill="${shade(skin,-.35)}" opacity=".6"/>`; }).join(""); }
+  if(p.mole) g += `<circle cx="${p.mole[0]}" cy="${p.mole[1]}" r="1.3" fill="${shade(skin,-.55)}"/>`;
+  g += `<g transform="${lipTransform(p)}">`;
   // mouth
   const lipC = mk.lip || shade(skin, -.2);
   if(mood === "happy") g += `<path d="M84 140 C90 156 110 156 116 140 C108 144 92 144 84 140Z" fill="${mk.lip ? lipC : "#7a2e2e"}" ${L}/><path d="M89 143 C96 146 104 146 111 143 L110 146 C104 148 96 148 90 146Z" fill="#fff"/>`;
@@ -3491,6 +3503,8 @@ function faceInner(p){
   else if(mood === "surprised") g += `<ellipse cx="100" cy="145" rx="7" ry="9" fill="#7a2e2e" ${L}/>`;
   else if(mood === "tense") g += `<path d="M88 144 L112 144" stroke="${mk.lip ? lipC : INK}" stroke-width="${mk.lip ? 5 : 2.6}" stroke-linecap="round"/>`;
   else g += `<path d="${LIP_UP}" fill="${mk.lip ? lipC : shade(skin,-.28)}" stroke="${INK}" stroke-width="1.5"/><path d="${LIP_LO}" fill="${lipC}" stroke="${INK}" stroke-width="1.5"/><path d="M84 141 C92 143.4 108 143.4 116 141" fill="none" stroke="${INK}" stroke-width="1.7" stroke-linecap="round"/><path d="M95 146.5 q5 2 10 0" stroke="#fff" stroke-width="1.4" opacity=".45" stroke-linecap="round"/>`;
+  g += `</g>`;
+  if(p.dimples && (mood === "happy")) g += `<path d="M80 140 q-2 3 0 6 M120 140 q2 3 0 6" fill="none" stroke="${shade(skin,-.35)}" stroke-width="1.2" stroke-linecap="round"/>`;
   if(p.paintOver) g += p.paintOver;
   // front hair
   const capD = `M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z`;
@@ -3522,6 +3536,11 @@ const EYE_WHY = {brown:"Brown is a dark orange, so blues and purples, its opposi
 const UNDERTONE = {warm:"#e8b84a", cool:"#e88aa8", neutral:"#d9b8a0"};
 const NAMES = ["Amara","Lucía","Mei","Priya","Zainab","Hana","Sofia","Nia","Leila","Ingrid","Ana","Yuki","Fatima","Olivia","Imani","Rosa","Aiko","Chloe"];
 const MK_OCC = {
+  prom:{label:"prom night", rules:[{label:"Something that sparkles: shimmer, glitter or gems", why:"Prom photos are taken with flash and party lights. A little sparkle catches the light.", test:m=>m.gems > 0 || m.used.has("glitter") || m.shimmer},{label:"Defined lashes: mascara on", why:"Mascara opens the eyes in photos.", test:m=>m.cov.mascara >= .3}]},
+  news:{label:"reading the TV news", rules:[{label:"Even skin: foundation all over", why:"HD cameras show every uneven patch. Anchors wear full, even foundation.", test:m=>m.cov.face >= .6},{label:"No glitter or gems on camera", why:"Sparkle flickers under studio lights and distracts viewers.", test:m=>!m.gems && !m.used.has("glitter")}]},
+  match:{label:"cheering at a big football match", rules:[{label:"Team colors in face paint", why:"Fans have painted their faces in team colors for centuries; it's a way of belonging to a crowd.", test:m=>m.used.has("facepaint")},{label:"Waterproof and simple eyes: no shadow", why:"Rain, sweat and shouting! Keep the eyes simple.", test:m=>!m.shadow}]},
+  festival:{label:"a summer music festival", rules:[{label:"Glitter or face gems", why:"Festival looks are all about playful sparkle that shows up in sunshine.", test:m=>m.gems > 0 || m.used.has("glitter")},{label:"A bright eyeshadow color", why:"Festivals are for color.", test:m=>m.shadows.some(c => ["pink","turquoise","purple","lime","orange","yellow","fuchsia","cobalt","sky","teal"].includes(c))}]},
+  firstdate:{label:"a first date at a café", rules:[{label:"Rosy cheeks: blush on the apples", why:"A soft flush on the apples looks happy and natural in daylight.", test:m=>m.blush !== "none" && m.place === "apples"},{label:"A soft lip shade or gloss", why:"Soft colors look effortless and survive coffee.", test:m=>m.used.has("gloss") || MK_LIPS_ALL().find(l=>l[0]===m.lip)?.[3] === "soft"}]},
   interview:{label:"a job interview", rules:[{label:"Polished and natural: no winged liner", why:"Interview makeup should look like you, only well rested. Dramatic liner reads as evening.", test:m=>m.liner !== "winged"},{label:"A soft lip shade", why:"Soft shades like nude, peach, rose and coral look professional and don't distract from what you say.", test:m=>MK_LIPS_ALL().find(l=>l[0]===m.lip)?.[3] === "soft"}]},
   gala:{label:"a black-tie gala", rules:[{label:"Evening drama: winged liner", why:"Evening light is dim and warm. Defined eyes and a wing stay visible across a ballroom.", test:m=>m.liner === "winged"},{label:"A bold lip", why:"A deep or bright lip balances formal clothes and reads well in photos with flash.", test:m=>MK_LIPS_ALL().find(l=>l[0]===m.lip)?.[3] === "bold"}]},
   stage:{label:"performing on stage", rules:[{label:"Defined eyes for the back row: liner on", why:"Stage lights wash out features. Performers exaggerate eyes so the audience can read expressions.", test:m=>m.liner !== "none"},{label:"A bold lip", why:"Under bright lights a soft lip disappears completely.", test:m=>MK_LIPS_ALL().find(l=>l[0]===m.lip)?.[3] === "bold"}]},
@@ -3668,6 +3687,16 @@ function zoneSamples(z){
 }
 function segDist(px, py, ax, ay, bx, by){ const dx = bx-ax, dy = by-ay, l = dx*dx + dy*dy; let t = l ? ((px-ax)*dx + (py-ay)*dy)/l : 0; t = clamp(t, 0, 1); return Math.hypot(px - (ax + t*dx), py - (ay + t*dy)); }
 const MK_THEMES = [
+  {n:"Mermaid lagoon", s:"Shimmering sea colors and scales of sparkle.", f:"Iridescence, like on fish scales and soap bubbles, comes from light bouncing between thin layers, not from pigment.",
+   checks:[["Ocean eyeshadow: teal, turquoise, sky or cobalt", m => m.shadows.some(c => ["teal","turquoise","sky","cobalt"].includes(c))],["Some sparkle: glitter or gems", m => m.used.has("glitter") || m.gems > 0],["Highlighter on the cheekbones", m => m.cov.highlight >= .2]]},
+  {n:"Gothic night", s:"Dark, dramatic and moody.", f:"Goth fashion grew out of the 1980s post-punk music scene in Britain, borrowing from Victorian mourning dress.",
+   checks:[["Dark lips: wine, plum, black or chocolate", m => ["wine","plum","black","chocolate","berry"].includes(m.lip)],["Smoky eyes: dark shadow (black, plum, purple, navy or chocolate)", m => m.shadows.some(c => ["black","plum","purple","navy","chocolate"].includes(c))],["Winged or thick liner", m => m.liner !== "none"]]},
+  {n:"Y2K pop princess", s:"Frosty, glossy and glittery, straight out of 2002.", f:"Around 2000, frosted shadow, glossy lips and body glitter were everywhere, partly because new shimmer pigments had become cheap.",
+   checks:[["Glossy lips", m => m.used.has("gloss")],["Frosty eyes: silver, lilac, sky or white", m => m.shadows.some(c => ["silver","lilac","sky","white"].includes(c))],["Glitter", m => m.used.has("glitter")]]},
+  {n:"Galaxy", s:"Deep space colors with stars.", f:"The colors in space photos are often mapped from invisible light, such as infrared, so scientists can see different gases.",
+   checks:[["Cosmic eyeshadow: purple, navy, cobalt or fuchsia", m => m.shadows.some(c => ["purple","navy","cobalt","fuchsia"].includes(c))],["Stars: gems or glitter", m => m.gems >= 2 || m.used.has("glitter")],["Something painted: face paint", m => m.used.has("facepaint")]]},
+  {n:"Sports-day champion", s:"Team spirit, painted proudly.", f:"Athletes wear dark eye black under their eyes to cut glare from the sun and stadium lights.",
+   checks:[["Face paint stripes", m => m.used.has("facepaint")],["No eyeshadow: keep it sporty", m => !m.shadow],["Natural, even skin", m => m.cov.face >= .4]]},
   {n:"Sunset glam", s:"Warm, glowing colors like the sky at golden hour.", f:"Sunset palettes are analogous: neighbors on the color wheel (red, orange, gold) always look harmonious together.",
    checks:[["Warm eyeshadow: copper, bronze, gold or orange", m => m.shadows.some(c => ["copper","bronze","gold","orange"].includes(c))],["A glow of highlighter on the cheekbones", m => m.cov.highlight >= .25],["Warm lips: coral, peach, orange-red or brick", m => ["coral","peach","orange-red","brick"].includes(m.lip)],["Blush for a sun-kissed flush", m => m.used.has("blush")]]},
   {n:"Ice queen", s:"Frosty, cool and glittering.", f:"Cool colors (blues, silvers, violets) seem to recede and feel calm, which is why “icy” looks use them.",
@@ -3838,7 +3867,7 @@ STUDIO.makeup = {
     const lip = cov.lips >= .4 ? this.mostColor("lipstick","lips") : null;
     return {foundation: cov.face >= .55 && sh ? sh : null, cov, shadow: cov.lids >= .3 ? (this.mostColor("shadow","lids")) : null, shadows: cov.lids >= .2 ? shadowCols : [],
       liner, blush, place: cheek > apples ? "cheekbones" : "apples", lip: lip || (this.mode === "theme" ? null : "nude"), used, hl: this.mostColor("highlight","highlight"),
-      gems: this.strokes.filter(s => s.p === "gems").length, freckles: this.strokes.filter(s => s.p === "freckles").length};
+      shimmer: this.strokes.some(s => s.fin === "shimmer"), gems: this.strokes.filter(s => s.p === "gems").length, freckles: this.strokes.filter(s => s.p === "freckles").length};
   },
   neat(){
     const issues = [];
@@ -3869,7 +3898,7 @@ STUDIO.makeup = {
     $("mkRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? (this.mode === "theme" ? "Perfect score from the judges" : `${this.c.name} loves it`) : f >= .6 ? "Almost there" : "Back to the brushes"}</span><span class="pts">+${fmt(pts)}</span>${judges}${checklist(res)}
       <div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="mkBooth">${icon("📸", 20)} Photo booth</button><button class="btn btn-solid" type="button" id="mkNext">${last ? "See results" : this.mode === "theme" ? "Next theme" : "Next client"}</button></div></div>`;
     const under = $("mkUnder").innerHTML, over = $("mkOver").innerHTML, c = this.c;
-    $("mkBooth").addEventListener("click", () => photoBooth({name:c.name, caption: this.mode === "theme" ? this.theme.n : `Ready for ${MK_OCC[c.occ].label}`, face:mood => faceInner({skin:SKINS[c.depth][0], shape:c.shape, hair:c.hair, hairC:c.hairC, eye:c.eye, top:c.top, mood, earring:"#ffbf2e", paintUnder:under, paintOver:over})}));
+    $("mkBooth").addEventListener("click", () => photoBooth({name:c.name, caption: this.mode === "theme" ? this.theme.n : `Ready for ${MK_OCC[c.occ].label}`, face:mood => faceInner({...featuresOf(c), skin:SKINS[c.depth][0], shape:c.shape, hair:c.hair, hairC:c.hairC, eye:c.eye, top:c.top, mood, earring:c.earring || "#ffbf2e", paintUnder:under, paintOver:over})}));
     $("mkNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
     setSide("Score", fmt(this.total));
   },
@@ -7371,7 +7400,8 @@ HOWTO.dive = ["Pick a version. Classic: list as many answers in a category as yo
     },
     mountFace(mood = "neutral"){
       const c = this.c, shapeD = FACE_SHAPES[c.shape];
-      $("mkFace").innerHTML = faceSVG({skin:SKINS[c.depth][0], shape:c.shape, hair:c.hair, hairC:c.hairC, eye:c.eye, top:c.top, mood, earring:"#ffbf2e", paintUnder:`<g id="mkUnder"></g>`, paintOver:`<g id="mkOver"></g><g id="mkGuideG"></g><path id="mkHit" d="${shapeD}" fill="none" stroke="none" pointer-events="none"/><g id="mkCursor" pointer-events="none"></g>`}, 330, "", "34 24 132 160");
+      if(!c.feat) Object.assign(c, randomFeatures(), {feat:true});
+      $("mkFace").innerHTML = faceSVG({...featuresOf(c), skin:SKINS[c.depth][0], shape:c.shape, hair:c.hair, hairC:c.hairC, eye:c.eye, top:c.top, mood, earring:c.earring || "#ffbf2e", paintUnder:`<g id="mkUnder"></g>`, paintOver:`<g id="mkOver"></g><g id="mkGuideG"></g><path id="mkHit" d="${shapeD}" fill="none" stroke="none" pointer-events="none"/><g id="mkCursor" pointer-events="none"></g>`}, 330, "", "34 24 132 160");
       const svg = $("mkFace").querySelector("svg"), hit = $("mkHit");
       const pt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [+q.x.toFixed(1), +q.y.toFixed(1)]; };
       const onFace = q => { try{ return hit.isPointInFill(new DOMPoint(q[0], q[1])); }catch(_){ const P2 = svg.createSVGPoint(); P2.x = q[0]; P2.y = q[1]; return hit.isPointInFill(P2); } };
@@ -7427,7 +7457,7 @@ HOWTO.dive = ["Pick a version. Classic: list as many answers in a category as yo
       const defs = `<defs><clipPath id="mkClip"><path d="${shapeD}"/></clipPath>${SOFT_SD.map((sd, i) => i ? `<filter id="mkS${i}" filterUnits="userSpaceOnUse" x="0" y="-14" width="200" height="246"><feGaussianBlur stdDeviation="${sd}"/></filter>` : "").join("")}</defs>`;
       under.innerHTML = defs + `<g clip-path="url(#mkClip)">${layer(UNDER)}</g>`;
       let o = layer(["brow","lipstick","gloss","lipliner","liner","facepaint"]);
-      if(this.strokes.some(s => s.p === "lipstick")) o += `<path d="${LIP_UP}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="${LIP_LO}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="M84 141 C92 143.4 108 143.4 116 141" fill="none" stroke="${INK}" stroke-width="1.4" opacity=".8"/>`;
+      if(this.strokes.some(s => s.p === "lipstick")) o += `<g transform="${lipTransform(this.c)}"><path d="${LIP_UP}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="${LIP_LO}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="M84 141 C92 143.4 108 143.4 116 141" fill="none" stroke="${INK}" stroke-width="1.4" opacity=".8"/></g>`;
       if(this.strokes.some(s => s.p === "gloss")) o += `<ellipse cx="101" cy="146.6" rx="6.5" ry="1.7" fill="#fff" opacity=".55"/><ellipse cx="96" cy="138.6" rx="2.6" ry=".9" fill="#fff" opacity=".45"/>`;
       const gt = this.strokes.filter(s => s.p === "glitter"); if(gt.length){ o += layer(["glitter"]); gt.forEach((st, si) => st.pts.forEach((q, qi) => { if(qi % 2) return; const R2 = rng("g" + si + "-" + qi); for(let k = 0; k < 3; k++) o += `<circle cx="${(q[0] + (R2()-.5)*st.r*2).toFixed(1)}" cy="${(q[1] + (R2()-.5)*st.r*2).toFixed(1)}" r="${(.3 + R2()*.6).toFixed(2)}" fill="${k ? this.colorOf("glitter", st.c) : "#fff"}"/>`; })); }
       const ms = this.strokes.filter(s => s.p === "mascara");
@@ -7862,5 +7892,12 @@ const HS_TEXNUM = {straight:0, wavy:1, curly:2, coily:3};
   H.renderTools = function(){ prevRT.call(this); const tb = $("hsTurn"); if(tb && !tb.dataset.v5){ tb.dataset.v5 = 1; tb.addEventListener("click", () => { Object.keys(this.bk.st).forEach(k => { if(this.bk.st[k] === "lift") this.bk.st[k] = "down"; }); this.render(); }, true); } };
 }
 
+function lipTransform(p){ const t = {full:[1.04,1.32], thin:[1,.74], wide:[1.2,1], heart:[.9,1.16], small:[.86,.9]}[p.lips] || [1,1]; return `translate(100 142) scale(${t[0]} ${t[1]}) translate(-100 -142)`; }
+const FACE_FEAT = {eyeShape:["almond","round","hooded","monolid","upturned","downturned"], nose:["default","wide","narrow","long","button","round"], lips:["default","full","thin","wide","heart","small"], brow:["default","arched","straight","thick"]};
+function randomFeatures(seed){
+  const R2 = seed ? rng(seed) : Math.random, pk = a => a[Math.floor(R2()*a.length)];
+  return {eyeShape:pk(FACE_FEAT.eyeShape), nose:pk(FACE_FEAT.nose), lips:pk(FACE_FEAT.lips), brow:pk(FACE_FEAT.brow), lashes:R2() < .7, freckles:R2() < .22, mole:R2() < .25 ? [pk([76,124,90,112]), pk([132,148,118])] : null, dimples:R2() < .3, stud:R2() < .15 ? pk(["left","right"]) : null};
+}
+const featuresOf = c => ({eyeShape:c.eyeShape, nose:c.nose, lips:c.lips, brow:c.brow, lashes:c.lashes, freckles:c.freckles, mole:c.mole, dimples:c.dimples, stud:c.stud});
 renderHub();
 </script>
