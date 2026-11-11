@@ -768,6 +768,19 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .runway{display:flex;flex-direction:column;align-items:center;gap:8px}
 .runway-model{background:radial-gradient(ellipse at 50% 30%, #fffdf8, var(--panel2));border:2.5px solid var(--ink);border-radius:18px;padding:12px 30px 6px;box-shadow:0 4px 0 var(--ink)}
 .runway-model svg{display:block;height:auto}
+
+.house-wrap{border:2.5px solid var(--ink);border-radius:16px;overflow:hidden;box-shadow:0 4px 0 var(--ink);background:#9ccf7a}
+.house-wrap svg{display:block;width:100%;height:auto}
+.house-wrap.final{max-width:420px;align-self:center;width:100%}
+.edgehit{cursor:pointer}.edgehit:hover{stroke:rgb(255 191 46 / .55)}
+.fz{cursor:pointer}.fz:hover{opacity:.7}
+.tabs2{display:flex;gap:6px}
+.tabs2 button{flex:1;padding:9px;border-radius:12px;border:2px solid var(--ink);background:var(--panel);font-weight:700;box-shadow:0 2px 0 var(--ink)}
+.tabs2 button.sel{background:var(--c)}
+.furnrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.furnrow b{min-width:84px;font-size:13px}
+.ch.done{background:color-mix(in srgb, var(--good) 30%, white)}
+@media (min-width:821px){ .house-col{position:sticky;top:12px} }
 </style>
 </head>
 <body>
@@ -4559,7 +4572,7 @@ STUDIO.floor = {
     if(L.y + L.h === H) C.push({type:"south", a:"Living", text:"Living room on the south wall", why:"South-facing living rooms get the most daylight (northern hemisphere)."});
     if(this.sol.Garage){ const g = this.sol.Garage; if(g.x === 0) C.push({type:"west", a:"Garage", text:"Garage on the west side, facing the street", why:"The driveway meets the street on the west."}); }
     if(d >= 2) types.filter(t => t.startsWith("Bedroom")).forEach(t => { const r = this.sol[t]; if(r.x===0 || r.y===0 || r.x+r.w===W || r.y+r.h===H) C.push({type:"edge", a:t, text:`${t} has an outside wall`, why:"Building codes require an emergency-escape window in every bedroom."}); });
-    this.C = C; this.placed = {}; this.active = types[0]; this.drag = null; this.review = false;
+    this.C = C; this.placed = {}; this.active = types[0]; this.drag = null; this.review = false; this.phase2 = false;
     this.client = pick(CLIENTS);
     this.render();
   },
@@ -4587,7 +4600,7 @@ STUDIO.floor = {
         <div class="opt-group"><h4>Rooms · pick one, then drag on the plot</h4><div class="roomchips" id="fpRooms"></div></div>
         <div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="fpRemove">Remove selected room</button><button class="btn-sm" type="button" id="fpReset">Clear plan</button></div>
         <p class="msg" id="fpMsg"></p>
-        <div class="row-btns" style="justify-content:flex-start" id="fpActions"><button class="btn btn-solid" type="button" id="fpSubmit" disabled>Present plan</button></div>
+        <div class="row-btns" style="justify-content:flex-start" id="fpActions"><button class="btn btn-solid" type="button" id="fpSubmit" disabled>Next: doors, windows & furniture →</button></div>
       </div></div>`;
     const plot = $("plot");
     const cellOf = e => { const r = plot.getBoundingClientRect(); return {x:clamp(Math.floor((e.clientX-r.left)/r.width*this.W),0,this.W-1), y:clamp(Math.floor((e.clientY-r.top)/r.height*this.H),0,this.H-1)}; };
@@ -4598,7 +4611,7 @@ STUDIO.floor = {
     $("fpRooms").addEventListener("click", e => { const b = e.target.closest(".rchip"); if(b && !this.review){ this.active = b.dataset.t; this.renderSide(); this.renderPlot(); } });
     $("fpRemove").addEventListener("click", () => { if(this.review) return; delete this.placed[this.active]; this.update(); });
     $("fpReset").addEventListener("click", () => { if(this.review) return; this.placed = {}; this.active = this.types[0]; this.update(); });
-    $("fpSubmit").addEventListener("click", () => this.submit());
+    $("fpSubmit").addEventListener("click", () => this.toPhase2());
     setSide("Rules", this.C.length);
     this.update();
   },
@@ -4970,7 +4983,7 @@ const HOWTO = {
   hair:["Check the client's face shape and their goals.","Choose a cut, bangs and, if needed, a toner to fix brassy color.","Spin the chair to see the after mirror and find out why each choice works."],
   makeup:["Pick a product from the list, then a shade.","Draw on the face with your finger or mouse; the dotted guide shows where it goes.","Stay neat, match the brief or theme, then show the mirror or face the judges."],
   sewing:["Choose a pattern envelope and a fabric print.","Drag pattern pieces onto the fabric and fit everything above the goal line. Press R to rotate pieces marked ↻.","Trace each dashed seam to sew it, then see your garment on the model."],
-  floor:["Read the client's rules for room sizes, neighbors and sunlight.","Pick a room, then drag across the plot to draw it.","Present the plan when every room is placed; compare with a sample solution."],
+  floor:["Read the client's rules for room sizes, neighbors and sunlight.","Pick a room, then drag across the plot to draw it.","Then add doors, windows and furniture, and present your finished house."],
   cook:["Tap ingredients in the pantry to add them to the pot.","Set the amounts with + and −, then serve it.","Listen to the customer (too salty? too sour?), adjust and serve again."],
   peace:["Read the scene and watch both people's faces.","Choose what the mediator says. Some replies calm things down; others backfire.","Every choice comes with the psychology behind it."],
   kitchen:["Look at the dish and read the clues.","Tap the map where you think it comes from; zoom in for precision.","Closer pins score more. Extra clues cost points."],
@@ -5180,6 +5193,146 @@ Object.assign(OUTFIT_VIS, {
   "Flamenco dress":{top:"bodice", t1:"#e63946", tPat:true, bottom:"bell", c1:"#e63946", pat:"dots", c2:"#fbfaf5", acc:[["flower","#ffbf2e"],["ruffles"]]},
   "Grunge flannel":{top:"shirt", tPat:true, c1:"#c1121f", pat:"tartan", c2:"#222", c3:"#ffbf2e", bottom:"trousers", b1:"#3d5a80"}
 });
+
+/* ---- Floorplan Lab phase 2: doors, windows, furniture and a rendered finished house ---- */
+const FURN = {sofa:[2,1,"Sofa"], tv:[1,1,"TV"], sink:[1,1,"Sink"], stove:[1,1,"Stove"], fridge:[1,1,"Fridge"], table:[2,1,"Dining table"], bed:[2,2,"Bed"], toilet:[1,1,"Toilet"], shower:[1,1,"Shower"], desk:[1,1,"Desk"], car:[2,3,"Car"], washer:[1,1,"Washer"]};
+const NEEDS = {Living:["sofa","tv"], Kitchen:["sink","stove","fridge"], Dining:["table"], Bedroom:["bed"], "Bedroom 2":["bed"], Bath:["toilet","shower"], Office:["desk"], Garage:["car"], Laundry:["washer"]};
+const FLOOR_FILL = {Living:"wood", Bedroom:"wood", "Bedroom 2":"wood", Office:"wood", Dining:"wood", Kitchen:"tile", Bath:"tile", Laundry:"tile", Garage:"concrete"};
+const U = 24;
+function furnIcon(t, x, y, w, h){
+  const X = x*U, Y = y*U, Wd = w*U, Ht = h*U, L = `stroke="${INK}" stroke-width="1.6"`;
+  switch(t){
+    case "sofa": return `<rect x="${X+2}" y="${Y+3}" width="${Wd-4}" height="${Ht-6}" rx="5" fill="#ff9a8a" ${L}/><rect x="${X+2}" y="${Y+3}" width="${Wd-4}" height="7" rx="3" fill="#e5735f" ${L}/><path d="M${X+Wd/2} ${Y+10} V${Y+Ht-3}" ${L}/>`;
+    case "tv": return `<rect x="${X+3}" y="${Y+8}" width="${Wd-6}" height="${Ht-16}" rx="2" fill="#2b1d14"/><rect x="${X+5}" y="${Y+10}" width="${Wd-10}" height="${Ht-20}" fill="#3a8dff"/>`;
+    case "sink": return `<rect x="${X+3}" y="${Y+3}" width="${Wd-6}" height="${Ht-6}" rx="3" fill="#e9edf2" ${L}/><ellipse cx="${X+Wd/2}" cy="${Y+Ht/2}" rx="${Wd/4}" ry="${Ht/5}" fill="#a9dcef" ${L}/>`;
+    case "stove": return `<rect x="${X+3}" y="${Y+3}" width="${Wd-6}" height="${Ht-6}" rx="2" fill="#4a4a4a" ${L}/>${[[.33,.33],[.67,.33],[.33,.67],[.67,.67]].map(([a,b]) => `<circle cx="${X+Wd*a}" cy="${Y+Ht*b}" r="3" fill="none" stroke="#ff8a3d" stroke-width="1.5"/>`).join("")}`;
+    case "fridge": return `<rect x="${X+3}" y="${Y+2}" width="${Wd-6}" height="${Ht-4}" rx="3" fill="#f4f6f8" ${L}/><path d="M${X+3} ${Y+Ht*.4} H${X+Wd-3} M${X+Wd-7} ${Y+6} V${Y+Ht*.32}" ${L}/>`;
+    case "table": return `<rect x="${X+6}" y="${Y+5}" width="${Wd-12}" height="${Ht-10}" rx="3" fill="#c8915a" ${L}/>${[.25,.75].map(a => `<circle cx="${X+Wd*a}" cy="${Y+2.5}" r="2.5" fill="#e9c46a" ${L}/><circle cx="${X+Wd*a}" cy="${Y+Ht-2.5}" r="2.5" fill="#e9c46a" ${L}/>`).join("")}`;
+    case "bed": return `<rect x="${X+3}" y="${Y+3}" width="${Wd-6}" height="${Ht-6}" rx="4" fill="#fffdf8" ${L}/><rect x="${X+3}" y="${Y+Ht*.35}" width="${Wd-6}" height="${Ht*.65-3}" rx="3" fill="#b8c0ff" ${L}/><rect x="${X+7}" y="${Y+6}" width="${Wd/2-10}" height="8" rx="3" fill="#fffdf8" ${L}/><rect x="${X+Wd/2+3}" y="${Y+6}" width="${Wd/2-10}" height="8" rx="3" fill="#fffdf8" ${L}/>`;
+    case "toilet": return `<rect x="${X+6}" y="${Y+2}" width="${Wd-12}" height="6" rx="2" fill="#fffdf8" ${L}/><ellipse cx="${X+Wd/2}" cy="${Y+Ht*.62}" rx="${Wd*.28}" ry="${Ht*.3}" fill="#fffdf8" ${L}/>`;
+    case "shower": return `<rect x="${X+2}" y="${Y+2}" width="${Wd-4}" height="${Ht-4}" fill="#d7f0f7" ${L}/><path d="M${X+2} ${Y+2} L${X+Wd-2} ${Y+Ht-2} M${X+Wd-2} ${Y+2} L${X+2} ${Y+Ht-2}" stroke="${INK}" stroke-width=".8" opacity=".4"/><circle cx="${X+Wd/2}" cy="${Y+Ht/2}" r="2" fill="${INK}"/>`;
+    case "desk": return `<rect x="${X+2}" y="${Y+3}" width="${Wd-4}" height="${Ht*.5}" rx="2" fill="#c8915a" ${L}/><circle cx="${X+Wd/2}" cy="${Y+Ht*.75}" r="4" fill="#6f62ff" ${L}/>`;
+    case "car": return `<rect x="${X+6}" y="${Y+4}" width="${Wd-12}" height="${Ht-8}" rx="10" fill="#e63946" ${L}/><rect x="${X+10}" y="${Y+14}" width="${Wd-20}" height="${Ht*.22}" rx="4" fill="#a9dcef" ${L}/><rect x="${X+10}" y="${Y+Ht-14-Ht*.18}" width="${Wd-20}" height="${Ht*.16}" rx="4" fill="#a9dcef" ${L}/>`;
+    case "washer": return `<rect x="${X+3}" y="${Y+3}" width="${Wd-6}" height="${Ht-6}" rx="3" fill="#f4f6f8" ${L}/><circle cx="${X+Wd/2}" cy="${Y+Ht/2+1}" r="${Wd*.22}" fill="#a9dcef" ${L}/>`;
+  }
+  return "";
+}
+Object.assign(STUDIO.floor, {
+  edgesOf(r){ const e = []; for(let x=r.x;x<r.x+r.w;x++) e.push(`h:${x}:${r.y}`, `h:${x}:${r.y+r.h}`); for(let y=r.y;y<r.y+r.h;y++) e.push(`v:${r.x}:${y}`, `v:${r.x+r.w}:${y}`); return e; },
+  edgeLine(k){ const [t, x, y] = k.split(":"), X = +x*U, Y = +y*U; return t === "h" ? [X, Y, X+U, Y] : [X, Y, X, Y+U]; },
+  isExt(k){ const [t, x, y] = k.split(":"); return t === "h" ? (+y === 0 || +y === this.H) : (+x === 0 || +x === this.W); },
+  edgeMap(){ const m = {}; Object.entries(this.placed).forEach(([t, r]) => this.edgesOf(r).forEach(k => (m[k] = m[k] || []).push(t))); return m; },
+  toPhase2(){
+    this.phase2 = true; this.doors = []; this.windows = []; this.furn = []; this.mode2 = "doors"; this.fsel = null; this.frot = false;
+    stage.innerHTML = `<div class="studio-grid">
+      <div class="house-col"><div class="house-wrap"><svg id="hz" viewBox="-6 -6 ${this.W*U+12} ${this.H*U+12}" aria-label="Your house plan"></svg></div><p class="msg" id="hzMsg"></p></div>
+      <div class="ctl-col">
+        <div class="brief"><span class="eyebrow">Step 2 of 2 · finish the house</span><h3>Doors, windows and furniture</h3><ul id="hzReq"></ul></div>
+        <div class="tabs2" id="hzTabs"><button type="button" data-m="doors">Doors</button><button type="button" data-m="windows">Windows</button><button type="button" data-m="furniture">Furniture</button></div>
+        <div id="hzTools"></div>
+        <button class="btn btn-solid" type="button" id="hzGo">Present the house</button>
+      </div></div>`;
+    $("hzTabs").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if(b){ this.mode2 = b.dataset.m; this.fsel = null; sfx.click(); this.render2(); } });
+    const svg = $("hz");
+    svg.addEventListener("click", e => {
+      const hit = e.target.closest("[data-edge]");
+      if(hit){ const k = hit.dataset.edge, list = this.mode2 === "doors" ? this.doors : this.windows, i = list.indexOf(k); i >= 0 ? list.splice(i, 1) : list.push(k); sfx.click(); return this.render2(); }
+      const fi = e.target.closest("[data-furn]");
+      if(fi && this.mode2 === "furniture"){ this.furn.splice(+fi.dataset.furn, 1); sfx.click(); return this.render2(); }
+      if(this.mode2 === "furniture" && this.fsel){
+        const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const q = pt.matrixTransform(svg.getScreenCTM().inverse());
+        this.placeFurn(Math.floor(q.x/U), Math.floor(q.y/U));
+      }
+    });
+    $("hzGo").addEventListener("click", () => this.submit2());
+    setSide("Step", "2 of 2");
+    this.render2();
+  },
+  fdims(t){ const [w, h] = FURN[t]; return this.frot ? [h, w] : [w, h]; },
+  placeFurn(x, y){
+    const {t, room} = this.fsel, [w, h] = this.fdims(t), r = this.placed[room];
+    const msg = $("hzMsg");
+    if(x < r.x || y < r.y || x + w > r.x + r.w || y + h > r.y + r.h){ msg.textContent = `The ${FURN[t][2].toLowerCase()} has to fit inside the ${room.toLowerCase()}.`; msg.className = "msg bad"; sfx.bad(); return; }
+    if(this.furn.some(f => x < f.x + f.w && f.x < x + w && y < f.y + f.h && f.y < y + h)){ msg.textContent = "Furniture can't overlap."; msg.className = "msg bad"; sfx.bad(); return; }
+    this.furn.push({t, room, x, y, w, h}); sfx.click(); msg.textContent = ""; msg.className = "msg";
+    const next = (NEEDS[room] || []).find(n => !this.furn.some(f => f.room === room && f.t === n));
+    this.fsel = next ? {t:next, room} : null;
+    this.render2();
+  },
+  checks2(){
+    const em = this.edgeMap(), types = this.types, out = [];
+    const front = this.doors.some(k => this.isExt(k) && (em[k] || []).includes("Living"));
+    out.push({label:"A front door opens into the living room", ok:front, why:"The entrance usually leads into the main living space, not straight into a bedroom or bathroom."});
+    const adj = {}; types.forEach(t => adj[t] = []);
+    this.doors.forEach(k => { const rs = em[k] || []; if(rs.length === 2){ adj[rs[0]].push(rs[1]); adj[rs[1]].push(rs[0]); } });
+    const seen = new Set(["Living"]), q = ["Living"]; while(q.length){ const c = q.shift(); (adj[c] || []).forEach(n => { if(!seen.has(n)){ seen.add(n); q.push(n); } }); }
+    const unreached = types.filter(t => !seen.has(t));
+    out.push({label:"Every room can be reached through doors", ok:!unreached.length, why: unreached.length ? `Can't reach: ${unreached.join(", ")}. Architects call the routes between rooms “circulation”.` : "Good circulation: you can walk from the front door to every room."});
+    const needWin = types.filter(t => (t === "Living" || t.startsWith("Bedroom")) && this.edgesOf(this.placed[t]).some(k => this.isExt(k)));
+    const noWin = needWin.filter(t => !this.windows.some(k => (em[k] || []).includes(t)));
+    out.push({label:"Windows in the living room and bedrooms", ok:!noWin.length, why: noWin.length ? `Missing a window: ${noWin.join(", ")}. Daylight improves mood and sleep, and bedroom windows double as fire exits.` : "Daylight improves mood and sleep, and bedroom windows double as emergency exits."});
+    const missing = []; types.forEach(t => (NEEDS[t] || []).forEach(n => { if(!this.furn.some(f => f.room === t && f.t === n)) missing.push(`${FURN[n][2].toLowerCase()} (${t})`); }));
+    out.push({label:"Every room is furnished", ok:!missing.length, why: missing.length ? `Still needed: ${missing.join(", ")}.` : "Every room has what it needs to work."});
+    if(types.includes("Kitchen")){
+      const g = n => this.furn.find(f => f.room === "Kitchen" && f.t === n), a = g("sink"), b = g("stove"), c = g("fridge");
+      let ok = false, why = "Place the sink, stove and fridge to check the triangle.";
+      if(a && b && c){ const ctr = f => [f.x + f.w/2, f.y + f.h/2], d = (p, q) => Math.hypot(p[0]-q[0], p[1]-q[1]); const [A, B, C] = [ctr(a), ctr(b), ctr(c)], sum = d(A,B) + d(B,C) + d(C,A);
+        ok = sum >= 4 && sum <= 8; why = `Your triangle is ${sum.toFixed(1)} m. Designers aim for 4–8 m: close enough to save steps, far enough that two cooks don't collide.`; }
+      out.push({label:"Kitchen work triangle (sink, stove, fridge) is 4–8 m around", ok, why});
+    }
+    return out;
+  },
+  houseSVG(interactive){
+    const em = this.edgeMap(), W = this.W*U, H = this.H*U;
+    let g = `<defs>
+      <pattern id="flwood" width="24" height="8" patternUnits="userSpaceOnUse"><rect width="24" height="8" fill="#e9c08a"/><path d="M0 8 H24 M12 0 V8" stroke="#c99a62" stroke-width="1"/></pattern>
+      <pattern id="fltile" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#eef3f6"/><path d="M0 0 H12 V12" fill="none" stroke="#c9d6df" stroke-width="1"/></pattern>
+      <pattern id="flconcrete" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#cfcfcf"/><circle cx="3" cy="4" r=".8" fill="#a9a9a9"/><circle cx="8" cy="8" r=".6" fill="#b5b5b5"/></pattern></defs>
+      <rect x="-6" y="-6" width="${W+12}" height="${H+12}" fill="#9ccf7a"/>`;
+    Object.entries(this.placed).forEach(([t, r]) => { g += `<rect x="${r.x*U}" y="${r.y*U}" width="${r.w*U}" height="${r.h*U}" fill="url(#fl${FLOOR_FILL[t] || "wood"})"/>`; });
+    this.furn.forEach((f, i) => { g += `<g ${interactive && this.mode2 === "furniture" ? `data-furn="${i}" class="fz"` : ""}>${furnIcon(f.t, f.x, f.y, f.w, f.h)}</g>`; });
+    Object.entries(this.placed).forEach(([t, r]) => { g += `<rect x="${r.x*U}" y="${r.y*U}" width="${r.w*U}" height="${r.h*U}" fill="none" stroke="${INK}" stroke-width="4"/>`; });
+    this.windows.forEach(k => { const [x1, y1, x2, y2] = this.edgeLine(k), v = x1 === x2; g += `<rect x="${v ? x1-3 : x1+3}" y="${v ? y1+3 : y1-3}" width="${v ? 6 : U-6}" height="${v ? U-6 : 6}" fill="#a9dcef" stroke="${INK}" stroke-width="1.4"/>`; });
+    this.doors.forEach(k => { const [x1, y1, x2, y2] = this.edgeLine(k), v = x1 === x2, ext = this.isExt(k);
+      g += `<line x1="${v ? x1 : x1+3}" y1="${v ? y1+3 : y1}" x2="${v ? x2 : x2-3}" y2="${v ? y2-3 : y2}" stroke="${ext ? "#ffbf2e" : "#f6efe3"}" stroke-width="5"/>`;
+      g += v ? `<path d="M${x1} ${y1+3} L${x1+U-6} ${y1+3} A${U-6} ${U-6} 0 0 1 ${x1} ${y2-3}" fill="none" stroke="${INK}" stroke-width="1" opacity=".7"/>` : `<path d="M${x1+3} ${y1} L${x1+3} ${y1+U-6} A${U-6} ${U-6} 0 0 0 ${x2-3} ${y1}" fill="none" stroke="${INK}" stroke-width="1" opacity=".7"/>`; });
+    Object.entries(this.placed).forEach(([t, r]) => { g += `<text x="${(r.x + r.w/2)*U}" y="${r.y*U + 11}" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="700" font-size="9" fill="${INK}" paint-order="stroke" stroke="#fffdf8" stroke-width="2.5">${t}</text>`; });
+    g += `<rect x="0" y="0" width="${W}" height="${H}" fill="none" stroke="${INK}" stroke-width="6"/>`;
+    if(interactive && (this.mode2 === "doors" || this.mode2 === "windows")){
+      Object.entries(em).forEach(([k, rs]) => {
+        const ext = this.isExt(k), want = this.mode2 === "doors" ? (rs.length === 2 || (ext && rs.includes("Living"))) : (ext && rs.length === 1);
+        if(!want) return;
+        const [x1, y1, x2, y2] = this.edgeLine(k), on = (this.mode2 === "doors" ? this.doors : this.windows).includes(k);
+        g += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on ? "#22b26b" : "#fffdf8"}" stroke-width="3" stroke-dasharray="${on ? "" : "3 3"}" opacity=".95" pointer-events="none"/><line class="edgehit" data-edge="${k}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="14"/>`;
+      });
+    }
+    if(interactive && this.mode2 === "furniture" && this.fsel){ const r = this.placed[this.fsel.room]; g += `<rect x="${r.x*U+2}" y="${r.y*U+2}" width="${r.w*U-4}" height="${r.h*U-4}" fill="none" stroke="#ffbf2e" stroke-width="3" stroke-dasharray="6 4" pointer-events="none"/>`; }
+    return g;
+  },
+  render2(){
+    $("hz").innerHTML = this.houseSVG(true);
+    $("hzTabs").querySelectorAll("button").forEach(b => b.classList.toggle("sel", b.dataset.m === this.mode2));
+    const tools = $("hzTools");
+    if(this.mode2 === "doors") tools.innerHTML = `<p class="tipnote">Tap a dashed wall to add or remove a door. Add a <b>front door</b> on the living room's outside wall, then link every room.</p>`;
+    else if(this.mode2 === "windows") tools.innerHTML = `<p class="tipnote">Tap a dashed outside wall to add or remove a window.</p>`;
+    else tools.innerHTML = `<div class="opt-group"><h4>Pick an item, then tap where it goes inside its room</h4>${this.types.map(t => `<div class="furnrow"><b>${t}</b>${(NEEDS[t] || []).map(n => { const done = this.furn.some(f => f.room === t && f.t === n), sel = this.fsel && this.fsel.t === n && this.fsel.room === t; return `<button type="button" class="ch ${sel ? "sel" : ""} ${done ? "done" : ""}" data-ft="${n}" data-fr="${t}">${done ? "✓ " : ""}${FURN[n][2]}</button>`; }).join("")}</div>`).join("")}</div><div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="hzRot">Rotate item (R)</button></div><p class="msg">Tap a placed item to remove it.</p>`;
+    tools.querySelectorAll("[data-ft]").forEach(b => b.addEventListener("click", () => { this.fsel = {t:b.dataset.ft, room:b.dataset.fr}; this.render2(); }));
+    const rb = $("hzRot"); if(rb) rb.addEventListener("click", () => { this.frot = !this.frot; sfx.click(); $("hzMsg").textContent = this.frot ? "Items will be placed turned sideways." : "Items will be placed upright."; });
+    const all = [...this.C.map(c => ({label: c.type === "area" ? this.area(c) : c.text, ok:this.evalC(c)})), ...this.checks2()];
+    $("hzReq").innerHTML = all.map(c => `<li class="${c.ok ? "ok" : ""}">${c.label}</li>`).join("");
+  },
+  submit2(){
+    const res = [...this.C.map(c => ({ok:this.evalC(c), label: c.type === "area" ? this.area(c) : c.text, why: c.type === "area" ? `Planned ${this.placed[c.a].w*this.placed[c.a].h} m².` : c.why})), ...this.checks2()];
+    const f = res.filter(r => r.ok).length / res.length;
+    adapt("floor", f);
+    const stars = f === 1 ? 3 : f >= .75 ? 2 : 1;
+    const sol = `<svg viewBox="-2 -2 ${this.W*10+4} ${this.H*10+4}" width="${this.W*10+4}" aria-label="Sample room layout"><rect x="0" y="0" width="${this.W*10}" height="${this.H*10}" fill="#fffdf8" stroke="${INK}" stroke-width="2"/>${this.types.map(t => { const r = this.sol[t]; return `<rect x="${r.x*10}" y="${r.y*10}" width="${r.w*10}" height="${r.h*10}" fill="color-mix(in srgb, ${ROOM_COLOR[t]} 45%, white)" stroke="${INK}" stroke-width="1"/><text x="${(r.x+r.w/2)*10}" y="${(r.y+r.h/2)*10+3}" text-anchor="middle" font-size="7" font-family="Figtree, sans-serif" fill="${INK}">${t}</text>`; }).join("")}</svg>`;
+    endSession({title: f === 1 ? "Keys handed over!" : f >= .75 ? "Almost move-in ready" : "Back to the drawing board", stars, xp:30+15*stars,
+      body:`<div class="house-wrap final"><svg viewBox="-6 -6 ${this.W*U+12} ${this.H*U+12}" aria-label="Your finished house">${this.houseSVG(false)}</svg></div>${checklist(res)}<p class="m-note">One room layout that meets every room rule:</p><div style="display:flex;justify-content:center">${sol}</div>`,
+      actions:[["New house", () => startRoom("floor","studio"), true], ["Lobby", goHub]]});
+  }
+});
+document.addEventListener("keydown", e => { if(G.room === "floor" && STUDIO.floor.phase2 && (e.key === "r" || e.key === "R") && $("modal").hidden){ STUDIO.floor.frot = !STUDIO.floor.frot; const m = $("hzMsg"); if(m) m.textContent = STUDIO.floor.frot ? "Items will be placed turned sideways." : "Items will be placed upright."; } });
 
 renderHub();
 </script>

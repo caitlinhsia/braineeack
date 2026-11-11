@@ -14,7 +14,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Studios | **Hair Salon**: cuts, bangs and toners for each face shape and color problem | Face shapes, color correction |
 | Studios | **Makeup Studio**: paint 13 products onto a face for clients' occasions, or face the judges in theme challenges | Color theory, skin undertones, makeup history |
 | Studios | **Sewing Room**: pick from 11 patterns, lay out the pieces, then sew by tracing each seam | Spatial planning, fine motor control |
-| Studios | **Floorplan Lab**: draw a home that meets a client's rules | Spatial reasoning, area, building basics |
+| Studios | **Floorplan Lab**: draw a home that meets a client's rules, then add doors, windows and furniture (reachability, daylight, kitchen work triangle) | Spatial reasoning, area, building basics |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
 | Brain gym | **Science Lab**: find organs and bones; mix light versus ink | Biology, color science |
 | Brain gym | Echo Grid, Quick Sums, Unscramble, Switchboard | Memory, mental math, vocabulary, logic |
