@@ -726,6 +726,14 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .badge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;opacity:.55}
 .badge.got{opacity:1}
 .badge b{font-size:12px}.badge small{font-size:10px;color:var(--muted);line-height:1.25}
+
+.cookpanel{position:absolute;inset:0;z-index:4;background:rgb(251 242 226 / .96);border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center;animation:viewin .25s ease-out}
+.cookpanel h3{font-size:28px}
+.cp-art{width:min(100%,420px);background:var(--panel);border:2.5px solid var(--ink);border-radius:18px;box-shadow:0 4px 0 var(--ink);padding:8px;user-select:none;touch-action:none}
+.cp-art.tapzone{cursor:pointer}
+.cookpanel .timebar{width:min(100%,420px)}
+.cookpanel .msg{font-size:15px}
+.cookpanel .okay{color:#14864d}.cookpanel .warn{color:#c81d4a}
 </style>
 
 <div class="wrap">
@@ -864,7 +872,7 @@ const ROOMS = {
     tip:"<b>Tip:</b> work out the face shape first. Then remember toners cancel their opposite: violet fixes yellow, blue fixes orange.",
     modes:[["studio","Open the salon"],["sprint","Salon sprint · 60s"],["practice","Quiz"]]},
   cook:{name:"Test Kitchen", skill:"Food & culture", color:"var(--cook)", wing:"studio",
-    blurb:"Cook for real customers. Pick ingredients, set the amounts and serve. They'll tell you if it's too salty or missing something, so adjust and serve again until they love it.",
+    blurb:"Cook for real customers. Pick ingredients, set the amounts, then chop, mash, whisk, flip and bake it yourself. They'll tell you if it's too salty or missing something, so adjust and serve again until they love it.",
     tip:"<b>Tip:</b> fix the biggest complaint first. Salt, acid, fat and heat balance each other, and every complaint comes with a chef's note on why.",
     modes:[["studio","Start cooking"],["sprint","Pantry sprint · 60s"],["practice","Quiz"]]},
   lab:{name:"Science Lab", skill:"Body & science", color:"var(--lab)", wing:"core",
@@ -2431,6 +2439,87 @@ const ING_LINES = {
 const BODY_LINES = {over:"There's so much {n} the other flavors disappear.", under:"There's barely any {n}! It's all seasoning.", overSoft:"Close, but a little too much {n}.", underSoft:"Close, but it needs a bit more {n}.", note:"The main ingredient is the canvas. Seasonings should support it, not bury it."};
 const listAnd = a => a.length < 2 ? a.join("") : a.slice(0,-1).join(", ") + " and " + a[a.length-1];
 const fmtAmt = (a, unit) => { const n = Number.isInteger(a) ? a : a.toFixed(2).replace(/0+$/,"").replace(/\.$/,""); const frac = {"0.25":"¼","0.5":"½","0.75":"¾","1.25":"1¼","1.5":"1½","1.75":"1¾","2.25":"2¼","2.5":"2½","2.75":"2¾"}[String(n)]; const sing = {cups:"cup", cloves:"clove", eggs:"egg", tomatoes:"tomato", avocados:"avocado", balls:"ball"}; return `${frac || n} ${a <= 1 && sing[unit] ? sing[unit] : unit}`; };
+/* ---- Test Kitchen cooking actions: quick hands-on mini-games before each serve ---- */
+const PREP = {
+  "Guacamole":[["mash","avocado"],["chop","onion"],["chop","cilantro"]],
+  "Caprese salad":[["slice","tomato"],["slice","mozzarella"]],
+  "Crêpe batter":[["whisk",null],["flip",null]],
+  "Pesto alla Genovese":[["grind","basil"]],
+  "Hummus":[["blend","chickpeas"]],
+  "Miso soup":[["simmer",null],["chop","scallion"]],
+  "Tzatziki":[["grate","cucumber"],["chop","dill"]],
+  "Egg fried rice":[["chop","scallion"],["stirfry",null]],
+  "Basic bread":[["knead",null],["bake",null]],
+  "Pico de gallo":[["chop","tomato"],["chop","onion"]]
+};
+const ACT = {
+  chop:{kind:"tap", verb:"Chop", target:12, secs:4.5, title:k => `Chop the ${k} finely`, low:k => `The ${k} is in huge chunks. Chop it finer.`, note:"Finely chopped pieces spread their flavor evenly, so no one bite is overpowering."},
+  slice:{kind:"tap", verb:"Slice", target:7, secs:4, title:k => `Slice the ${k}`, low:k => `The ${k} slices are uneven and thick.`, note:"Even slices look better and every bite gets the same balance."},
+  mash:{kind:"tap", verb:"Mash", target:10, secs:4.5, title:k => `Mash the ${k}`, low:k => `It's really lumpy. Mash the ${k} more.`, note:"Mash with a fork for texture; a blender makes guacamole gluey."},
+  grate:{kind:"tap", verb:"Grate", target:10, secs:4.5, title:k => `Grate the ${k}`, low:k => `The ${k} is in big pieces, not grated.`, note:"Grating releases water; squeeze it out so the sauce stays thick."},
+  whisk:{kind:"circle", target:5, secs:6, title:() => "Whisk the batter smooth", low:() => "The batter's lumpy. It needed more whisking.", note:"Whisking breaks up flour clumps; resting the batter afterward relaxes the gluten so crêpes stay tender."},
+  grind:{kind:"circle", target:5, secs:6, title:() => "Grind it in the mortar", low:() => "It's coarse and leafy. Grind it longer.", note:"Pounding in a mortar crushes the basil cells and releases oils that a blender's heat would dull."},
+  blend:{kind:"circle", target:4, secs:5, title:() => "Blend until creamy", low:() => "It's grainy. Blend it longer.", note:"Some cooks peel the chickpeas for ultra-smooth hummus."},
+  knead:{kind:"circle", target:6, secs:7, title:() => "Knead the dough", low:() => "Dense and tight. It wasn't kneaded enough.", note:"Kneading lines up gluten proteins into stretchy strands that trap the yeast's gas."},
+  flip:{kind:"timing", title:() => "Flip the crêpe when it's golden", early:"It's pale and raw in the middle. You flipped too soon.", late:"It's burnt on one side!", note:"Wait for the edges to lift and go lacy, about a minute on a hot pan."},
+  simmer:{kind:"timing", title:() => "Turn off the heat just before it boils", early:"The broth is lukewarm.", late:"You boiled the miso; it lost its aroma.", note:"Miso is stirred in off the boil, because boiling kills its aroma and live cultures."},
+  stirfry:{kind:"timing", title:() => "Take it off the heat when it's sizzling", early:"The rice is soft and steamed, not fried.", late:"It's scorched and smoky.", note:"High heat and quick cooking give fried rice its smoky “breath of the wok” flavor."},
+  bake:{kind:"timing", title:() => "Take the loaf out when it's golden", early:"It's pale and doughy inside.", late:"The crust is burnt.", note:"A done loaf sounds hollow when you tap the bottom and reads about 95 °C inside."}
+};
+function runPrep(list, onDone){
+  const wrap = $("stageWrap"), out = [];
+  let i = 0;
+  const panel = document.createElement("div"); panel.className = "cookpanel"; wrap.appendChild(panel);
+  const next = () => {
+    if(i >= list.length){ panel.remove(); onDone(out); return; }
+    const [type, ing] = list[i], a = ACT[type], name = ing ? ING[ing][0].toLowerCase() : "";
+    runAction(panel, type, a, ing, name, i, list.length, res => { out.push({type, ing, ...res}); i++; setTimeout(next, 850); });
+  };
+  next();
+}
+function runAction(panel, type, a, ing, name, idx, total, done){
+  let finished = false;
+  const head = `<span class="eyebrow">Cooking step ${idx+1} of ${total}</span><h3>${a.title(name)}</h3>`;
+  const finish = (q, dir) => { if(finished) return; finished = true; clearInterval(timer); cancelAnimationFrame(raf);
+    $("cpMsg").innerHTML = q >= .85 ? `<b class="okay">Perfect! ${Math.round(q*100)}%</b>` : q >= .6 ? `<b>Not bad: ${Math.round(q*100)}%</b>` : `<b class="warn">${dir === "early" ? "Too soon!" : dir === "late" ? "Too late!" : "Not enough!"} ${Math.round(q*100)}%</b>`;
+    q >= .85 ? sfx.good() : q < .6 ? sfx.bad() : sfx.click(); done({q, dir}); };
+  let timer = null, raf = 0;
+  if(a.kind === "tap"){
+    let taps = 0, left = a.secs;
+    const draw = () => { const n = Math.min(taps, a.target), cols = Math.ceil(Math.sqrt(n+1));
+      $("cpArt").innerHTML = `<svg viewBox="0 0 240 150" width="100%"><rect x="20" y="40" width="200" height="96" rx="14" fill="#c8915a" stroke="${INK}" stroke-width="3"/><rect x="34" y="52" width="172" height="72" rx="8" fill="#d9a46b" opacity=".6"/>
+        ${n === 0 ? `<g transform="translate(92 54)">${ingIcon(ing, 56)}</g>` : Array.from({length:n+1}, (_,k) => `<g transform="translate(${44 + (k % cols)*(150/cols)} ${56 + Math.floor(k/cols)*(64/Math.ceil((n+1)/cols))}) scale(${Math.max(.18, 1/cols)})">${ingIcon(ing, 56)}</g>`).join("")}
+        <g id="cpKnife" transform="translate(150 ${taps % 2 ? 30 : 6}) rotate(-20)"><rect x="0" y="0" width="70" height="16" rx="3" fill="#dfe6ee" stroke="${INK}" stroke-width="2.5"/><rect x="66" y="2" width="30" height="12" rx="4" fill="${INK}"/></g></svg>`;
+      $("cpBar").style.width = Math.min(100, taps/a.target*100) + "%"; };
+    panel.innerHTML = `${head}<div class="cp-art tapzone" id="cpArt"></div><div class="timebar"><i id="cpBar" style="width:0%"></i></div><p class="msg" id="cpMsg">Tap the board fast! <b id="cpLeft">${a.secs.toFixed(1)}s</b></p>`;
+    draw();
+    $("cpArt").addEventListener("pointerdown", e => { e.preventDefault(); if(finished) return; taps++; tone(300 + (taps % 4)*40, .04, "square", .03); draw(); if(taps >= a.target) finish(1); });
+    timer = setInterval(() => { left -= .1; const l = $("cpLeft"); if(l) l.textContent = Math.max(0,left).toFixed(1) + "s"; if(left <= 0) finish(Math.min(1, taps/a.target)); }, 100);
+  } else if(a.kind === "circle"){
+    let total = 0, lastA = null, left = a.secs, down = false;
+    panel.innerHTML = `${head}<div class="cp-art" id="cpArt"><svg viewBox="0 0 240 170" width="100%" id="cpSvg" style="touch-action:none"><ellipse cx="120" cy="95" rx="92" ry="62" fill="${W_}" stroke="${INK}" stroke-width="3.5"/><ellipse cx="120" cy="90" rx="78" ry="48" fill="${type === "knead" ? "#f3dfb4" : type === "grind" ? "#7fb069" : type === "blend" ? "#e9c46a" : "#fff1c1"}" stroke="${INK}" stroke-width="2"/><g id="cpSwirl"></g><g id="cpSpoon"><circle r="9" fill="#c8915a" stroke="${INK}" stroke-width="2.5"/></g></svg></div><div class="timebar"><i id="cpBar" style="width:0%"></i></div><p class="msg" id="cpMsg">Drag in circles around the bowl! <b id="cpLeft">${a.secs.toFixed(1)}s</b></p>`;
+    const svg = $("cpSvg"), pt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+    const move = e => { if(!down || finished) return; const q = pt(e); $("cpSpoon").setAttribute("transform", `translate(${q.x} ${q.y})`);
+      const ang = Math.atan2(q.y - 90, q.x - 120); if(lastA !== null){ let d = ang - lastA; if(d > Math.PI) d -= 2*Math.PI; if(d < -Math.PI) d += 2*Math.PI; total += Math.abs(d); } lastA = ang;
+      const rot = total/(Math.PI*2); $("cpBar").style.width = Math.min(100, rot/a.target*100) + "%";
+      $("cpSwirl").innerHTML = `<path d="M120 90 m-${10+rot*8} 0 a${10+rot*8} ${6+rot*5} 0 1 0 ${2*(10+rot*8)} 0" fill="none" stroke="${INK}" stroke-opacity=".25" stroke-width="2" transform="rotate(${rot*120} 120 90)"/>`;
+      if(rot >= a.target) finish(1); };
+    svg.addEventListener("pointerdown", e => { down = true; lastA = null; try{ svg.setPointerCapture(e.pointerId); }catch(_){} move(e); });
+    svg.addEventListener("pointermove", move);
+    svg.addEventListener("pointerup", () => { down = false; });
+    timer = setInterval(() => { left -= .1; const l = $("cpLeft"); if(l) l.textContent = Math.max(0,left).toFixed(1) + "s"; if(left <= 0) finish(Math.min(1, total/(Math.PI*2)/a.target)); }, 100);
+  } else {
+    const z0 = 52 + Math.random()*22, zw = 14, dur = 2600;
+    panel.innerHTML = `${head}<div class="cp-art" id="cpArt"><svg viewBox="0 0 240 120" width="100%"><rect x="20" y="50" width="200" height="26" rx="13" fill="${W_}" stroke="${INK}" stroke-width="3"/><rect x="${20 + z0*2}" y="52" width="${zw*2}" height="22" fill="#78c552"/><rect x="${20 + (z0+zw)*2}" y="52" width="${(100 - z0 - zw)*2 - 2}" height="22" fill="#ef476f" opacity=".55" rx="0"/><rect x="22" y="52" width="${z0*2 - 2}" height="22" fill="#ffe066" opacity=".55"/><path id="cpNeedle" d="M0 40 V86" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><text x="${20 + (z0+zw/2)*2}" y="104" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="14" fill="${INK}">perfect</text><text x="40" y="34" font-family="Fredoka, sans-serif" font-size="12" fill="${INK}">raw</text><text x="200" y="34" text-anchor="end" font-family="Fredoka, sans-serif" font-size="12" fill="${INK}">burnt</text></svg></div><div class="row-btns"><button class="btn btn-solid" type="button" id="cpStop">Now!</button></div><p class="msg" id="cpMsg">Tap “Now!” when the marker is in the green.</p>`;
+    const t0 = performance.now(); let pos = 0;
+    const tick = t => { pos = Math.min(100, (t - t0)/dur*100); const nd = $("cpNeedle"); if(nd) nd.setAttribute("transform", `translate(${20 + pos*2} 0)`); if(pos >= 100) return finish(0, "late"); raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick);
+    panel.dataset.zone = `${z0},${zw}`;
+    $("cpStop").addEventListener("click", () => { if(finished) return; const inZ = pos >= z0 && pos <= z0 + zw, dist = pos < z0 ? z0 - pos : pos - z0 - zw; finish(inZ ? 1 : Math.max(0, 1 - dist/25), inZ ? null : pos < z0 ? "early" : "late"); });
+    panel.cpPos = () => pos;
+  }
+}
+
 STUDIO.cook = {
   start(){
     const d = S.rating.cook;
@@ -2440,7 +2529,7 @@ STUDIO.cook = {
   },
   newRound(){
     const r = this.list[this.round]; this.r = r; this.amt = AMT[r.n];
-    this.bowl = {}; this.tastings = 0; this.done = false; this.notes = [];
+    this.bowl = {}; this.tastings = 0; this.done = false; this.notes = []; this.prepQ = {}; this.cooking = false;
     this.pantry = shuffle([...r.core, ...shuffle(r.decoy.filter(k => ING[k])).slice(0, this.nDecoy)]);
     const look = {skin:pick(SKINS)[0], shape:pick(Object.keys(FACE_SHAPES)), hair:pick(["lob","bun","curls","pixie","ponytail","buzz","long","afro"]), hairC:pick(["black","darkbrown","brown","auburn","blonde","grey"]), eye:pick(["brown","darkbrown","hazel","green","blue"]), top:pick(["#3a8dff","#22b8a7","#ff7db8","#ffbf2e","#6f62ff"]), glasses:Math.random() < .25};
     this.cust = {look, name:pick(NAMES)};
@@ -2454,7 +2543,7 @@ STUDIO.cook = {
         <div class="recipe-card"><span class="eyebrow">Order ${this.round+1} of ${this.list.length} · serves 4</span><h3>${r.n}</h3><p>From ${r.from}${this.namesHint ? ` · needs <b>${r.core.length}</b> ingredients` : ""}</p></div>
         <div class="opt-group"><h4>Pantry · tap to add or remove</h4><div class="pantry" id="ckPantry"></div></div>
         <div class="opt-group"><h4>In the pot · set the amounts</h4><div class="amts" id="ckAmts"></div></div>
-        <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckServe">Serve it</button><button class="btn btn-ghost" type="button" id="ckGive" hidden>Show me the recipe</button></div>
+        <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckServe">Cook & serve</button><button class="btn btn-ghost" type="button" id="ckGive" hidden>Show me the recipe</button></div>
         <div id="ckRes"></div></div></div>`;
     $("ckPantry").addEventListener("click", e => { const b = e.target.closest(".ing"); if(!b || this.done) return; const k = b.dataset.k;
       if(k in this.bowl) delete this.bowl[k]; else { const a = this.amt[k]; this.bowl[k] = a ? Math.max(a[2], Math.round(a[3]/2/a[2])*a[2]) : 1; } sfx.click(); this.render(); });
@@ -2502,9 +2591,18 @@ STUDIO.cook = {
       else { line = BODY_LINES[(over ? "over" : "under") + (big ? "" : "Soft")].replace("{n}", name); note = BODY_LINES.note; }
       out.push({sev: big ? 6 : 3, line, note, mood: big ? (dim === "heat" && over ? "surprised" : "angry") : "tense"});
     });
+    Object.values(this.prepQ || {}).filter(x => x.q < .7).forEach(x => { const a = ACT[x.type], name = x.ing ? ING[x.ing][0].toLowerCase() : "";
+      out.push({sev:7, line: a.kind === "timing" ? a[x.dir || "late"] : a.low(name), note:a.note, mood: x.dir === "late" ? "surprised" : "tense"}); });
     return out.sort((a,b) => b.sev - a.sev);
   },
   serve(){
+    if(this.done || this.cooking) return;
+    const todo = (PREP[this.r.n] || []).filter(([t, g]) => !(this.prepQ[t + g] && this.prepQ[t + g].q >= .7));
+    if(!todo.length) return this.serveEval();
+    this.cooking = true; $("ckServe").disabled = true;
+    runPrep(todo, res => { res.forEach(x => this.prepQ[x.type + x.ing] = x); this.cooking = false; this.serveEval(); });
+  },
+  serveEval(){
     if(this.done) return;
     this.tastings++;
     const iss = this.issues();
