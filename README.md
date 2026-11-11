@@ -11,8 +11,8 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Explorers | **Then & Now**: slot 80 events, from farming to the Webb telescope, into a growing timeline | History |
 | Studios | **Test Kitchen**: cook for customers who taste and react ("too salty!") until you get it right | Flavor balance, food science, food origins |
 | Studios | **Atelier**: design a dress and accessorize it (shoes, bag, jewelry, layers) to a client brief | Color theory, proportion, dress codes |
-| Studios | **Hair Salon**: a full appointment: wash, blow-dry, products for the hair type, cut from behind with sections and layers, bleach, dye, toner, style, photo booth | Hair care, proportion, color theory |
-| Studios | **Makeup Studio**: paint 13 products onto a face for clients' occasions, or face the judges in theme challenges, then a photo-booth strip | Color theory, skin undertones, makeup history |
+| Studios | **Hair Salon**: a full appointment: wash at the basin (water temperature, shampoo pumps, scalp massage, rinse, conditioner timer, towel), blow-dry with heat settings, products, a sectioned cut from behind, color and styling, with a client comfort meter | Hair care, proportion, color theory |
+| Studios | **Makeup Studio**: paint 17 products onto the face with brush size, intensity, softness, finish and a blending tool | Color theory, skin undertones, makeup history |
 | Studios | **Sewing Room**: take a commission, design it (12 materials, colors, prints, bodice, sleeves, skirt, layers), set up the machine, lay out and sew 19 garments, add trims, walk the runway | Materials, spatial planning, fine motor control |
 | Studios | **Floorplan Lab**: draw a home that meets a client's rules, then add doors, windows and furniture (reachability, daylight, kitchen work triangle) | Spatial reasoning, area, building basics |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |

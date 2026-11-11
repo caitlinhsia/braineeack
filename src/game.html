@@ -938,6 +938,35 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .mk-warn{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--ink);color:#fffdf8;font:600 13px Figtree,sans-serif;padding:6px 12px;border-radius:99px;opacity:0;pointer-events:none;white-space:nowrap}
 .mk-warn.show{animation:mkwarn 1.6s ease-out}
 @keyframes mkwarn{0%{opacity:0;transform:translate(-50%,-6px)}12%{opacity:1;transform:translate(-50%,0)}75%{opacity:1}100%{opacity:0}}
+.substeps{list-style:none;padding:0;margin:0 0 10px;display:flex;flex-direction:column;gap:4px}
+.substeps li{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 8px;border-radius:10px;opacity:.55}
+.substeps li span{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:2px solid var(--ink);font:700 11px "DM Mono",monospace;background:#fff;flex:0 0 auto}
+.substeps li.done{opacity:.75}.substeps li.done span{background:var(--good,#2bb673);color:#fff}
+.substeps li.cur{opacity:1;background:#fff4c9;border:2px solid var(--ink);font-weight:600}
+.substeps li.nudge{animation:shake .4s}
+.substeps small{opacity:.7;font-weight:400}
+.tool-opts{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.temp{display:grid;grid-template-columns:auto 1fr 54px;gap:8px;align-items:center;font:600 13px Figtree,sans-serif}
+.temp input{accent-color:#5fa8d3}.temp b{font:700 14px "DM Mono",monospace;text-align:right}.temp b.cold{color:#3a6df0}.temp b.hot{color:#e63946}.temp b.ok{color:#2b9348}
+.pumprow{display:flex;gap:12px;align-items:center}
+.pump{display:flex;flex-direction:column;align-items:center;padding:6px 10px;border:2.5px solid var(--ink);border-radius:14px;background:#fffdf8;color:var(--ink);font:700 12px Figtree,sans-serif;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.pump:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.meter{position:relative;height:18px;border:2px solid var(--ink);border-radius:99px;background:#fffdf8;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#c8f0ff,#7cc4f0);transition:width .15s}
+.meter span{position:relative;font:600 11px "DM Mono",monospace;padding-left:8px;line-height:14px}
+.timer-row{display:flex;align-items:center;gap:12px}
+.ring{--p:0;width:52px;height:52px;border-radius:50%;background:conic-gradient(#57cc99 calc(var(--p)*360deg), #eee 0);display:grid;place-items:center;border:2px solid var(--ink)}
+.ring span{background:#fffdf8;border-radius:50%;width:38px;height:38px;display:grid;place-items:center;font:700 11px "DM Mono",monospace}
+.hs-mood{display:flex;align-items:center;gap:3px;font:600 12px Figtree,sans-serif}
+.hs-mood span{margin-right:6px}.hs-mood .ic.off{opacity:.2;filter:grayscale(1)}.hs-mood .ic.half{opacity:.55}
+.hs-bubble{position:absolute;right:-6px;top:18px;max-width:180px;background:#fffdf8;border:2.5px solid var(--ink);border-radius:16px;padding:8px 12px;font:600 13px Figtree,sans-serif;box-shadow:0 3px 0 var(--ink);opacity:0;transform:translateY(6px) scale(.95);transition:opacity .2s,transform .2s;pointer-events:none;z-index:3}
+.hs-bubble.show{opacity:1;transform:none}.hs-bubble.good{background:#e6f9ee}.hs-bubble.bad{background:#ffe6e6}
+.mirror-frame.chair.at-basin{background:radial-gradient(ellipse 62% 30% at 50% 20%,#3d405b 0 96%,#2b2f3a 97%,transparent 99%),linear-gradient(180deg,#e8eef2 0 62%,#c9d3da 62% 64%,#dfe6ea 64%)}
+.drip{animation:drip 1.4s ease-in infinite}
+@keyframes drip{0%{transform:translateY(0);opacity:1}80%{opacity:.9}100%{transform:translateY(10px);opacity:0}}
+#hsNextStage.ready{animation:readyglow 1.4s ease-in-out infinite}
+@keyframes readyglow{50%{box-shadow:0 4px 0 var(--ink),0 0 0 6px rgb(87 204 153 / .55)}}
+.salon2 .chair-wrap{position:relative}
 </style>
 
 <div class="wrap">
@@ -6777,7 +6806,7 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
       $("hsHl").addEventListener("change", e => { this.hlMode = e.target.checked; });
       $("hsToners").addEventListener("click", e => { const b = e.target.closest("[data-toner]"); if(b){ this.toner = b.dataset.toner; sfx.click(); this.renderTools(); } }); }
     if(k === "style"){ $("hsStyles").addEventListener("click", e => { const b = e.target.closest("[data-style]"); if(b && !this.locked) this.setStyle(b.dataset.style); }); $("hsSpray").checked = this.spray; $("hsSpray").addEventListener("change", e => { this.spray = e.target.checked; if(this.spray){ sfx.good(); this.sprayMist(); } }); }
-    $("hsNextStage").textContent = k === "consult" ? `Seat ${this.c.name} in the chair →` : k === "style" ? "Spin the chair ✨" : "Next step →";
+    $("hsNextStage").textContent = k === "consult" ? `Seat ${this.c.name} in the chair →` : k === "style" ? "Spin the chair" : "Next step →";
     $("hsMsg").textContent = "";
     this.renderTools(); this.render();
   },
@@ -6886,7 +6915,7 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
     const ov = $("hsOv"); if(!ov) return; const st = HS_STAGES[this.stage][0];
     let g = `<g id="hsFall"></g>`;
     if(this.guides && !this.locked && ["cut","style"].includes(st)) g += [[88,"brows"],[122,"ears"],[166,"chin"],[196,"shoulders"]].filter(([y]) => this.view === "front" || y > 120).map(([y, l]) => `<path d="M22 ${y} H178" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 3" opacity=".9"/><path d="M22 ${y} H178" stroke="${INK}" stroke-width=".6" stroke-dasharray="3 3" opacity=".5"/><text x="176" y="${y-2.5}" text-anchor="end" font-size="6.5" paint-order="stroke" stroke="#fff" stroke-width="2" font-family="DM Mono, monospace" fill="${INK}" opacity=".75">${l}</text>`).join("");
-    if(["wash","dry"].includes(st) && this.view === "front") this.w.pts.forEach((q, i) => {
+    if(["wash","dry"].includes(st) && this.view === "front" && !this.detailedWash) this.w.pts.forEach((q, i) => {
       if(q.foam) g += [0,1,2].map(k => `<circle cx="${(q.x + (k-1)*3.2).toFixed(1)}" cy="${(q.y + (k % 2 ? -2.4 : 1.6)).toFixed(1)}" r="${3.2 - k*.4}" fill="#fff" stroke="#bcd" stroke-width=".6" opacity=".95"/>`).join("");
       else if(q.wet === 2 && i % 2 === 0) g += `<path d="M${q.x} ${q.y - 2} q2 3 0 4.5 q-2 -1.5 0 -4.5z" fill="#7cc4f0" stroke="#2f6f9f" stroke-width=".5"/>`;
       if(q.cond && i % 3 === 0) g += `<path d="M${q.x - 3} ${q.y} q3 -2 6 0" stroke="#fff" stroke-width="1.6" fill="none" opacity=".8" stroke-linecap="round"/>`;
@@ -7414,6 +7443,207 @@ function mkToolIcon(k){
     blend:`<ellipse cx="20" cy="26" rx="13" ry="9" fill="#f7c6d0" ${L}/><path d="M14 20 C10 12 14 5 20 4 C26 5 30 12 26 20" fill="#fffdf8" ${L}/><path d="M9 26 C14 23 26 23 31 26" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>`,
     erase:`<path d="M6 26 L20 8 L34 18 L22 34 H12Z" fill="#ff9ec7" ${L}/><path d="M13 20 L27 30" ${L}/><path d="M12 34 H34" ${L}/>`}[k];
   return `<svg viewBox="0 0 40 40" width="28" height="28" aria-hidden="true">${inner}</svg>`;
+}
+
+/* =========================================================
+   HAIR SALON v4: detailed wash & dry mini-games, per-strand wetness,
+   a client mood meter, and steps that must be finished in order.
+   ========================================================= */
+{
+  const H = STUDIO.hair, V3 = Object.getPrototypeOf(H) === HS_V2 ? null : null;
+  const v3 = {renderTools:H.renderTools, enterStage:H.enterStage, nextStage:H.nextStage, apply:H.apply, render:H.render, renderOv:H.renderOv, colorOf:H.colorOf, capColor:H.capColor, submit:H.submit, newRound:H.newRound, washPts:H.washPts};
+  const WASH_STEPS = [["temp","Set the water to lukewarm"],["wet","Wet all the hair"],["pump","Pump shampoo into your hand"],["lather","Massage the scalp into a rich lather"],["rinse","Rinse until the water runs clear"],["cond","Pump conditioner and smooth it onto the ends"],["wait","Let the conditioner work"],["rinse2","Rinse the conditioner out"],["wrap","Wrap the hair in a towel"]];
+  const DRY_STEPS = [["blot","Unwrap and squeeze the hair dry with the towel"],["protect","Mist heat protectant all over"],["blow","Blow-dry until no damp spots are left"],["cool","Finish with a cool shot (bonus)"]];
+  const HEAT = {cool:[.4, 0, "Cool: gentle but slow"], warm:[.65, 0, "Warm: the everyday setting"], hot:[1, 1, "Hot: fast, but scorches unprotected or already-dry hair"]};
+  Object.assign(H, {
+    newRound(){
+      v3.newRound.call(this);
+      Object.assign(this.w, {temp:22, tempOk:false, tempTries:0, pumps:0, lather:0, condPumps:0, condTimer:0, condRinsed:false, wrapped:false, heatSet:"warm", heatHits:0, coolShot:false, eyes:false});
+      this.mood = 3; this.moodLog = []; this.warned = 0; this.cutWarned = false;
+      this.renderMood();
+    },
+    washPts(){
+      const pts = v3.washPts.call(this), all = this.all();
+      pts.forEach(q => { if(q.z !== "scalp"){ const i = all.findIndex(s => Math.abs(s.fx - q.x) < .01); q.si = i; } });
+      return pts;
+    },
+    needPumps(){ const E = this.look(true).E; return E > 190 ? 3 : E > 150 ? 2 : 1; },
+    say(t, mood){ const b = $("hsBubble"); if(!b) return; b.textContent = t; b.className = "hs-bubble show " + (mood || ""); clearTimeout(this.bubT); this.bubT = setTimeout(() => b.classList.remove("show"), 2600); },
+    bump(d, why){ const old = this.mood; this.mood = clamp(this.mood + d, 0, 5); if(this.mood !== old){ this.moodLog.push([d, why]); this.renderMood(); if(d > 0) FX.sparkle && FX.sparkle(innerWidth*.3, innerHeight*.35, 10); } },
+    renderMood(){ const el = $("hsMood"); if(!el) return; const m = this.mood; el.innerHTML = `<span>Comfort</span>${[1,2,3,4,5].map(i => icon("❤", 18, m >= i ? "on" : m >= i - .5 ? "half" : "off")).join("")}`; },
+    stepState(){
+      const w = this.w, p = w.pts, sh = (f, z) => { const s = p.filter(q => !z || q.z === z); return s.filter(f).length / s.length; };
+      return {temp:w.tempOk, wet:sh(q => q.wet === 2 || q.sham) >= .85, pump:w.pumps > 0, lather:w.lather >= 100, rinse:w.lather >= 100 && sh(q => q.foam) === 0, cond:w.condPumps > 0 && sh(q => q.cond, "ends") >= .6, wait:w.condTimer >= 1, rinse2:w.condRinsed, wrap:w.wrapped,
+        blot:sh(q => q.wet <= 1) >= .8, protect:sh(q => q.prot > 0) >= .7, blow:sh(q => !q.wet) >= .9, cool:w.coolShot};
+    },
+    curStep(list){ const st = this.stepState(); return list.find(([k]) => k !== "cool" && !st[k]); },
+    enterStage(){
+      const k = HS_STAGES[this.stage][0];
+      $("hsChair").classList.toggle("at-basin", k === "wash");
+      if(k !== "wash" && k !== "dry") return v3.enterStage.call(this);
+      stage.querySelectorAll("#hsSteps li").forEach((li, i) => { li.classList.toggle("done", i < this.stage); li.classList.toggle("now", i === this.stage); });
+      this.view = "front"; this.bk.top = "down";
+      const tools = k === "wash" ? [["water","Shower","🚿"],["shampoo","Shampoo","🧴"],["conditioner","Conditioner","🫙"],["towel","Towel","🧖"]] : [["towel","Towel","🧖"],["protect","Protectant","🛡"],["dryer","Blow-dryer","💨"]];
+      if(!tools.some(t => t[0] === this.tool)) this.tool = tools[0][0];
+      $("hsPanel").innerHTML = `<div class="opt-group"><h4>${k === "wash" ? "At the basin" : "Drying"}</h4><ol class="substeps" id="hsSub"></ol>
+        <div class="toolbar" id="hsTools">${tools.map(([t,l,ic]) => `<button type="button" class="tool" data-t="${t}"><span class="ti">${icon(ic, 30)}</span>${l}</button>`).join("")}</div>
+        <div class="tool-opts" id="hsOpts"></div></div>`;
+      $("hsTools").onclick = e => { const b = e.target.closest("[data-t]"); if(b && !this.locked){ this.tool = b.dataset.t; sfx.click(); this.renderTools(); } };
+      $("hsNextStage").textContent = "Next step →";
+      $("hsMsg").textContent = "";
+      if(k === "dry" && this.w.wrapped){ this.say("Ahh, all wrapped up and cozy."); }
+      this.renderTools(); this.render();
+    },
+    renderTools(){
+      const k = HS_STAGES[this.stage][0];
+      if(k !== "wash" && k !== "dry"){ $("hsChair").classList.remove("at-basin"); return v3.renderTools.call(this); }
+      stage.querySelectorAll("#hsTools .tool").forEach(b => b.classList.toggle("sel", b.dataset.t === this.tool));
+      $("hsChair").dataset.tool = this.tool || ""; $("hsViewBtns").innerHTML = "";
+      const w = this.w, o = $("hsOpts"); if(!o) return;
+      if(this.tool === "water") o.innerHTML = `<label class="temp"><span>Water temperature</span><input type="range" id="hsTemp" min="15" max="50" value="${w.temp}"><b id="hsTempV" class="${w.temp < 34 ? "cold" : w.temp > 40 ? "hot" : "ok"}">${w.temp}°C</b></label><button class="btn-sm" type="button" id="hsTest">Test it on the client</button><p class="tooltip-line">Spray over the hair. Water also rinses out foam and conditioner.</p>`;
+      else if(this.tool === "shampoo") o.innerHTML = `<div class="pumprow"><button class="pump" type="button" id="hsPump">${icon("🧴", 34)}<span>Pump</span></button><div><b>${w.pumps} pump${w.pumps === 1 ? "" : "s"}</b><p class="tooltip-line">Then scrub back and forth over the scalp with your fingertips.</p></div></div><div class="meter"><i style="width:${Math.min(100, w.lather)}%"></i><span>Lather</span></div>`;
+      else if(this.tool === "conditioner") o.innerHTML = `<div class="pumprow"><button class="pump" type="button" id="hsCPump">${icon("🫙", 34)}<span>Pump</span></button><div><b>${w.condPumps} pump${w.condPumps === 1 ? "" : "s"}</b><p class="tooltip-line">Smooth it through the mid-lengths and ends, not the roots.</p></div></div>
+        <div class="timer-row"><button class="btn-sm" type="button" id="hsTimer" ${w.condPumps && !w.condTimer ? "" : "disabled"}>Start the 2-minute timer</button><div class="ring" style="--p:${w.condTimer}"><span>${w.condTimer >= 1 ? "Done" : w.condTimer ? Math.round(w.condTimer*120) + "s" : "2:00"}</span></div></div>`;
+      else if(this.tool === "towel") o.innerHTML = k === "wash" ? `<button class="btn" type="button" id="hsWrap" ${this.stepState().rinse2 ? "" : "disabled"}>${icon("🧖", 22)} Wrap the hair</button><p class="tooltip-line">Wrap only once the conditioner is rinsed out.</p>` : `<p class="tooltip-line">Drag over the hair to squeeze out water. Blot and squeeze; rubbing roughs up the cuticle.</p>`;
+      else if(this.tool === "protect") o.innerHTML = `<p class="tooltip-line">Mist it evenly over all the hair before any heat.</p>`;
+      else if(this.tool === "dryer") o.innerHTML = `<div class="chips" id="hsHeat">${Object.entries(HEAT).map(([h, v]) => `<button type="button" class="ch${w.heatSet === h ? " sel" : ""}" data-heat="${h}">${h[0].toUpperCase() + h.slice(1)}</button>`).join("")}</div><p class="tooltip-line">${HEAT[w.heatSet][2]}</p><button class="btn-sm" type="button" id="hsCool" ${this.stepState().blow && !w.coolShot ? "" : "disabled"}>Cool shot to seal the shine</button>`;
+      const on = (id, f) => { const el = $(id); if(el) el.onclick = f; };
+      if($("hsTemp")) $("hsTemp").oninput = e => { w.temp = +e.target.value; const v = $("hsTempV"); v.textContent = w.temp + "°C"; v.className = w.temp < 34 ? "cold" : w.temp > 40 ? "hot" : "ok"; w.tempOk = false; };
+      on("hsTest", () => { w.tempTries++; if(w.temp < 34){ this.say("Brr! That's freezing!", "bad"); this.bump(-.5, "cold water"); sfx.bad(); } else if(w.temp > 40){ this.say("Ouch, too hot!", "bad"); this.bump(-.5, "hot water"); sfx.bad(); } else { w.tempOk = true; this.say("Mmm, that's just right.", "good"); sfx.good(); } this.renderSub(); });
+      on("hsPump", () => { if(this.locked) return; w.pumps++; sfx.click(); if(w.pumps > this.needPumps() + 1) this.say("That's a lot of shampoo…", "bad"); this.renderTools(); this.renderSub(); });
+      on("hsCPump", () => { if(this.locked) return; w.condPumps++; sfx.click(); this.renderTools(); this.renderSub(); });
+      on("hsTimer", () => { const t0 = performance.now(); sfx.click(); const step = () => { if(!$("hsTimer")) return; w.condTimer = Math.min(1, (performance.now() - t0) / 3200); this.renderTools(); this.renderSub(); if(w.condTimer < 1) requestAnimationFrame(step); else { sfx.good(); this.say("Feels so soft already!", "good"); } }; requestAnimationFrame(step); });
+      on("hsWrap", () => { if(!this.stepState().rinse2) return; w.wrapped = true; sfx.good(); this.say("Ooh, warm towel. Lovely.", "good"); this.bump(.25, "towel wrap"); this.render(); this.renderTools(); });
+      if($("hsHeat")) $("hsHeat").onclick = e => { const b = e.target.closest("[data-heat]"); if(b){ w.heatSet = b.dataset.heat; sfx.click(); this.renderTools(); } };
+      on("hsCool", () => { w.coolShot = true; sfx.good(); this.bump(.25, "cool shot"); this.say("So shiny!", "good"); this.renderTools(); this.renderSub(); });
+      this.renderSub();
+    },
+    renderSub(){
+      const k = HS_STAGES[this.stage][0], el = $("hsSub"); if(!el) return;
+      const list = k === "wash" ? WASH_STEPS : DRY_STEPS, st = this.stepState(), cur = this.curStep(list);
+      el.innerHTML = list.map(([s, l]) => `<li class="${st[s] ? "done" : cur && cur[0] === s ? "cur" : ""}"><span>${st[s] ? "✓" : ""}</span>${l}${s === "pump" ? ` <small>(${this.look(true).E > 190 ? "long hair: 3" : this.look(true).E > 150 ? "medium: 2" : "short: 1"})</small>` : ""}</li>`).join("");
+      const done = list.every(([s]) => s === "cool" || st[s]);
+      $("hsNextStage").classList.toggle("ready", done);
+    },
+    colorOf(s){
+      const st = HS_STAGES[this.stage][0];
+      if(!["wash","dry"].includes(st) || this._dryColor) return v3.colorOf.call(this, s);
+      let c = v3.colorOf.call(this, s);
+      const i = this.all().indexOf(s), pts = this.w.pts.filter(q => q.si === i && i >= 0);
+      const wet = pts.length ? pts.reduce((a, q) => a + q.wet, 0) / (2*pts.length) : this.w.pts.filter(q => q.z === "scalp").reduce((a, q) => a + q.wet, 0) / (2*Math.max(1, this.w.pts.filter(q => q.z === "scalp").length));
+      return wet > 0 ? shade(c, -.34*wet) : c;
+    },
+    capColor(){
+      const st = HS_STAGES[this.stage][0];
+      if(!["wash","dry"].includes(st)) return v3.capColor.call(this);
+      this._dryColor = true; let c; try{ c = v3.capColor.call(this); } finally { this._dryColor = false; }
+      const sc = this.w.pts.filter(q => q.z === "scalp"), wet = sc.reduce((a, q) => a + q.wet, 0) / (2*sc.length);
+      return wet > 0 ? shade(c, -.34*wet) : c;
+    },
+    wetLevel(){ return 0; },
+    render(){
+      v3.render.call(this);
+      const k = HS_STAGES[this.stage][0];
+      if(k === "wash" || k === "dry"){
+        const wp = this.w.pts, pct = f => Math.round(100*wp.filter(f).length/wp.length);
+        $("hsRead").innerHTML = k === "wash" ? `Wet <b>${pct(q => q.wet === 2)}%</b> · Lather <b>${Math.min(100, Math.round(this.w.lather))}%</b> · Foam left <b>${pct(q => q.foam)}%</b> · Conditioned ends <b>${Math.round(100*wp.filter(q => q.z === "ends" && q.cond).length / wp.filter(q => q.z === "ends").length)}%</b>`
+          : `Soaking <b>${pct(q => q.wet === 2)}%</b> · Damp <b>${pct(q => q.wet === 1)}%</b> · Dry <b>${pct(q => !q.wet)}%</b> · Protected <b>${pct(q => q.prot > 0)}%</b>${this.w.heatHits ? ` · <span class="warn">Scorched ${this.w.heatHits}×</span>` : ""}`;
+        this.renderSub(); { const st2 = this.stepState(), w2 = this.w, en = (id, v) => { const el = $(id); if(el) el.disabled = !v; }; en("hsCool", st2.blow && !w2.coolShot); en("hsWrap", st2.rinse2 && !w2.wrapped); en("hsTimer", w2.condPumps && !w2.condTimer); }
+      }
+    },
+    renderOv(){
+      v3.renderOv.call(this);
+      const k = HS_STAGES[this.stage][0], ov = $("hsOv"); if(!ov || this.view !== "front" || !["wash","dry"].includes(k)) return;
+      let g = "";
+      const w = this.w, lath = Math.min(1, w.lather / 100);
+      g += `<path d="M78 176 Q100 186 122 176 L126 190 Q100 200 74 190Z" fill="#fffdf8" stroke="${INK}" stroke-width="1.6"/><path d="M80 184 Q100 192 120 184" stroke="#d9cfc0" stroke-width="1.2" fill="none"/>`;
+      if(w.wrapped && k === "wash" || (k === "dry" && w.wrapped && !w.unwrapped)) g += `<path d="M46 92 C40 44 70 22 100 22 C130 22 160 44 154 92 C140 74 120 66 100 66 C80 66 60 74 46 92Z" fill="#ffb3c7" stroke="${INK}" stroke-width="2.4"/><path d="M60 50 C80 36 120 36 140 50 M54 66 C80 50 120 50 146 66" stroke="#fffdf8" stroke-width="2.4" fill="none"/><path d="M128 30 C146 24 156 34 150 46 C144 40 136 38 128 40Z" fill="#ffb3c7" stroke="${INK}" stroke-width="2"/>`;
+      else wp(this).forEach((q, i) => {
+        if(q.foam){ const n = 2 + Math.round(lath*3), rr = 2.2 + lath*2.2; for(let j = 0; j < n; j++){ const R2 = rng("f" + i + "-" + j); g += `<circle cx="${(q.x + (R2()-.5)*10).toFixed(1)}" cy="${(q.y + (R2()-.5)*8).toFixed(1)}" r="${(rr*(.6 + R2()*.6)).toFixed(1)}" fill="#fff" stroke="#c8dbe8" stroke-width=".6" opacity=".95"/>`; } }
+        else if(q.wet === 2 && i % 2 === 0) g += `<path d="M${q.x} ${q.y + 2} q2 3 0 4.6 q-2 -1.6 0 -4.6z" fill="#7cc4f0" stroke="#2f6f9f" stroke-width=".5" class="drip" style="animation-delay:${(i % 7)*.2}s"/>`;
+        if(q.cond && !q.condOff && i % 2 === 0) g += `<path d="M${q.x - 3} ${q.y} q3 -2.4 6 0" stroke="#fff" stroke-width="2" fill="none" opacity=".85" stroke-linecap="round"/>`;
+        if(q.hot) g += `<path d="M${q.x - 2} ${q.y - 2} q2 -3 4 0" stroke="#ff7b54" stroke-width="1.4" fill="none" opacity=".9"/>`;
+      });
+      ov.insertAdjacentHTML("afterbegin", g);
+      function wp(self){ return self.w.pts; }
+    },
+    apply(a, b){
+      const st = HS_STAGES[this.stage][0], t = this.tool, w = this.w;
+      if(st !== "wash" && st !== "dry") return v3.apply.call(this, a, b);
+      const near = (q, r) => segDist(q.x, q.y, a[0], a[1], b[0], b[1]) < r; let hit = false;
+      if(st === "wash"){
+        if(w.wrapped){ this.say("I'm already wrapped up!"); return false; }
+        if(t === "water"){
+          if(!w.tempOk){ if(!this.warned){ this.warned = 1; this.say("Test the water temperature on me first!", "bad"); } return false; }
+          w.pts.forEach(q => { if(!near(q, 15)) return; if(q.wet !== 2){ q.wet = 2; hit = true; } if(q.foam){ q.foam = 0; q.rinsed = 1; hit = true; } if(q.cond && w.condTimer >= 1 && !q.condOff){ q.condOff = 1; hit = true; } });
+          const ends = w.pts.filter(q => q.cond); if(ends.length && w.condTimer >= 1 && ends.filter(q => q.condOff).length >= ends.length*.8 && !w.condRinsed){ w.condRinsed = true; sfx.good(); this.say("Silky!", "good"); }
+          this.mist(b);
+        } else if(t === "shampoo"){
+          if(!w.pumps){ this.say("Pump some shampoo first."); return false; }
+          w.pts.forEach(q => { if(!near(q, 13)) return; if(q.z === "scalp" || q.z === "mid"){ if(q.wet !== 2){ this.note = "That part's dry: shampoo won't lather on dry hair."; return; } if(!q.foam){ q.foam = 1; q.sham = 1; hit = true; } } });
+          const scalpHit = w.pts.some(q => q.z === "scalp" && near(q, 13) && q.wet === 2);
+          if(scalpHit){ const d = Math.hypot(b[0]-a[0], b[1]-a[1]), cap = 100 * Math.min(1.25, w.pumps / this.needPumps()); const before = w.lather; w.lather = Math.min(cap, w.lather + d*.55); if(before < 100 && w.lather >= 100){ sfx.good(); this.say("Ahh, a scalp massage. Heavenly.", "good"); this.bump(.5, "scalp massage"); } hit = hit || w.lather !== before; }
+          if(b[1] > 84 && Math.abs(b[0] - 100) < 30 && !w.eyes){ w.eyes = true; this.say("Ah! It's in my eyes!", "bad"); this.bump(-.5, "shampoo in the eyes"); sfx.bad(); }
+        } else if(t === "conditioner"){
+          if(!w.condPumps){ this.say("Pump some conditioner first."); return false; }
+          w.pts.forEach(q => { if(!near(q, 13)) return; if(!q.cond){ q.cond = 1; hit = true; if(q.z === "scalp") w.rootsCond = (w.rootsCond || 0) + 1; } });
+        } else if(t === "towel"){ this.say("Tap “Wrap the hair” when you're ready."); }
+      } else {
+        if(w.wrapped && !w.unwrapped){ w.unwrapped = true; this.say("Unwrapping…"); }
+        w.pts.forEach(q => { if(!near(q, t === "protect" ? 16 : 13)) return;
+          if(t === "towel"){ if(q.wet === 2){ q.wet = 1; hit = true; } }
+          else if(t === "protect"){ if(q.prot <= 0){ q.prot = 1; hit = true; } }
+          else if(t === "dryer"){ const [rate, risky] = HEAT[w.heatSet];
+            if(!q.wet){ if(risky && !q.scorch){ q.scorch = 1; q.hot = 1; w.heatHits++; this.bump(-.25, "scorching dry hair"); this.say("Hot! Hot! That bit's already dry!", "bad"); } return; }
+            if(q.wet === 2 && w.heatSet !== "hot") q.prog = (q.prog || 0) + rate*.5; else q.prog = (q.prog || 0) + rate;
+            if(risky && q.prot <= 0 && !q.scorch){ q.scorch = 1; q.hot = 1; w.heatHits++; this.bump(-.25, "heat without protectant"); this.say("Ow, that's hot on my scalp!", "bad"); }
+            if(q.prog >= 1){ q.prog = 0; q.wet = Math.max(0, q.wet - 1); }
+            hit = true; } });
+        if(t === "protect") this.mist(b);
+      }
+      if(this.note){ $("hsMsg").textContent = this.note; this.note = ""; }
+      if(hit){ if(!this.note) $("hsMsg").textContent = ""; this.render(); }
+      return hit;
+    },
+    nextStage(){
+      if(this.locked) return;
+      const k = HS_STAGES[this.stage][0];
+      if(k === "wash" || k === "dry"){ const cur = this.curStep(k === "wash" ? WASH_STEPS : DRY_STEPS); if(cur){ $("hsMsg").textContent = `Not yet: ${cur[1].toLowerCase()}.`; sfx.bad(); const li = stage.querySelector("#hsSub li.cur"); if(li){ li.classList.remove("nudge"); void li.offsetWidth; li.classList.add("nudge"); } return; } }
+      if(k === "products" && !this.prods.size){ $("hsMsg").textContent = "Pick at least one product for this hair type."; sfx.bad(); return; }
+      if(k === "consult") this.say(pick(["Hi! I'm so excited for this.", "Hello! Please be gentle with me.", "Hi there! I've been wanting this for ages."]), "good");
+      if(k === "cut" && !this.cutWarned && !this.backCut && this.all().every((s, i) => s.end >= this.before.L.concat(this.before.Rt)[i].end - .5) && !this.hs.combed){ this.cutWarned = true; $("hsMsg").textContent = "You haven't cut anything yet. Press Next again to skip the cut."; return; }
+      return v3.nextStage.call(this);
+    },
+    submit(){
+      if(this.locked) return;
+      v3.submit.call(this);
+      // replace the generic wash/dry checks with the detailed ones
+      const w = this.w, p = w.pts, sh = (f, z) => { const s = p.filter(q => !z || q.z === z); return s.filter(f).length / s.length; };
+      const need = this.needPumps();
+      const extra = [
+        {label:"Lukewarm water, tested first", ok:w.tempOk && w.tempTries <= 2, why:"Hot water strips natural oils and opens the cuticle; cold water won't dissolve oil. About 37°C is body temperature, comfortable and effective."},
+        {label:`The right amount of shampoo (${need} pump${need === 1 ? "" : "s"})`, ok:Math.abs(w.pumps - need) <= 0, why:"Short hair needs about a coin-sized amount; long hair needs more. Too much is wasted and hard to rinse; too little won't lather."},
+        {label:"Scalp massaged into a full lather, then rinsed clean", ok:w.lather >= 100 && sh(q => q.foam) === 0 && !w.eyes, why: w.eyes ? "Keep the suds away from the face: tilt the head back and shield the eyes." : "Fingertip massage lifts oil and boosts blood flow. Rinse until the water runs clear."},
+        {label:"Conditioner on the ends, left on, then rinsed", ok:sh(q => q.cond, "ends") >= .6 && (w.rootsCond || 0) <= 3 && w.condTimer >= 1 && w.condRinsed, why:"Conditioner needs a couple of minutes to coat the hair, and belongs on the dry ends, not the oily roots."},
+        {label:"Blotted, protected and dried without scorching", ok:w.heatHits === 0 && sh(q => !q.wet) >= .9, why: w.heatHits ? "Hot air on unprotected or already-dry hair cracks the cuticle. Use protectant and keep the dryer moving." : "Gentle, protected drying keeps the cuticle smooth."},
+        {label:"A comfortable client (4+ hearts)", ok:this.mood >= 4, why: this.moodLog.filter(m => m[0] < 0).length ? `Comfort dropped because of: ${listAnd([...new Set(this.moodLog.filter(m => m[0] < 0).map(m => m[1]))])}.` : "Great service is gentle service: warm water, a good massage and no burns."}
+      ];
+      const drop = ["Wash: shampoo the scalp, rinse it all out", "Condition the ends, not the roots", "Protect from heat, then dry it fully"];
+      const items = [...document.querySelectorAll("#hsRes .checks li")].filter(li => !drop.includes(li.querySelector("b").textContent));
+      const kept = items.map(li => ({label:li.querySelector("b").textContent, why:li.querySelector("p").textContent, ok:li.classList.contains("ok")}));
+      const res = [...kept, ...extra], f = res.filter(r => r.ok).length / res.length, old = this.log[this.log.length-1];
+      const pts = Math.round(1000*f); this.total += pts - old.pts; old.pts = pts; this.f = f;
+      $("hsRes").querySelector(".checks").outerHTML = checklist(res);
+      $("hsRes").querySelector(".pts").textContent = "+" + fmt(pts);
+      $("hsRes").querySelector(".eyebrow").textContent = f >= .9 ? `${this.c.name} is thrilled` : f >= .6 ? "Nearly perfect" : "Not quite what they asked for";
+      setSide("Score", fmt(this.total)); this.render();
+      this.say(f >= .9 ? "I love it! I'm telling all my friends!" : f >= .6 ? "It's nice. Thank you!" : "Hmm… it's not quite what I pictured.", f >= .6 ? "good" : "bad");
+    }
+  });
+  const origRoundUI = H.newRound;
+  H.newRound = function(){ origRoundUI.call(this);
+    this.detailedWash = true; $("hsChair").parentElement.insertAdjacentHTML("afterbegin", `<div class="hs-bubble" id="hsBubble"></div>`);
+    $("hsViewBtns").insertAdjacentHTML("beforebegin", `<div class="hs-mood" id="hsMood"></div>`); this.renderMood(); };
 }
 
 renderHub();
