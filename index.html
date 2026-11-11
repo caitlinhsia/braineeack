@@ -2483,14 +2483,15 @@ function runPrep(list, onDone){
   const next = () => {
     if(i >= list.length){ panel.remove(); onDone(out); return; }
     const [type, ing] = list[i], a = ACT[type], name = ing ? ING[ing][0].toLowerCase() : "";
-    runAction(panel, type, a, ing, name, i, list.length, res => { out.push({type, ing, ...res}); i++; setTimeout(next, 850); });
+    runAction(panel, type, a, ing, name, i, list.length, res => { out.push({type, ing, ...res}); i++; setTimeout(() => { if(panel.isConnected) next(); }, 850); });
   };
   next();
 }
 function runAction(panel, type, a, ing, name, idx, total, done){
   let finished = false;
   const head = `<span class="eyebrow">Cooking step ${idx+1} of ${total}</span><h3>${a.title(name)}</h3>`;
-  const finish = (q, dir) => { if(finished) return; finished = true; clearInterval(timer); cancelAnimationFrame(raf);
+  const alive = () => { if(panel.isConnected) return true; finished = true; clearInterval(timer); cancelAnimationFrame(raf); return false; };
+  const finish = (q, dir) => { if(finished || !alive()) return; finished = true; clearInterval(timer); cancelAnimationFrame(raf);
     $("cpMsg").innerHTML = q >= .85 ? `<b class="okay">Perfect! ${Math.round(q*100)}%</b>` : q >= .6 ? `<b>Not bad: ${Math.round(q*100)}%</b>` : `<b class="warn">${dir === "early" ? "Too soon!" : dir === "late" ? "Too late!" : "Not enough!"} ${Math.round(q*100)}%</b>`;
     q >= .85 ? sfx.good() : q < .6 ? sfx.bad() : sfx.click(); done({q, dir}); };
   let timer = null, raf = 0;
@@ -2504,7 +2505,7 @@ function runAction(panel, type, a, ing, name, idx, total, done){
     panel.innerHTML = `${head}<div class="cp-art tapzone" id="cpArt"></div><div class="timebar"><i id="cpBar" style="width:0%"></i></div><p class="msg" id="cpMsg">Tap the board fast! <b id="cpLeft">${a.secs.toFixed(1)}s</b></p>`;
     draw();
     $("cpArt").addEventListener("pointerdown", e => { e.preventDefault(); if(finished) return; taps++; tone(300 + (taps % 4)*40, .04, "square", .03); draw(); if(taps >= a.target) finish(1); });
-    timer = setInterval(() => { left -= .1; const l = $("cpLeft"); if(l) l.textContent = Math.max(0,left).toFixed(1) + "s"; if(left <= 0) finish(Math.min(1, taps/a.target)); }, 100);
+    timer = setInterval(() => { if(!alive()) return; left -= .1; const l = $("cpLeft"); if(l) l.textContent = Math.max(0,left).toFixed(1) + "s"; if(left <= 0) finish(Math.min(1, taps/a.target)); }, 100);
   } else if(a.kind === "circle"){
     let total = 0, lastA = null, left = a.secs, down = false;
     panel.innerHTML = `${head}<div class="cp-art" id="cpArt"><svg viewBox="0 0 240 170" width="100%" id="cpSvg" style="touch-action:none"><ellipse cx="120" cy="95" rx="92" ry="62" fill="${W_}" stroke="${INK}" stroke-width="3.5"/><ellipse cx="120" cy="90" rx="78" ry="48" fill="${type === "knead" ? "#f3dfb4" : type === "grind" ? "#7fb069" : type === "blend" ? "#e9c46a" : "#fff1c1"}" stroke="${INK}" stroke-width="2"/><g id="cpSwirl"></g><g id="cpSpoon"><circle r="9" fill="#c8915a" stroke="${INK}" stroke-width="2.5"/></g></svg></div><div class="timebar"><i id="cpBar" style="width:0%"></i></div><p class="msg" id="cpMsg">Drag in circles around the bowl! <b id="cpLeft">${a.secs.toFixed(1)}s</b></p>`;
@@ -2517,12 +2518,12 @@ function runAction(panel, type, a, ing, name, idx, total, done){
     svg.addEventListener("pointerdown", e => { down = true; lastA = null; try{ svg.setPointerCapture(e.pointerId); }catch(_){} move(e); });
     svg.addEventListener("pointermove", move);
     svg.addEventListener("pointerup", () => { down = false; });
-    timer = setInterval(() => { left -= .1; const l = $("cpLeft"); if(l) l.textContent = Math.max(0,left).toFixed(1) + "s"; if(left <= 0) finish(Math.min(1, total/(Math.PI*2)/a.target)); }, 100);
+    timer = setInterval(() => { if(!alive()) return; left -= .1; const l = $("cpLeft"); if(l) l.textContent = Math.max(0,left).toFixed(1) + "s"; if(left <= 0) finish(Math.min(1, total/(Math.PI*2)/a.target)); }, 100);
   } else {
     const z0 = 52 + Math.random()*22, zw = 14, dur = 2600;
     panel.innerHTML = `${head}<div class="cp-art" id="cpArt"><svg viewBox="0 0 240 120" width="100%"><rect x="20" y="50" width="200" height="26" rx="13" fill="${W_}" stroke="${INK}" stroke-width="3"/><rect x="${20 + z0*2}" y="52" width="${zw*2}" height="22" fill="#78c552"/><rect x="${20 + (z0+zw)*2}" y="52" width="${(100 - z0 - zw)*2 - 2}" height="22" fill="#ef476f" opacity=".55" rx="0"/><rect x="22" y="52" width="${z0*2 - 2}" height="22" fill="#ffe066" opacity=".55"/><path id="cpNeedle" d="M0 40 V86" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><text x="${20 + (z0+zw/2)*2}" y="104" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="14" fill="${INK}">perfect</text><text x="40" y="34" font-family="Fredoka, sans-serif" font-size="12" fill="${INK}">raw</text><text x="200" y="34" text-anchor="end" font-family="Fredoka, sans-serif" font-size="12" fill="${INK}">burnt</text></svg></div><div class="row-btns"><button class="btn btn-solid" type="button" id="cpStop">Now!</button></div><p class="msg" id="cpMsg">Tap “Now!” when the marker is in the green.</p>`;
     const t0 = performance.now(); let pos = 0;
-    const tick = t => { pos = Math.min(100, (t - t0)/dur*100); const nd = $("cpNeedle"); if(nd) nd.setAttribute("transform", `translate(${20 + pos*2} 0)`); if(pos >= 100) return finish(0, "late"); raf = requestAnimationFrame(tick); };
+    const tick = t => { if(!alive()) return; pos = Math.min(100, (t - t0)/dur*100); const nd = $("cpNeedle"); if(nd) nd.setAttribute("transform", `translate(${20 + pos*2} 0)`); if(pos >= 100) return finish(0, "late"); raf = requestAnimationFrame(tick); };
     raf = requestAnimationFrame(tick);
     panel.dataset.zone = `${z0},${zw}`;
     $("cpStop").addEventListener("click", () => { if(finished) return; const inZ = pos >= z0 && pos <= z0 + zw, dist = pos < z0 ? z0 - pos : pos - z0 - zw; finish(inZ ? 1 : Math.max(0, 1 - dist/25), inZ ? null : pos < z0 ? "early" : "late"); });
@@ -4874,9 +4875,10 @@ function showHowto(room, force){
     setTimeout(() => checkBadges({room, stars:o.stars}), 900);
   };
   const origStart = startRoom;
-  startRoom = function(room, mode){ origStart(room, mode); const pl = $("play"); pl.classList.remove("viewin"); void pl.offsetWidth; pl.classList.add("viewin"); setTimeout(() => showHowto(room), 120); };
+  const clearOverlays = () => document.querySelectorAll(".cookpanel").forEach(x => x.remove());
+  startRoom = function(room, mode){ clearOverlays(); origStart(room, mode); const pl = $("play"); pl.classList.remove("viewin"); void pl.offsetWidth; pl.classList.add("viewin"); setTimeout(() => showHowto(room), 120); };
   const origHub = goHub;
-  goHub = function(){ origHub(); const h = $("hub"); h.classList.remove("viewin"); void h.offsetWidth; h.classList.add("viewin"); };
+  goHub = function(){ clearOverlays(); origHub(); const h = $("hub"); h.classList.remove("viewin"); void h.offsetWidth; h.classList.add("viewin"); };
   const origRender = renderHub;
   renderHub = function(){ origRender(); const bl = $("badgeList"); if(bl){ S.badges = S.badges || {}; const got = BADGES.filter(b => S.badges[b[0]]).length; $("badgeCount").textContent = `${got} of ${BADGES.length}`; bl.innerHTML = BADGES.map(([id,n,d,c]) => `<div class="badge ${S.badges[id] ? "got" : ""}" title="${d}">${medalSVG(S.badges[id] ? c : "#d9ccb4", n[0], 40)}<b>${n}</b><small>${d}</small></div>`).join(""); } };
   $("helpBtn").addEventListener("click", () => G.room && showHowto(G.room, true));
