@@ -4,7 +4,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 
 | Wing | Room | What you learn |
 | --- | --- | --- |
-| Explorers | **World Kitchen**: guess where a dish comes from on a world map | Geography, food history |
+| Explorers | **World Kitchen**: guess where a dish comes from on a world map (plus a 60-second Blitz) | Geography, food history |
 | Explorers | **Time & Thread**: guess where and when an outfit was worn | History, geography |
 | Explorers | **Landmark Hunt**: pin illustrated world landmarks on the map | Geography, history |
 | Explorers | **Flag Maker**: rebuild a country's flag (layout and colors) | Flags, symbolism |

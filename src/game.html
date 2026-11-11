@@ -734,6 +734,8 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .cookpanel .timebar{width:min(100%,420px)}
 .cookpanel .msg{font-size:15px}
 .cookpanel .okay{color:#14864d}.cookpanel .warn{color:#c81d4a}
+.blitz-rev{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:8px;padding:10px 14px}
+.blitz-rev b{font-family:var(--display);font-size:18px}.blitz-rev span{font-size:13px;color:var(--muted)}
 </style>
 
 <div class="wrap">
@@ -846,15 +848,15 @@ const ROOMS = {
   kitchen:{name:"World Kitchen", skill:"Geography", color:"var(--kitchen)", wing:"explore",
     blurb:"A mystery dish, a world map and a handful of clues. Drop a pin where you think it was born and learn the history on every plate.",
     tip:"<b>Tip:</b> clues hint at climate, crops and history. Coconut and chili point to the tropics; rye and cabbage point north. Each extra clue costs 15% of the round's points.",
-    modes:[["studio","Guess the origin"],["sprint","Food sprint · 60s"],["practice","Quiz"]]},
+    modes:[["studio","Guess the origin"],["blitz","Blitz · 60s"],["sprint","Food sprint · 60s"],["practice","Quiz"]]},
   thread:{name:"Time & Thread", skill:"History", color:"var(--thread)", wing:"explore",
     blurb:"Clothes are history you can wear. Read the clues about an outfit, then guess where it was worn and when.",
     tip:"<b>Tip:</b> fabrics and laws are big hints. Silk brocade suggests trade-route empires; rationing points to wartime. Half the points come from place, half from year.",
-    modes:[["studio","Guess where & when"],["sprint","Era sprint · 60s"],["practice","Quiz"]]},
+    modes:[["studio","Guess where & when"],["blitz","Blitz · 60s"],["sprint","Era sprint · 60s"],["practice","Quiz"]]},
   landmarks:{name:"Landmark Hunt", skill:"World landmarks", color:"var(--land-c)", wing:"explore",
     blurb:"Twenty wonders of the world, drawn as postcards. Pin each one on the map and learn its story.",
     tip:"<b>Tip:</b> materials and climate are clues: sandstone and desert point to North Africa and the Middle East; onion domes point east.",
-    modes:[["studio","Hunt landmarks"],["sprint","Postcard sprint · 60s"],["practice","Quiz"]]},
+    modes:[["studio","Hunt landmarks"],["blitz","Blitz · 60s"],["sprint","Postcard sprint · 60s"],["practice","Quiz"]]},
   flags:{name:"Flag Maker", skill:"Flags & symbols", color:"var(--flag)", wing:"explore",
     blurb:"Rebuild a country's flag from memory: choose the layout, then paint every stripe, cross and disc.",
     tip:"<b>Tip:</b> lots of flags share colors. Green, yellow and red often signal pan-African unity; red, white and black, pan-Arab.",
@@ -904,7 +906,7 @@ const ROOMS = {
 const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
 const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab","makeup","hair"];
 const RANKS = [[1,"Novice"],[3,"Apprentice"],[6,"Thinker"],[10,"Strategist"],[15,"Sage"],[22,"Mastermind"]];
-const MODE_NAMES = {studio:"Studio", theme:"Theme challenge", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
+const MODE_NAMES = {studio:"Studio", blitz:"Blitz", theme:"Theme challenge", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
 
 /* =========================================================
    SAVED PROGRESS (this browser only)
@@ -1149,7 +1151,7 @@ function setSide(label, value){ $("hudBLabel").textContent = label; $("hudB").te
 
 function startRoom(room, mode){
   stopTimer(); G.token++;
-  Object.assign(G, {room, mode, timed: mode==="arcade" || mode==="sprint", score:0, combo:0, maxCombo:0, time:60, paused:false, correct:0, attempts:0,
+  Object.assign(G, {room, mode, timed: mode==="arcade" || mode==="sprint" || mode==="blitz", score:0, combo:0, maxCombo:0, time:60, paused:false, correct:0, attempts:0,
     dStart: isMulti(room) ? 0 : S.rating[room], mixRooms:new Set()});
   const r = ROOMS[room];
   $("play").style.setProperty("--c", r.color);
@@ -1164,7 +1166,7 @@ function startRoom(room, mode){
   $("hub").hidden = true; $("play").hidden = false; closeModal();
   window.scrollTo(0,0);
   stage.innerHTML = "";
-  if(mode === "studio" || mode === "theme") STUDIO[room].start(mode);
+  if(mode === "studio" || mode === "theme" || mode === "blitz") STUDIO[room].start(mode);
   else if(mode === "sprint" || mode === "practice") QUIZ.start(room, mode);
   else ENG[room].start(mode);
   if(G.timed) G.timer = setInterval(tick, 100);
@@ -1731,8 +1733,10 @@ function WorldMap(el, onPick){
 /* ---------- shared explorer game ---------- */
 function Explorer(cfg){
   return {
-    start(){
+    start(mode){
+      this.blitz = mode === "blitz";
       if(cfg.daily){ this.tour = dailyTour(); this.items = this.tour.items; this.startClues = 2; }
+      else if(this.blitz){ const d = S.rating[cfg.room]; this.items = freshItems(cfg.room + "-blitz", cfg.list.filter(x => x.t <= tierFor(d) + 1), 60); this.startClues = 1; }
       else { const d = S.rating[cfg.room]; this.items = pickItems(cfg.list, d, 5, cfg.room); this.startClues = d < 4 ? 2 : 1; }
       this.round = 0; this.total = 0; this.log = [];
       stage.innerHTML = `<div class="explore"><div id="exMap"></div>
@@ -1747,7 +1751,7 @@ function Explorer(cfg){
           <button class="btn btn-solid" type="button" id="exGo" disabled>Lock in guess</button>
           <div id="exReveal"></div>
         </div></div>`;
-      this.map = WorldMap($("exMap"), ll => { this.guess = ll; $("exGo").disabled = false; $("exMsg").textContent = "Pin placed. Tap again to move it, or lock in your guess."; });
+      this.map = WorldMap($("exMap"), ll => { if(this.locked) return; this.guess = ll; if(this.blitz) return this.lockIn(); $("exGo").disabled = false; $("exMsg").textContent = "Pin placed. Tap again to move it, or lock in your guess."; });
       $("exClue").addEventListener("click", () => this.moreClue());
       $("exGo").addEventListener("click", () => this.lockIn());
       const yOf = t => Math.round(2025 - 5025*Math.pow(1 - t/1000, 2.2)), tOf = y => 1000*(1 - Math.pow((2025-y)/5025, 1/2.2));
@@ -1760,19 +1764,19 @@ function Explorer(cfg){
       this.newRound();
     },
     newRound(){
-      this.item = this.items[this.round]; this.hasYear = this.item.y != null;
+      this.item = this.items[this.round % this.items.length]; this.hasYear = !this.blitz && this.item.y != null;
       this.shown = this.startClues; this.guess = null; this.locked = false;
-      const kind = this.item.kind || (this.hasYear ? "outfit" : "dish");
+      const kind = this.item.kind || (this.item.y != null ? "outfit" : "dish");
       const noun = {outfit:"Mystery outfit", dish:"Mystery dish", landmark:"Mystery landmark"}[kind];
-      $("exEyebrow").textContent = cfg.daily ? `World Tour #${this.tour.num} · Round ${this.round+1} of 5 · ${noun}` : `Round ${this.round+1} of ${this.items.length} · ${noun}`;
-      $("exQ").textContent = {outfit:"Where and when was this worn?", dish:"Where does this dish come from?", landmark:"Where in the world is this?"}[kind];
+      $("exEyebrow").textContent = this.blitz ? `Blitz · #${this.round+1} · tap the map to answer` : cfg.daily ? `World Tour #${this.tour.num} · Round ${this.round+1} of 5 · ${noun}` : `Round ${this.round+1} of ${this.items.length} · ${noun}`;
+      $("exQ").textContent = this.blitz ? {outfit:"Where was this worn?", dish:"Where is this dish from?", landmark:"Where is this?"}[kind] : {outfit:"Where and when was this worn?", dish:"Where does this dish come from?", landmark:"Where in the world is this?"}[kind];
       $("exYearBox").hidden = !this.hasYear;
       $("exPic").innerHTML = kind === "outfit" ? outfitSVG(this.item.n, 150) : kind === "landmark" ? LANDMARK_ART[this.item.n] : dishSVG(this.item.n, 230);
-      $("exReveal").innerHTML = ""; $("exGo").hidden = false; $("exGo").disabled = true;
+      $("exReveal").innerHTML = ""; $("exGo").hidden = this.blitz; $("exGo").disabled = true; $("exClue").hidden = this.blitz;
       $("exMsg").textContent = "Tap the map to drop your pin.";
       if(this.hasYear){ $("exYear").value = 700; this.updYear(); $("exYear").disabled = false; }
       this.map.clear(); this.renderClues();
-      setSide("Score", fmt(this.total));
+      if(!this.blitz) setSide("Score", fmt(this.total)); else hud();
     },
     allClues(){ return [...this.item.clues, `It's called <b>${this.item.n}</b>.`]; },
     renderClues(){
@@ -1785,6 +1789,7 @@ function Explorer(cfg){
     lockIn(){
       if(!this.guess || this.locked) return;
       this.locked = true;
+      if(this.blitz) return this.blitzScore();
       const it = this.item, km = Math.round(haversine(this.guess, it.ll));
       const mult = Math.max(.4, 1 - .15*(this.shown - this.startClues));
       let yErr = 0;
@@ -1809,6 +1814,17 @@ function Explorer(cfg){
       $("exNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
       setSide("Score", fmt(this.total));
       $("exReveal").scrollIntoView({block:"nearest", behavior:"smooth"});
+    },
+    blitzScore(){
+      const it = this.item, km = Math.round(haversine(this.guess, it.ll)), base = Math.round(100*Math.exp(-km/1500));
+      G.attempts++;
+      if(km < 1000){ G.combo++; G.correct++; G.maxCombo = Math.max(G.maxCombo, G.combo); km < 400 ? sfx.win() : sfx.good(); }
+      else { G.combo = 0; if(km > 3000) sfx.bad(); else sfx.click(); }
+      const pts = base * mult(); G.score += pts; fx("+" + pts); hud();
+      adapt(it.kind === "landmark" ? "landmarks" : it.y != null ? "thread" : "kitchen", Math.min(1, base/70));
+      this.map.reveal(it.ll, it.c);
+      $("exReveal").innerHTML = `<div class="reveal blitz-rev"><b>${it.n}</b><span>${it.city}, ${cname(it.c)} · ${fmt(km)} km · +${pts}</span></div>`;
+      later(() => { this.round++; this.newRound(); }, 1250);
     },
     finish(){
       if(cfg.daily) return this.finishDaily();
@@ -2110,7 +2126,7 @@ function outfitSVG(name, w=170){
   if(v.blouse) g += `<path d="${TOPS.tee}" fill="#fbfaf5" ${OL}/>`;
   if(v.trousers) g += `<path d="${BOTTOMS.trousers}" fill="${v.trousers}" ${OL}/>`;
   if(v.bloom) g += `<path d="${BOTTOMS.bloomers}" fill="${v.trousers}" ${OL}/><path d="M58 276 h22 M80 276 h24" stroke="${INK}" stroke-width="2"/>`;
-  if(v.bottom) g += `<path d="${BOTTOMS[v.bottom]}" fill="${fill}" ${OL}/>`;
+  if(v.bottom) g += `<path d="${BOTTOMS[v.bottom]}" fill="${v.b1 || fill}" ${OL}/>`;
   if(v.top) g += `<path d="${TOPS[v.top]}" fill="${v.t1 ? (v.tPat ? fill : v.t1) : fill}" ${OL}/>`;
   if(v.top === "robe") g += `<path d="M70 60 L92 140 M90 60 L72 120" fill="none" stroke="${INK}" stroke-width="2.4"/>`;
   (v.acc || []).filter(([k]) => k !== "kokoshnik").forEach(([k,c]) => g += ACC[k](c));
@@ -3707,7 +3723,7 @@ document.addEventListener("keydown", e => { if(e.key === "Escape") closeDef(); }
 /* =========================================================
    HOME SCREEN: greeting, today, tabs, tidy tiles and a room sheet
    ========================================================= */
-const MODE_INFO = {theme:"Paint a themed look, then face three judges", studio:"The main game: a hands-on project", sprint:"60-second quiz against the clock", practice:"10 questions, no timer, with an explanation after each", arcade:"60 seconds, build a streak for a multiplier", zen:"No timer: play at your own pace"};
+const MODE_INFO = {blitz:"60 seconds: tap the map, it locks in instantly. Accurate streaks multiply your score", theme:"Paint a themed look, then face three judges", studio:"The main game: a hands-on project", sprint:"60-second quiz against the clock", practice:"10 questions, no timer, with an explanation after each", arcade:"60 seconds, build a streak for a multiplier", zen:"No timer: play at your own pace"};
 const lvlName = d => d < 3.5 ? "Beginner" : d < 6.5 ? "Intermediate" : "Advanced";
 function tileHTML(k){
   const r = ROOMS[k];
@@ -4986,6 +5002,55 @@ Object.assign(SCENE_ART, {
   bench:`<rect width="400" height="200" fill="#a9dcef"/><rect x="0" y="120" width="400" height="80" fill="#78c552"/><path d="M0 140 H400" stroke="#fffdf8" stroke-width="3" opacity=".7"/>${Array.from({length:21},(_,i) => `<path d="M${i*20} 70 V120" stroke="#9aa5b1" stroke-width="2"/>`).join("")}<path d="M0 72 H400 M0 96 H400" stroke="#9aa5b1" stroke-width="2"/><rect x="290" y="70" width="90" height="50" fill="none" stroke="#fffdf8" stroke-width="5"/><rect x="40" y="128" width="120" height="10" rx="3" fill="#c8915a" stroke="${INK}" stroke-width="2.5"/><circle cx="200" cy="150" r="10" fill="#fffdf8" stroke="${INK}" stroke-width="2.5"/><path d="M196 145 l8 0 l-4 6z" fill="${INK}"/>`
 });
 
+
+/* ---- more dishes and outfits ---- */
+DISHES.push(
+ {n:"Tonkotsu ramen",t:2,c:"Japan",city:"Fukuoka",ll:[33.59,130.40],clues:["Wheat noodles in a cloudy, creamy pork-bone broth simmered for up to 18 hours.","The noodles came with Chinese immigrants; this rich style was born on the southern island of Kyushu.","Late-night street stalls in this city's Nakasu district are famous for it."],fact:"Tonkotsu means pork bone. Boiling the bones hard emulsifies fat and collagen into the milky broth."},
+ {n:"Hyderabadi biryani",t:2,c:"India",city:"Hyderabad",ll:[17.38,78.49],clues:["Layers of spiced rice and marinated meat, sealed and slow-cooked in one pot.","It arrived with the Mughals and their Persian cooks, who loved fragrant rice.","A famous version comes from the southern city of pearls and the Charminar."],fact:"In the dum method, the pot is sealed with dough so the meat and rice steam in their own aromas."},
+ {n:"Ta'ameya (falafel)",t:2,c:"Egypt",city:"Cairo",ll:[30.04,31.24],clues:["Deep-fried patties of ground beans and green herbs.","Tucked into flatbread with tahini sauce and salad.","Here it's made with fava beans; one theory says it began as a meatless food for fasting days."],fact:"People across the Middle East argue about where falafel began. This country's fava-bean ta'ameya is one of the oldest claims."},
+ {n:"Churros with chocolate",t:1,c:"Spain",city:"Madrid",ll:[40.42,-3.70],clues:["Fried ridged sticks of dough, dusted with sugar.","Dipped into thick hot chocolate for breakfast or after a late night out.","A favorite in the capital's cafés, some open since the 1890s."],fact:"The star-shaped nozzle gives churros their ridges, which help them cook evenly and crisp up."},
+ {n:"Spaghetti carbonara",t:1,c:"Italy",city:"Rome",ll:[41.9,12.5],clues:["Pasta tossed with egg, hard sheep's cheese, black pepper and crispy cured pork cheek.","The traditional recipe has no cream; egg makes the sauce silky.","First recorded in this capital just after the Second World War."],fact:"The heat of the just-drained pasta cooks the egg gently. Too hot, and you get scrambled eggs."},
+ {n:"Har gow",t:2,c:"China",city:"Guangzhou",ll:[23.13,113.26],clues:["Translucent pleated dumplings filled with shrimp.","Served in bamboo steamers with tea, at a meal called yum cha.","A dim sum classic from the Cantonese capital."],fact:"Chefs are judged by their har gow: the wrapper should have many fine pleats and be thin enough to see the shrimp."},
+ {n:"Baklava",t:2,c:"Turkey",city:"Istanbul",ll:[41.01,28.98],clues:["Dozens of paper-thin pastry layers with chopped nuts, soaked in syrup.","Pistachio baklava from the city of Gaziantep has protected status.","Perfected in palace kitchens in a city that spans two continents."],fact:"Ottoman sultans sent trays of baklava to their soldiers during Ramadan in a ceremonial procession."},
+ {n:"Haggis, neeps and tatties",t:3,c:"United Kingdom",city:"Edinburgh",ll:[55.95,-3.19],clues:["A savory pudding of sheep's offal, oats, onion and spices, traditionally cooked in a stomach.","Served with mashed turnips and potatoes.","A poem is read to it at suppers every January 25."],fact:"At Burns Night suppers, Robert Burns's 1786 poem “Address to a Haggis” is recited before the haggis is cut open."},
+ {n:"Arepa",t:3,c:"Venezuela",city:"Caracas",ll:[10.48,-66.90],clues:["A round, griddled cornmeal cake, split and stuffed with fillings.","Made with precooked corn flour, a 1950s invention that made it fast to prepare.","Eaten at almost every meal in two neighboring South American countries."],fact:"Arepas go back to Indigenous peoples of the region, long before Europeans arrived."},
+ {n:"Kimchi",t:1,c:"South Korea",city:"Seoul",ll:[37.57,126.98],clues:["Napa cabbage fermented with chili, garlic, ginger and fish sauce.","Families gather each autumn to make huge batches together, a tradition called kimjang.","Chili only joined the recipe after it arrived from the Americas in the 1600s."],fact:"UNESCO listed kimjang, the communal making of kimchi, as intangible cultural heritage in 2013."},
+ {n:"Poke",t:2,c:"United States of America",city:"Honolulu",ll:[21.31,-157.86],clues:["Cubes of raw fish marinated with soy sauce and sesame oil.","Its name means “to slice” or “cut crosswise”.","From a Pacific island chain that became a US state in 1959."],fact:"Island fishermen seasoned fish scraps with sea salt, seaweed and roasted kukui nuts long before soy sauce arrived with Japanese immigrants."}
+);
+Object.assign(DISH_VIS, {
+  "Tonkotsu ramen":{t:"bowl", base:"#f2e3c6", top:[["noodle",4],["egg",1],["beef",2],["scallion",6],["sesame",10]], band:"#e63946"},
+  "Hyderabadi biryani":{t:"plate", base:"#e9b44c", top:[["rice",26],["chunk",4],["herb",4],["egg",1]]},
+  "Ta'ameya (falafel)":{t:"plate", base:"#efe3c8", top:[["chunk",6],["herb",5],["tomato",2]], side:"#d4a373"},
+  "Churros with chocolate":{t:"fries", box:"#ffe0e9", top:[["sesame",14]]},
+  "Spaghetti carbonara":{t:"plate", base:"#f3d27a", top:[["noodle",7],["meat",4],["pepper",16],["cheese",2]]},
+  "Har gow":{t:"dumplings", base:"#f4efe2", top:[["shrimp",2]]},
+  "Baklava":{t:"cubes", base:"#d9a441", top:[["pea",4]]},
+  "Haggis, neeps and tatties":{t:"plate", base:"#6b4226", top:[["pepper",10]], side:"#ffb347"},
+  "Arepa":{t:"pupusa"},
+  "Kimchi":{t:"bowl", base:"#e4572e", top:[["cabbage",8],["chili",4],["sesame",8]], band:"#22b26b"},
+  "Poke":{t:"bowl", base:"#fdf6ec", top:[["fish",6],["scallion",5],["sesame",12],["herb",2]], band:"#22b8a7"}
+});
+OUTFITS.push(
+ {n:"Lederhosen",t:2,c:"Germany",city:"Munich",ll:[48.14,11.58],y:1850,yl:"1800s",clues:["Knee-length leather shorts with embroidered suspenders.","Hard-wearing work clothes for Alpine farmers, hunters and woodcutters.","Now worn every autumn at a giant beer festival in a southern German city."],fact:"Costume clubs in the late 1800s saved lederhosen from fading out, and Oktoberfest made them famous."},
+ {n:"Ming-dynasty hanfu",t:3,c:"China",city:"Beijing",ll:[39.9,116.4],y:1550,yl:"1500s",clues:["A long robe with very wide sleeves and a crossed collar that closes to the right.","Embroidered badges on the chest showed an official's rank: birds for civil officials, animals for military ones.","Worn under the dynasty that built much of the Great Wall you can visit today."],fact:"Young people in China have revived hanfu as everyday fashion since the 2000s."},
+ {n:"Maya huipil",t:3,c:"Guatemala",city:"Chichicastenango",ll:[14.94,-91.11],y:1900,yl:"1900s",clues:["A loose tunic hand-woven on a backstrap loom, covered in bright brocade.","Each village has its own patterns, so a trained eye can tell where a weaver is from.","Worn by Indigenous women in the highlands of a Central American country."],fact:"Huipil weaving goes back more than a thousand years; similar garments appear on ancient Maya pottery."},
+ {n:"Flamenco dress",t:2,c:"Spain",city:"Seville",ll:[37.39,-5.98],y:1929,yl:"1920s",clues:["A fitted dress that bursts into layers of ruffles below the knee.","Often polka-dotted, worn with a big flower in the hair and a fringed shawl.","Worn at the spring fair of an Andalusian city."],fact:"It began as the work dress of Roma and farm women; at Seville's 1929 Ibero-American Exposition it became high fashion."},
+ {n:"Grunge flannel",t:1,c:"United States of America",city:"Seattle",ll:[47.61,-122.33],y:1992,yl:"1990s",clues:["An oversized plaid flannel shirt over ripped jeans and boots.","Thrift-store work wear, a reaction against flashy 1980s fashion.","Linked to a rock scene from a rainy Pacific Northwest city."],fact:"Bands like Nirvana made it famous, and in 1992 designer Marc Jacobs put grunge on the catwalk."}
+);
+BOTTOMS.shorts = `M56 122 L52 176 L78 176 L80 150 L82 176 L108 176 L104 122 Z`;
+Object.assign(ACC, {
+  suspenders:(c) => `<path d="M66 64 L66 124 M94 64 L94 124 M66 92 H94" stroke="${c}" stroke-width="6"/><path d="M66 64 L66 124 M94 64 L94 124 M66 92 H94" stroke="${INK}" stroke-width="1.2" fill="none"/>`,
+  badge:(c) => `<rect x="68" y="92" width="24" height="22" fill="${c}" stroke="${INK}" stroke-width="2"/><path d="M72 106 q8 -10 16 0" stroke="${INK}" stroke-width="1.5" fill="none"/>`,
+  flower:(c) => `<g transform="translate(64 22)">${[0,72,144,216,288].map(a => `<ellipse cx="0" cy="-6" rx="4.5" ry="7" fill="#e63946" stroke="${INK}" stroke-width="1.4" transform="rotate(${a})"/>`).join("")}<circle r="4" fill="${c}" stroke="${INK}" stroke-width="1.4"/></g>`,
+  ruffles:() => `<path d="M30 230 q12 8 24 0 t24 0 t24 0 t24 0 t24 0 M14 262 q14 8 28 0 t28 0 t28 0 t28 0 t28 0" fill="none" stroke="${INK}" stroke-width="2"/>`
+});
+Object.assign(OUTFIT_VIS, {
+  "Lederhosen":{top:"shirt", t1:"#fbfaf5", bottom:"shorts", c1:"#8c5a3c", legs:true, legC:"#fbfaf5", acc:[["suspenders","#3d2b1f"]]},
+  "Ming-dynasty hanfu":{top:"robe", c1:"#c1121f", pat:"brocade", c2:"#ffbf2e", acc:[["badge","#ffd166"]]},
+  "Maya huipil":{top:"tunic", c1:"#fbfaf5", pat:"floral", c2:"#e63946", c3:"#3a8dff", bottom:"long", b1:"#264653"},
+  "Flamenco dress":{top:"bodice", t1:"#e63946", tPat:true, bottom:"bell", c1:"#e63946", pat:"dots", c2:"#fbfaf5", acc:[["flower","#ffbf2e"],["ruffles"]]},
+  "Grunge flannel":{top:"shirt", tPat:true, c1:"#c1121f", pat:"tartan", c2:"#222", c3:"#ffbf2e", bottom:"trousers", b1:"#3d5a80"}
+});
 
 renderHub();
 </script>
