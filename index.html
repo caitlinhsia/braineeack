@@ -781,6 +781,31 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .furnrow b{min-width:84px;font-size:13px}
 .ch.done{background:color-mix(in srgb, var(--good) 30%, white)}
 @media (min-width:821px){ .house-col{position:sticky;top:12px} }
+.salon2 .chair-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.mirror-frame.chair{position:relative;width:min(100%,340px);padding:8px;touch-action:none}
+.mirror-frame.chair #hsFace svg{display:block;width:100%;height:auto}
+#hsOv{position:absolute;inset:8px;width:calc(100% - 16px);height:calc(100% - 16px);cursor:crosshair;touch-action:none}
+.mirror-frame.chair[data-tool=scissors] #hsOv{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ctext y='26' font-size='26'%3E%E2%9C%82%EF%B8%8F%3C/text%3E%3C/svg%3E") 6 16, crosshair}
+.toolbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tool{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:2.5px solid var(--ink);border-radius:14px;background:#fffdf8;color:var(--ink);font:600 12px Figtree,sans-serif;cursor:pointer;box-shadow:0 3px 0 var(--ink);transition:transform .1s}
+.tool .ti{font-size:22px;line-height:1}
+.tool.sel{background:#ffe1ec;transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.tooltip-line{font-size:13px;margin:8px 0 6px;opacity:.8}
+.hs-read{font-size:14px;background:#fff4c9;border:2px solid var(--ink);border-radius:12px;padding:6px 12px;margin:0}
+.snip{animation:snipfall .9s ease-in forwards;transform-box:fill-box}
+@keyframes snipfall{to{transform:translateY(46px) rotate(25deg);opacity:0}}
+.mistdot{animation:mist .6s ease-out forwards;opacity:.8;transform-box:fill-box;transform-origin:center}
+@keyframes mist{to{opacity:0;transform:scale(2.2)}}
+.salon-pair.mini{display:flex;gap:10px;justify-content:center}
+.salon-pair.mini figure{margin:0;text-align:center;font-size:12px}
+.booth{--c:#ff7db8;position:fixed;inset:0;z-index:60;background:rgb(43 29 20 / .55);display:flex;align-items:center;justify-content:center;padding:16px;animation:viewin .25s ease-out}
+.booth-in{background:#fbf2e2;border:3px solid var(--ink);border-radius:22px;box-shadow:0 6px 0 var(--ink);padding:18px;display:flex;gap:20px;max-height:calc(100vh - 32px);overflow:auto;max-width:760px;width:100%}
+.booth-strip{flex:0 0 auto}
+.booth-strip svg{display:block;transform:rotate(-1.5deg);filter:drop-shadow(0 6px 0 rgb(43 29 20 / .25))}
+.booth-ctl{display:flex;flex-direction:column;gap:12px;min-width:0}
+.booth-ctl h3{margin:0;font-family:Fredoka,sans-serif;font-size:24px}
+.booth-cap{width:100%;box-sizing:border-box;font:600 16px Figtree,sans-serif;padding:8px 12px;border:2.5px solid var(--ink);border-radius:12px;background:#fffdf8}
+@media (max-width:640px){ .booth-in{flex-direction:column;align-items:center} .toolbar{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
 <body>
@@ -916,7 +941,7 @@ const ROOMS = {
     tip:"<b>Tip:</b> pick a product, then draw on the face. Stay inside the dashed guide. Opposites on the color wheel make each other glow: blue eyes love copper.",
     modes:[["studio","Client appointments"],["theme","Theme challenge"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]]},
   hair:{name:"Hair Salon", skill:"Face shape & color", color:"var(--hair)", wing:"studio",
-    blurb:"Choose cuts, bangs and toners that flatter each client's face shape and fix their color, with before-and-after mirrors.",
+    blurb:"Cut hair by hand with scissors, clippers and a comb, curl or straighten it, mist on toner and style updos to flatter each client's face shape. Finish with a photo-booth strip.",
     tip:"<b>Tip:</b> work out the face shape first. Then remember toners cancel their opposite: violet fixes yellow, blue fixes orange.",
     modes:[["studio","Open the salon"],["sprint","Salon sprint · 60s"],["practice","Quiz"]]},
   cook:{name:"Test Kitchen", skill:"Food & culture", color:"var(--cook)", wing:"studio",
@@ -3026,7 +3051,8 @@ function faceInner(p){
   const L = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
   let g = "";
   // background hair
-  if(hair === "afro") g += curlCloud(100, 86, 74, 70, 16, 26, hc, "afro");
+  if(p.strands) g += p.strands.back;
+  else if(hair === "afro") g += curlCloud(100, 86, 74, 70, 16, 26, hc, "afro");
   else if(hair === "curls") g += curlCloud(100, 112, 70, 92, 15, 28, hc, "curls");
   else if(HAIR_BACK[hair]) g += `<path d="${HAIR_BACK[hair]}" fill="${hc}" ${L}/>`;
   if(hair === "braids") g += Array.from({length:12},(_,i) => { const x = 44 + i*10.2; return `<path d="M${x} 110 V220" stroke="${shade(hc,-.35)}" stroke-width="1.6"/>${Array.from({length:10},(_,k)=>`<path d="M${x-3} ${116+k*10} l3 4 l3 -4" fill="none" stroke="${shade(hc,.25)}" stroke-width="1.2"/>`).join("")}`; }).join("");
@@ -3037,6 +3063,7 @@ function faceInner(p){
   g += `<path d="M84 180 C92 196 108 196 116 180" fill="none" stroke="${INK}" stroke-width="2"/>`; }
   // ears
   g += `<ellipse cx="51" cy="110" rx="8" ry="13" fill="${skin}" ${L}/><ellipse cx="149" cy="110" rx="8" ry="13" fill="${skin}" ${L}/>`;
+  if(p.strands) g += p.strands.drape;
   if(p.earring) g += `<circle cx="50" cy="126" r="3.5" fill="${p.earring}" stroke="${INK}" stroke-width="1.5"/><circle cx="150" cy="126" r="3.5" fill="${p.earring}" stroke="${INK}" stroke-width="1.5"/>`;
   // face + foundation
   const fid = "fs" + (++SVGID);
@@ -3081,18 +3108,19 @@ function faceInner(p){
   if(p.paintOver) g += p.paintOver;
   // front hair
   const capD = `M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z`;
-  if(hair === "buzz") g += `<path d="M54 92 C52 50 74 40 100 40 C126 40 148 50 146 92 C142 66 124 58 100 58 C76 58 58 66 54 92Z" fill="${hc}" opacity=".9" ${L}/>`;
+  if(p.strands) g += p.strands.front;
+  else if(hair === "buzz") g += `<path d="M54 92 C52 50 74 40 100 40 C126 40 148 50 146 92 C142 66 124 58 100 58 C76 58 58 66 54 92Z" fill="${hc}" opacity=".9" ${L}/>`;
   else if(hair === "afro") g += curlCloud(100, 54, 50, 18, 11, 14, hc, "afrofront");
   else if(hair === "curls") g += curlCloud(100, 56, 48, 18, 10, 14, hc, "curlfront");
   else if(hair === "pixie") g += `<path d="M48 96 C40 40 72 28 100 28 C134 28 160 44 152 92 C146 70 132 60 118 58 C120 70 104 76 84 74 C70 74 58 82 48 96Z" fill="${hc}" ${L}/>`;
   else g += `<path d="${capD}" fill="${hc}" ${L}/>`;
   if(hair === "ponytail" || hair === "bun") g += `<path d="M70 50 C84 44 116 44 130 50 M64 60 C84 50 116 50 136 60" fill="none" stroke="${shade(hc,.3)}" stroke-width="1.6"/>`;
   if(hair === "braids") g += `<path d="M100 32 V56 M80 36 L84 58 M120 36 L116 58" stroke="${shade(hc,-.4)}" stroke-width="1.6"/>`;
-  const b = p.bangs || "none";
+  const b = p.strands ? "none" : (p.bangs || "none");
   if(b === "blunt" && !["afro","curls","buzz"].includes(hair)) g += `<path d="M56 64 C70 48 130 48 144 64 L145 86 C120 82 80 82 55 86Z" fill="${hc}" ${L}/>`;
   if(b === "side" && !["afro","buzz"].includes(hair)) g += `<path d="M54 84 C60 50 120 40 146 62 C128 60 110 66 96 88 C86 78 70 78 54 84Z" fill="${hc}" ${L}/>`;
   if(b === "curtain" && !["afro","buzz"].includes(hair)) g += `<path d="M100 54 C76 56 64 70 58 96 C68 80 84 68 100 62 C116 68 132 80 142 96 C136 70 124 56 100 54Z" fill="${hc}" ${L}/>`;
-  if(!["buzz","afro","curls"].includes(hair)) g += `<path d="M78 44 C86 40 96 40 104 42 M112 40 C124 42 134 48 140 58" fill="none" stroke="${shade(hc,.35)}" stroke-width="2" stroke-linecap="round" opacity=".8"/>`;
+  if(!p.strands && !["buzz","afro","curls"].includes(hair)) g += `<path d="M78 44 C86 40 96 40 104 42 M112 40 C124 42 134 48 140 58" fill="none" stroke="${shade(hc,.35)}" stroke-width="2" stroke-linecap="round" opacity=".8"/>`;
   if(p.glasses) g += `<g fill="rgb(255 255 255 / .25)" stroke="${INK}" stroke-width="2.6"><rect x="64" y="94" width="30" height="20" rx="8"/><rect x="106" y="94" width="30" height="20" rx="8"/></g><path d="M94 102 h12" stroke="${INK}" stroke-width="2.4"/>`;
   return g;
 }
@@ -3433,7 +3461,9 @@ STUDIO.makeup = {
       judges = `<div class="judges">${JUDGES.map((j,i) => { const st = clamp(Math.round(f*5 + (i-1)*.4), 1, 5); return `<div class="judge">${faceSVG({...j.look, mood: st >= 4 ? "happy" : st >= 3 ? "neutral" : "sad"}, 70)}<b>${j.n}</b><span class="jstars">${"★".repeat(st)}<span class="off">${"★".repeat(5-st)}</span></span><small>${lines[i % lines.length]}</small></div>`; }).join("")}</div><p>${this.theme.f}</p>`;
     }
     $("mkRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? (this.mode === "theme" ? "Perfect score from the judges" : `${this.c.name} loves it`) : f >= .6 ? "Almost there" : "Back to the brushes"}</span><span class="pts">+${fmt(pts)}</span>${judges}${checklist(res)}
-      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="mkNext">${last ? "See results" : this.mode === "theme" ? "Next theme" : "Next client"}</button></div></div>`;
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="mkBooth">📸 Photo booth</button><button class="btn btn-solid" type="button" id="mkNext">${last ? "See results" : this.mode === "theme" ? "Next theme" : "Next client"}</button></div></div>`;
+    const under = $("mkUnder").innerHTML, over = $("mkOver").innerHTML, c = this.c;
+    $("mkBooth").addEventListener("click", () => photoBooth({name:c.name, caption: this.mode === "theme" ? this.theme.n : `Ready for ${MK_OCC[c.occ].label}`, face:mood => faceInner({skin:SKINS[c.depth][0], shape:c.shape, hair:c.hair, hairC:c.hairC, eye:c.eye, top:c.top, mood, earring:"#ffbf2e", paintUnder:under, paintOver:over})}));
     $("mkNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
     setSide("Score", fmt(this.total));
   },
@@ -5023,7 +5053,7 @@ function showHowto(room, force){
     setTimeout(() => checkBadges({room, stars:o.stars}), 900);
   };
   const origStart = startRoom;
-  const clearOverlays = () => document.querySelectorAll(".cookpanel").forEach(x => x.remove());
+  const clearOverlays = () => document.querySelectorAll(".cookpanel,.booth").forEach(x => x.remove());
   startRoom = function(room, mode){ clearOverlays(); origStart(room, mode); const pl = $("play"); pl.classList.remove("viewin"); void pl.offsetWidth; pl.classList.add("viewin"); setTimeout(() => showHowto(room), 120); };
   const origHub = goHub;
   goHub = function(){ clearOverlays(); origHub(); const h = $("hub"); h.classList.remove("viewin"); void h.offsetWidth; h.classList.add("viewin"); };
@@ -5333,6 +5363,341 @@ Object.assign(STUDIO.floor, {
   }
 });
 document.addEventListener("keydown", e => { if(G.room === "floor" && STUDIO.floor.phase2 && (e.key === "r" || e.key === "R") && $("modal").hidden){ STUDIO.floor.frot = !STUDIO.floor.frot; const m = $("hzMsg"); if(m) m.textContent = STUDIO.floor.frot ? "Items will be placed turned sideways." : "Items will be placed upright."; } });
+
+/* =========================================================
+   HAIR SALON v2: cut by hand. Hair is a set of strands; scissors,
+   clippers, comb, curling wand, flat iron and toner spray all work by
+   dragging. The cut is read from the real strand lengths.
+   Also: two new face shapes and a shared photo booth.
+   ========================================================= */
+FACE_SHAPES.diamond = `M60 88 C62 60 80 44 100 44 C120 44 138 60 140 88 C149 102 150 116 143 128 C135 148 117 166 100 166 C83 166 65 148 57 128 C50 116 51 102 60 88Z`;
+FACE_SHAPES.triangle = `M62 86 C62 56 80 44 100 44 C120 44 138 56 138 86 C145 104 152 122 150 140 C147 158 127 166 100 166 C73 166 53 158 50 140 C48 122 55 104 62 86Z`;
+BLUSH_PLACE.diamond = ["apples","Diamond faces already have wide cheekbones, so blush on the apples, not the widest point, keeps the face balanced."];
+BLUSH_PLACE.triangle = ["cheekbones","Sweeping blush up toward the temples adds width at the top, balancing a wider jaw."];
+FACE_RULE.diamond = {label:"Balance a diamond face", why:"Diamond faces are widest at the cheekbones with a narrow forehead and chin. Bangs add width up top and chin-to-shoulder lengths fill out the jaw; a tight top bun or buzz exaggerates the points.", test:h=>(["bob","lob","layers","curls"].includes(h.cut) || ["side","curtain","blunt"].includes(h.bangs)) && !["bun","buzz"].includes(h.cut)};
+FACE_RULE.triangle = {label:"Widen the top of a triangle face", why:"Triangle (pear) faces are widest at the jaw. Volume at the crown and temples, like a pixie, layers or curtain bangs, balances it; a blunt bob that ends at the jaw widens it further.", test:h=>h.cut !== "bob" && (["pixie","layers","curls","halfup","spacebuns"].includes(h.cut) || ["curtain","side"].includes(h.bangs))};
+GOALS.volume.test = h => ["layers","curls","afro","bun","pixie","spacebuns"].includes(h.cut) || h.tex === 1;
+GOALS.volume.why = "Layers, waves, curls and height remove weight and add movement; one-length straight hair lies flat.";
+GOALS.swim.test = h => ["bun","ponytail","braids","pixie","buzz","spacebuns"].includes(h.cut);
+Object.assign(GOALS, {
+  chop:{label:"She wants a dramatic chop: above the shoulders", why:"Anything ending above the shoulders reads as a big change: a bob, a pixie or a buzz. A lob that brushes the shoulders still looks long.", test:h=>["pixie","bob","buzz","afro"].includes(h.cut)},
+  frame:{label:"Face-framing layers, but keep the length", why:"Layers are cut shorter around the face and longer at the back, so the hair moves without losing length. Graduate the cut smoothly instead of chopping.", test:h=>h.cut === "layers"},
+  festival:{label:"Festival weekend: a playful updo", why:"Space buns, half-up styles and braids keep hair off the neck in the heat while still showing off length.", test:h=>["spacebuns","halfup","braids"].includes(h.cut)},
+  waves:{label:"Beachy waves for a wedding on the coast", why:"Waves catch the light and look relaxed. A curling wand bends the hair while the heat sets a new shape in its hydrogen bonds; humidity can undo it.", test:h=>h.tex === 1 && !["buzz","pixie","bun","ponytail","braids","spacebuns"].includes(h.cut)}
+});
+const HS_CUTS = ["pixie","bob","lob","long","layers","curls","afro","braids","bun","ponytail","buzz","spacebuns","halfup"];
+const HS_NAMES = {pixie:"Pixie", bob:"Chin bob", lob:"Lob", long:"Long", layers:"Long layers", curls:"Defined curls", afro:"Afro", braids:"Box braids", bun:"Top bun", ponytail:"High ponytail", buzz:"Buzz cut", spacebuns:"Space buns", halfup:"Half-up"};
+const HS_BANG_NAMES = {none:"no bangs", blunt:"blunt bangs", side:"side-swept bangs", curtain:"curtain bangs"};
+const HS_TOOLS = [["scissors","Scissors","✂️","Swipe across the strands to cut them where you swipe."],["clippers","Clippers","🪒","Run over the hair to buzz it right down."],["comb","Comb","🪮","Drag down over the forehead to comb bangs forward; drag up to sweep them back."],["wand","Curling wand","🌀","Brush over strands: once for waves, twice for tight curls."],["iron","Flat iron","♨️","Brush over strands to straighten them."],["spray","Toner spray","💧","Pick a toner, then mist it over the hair. Cover it evenly."]];
+const HS_STYLES = [["down","Down"],["ponytail","Ponytail"],["bun","Top bun"],["braids","Box braids"],["spacebuns","Space buns"],["halfup","Half-up"]];
+const HS_N = 9, HS_B = 11;
+function hsSideGeom(i, left){
+  const t = i/(HS_N-1), fx = 57 - t*27, root = [54 + t*40, 76 - t*46], yTurn = 96 - t*6;
+  return left ? {fx, rx:root[0], ry:root[1], yTurn} : {fx:200-fx, rx:200-root[0], ry:root[1], yTurn};
+}
+function hsBangGeom(j){ const x = 62 + j*7.6; return {fx:x, rx:100 + (x-100)*.5, ry:40, yTurn:58}; }
+
+STUDIO.hair = {
+  start(){ this.round = 0; this.total = 0; this.log = []; this.n = 4; this.newRound(); },
+  solvable(rules){
+    for(const cut of HS_CUTS) for(const bangs of ["none","blunt","side","curtain"]) for(const toner of ["none","violet","blue","green"]) for(const tex of [0,1]){
+      if(cut === "buzz" && bangs !== "none") continue;
+      const h = {cut, bangs, toner, tex}; if(rules.every(r => r.test(h))) return true; }
+    return false;
+  },
+  newClient(){
+    const d = S.rating.hair, depth = R(0, SKINS.length-1);
+    const shapes = d < 3 ? ["round","long","square","heart"] : Object.keys(FACE_RULE);
+    const c = {name:pick(NAMES), depth, shape:pick(shapes), eye:depth >= 4 ? "darkbrown" : pick(["brown","blue","green","hazel"]), top:pick(["#ff7db8","#22b8a7","#6f62ff","#ffbf2e"])};
+    const want = d < 4 ? 1 : 2;
+    for(let tries = 0; tries < 40; tries++){
+      const keys = shuffle(Object.keys(GOALS).filter(g => !(GOALS[g].textured && depth < 3 && Math.random() < .5))).slice(0, want);
+      if(keys.filter(k => GOALS[k].color).length > 1) continue;
+      const rules = [FACE_RULE[c.shape], ...keys.map(k => GOALS[k])];
+      if(this.solvable(rules)){ c.goals = keys.map(k => ({k, ...GOALS[k]})); break; }
+    }
+    if(!c.goals) c.goals = [{k:"volume", ...GOALS.volume}];
+    const colorGoal = c.goals.find(g => g.color);
+    c.textured = c.goals.some(g => g.textured);
+    c.hairC = colorGoal ? colorGoal.color : pick(depth >= 4 ? ["black","darkbrown"] : ["black","darkbrown","brown","auburn","blonde"]);
+    c.rules = [FACE_RULE[c.shape], ...c.goals];
+    return c;
+  },
+  freshHair(){
+    const c = this.c, len = c.textured ? 196 : R(204, 214), tex = c.textured ? 2 : 0;
+    const mk = (g, end) => ({...g, end, tex, tone:"none", buzz:false});
+    return {L:Array.from({length:HS_N}, (_, i) => mk(hsSideGeom(i, true), len - i*1.5)), Rt:Array.from({length:HS_N}, (_, i) => mk(hsSideGeom(i, false), len - i*1.5)),
+      B:Array.from({length:HS_B}, (_, j) => mk(hsBangGeom(j), c.textured ? 120 : 150)), combed:false, style:"down"};
+  },
+  newRound(){
+    this.c = this.newClient(); this.locked = false; this.tool = "scissors"; this.toner = "violet"; this.undo = []; this.mirror = true; this.guides = S.rating.hair < 6;
+    this.hs = this.freshHair(); this.before = JSON.parse(JSON.stringify(this.hs));
+    const c = this.c;
+    stage.innerHTML = `<div class="studio-grid salon2">
+      <div class="salon"><div class="chair-wrap"><div class="mirror-frame chair" id="hsChair"><div id="hsFace"></div><svg id="hsOv" viewBox="0 -14 200 246" aria-label="Styling area"></svg></div>
+        <div class="row-btns"><button class="btn-sm" type="button" id="hsUndo">Undo</button><button class="btn-sm" type="button" id="hsReset">Start over</button><button class="btn-sm" type="button" id="hsMirror">Mirror cut: on</button><button class="btn-sm" type="button" id="hsGuides">${this.guides ? "Hide" : "Show"} length guides</button></div>
+        <p class="msg" id="hsMsg">${c.name} has a <b>${c.shape}</b> face shape${c.textured ? " and coily, textured hair" : ""}.</p>
+        <p class="hs-read" id="hsRead"></p></div></div>
+      <div class="ctl-col">${sessionHeader(`Client ${this.round+1} of ${this.n}`, `${c.name}'s appointment`, "")}
+        <div class="brief" style="padding-top:12px"><ul id="hsRules">${c.rules.map(r=>`<li>${r.label}</li>`).join("")}<li>Clean, even ends</li></ul></div>
+        <div class="opt-group"><h4>Tools</h4><div class="toolbar" id="hsTools">${HS_TOOLS.map(([k,l,ic]) => `<button type="button" class="tool" data-t="${k}"><span class="ti">${ic}</span>${l}</button>`).join("")}</div><p class="tooltip-line" id="hsTip"></p>
+          <div class="chips" id="hsToners" hidden>${TONERS.filter(t => t[0] !== "none").map(([v,l,col])=>`<button type="button" class="ch" data-toner="${v}"><i class="cdot" style="background:${col}"></i>${l}</button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Style it</h4><div class="chips" id="hsStyles">${HS_STYLES.map(([v,l]) => `<button type="button" class="ch" data-style="${v}">${l}</button>`).join("")}</div></div>
+        <div class="toner-wheel">${wheelSVG(["60m","270m","30m","210m","0m","120m"], 70)}<p>Toners work like the color wheel: each color cancels its opposite.</p></div>
+        <button class="btn btn-solid" type="button" id="hsGo">Spin the chair</button><div id="hsRes"></div></div></div>`;
+    $("hsTools").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if(b && !this.locked){ this.tool = b.dataset.t; sfx.click(); this.renderTools(); } });
+    $("hsToners").addEventListener("click", e => { const b = e.target.closest("[data-toner]"); if(b){ this.toner = b.dataset.toner; sfx.click(); this.renderTools(); } });
+    $("hsStyles").addEventListener("click", e => { const b = e.target.closest("[data-style]"); if(b && !this.locked) this.setStyle(b.dataset.style); });
+    $("hsUndo").addEventListener("click", () => { if(this.locked || !this.undo.length) return; this.hs = this.undo.pop(); this.render(); });
+    $("hsReset").addEventListener("click", () => { if(this.locked) return; this.push(); this.hs = JSON.parse(JSON.stringify(this.before)); this.render(); });
+    $("hsMirror").addEventListener("click", () => { this.mirror = !this.mirror; $("hsMirror").textContent = `Mirror cut: ${this.mirror ? "on" : "off"}`; });
+    $("hsGuides").addEventListener("click", () => { this.guides = !this.guides; $("hsGuides").textContent = `${this.guides ? "Hide" : "Show"} length guides`; this.renderOv(); });
+    $("hsGo").addEventListener("click", () => this.submit());
+    this.bindPointer();
+    setSide("Score", fmt(this.total));
+    this.renderTools(); this.render();
+  },
+  push(){ this.undo.push(JSON.parse(JSON.stringify(this.hs))); if(this.undo.length > 40) this.undo.shift(); },
+  setStyle(v){
+    const L = this.look(true);
+    const need = {ponytail:150, bun:172, spacebuns:150, halfup:150, braids:172}[v] || 0;
+    if(need && L.E < need){ sfx.bad(); $("hsMsg").textContent = `Too short to tie up: ${HS_NAMES[v].toLowerCase()} needs hair ${need > 160 ? "down to the shoulders" : "past the chin"}.`; return; }
+    if(v !== "down" && L.buzz){ sfx.bad(); $("hsMsg").textContent = "There's nothing left to tie up after a buzz cut!"; return; }
+    this.push(); this.hs.style = v; sfx.click(); this.render();
+  },
+  renderTools(){
+    stage.querySelectorAll("#hsTools .tool").forEach(b => b.classList.toggle("sel", b.dataset.t === this.tool));
+    stage.querySelectorAll("[data-toner]").forEach(b => b.classList.toggle("sel", b.dataset.toner === this.toner));
+    $("hsToners").hidden = this.tool !== "spray";
+    $("hsTip").textContent = HS_TOOLS.find(t => t[0] === this.tool)[3];
+    $("hsChair").dataset.tool = this.tool;
+  },
+  all(){ return [...this.hs.L, ...this.hs.Rt]; },
+  colorOf(s){ return HAIRC[tonedColor(this.c.hairC, s.tone)] || HAIRC.brown; },
+  mainTone(){ const cnt = {}; this.all().forEach(s => cnt[s.tone] = (cnt[s.tone] || 0) + 1); const k = Object.keys(cnt).sort((a,b) => cnt[b]-cnt[a])[0]; return {tone:k, cov:cnt[k]/this.all().length, any:this.all().filter(s => s.tone !== "none").length/this.all().length}; },
+  look(raw){
+    const hs = this.hs, all = this.all(), ends = all.map(s => s.end).sort((a,b) => a-b), E = ends[Math.floor(ends.length/2)];
+    const buzz = all.filter(s => s.buzz).length >= all.length*.8;
+    const texCnt = [0,0,0]; all.forEach(s => texCnt[s.tex]++); const tex = texCnt.indexOf(Math.max(...texCnt));
+    const issues = [];
+    const sideStats = arr => { const e = arr.map(s => s.end); let sd = 0; for(let i=1;i<e.length-1;i++) sd += Math.abs(e[i-1] - 2*e[i] + e[i+1]); return {range:Math.max(...e) - Math.min(...e), chop:sd/(e.length-2)}; };
+    const sl = sideStats(hs.L), sr = sideStats(hs.Rt);
+    const asym = hs.L.reduce((a, s, i) => a + Math.abs(s.end - hs.Rt[i].end), 0)/HS_N;
+    if(!buzz){
+      if(asym > 10) issues.push("one side is longer than the other");
+      if(Math.max(sl.chop, sr.chop) > (tex === 2 ? 16 : 11)) issues.push("the ends look ragged");
+    }
+    let cut;
+    if(buzz) cut = "buzz";
+    else if(tex === 2) cut = E > 150 ? "curls" : "afro";
+    else if(E <= 122) cut = "pixie";
+    else if(E <= 170) cut = "bob";
+    else if(E <= 198) cut = (sl.range >= 16 && sr.range >= 16 && Math.max(sl.chop, sr.chop) <= 11 && E > 180) ? "layers" : "lob";
+    else cut = (sl.range >= 16 && sr.range >= 16 && Math.max(sl.chop, sr.chop) <= 11) ? "layers" : "long";
+    if(!raw && hs.style !== "down") cut = hs.style;
+    let bangs = "none";
+    if(hs.combed && !buzz){
+      const e = hs.B.map(s => s.end), m = e.reduce((a,b) => a+b, 0)/e.length, mx = Math.max(...e), mn = Math.min(...e);
+      const avg = a => a.reduce((x,y) => x+y, 0)/a.length, center = avg(e.slice(4,7)), edges = avg([e[0],e[1],e[9],e[10]]), slope = avg(e.slice(0,3)) - avg(e.slice(8));
+      if(center <= 100 && edges - center >= 12 && Math.abs(slope) < 14) bangs = "curtain";
+      else if(Math.abs(slope) >= 14 && mn <= 100) bangs = "side";
+      else if(mx <= 102 && mx - mn <= 12) bangs = "blunt";
+      else if(m > 102){ issues.push("the bangs hang in her eyes (trim them to the brows or comb them back)"); }
+      else { bangs = "blunt"; issues.push("the bangs are choppy"); }
+    }
+    const t = this.mainTone(); let toner = "none";
+    if(t.tone !== "none" && t.cov >= .75) toner = t.tone;
+    if(t.any > .15 && t.cov < .75) issues.push("the toner is patchy (mist it evenly over all the hair)");
+    return {cut, bangs, toner, tex, E, buzz, issues};
+  },
+  /* ---------- drawing ---------- */
+  strandD(s){
+    let d = `M${s.rx.toFixed(1)} ${s.ry.toFixed(1)} Q${s.fx.toFixed(1)} ${s.ry.toFixed(1)} ${s.fx.toFixed(1)} ${s.yTurn.toFixed(1)}`;
+    if(s.tex === 0 || s.buzz) return d + ` L${s.fx.toFixed(1)} ${s.end.toFixed(1)}`;
+    const amp = s.tex === 2 ? 3.4 : 2.4, per = s.tex === 2 ? 7 : 18, step = s.tex === 2 ? 1.5 : 3;
+    for(let y = s.yTurn + step; y < s.end; y += step) d += ` L${(s.fx + amp*Math.sin((y - s.yTurn)/per*Math.PI*2)).toFixed(1)} ${y.toFixed(1)}`;
+    return d + ` L${(s.fx + amp*Math.sin((s.end - s.yTurn)/per*Math.PI*2)).toFixed(1)} ${s.end.toFixed(1)}`;
+  },
+  strandLayer(list, w){
+    const ink = list.map(s => `<path d="${this.strandD(s)}" stroke="${INK}" stroke-width="${w + 3.2}"/>`).join("");
+    const col = list.map(s => `<path d="${this.strandD(s)}" stroke="${this.colorOf(s)}" stroke-width="${w}"/>`).join("");
+    const hi = list.filter((_, i) => i % 2).map(s => `<path d="${this.strandD(s)}" stroke="${shade(this.colorOf(s), .3)}" stroke-width="1.1" opacity=".55" transform="translate(-1.6 0)"/>`).join("");
+    return `<g fill="none" stroke-linecap="round" stroke-linejoin="round">${ink}${col}${hi}</g>`;
+  },
+  hairParts(){
+    const hs = this.hs, L = this.look(), all = this.all(), hc = HAIRC[tonedColor(this.c.hairC, this.mainTone().tone)];
+    const Lk = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
+    const coily = L.tex === 2;
+    const cap = coily ? curlCloud(100, 56, 48, 18, 10, 14, hc, "hscap") : `<path d="M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z" fill="${hc}" ${Lk}/><path d="M78 44 C86 40 96 40 104 42 M112 40 C124 42 134 48 140 58" fill="none" stroke="${shade(hc,.35)}" stroke-width="2" stroke-linecap="round" opacity=".8"/>`;
+    const bangs = hs.combed && !L.buzz ? this.strandLayer(hs.B, 8.4) : "";
+    if(L.buzz) return {back:"", drape:"", front:`<path d="M54 92 C52 50 74 40 100 40 C126 40 148 50 146 92 C142 66 124 58 100 58 C76 58 58 66 54 92Z" fill="${hc}" opacity=".9" ${Lk}/>`};
+    const bun = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${hc}" ${Lk}/><path d="M${x-r*.6} ${y-r*.2} q${r*.6} ${-r*.5} ${r*1.2} 0 M${x-r*.5} ${y+r*.3} q${r*.5} ${-r*.4} ${r} 0" fill="none" stroke="${shade(hc,.3)}" stroke-width="1.4"/>`;
+    if(hs.style === "spacebuns") return {back:"", drape:"", front:cap + `<path d="M70 50 C84 44 116 44 130 50" fill="none" stroke="${shade(hc,.3)}" stroke-width="1.6"/>` + bun(66, 34, 15) + bun(134, 34, 15) + bangs};
+    if(["ponytail","bun","braids"].includes(hs.style)) return null;
+    const minEnd = Math.min(...all.map(s => s.end));
+    let back = `<path d="M44 96 C38 40 70 28 100 28 C130 28 162 40 156 96 L156 ${Math.max(100, minEnd - 4)} L44 ${Math.max(100, minEnd - 4)}Z" fill="${shade(hc, -.12)}" ${Lk}/>`;
+    let front = cap + bangs;
+    if(hs.style === "halfup") front = cap + `<path d="M64 60 C84 50 116 50 136 60" fill="none" stroke="${shade(hc,.3)}" stroke-width="1.6"/>` + bun(100, 26, 14) + bangs;
+    return {back, drape:this.strandLayer(hs.L, 7.4) + this.strandLayer(hs.Rt, 7.4), front};
+  },
+  faceParams(mood){
+    const c = this.c, L = this.look(), parts = this.hairParts();
+    const p = {skin:SKINS[c.depth][0], shape:c.shape, eye:c.eye, top:c.top, mood, hairC:tonedColor(c.hairC, this.mainTone().tone)};
+    if(parts) p.strands = parts; else { p.hair = this.hs.style; p.bangs = L.bangs; }
+    return p;
+  },
+  render(){
+    const L = this.look();
+    $("hsFace").innerHTML = faceSVG(this.faceParams(this.locked ? (this.f >= .99 ? "happy" : this.f >= .5 ? "neutral" : "sad") : "neutral"), 300);
+    stage.querySelectorAll("[data-style]").forEach(b => b.classList.toggle("sel", b.dataset.style === this.hs.style));
+    const tone = L.toner !== "none" ? ` · ${L.toner} toner` : "";
+    $("hsRead").innerHTML = `Reads as: <b>${HS_NAMES[L.cut]}</b>${L.cut === "buzz" ? "" : ` · ${HS_BANG_NAMES[L.bangs]}`}${L.tex === 1 && L.cut !== "buzz" ? " · waves" : ""}${tone}`;
+    if(!this.locked && S.rating.hair < 4){ const lis = [...$("hsRules").children]; this.c.rules.forEach((r,i) => lis[i].classList.toggle("ok", r.test(L))); lis[lis.length-1].classList.toggle("ok", !L.issues.length); }
+    this.renderOv();
+  },
+  renderOv(){
+    const ov = $("hsOv"); if(!ov) return;
+    let g = `<g id="hsFall"></g>`;
+    if(this.guides && !this.locked) g += [[88,"brows"],[122,"ears"],[166,"chin"],[196,"shoulders"]].map(([y, l]) => `<path d="M22 ${y} H178" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 3" opacity=".9"/><path d="M22 ${y} H178" stroke="${INK}" stroke-width=".6" stroke-dasharray="3 3" opacity=".5"/><text x="176" y="${y-2.5}" text-anchor="end" font-size="6.5" paint-order="stroke" stroke="#fff" stroke-width="2" font-family="DM Mono, monospace" fill="${INK}" opacity=".75">${l}</text>`).join("");
+    const keep = ov.querySelector("#hsFall"); ov.innerHTML = g; if(keep) ov.replaceChild(keep, ov.querySelector("#hsFall"));
+  },
+  fall(x, y, col){
+    const f = $("hsFall"); if(!f) return;
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    el.setAttribute("d", `M${x} ${y} q${(Math.random()-.5)*6} 5 ${(Math.random()-.5)*4} 10`); el.setAttribute("stroke", col); el.setAttribute("stroke-width", "3"); el.setAttribute("fill", "none"); el.setAttribute("stroke-linecap", "round"); el.setAttribute("class", "snip");
+    f.appendChild(el); setTimeout(() => el.remove(), 900);
+  },
+  /* ---------- input ---------- */
+  bindPointer(){
+    const ov = $("hsOv");
+    const pt = e => { const p = ov.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(ov.getScreenCTM().inverse()); return [q.x, q.y]; };
+    let last = null, start = null, dirty = false, lastSnd = 0;
+    ov.addEventListener("pointerdown", e => { if(this.locked) return; e.preventDefault(); try{ ov.setPointerCapture(e.pointerId); }catch(_){} last = start = pt(e); this.push(); dirty = false; this.passes = new Set(); this.apply(last, last); });
+    ov.addEventListener("pointermove", e => { if(!last) return; const q = pt(e); if(Math.hypot(q[0]-last[0], q[1]-last[1]) < 1) return; if(this.apply(last, q)){ dirty = true; const n = performance.now(); if(n - lastSnd > 90){ lastSnd = n; this.sound(); } } last = q; });
+    const end = e => { if(!last) return; const q = last;
+      if(this.tool === "comb" && start && Math.abs(q[1]-start[1]) > 14 && Math.abs(start[0]-100) < 46 && start[1] < 120){ const down = q[1] > start[1]; if(down !== this.hs.combed){ this.hs.combed = down; dirty = true; sfx.click(); $("hsMsg").textContent = down ? "Bangs combed forward. Now cut them to length with the scissors." : "Bangs swept back."; } }
+      last = start = null; if(!dirty) this.undo.pop(); this.render(); };
+    ov.addEventListener("pointerup", end); ov.addEventListener("pointercancel", end);
+  },
+  sound(){ if(!S.sound) return; const f = {scissors:1400, clippers:120, spray:3000, wand:500, iron:420}[this.tool]; if(f) tone(f, .04, this.tool === "clippers" ? "sawtooth" : "square", .025); },
+  apply(a, b){
+    const hs = this.hs, tool = this.tool; let hit = false;
+    const lists = [[hs.L, hs.Rt]];
+    const pairs = [[a, b]]; if(this.mirror && (tool === "scissors" || tool === "clippers")) pairs.push([[200-a[0], a[1]], [200-b[0], b[1]]]);
+    const strands = [...hs.L, ...hs.Rt, ...(hs.combed ? hs.B : [])];
+    if(tool === "scissors"){
+      pairs.forEach(([p, q]) => strands.forEach(s => {
+        const x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]);
+        if(s.fx < x0 - 2.5 || s.fx > x1 + 2.5) return;
+        const y = x1 - x0 < .5 ? (p[1] + q[1])/2 : p[1] + (q[1]-p[1])*(clamp(s.fx, x0, x1) - p[0])/(q[0]-p[0] || 1);
+        const minY = s.yTurn + 4;
+        if(y < s.end - 1 && y > minY - 6){ const ny = Math.max(minY, y); this.fall(s.fx, ny + 2, this.colorOf(s)); s.end = ny; hit = true; }
+      }));
+    } else if(tool === "clippers"){
+      pairs.forEach(([p, q]) => [...hs.L, ...hs.Rt, ...hs.B].forEach(s => { if(segDist(s.fx, Math.min(s.end, s.yTurn + 10), p[0], p[1], q[0], q[1]) < 12 || segDist(s.rx, s.ry, p[0], p[1], q[0], q[1]) < 12){ if(!s.buzz){ s.buzz = true; s.end = s.yTurn + 4; hit = true; this.fall(s.fx, s.yTurn + 10, this.colorOf(s)); } } }));
+      if(hit){ hs.combed = false; hs.style = "down"; }
+    } else if(tool === "wand" || tool === "iron" || tool === "spray"){
+      const r = tool === "spray" ? 11 : 7;
+      strands.forEach((s, i) => {
+        const near = segDist(s.fx, clamp(b[1], s.yTurn, s.end), a[0], a[1], b[0], b[1]) < r && b[1] <= s.end + r || segDist(s.rx, s.ry, a[0], a[1], b[0], b[1]) < r;
+        if(!near) return;
+        if(tool === "spray"){ if(s.tone !== this.toner){ s.tone = this.toner; hit = true; } }
+        else if(tool === "iron"){ if(s.tex){ s.tex = 0; hit = true; } }
+        else { const key = (hs.B.includes(s) ? "b" : "s") + i; if(!this.passes.has(key) && s.tex < 2){ this.passes.add(key); s.tex++; hit = true; } }
+      });
+      if(tool === "spray") this.mist(b);
+    }
+    if(hit) this.render();
+    return hit;
+  },
+  mist(p){
+    const f = $("hsFall"); if(!f) return; const col = (TONERS.find(t => t[0] === this.toner) || [])[2] || "#fff";
+    for(let i = 0; i < 3; i++){ const el = document.createElementNS("http://www.w3.org/2000/svg", "circle"); el.setAttribute("cx", (p[0] + (Math.random()-.5)*18).toFixed(1)); el.setAttribute("cy", (p[1] + (Math.random()-.5)*18).toFixed(1)); el.setAttribute("r", (1 + Math.random()*1.6).toFixed(1)); el.setAttribute("fill", col); el.setAttribute("class", "mistdot"); f.appendChild(el); setTimeout(() => el.remove(), 600); }
+  },
+  /* ---------- scoring ---------- */
+  submit(){
+    if(this.locked) return;
+    const L = this.look();
+    const res = this.c.rules.map(r => ({label:r.label, why:r.why, ok:r.test(L)}));
+    res.push({label:"Clean, even ends", ok:!L.issues.length, why: L.issues.length ? `Careful: ${listAnd(L.issues)}. Stylists check balance by pulling matching strands down on both sides.` : "Balanced, crisp ends are the mark of a pro cut."});
+    const f = res.filter(r=>r.ok).length / res.length; this.f = f; this.locked = true;
+    const pts = Math.round(1000*f); this.total += pts; this.log.push({n:this.c.name, pts, look:HS_NAMES[L.cut]}); adapt("hair", f);
+    f >= .99 ? sfx.win() : f >= .5 ? sfx.good() : sfx.bad();
+    this.render();
+    const last = this.round === this.n - 1;
+    $("hsGo").hidden = true;
+    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .99 ? `${this.c.name} is thrilled` : f >= .5 ? "Nearly perfect" : "Not what she asked for"}</span><span class="pts">+${fmt(pts)}</span>
+      <div class="salon-pair mini"><figure>${faceSVG({...this.faceParams("tense"), strands:undefined, hair:this.c.textured ? "afro" : "long", bangs:"none", hairC:this.c.hairC}, 96)}<figcaption>Before</figcaption></figure><figure>${faceSVG(this.faceParams(f >= .99 ? "happy" : f >= .5 ? "neutral" : "sad"), 96)}<figcaption>After</figcaption></figure></div>
+      ${checklist(res)}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="hsBooth">📸 Photo booth</button><button class="btn btn-solid" type="button" id="hsNext">${last ? "See results" : "Next client"}</button></div></div>`;
+    $("hsBooth").addEventListener("click", () => photoBooth({name:this.c.name, caption:`${HS_NAMES[L.cut]} by me`, face:mood => faceInner(this.faceParams(mood))}));
+    $("hsNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+    setSide("Score", fmt(this.total));
+  },
+  finish(){
+    const max = this.n*1000, f = this.total/max, stars = f >= .9 ? 3 : f >= .6 ? 2 : 1;
+    endSession({title: stars === 3 ? "Master stylist" : stars === 2 ? "Senior stylist" : "Junior stylist", stars, xp:25+15*stars,
+      body:`<div class="big">${fmt(this.total)}</div><p class="m-note">out of ${fmt(max)}. Fun fact: a single hair can stretch about 30% longer when wet before it breaks.</p><ul class="roundlog">${this.log.map(l=>`<li><span>${l.n} · ${l.look}</span><span>${fmt(l.pts)}</span></li>`).join("")}</ul>`,
+      actions:[["New clients", () => startRoom("hair","studio"), true], ["Lobby", goHub]]});
+  }
+};
+HOWTO.hair = ["Read the client's face shape and goals.","Use the tools by dragging on the hair: swipe the scissors across strands to cut, comb bangs forward, curl, straighten or mist on toner.","Style it, spin the chair, then take a photo-booth strip."];
+HAIR_BANK.push(
+  [1,"Which face shape is widest at the cheekbones, with a narrow forehead and chin?","Diamond",["Square","Round","Oval"],"Bangs and chin-length cuts add width where a diamond face is narrow."],
+  [2,"Why do stylists compare matching strands on both sides of the head?","To check the cut is balanced",["To count the hairs","To test the color","To find split ends"],"Pulling both sides down to the same point shows whether one side is longer."],
+  [2,"How does a curling iron change hair's shape?","Heat temporarily breaks hydrogen bonds, which reset as the hair cools",["It melts the keratin","It adds new protein","It removes water permanently"],"That's why humidity, which re-forms those bonds, makes curls drop."],
+  [3,"What are face-framing layers?","Pieces cut shorter around the face than at the back",["Hair dyed lighter at the front","Bangs cut straight across","Braids along the hairline"],"They add movement without losing overall length."],
+  [3,"Coily hair can look much shorter dry than wet. This is called…","Shrinkage",["Porosity","Breakage","Density"],"Coils can shrink to a quarter of their stretched length, so stylists cut them dry."],
+  [4,"A triangle (pear) face is widest at…","The jaw",["The forehead","The cheekbones","The temples"],"Volume at the crown and temples balances a wider jaw."]
+);
+
+/* ---------------- PHOTO BOOTH (salon and makeup studio) ---------------- */
+const BOOTH_BG = [["dots","Pink dots",(id) => `<pattern id="${id}" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#ffd6e6"/><circle cx="9" cy="9" r="3" fill="#ff7db8"/></pattern>`],
+  ["stripes","Candy stripes",(id) => `<pattern id="${id}" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="16" height="16" fill="#fff4c9"/><rect width="8" height="16" fill="#ffbf2e" opacity=".55"/></pattern>`],
+  ["stars","Night stars",(id) => `<pattern id="${id}" width="30" height="30" patternUnits="userSpaceOnUse"><rect width="30" height="30" fill="#2c2a6b"/><path d="M8 6 l1.6 3.4 3.6 .4 -2.7 2.4 .8 3.6 -3.3 -1.9 -3.3 1.9 .8 -3.6 -2.7 -2.4 3.6 -.4z" fill="#ffd34d"/><circle cx="23" cy="22" r="1.4" fill="#fff"/></pattern>`],
+  ["sunset","Sunset",(id) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a8b"/><stop offset=".55" stop-color="#ffc3a0"/><stop offset="1" stop-color="#ffe8a8"/></linearGradient>`],
+  ["mint","Mint check",(id) => `<pattern id="${id}" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#d9f5ec"/><rect width="10" height="10" fill="#9fe3cf"/><rect x="10" y="10" width="10" height="10" fill="#9fe3cf"/></pattern>`]];
+const BOOTH_STICKERS = [["none","None",""],["hearts","Hearts","❤️💕"],["stars","Stars","⭐✨"],["crown","Crown","👑✨"],["flowers","Flowers","🌸🌼"],["shades","Cool","😎🔥"]];
+function boothSVG(o){
+  const W = 220, FH = 236, pad = 12, H = pad + 4*(FH + pad) + 46, bgId = "bb" + (++SVGID);
+  const moods = ["happy","surprised","neutral","happy"], st = (BOOTH_STICKERS.find(s => s[0] === o.sticker) || BOOTH_STICKERS[0])[2];
+  const bg = BOOTH_BG.find(b => b[0] === o.bg) || BOOTH_BG[0];
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${o.w || W}"><defs>${bg[2](bgId)}</defs><rect width="${W}" height="${H}" rx="10" fill="#fffdf8" stroke="${INK}" stroke-width="3"/>`;
+  moods.forEach((m, i) => {
+    const y = pad + i*(FH + pad), tilt = [-3, 2, -1.5, 3][i];
+    s += `<g transform="translate(${pad} ${y})"><rect width="${W - 2*pad}" height="${FH}" rx="6" fill="url(#${bgId})" stroke="${INK}" stroke-width="2.5"/>
+      <svg x="2" y="2" width="${W - 2*pad - 4}" height="${FH - 4}" viewBox="0 -10 200 242" preserveAspectRatio="xMidYMax slice">${o.face(m)}</svg><rect width="${W - 2*pad}" height="${FH}" rx="6" fill="none" stroke="${INK}" stroke-width="2.5"/>
+      ${st ? `<text x="${i % 2 ? 22 : W - 2*pad - 22}" y="34" font-size="26" text-anchor="middle" transform="rotate(${tilt*4} ${i % 2 ? 22 : W - 2*pad - 22} 26)">${[...st][i % [...st].length]}</text><text x="${i % 2 ? W - 2*pad - 26 : 26}" y="${FH - 14}" font-size="20" text-anchor="middle">${[...st][(i+1) % [...st].length]}</text>` : ""}</g>`;
+  });
+  const cap = String(o.caption || "").slice(0, 32).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+  s += `<text x="${W/2}" y="${H - 26}" text-anchor="middle" font-family="Fredoka, Arial Rounded MT Bold, sans-serif" font-weight="700" font-size="17" fill="${INK}">${cap}</text><text x="${W/2}" y="${H - 10}" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="${INK}" opacity=".6">SYNAPSE ARCADE · ${new Date().toLocaleDateString()}</text></svg>`;
+  return s;
+}
+function photoBooth(o){
+  document.querySelectorAll(".booth").forEach(x => x.remove());
+  const st = {bg:"dots", sticker:"stars", caption:o.caption || `${o.name}'s new look`};
+  const el = document.createElement("div"); el.className = "booth"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Photo booth");
+  el.innerHTML = `<div class="booth-in"><div class="booth-strip" id="boothStrip"></div><div class="booth-ctl"><span class="eyebrow">Photo booth</span><h3>Strike a pose, ${o.name}!</h3>
+    <div class="opt-group"><h4>Backdrop</h4><div class="chips" id="boothBg">${BOOTH_BG.map(([k,l]) => `<button type="button" class="ch" data-bg="${k}">${l}</button>`).join("")}</div></div>
+    <div class="opt-group"><h4>Stickers</h4><div class="chips" id="boothSt">${BOOTH_STICKERS.map(([k,l,e]) => `<button type="button" class="ch" data-st="${k}">${e ? [...e][0] + " " : ""}${l}</button>`).join("")}</div></div>
+    <div class="opt-group"><h4>Caption</h4><input id="boothCap" class="booth-cap" maxlength="32" value=""></div>
+    <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="boothSave">Save photo strip</button><button class="btn" type="button" id="boothClose">Done</button></div><p class="msg" id="boothMsg"></p></div></div>`;
+  document.body.appendChild(el);
+  $("boothCap").value = st.caption;
+  const draw = () => { $("boothStrip").innerHTML = boothSVG({...st, face:o.face, w:180}); el.querySelectorAll("[data-bg]").forEach(b => b.classList.toggle("sel", b.dataset.bg === st.bg)); el.querySelectorAll("[data-st]").forEach(b => b.classList.toggle("sel", b.dataset.st === st.sticker)); };
+  el.addEventListener("click", e => { const b = e.target.closest("[data-bg]"), s = e.target.closest("[data-st]"); if(b){ st.bg = b.dataset.bg; sfx.click(); draw(); } if(s){ st.sticker = s.dataset.st; sfx.click(); draw(); } if(e.target === el) el.remove(); });
+  $("boothCap").addEventListener("input", e => { st.caption = e.target.value; draw(); });
+  $("boothClose").addEventListener("click", () => el.remove());
+  $("boothSave").addEventListener("click", () => {
+    const svg = boothSVG({...st, face:o.face}), img = new Image(), scale = 2;
+    img.onload = () => { try{ const cv = document.createElement("canvas"); cv.width = img.width*scale; cv.height = img.height*scale; const cx = cv.getContext("2d"); cx.scale(scale, scale); cx.drawImage(img, 0, 0);
+      const a = document.createElement("a"); a.download = `photo-strip-${o.name.toLowerCase()}.png`; a.href = cv.toDataURL("image/png"); document.body.appendChild(a); a.click(); a.remove(); $("boothMsg").textContent = "Saved! Check your downloads."; }catch(_){ $("boothMsg").textContent = "Your browser blocked saving. Try a screenshot instead!"; } };
+    img.onerror = () => { $("boothMsg").textContent = "Couldn't build the image. Try a screenshot instead!"; };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    sfx.win(); FX.sparkle(innerWidth/2, innerHeight/2, 30);
+  });
+  sfx.good(); draw(); FX.confetti && FX.confetti();
+}
 
 renderHub();
 </script>
