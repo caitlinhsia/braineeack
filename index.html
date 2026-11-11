@@ -861,6 +861,11 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .ribbon-ticks{position:relative;height:16px;font:9px "DM Mono",monospace;opacity:.7}
 .ribbon-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;top:3px}
 .ribbon-ticks span:first-child{transform:none}.ribbon-ticks span:last-child{transform:translateX(-100%)}
+.mk-size{align-items:center;gap:6px}.mk-size span{font:12px "DM Mono",monospace;opacity:.7}
+.mk-size .sel,#mkErase.sel{background:var(--ink);color:#fffdf8}
+#mkFace.erasing svg{cursor:cell}
+.custom-sw{position:relative;cursor:pointer;overflow:hidden}
+.custom-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 </style>
 </head>
 <body>
@@ -992,8 +997,8 @@ const ROOMS = {
     tip:"<b>Tip:</b> anchor on dates you know for sure, like 1492, 1789 and 1969, and reason outward from them.",
     modes:[["studio","Build a timeline"],["sprint","Which came first? · 60s"],["practice","Quiz"]]},
   makeup:{name:"Makeup Studio", skill:"Color & beauty", color:"var(--makeup)", wing:"studio",
-    blurb:"Paint makeup onto real faces with 13 products, from foundation to face gems. Do clients' looks for their big day, or face the judges in theme challenges.",
-    tip:"<b>Tip:</b> pick a product, then draw on the face. Stay inside the dashed guide. Opposites on the color wheel make each other glow: blue eyes love copper.",
+    blurb:"Paint makeup anywhere on real faces with 17 products and hundreds of shades (or any color you like), from foundation to glitter and face paint. Do clients' looks for their big day, or face the judges in theme challenges.",
+    tip:"<b>Tip:</b> pick a product and a brush size, then paint anywhere. Use the eraser to fix mistakes. Opposites on the color wheel make each other glow: blue eyes love copper.",
     modes:[["studio","Client appointments"],["theme","Theme challenge"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]]},
   hair:{name:"Hair Salon", skill:"Face shape & color", color:"var(--hair)", wing:"studio",
     blurb:"Cut hair by hand with scissors, clippers and a comb, curl or straighten it, mist on toner and style updos to flatter each client's face shape. Finish with a photo-booth strip.",
@@ -3245,10 +3250,10 @@ function faceInner(p){
 function faceSVG(p, w=200, extraCls="", vb="0 -14 200 246"){ return `<svg viewBox="${vb}" width="${w}" class="face ${extraCls}" role="img" aria-label="Portrait">${faceInner(p)}</svg>`; }
 
 /* ---------------- MAKEUP STUDIO ---------------- */
-const SHADOWS = [["bronze","#b8742a","warm"],["copper","#c8642e","warm"],["gold","#d9b13b","warm"],["taupe","#9c8574","neutral"],["navy","#2c3e75","cool"],["purple","#8e5bd1","cool"],["plum","#7a3a6e","cool"],["emerald","#2e8b57","cool"],["rose","#d48a9a","cool"]];
-const LIPS = [["nude","#b97a68","neutral","soft"],["peach","#f08a6b","warm","soft"],["coral","#ff6f61","warm","soft"],["rose","#d6728f","cool","soft"],["brick","#9c3a26","warm","bold"],["orange-red","#e63b1f","warm","bold"],["blue-red","#b5121b","cool","bold"],["berry","#7e1b48","cool","bold"]];
+const SHADOWS = [["bronze","#b8742a","warm"],["copper","#c8642e","warm"],["gold","#d9b13b","warm"],["taupe","#9c8574","neutral"],["navy","#2c3e75","cool"],["purple","#8e5bd1","cool"],["plum","#7a3a6e","cool"],["emerald","#2e8b57","cool"],["rose","#d48a9a","cool"],["champagne","#f1d7a8","warm"],["peach","#f4a582","warm"],["rust","#a8441f","warm"],["olive","#7d7a3a","warm"],["khaki","#b5a26b","neutral"],["chocolate","#5a3622","neutral"],["mauve","#a77b93","cool"],["lilac","#c3a6e8","cool"],["sky","#7cc4f0","cool"],["cobalt","#2050c8","cool"],["teal","#1f8a8a","cool"],["lime","#a6d84a","warm"],["yellow","#ffd43b","warm"],["red","#d7263d","warm"],["fuchsia","#e0329a","cool"]];
+const LIPS = [["nude","#b97a68","neutral","soft"],["peach","#f08a6b","warm","soft"],["coral","#ff6f61","warm","soft"],["rose","#d6728f","cool","soft"],["brick","#9c3a26","warm","bold"],["orange-red","#e63b1f","warm","bold"],["blue-red","#b5121b","cool","bold"],["berry","#7e1b48","cool","bold"],["pink nude","#d99a92","cool","soft"],["caramel","#a8673f","warm","soft"],["mauve","#9e6377","cool","soft"],["terracotta","#c0533a","warm","soft"],["cherry","#c8102e","cool","bold"],["wine","#5e1224","cool","bold"],["plum","#6b2a5c","cool","bold"],["fuchsia","#d6247e","cool","bold"],["tangerine","#ff7b25","warm","bold"],["chocolate","#4e2a1e","warm","bold"],["lavender","#b493d6","cool","bold"],["black","#1d1416","neutral","bold"],["blue","#2f5bd3","cool","bold"],["green","#2e9e5b","cool","bold"]];
 const MK_LIPS_ALL = () => [...LIPS, ["hot pink","#ff3d8b","cool","bold"], ["nude-brown","#8e5a48","neutral","soft"]];
-const BLUSHES = [["peach","#f6a07d","warm"],["coral","#ff7f6e","warm"],["pink","#f28cb1","cool"],["berry","#c0507a","cool"]];
+const BLUSHES = [["peach","#f6a07d","warm"],["coral","#ff7f6e","warm"],["pink","#f28cb1","cool"],["berry","#c0507a","cool"],["apricot","#f9b384","warm"],["terracotta","#cf6f52","warm"],["rose","#e68a9c","cool"],["mauve","#b77a8f","cool"],["plum","#8f3f6b","cool"],["baby pink","#ffc1d6","cool"],["red","#e2454f","warm"],["lilac","#c79be0","cool"]];
 const EYE_POP = {brown:["navy","purple","plum","emerald"], darkbrown:["navy","purple","plum","gold"], blue:["copper","bronze","gold"], green:["plum","purple","rose"], hazel:["purple","emerald","plum"]};
 const EYE_WHY = {brown:"Brown is a dark orange, so blues and purples, its opposites on the color wheel, make it glow.", darkbrown:"Very dark eyes pop against jewel tones and metallic gold, which catch the light.", blue:"Blue's opposite is orange, so copper, bronze and gold make blue eyes look bluer.", green:"Green's opposite is red-violet, so plum, purple and rose make green eyes stand out.", hazel:"Hazel mixes green and brown flecks; purple brings out the green, and emerald echoes it."};
 const UNDERTONE = {warm:"#e8b84a", cool:"#e88aa8", neutral:"#d9b8a0"};
@@ -3356,21 +3361,29 @@ const MK_PRODUCTS = [
   {k:"lipstick", name:"Lipstick", r:3.2, layer:"over", op:.92, zone:"lips", tip:"Color inside the lips. Going over the edge looks smudged."},
   {k:"gloss", name:"Lip gloss", r:2.8, layer:"over", op:.5, zone:"lips", tip:"A swipe across the lips adds shine."},
   {k:"freckles", name:"Faux freckles", r:1.1, layer:"over", op:.8, zone:"freckles", tap:true, tip:"Tap little dots across the nose and cheeks."},
-  {k:"gems", name:"Face gems", r:2.6, layer:"over", op:1, zone:null, tap:true, tip:"Tap to stick on gems: try the outer corners of the eyes."}
+  {k:"gems", name:"Face gems", r:2.6, layer:"over", op:1, zone:null, tap:true, tip:"Tap to stick on gems: try the outer corners of the eyes."},
+  {k:"bronzer", name:"Bronzer", r:9, layer:"under", op:.4, zone:null, tip:"Sweep it where the sun would hit: forehead, cheekbones, nose and jaw, in a 3 shape."},
+  {k:"lipliner", name:"Lip liner", r:1.1, layer:"over", op:.9, zone:null, tip:"Outline the lips first so lipstick stays crisp. Slightly overline for fuller lips."},
+  {k:"facepaint", name:"Face paint", r:2.4, layer:"over", op:.88, zone:null, tip:"Draw anything: hearts, stars, flags, whiskers or graphic liner."},
+  {k:"glitter", name:"Glitter", r:4, layer:"over", op:1, zone:null, tip:"Sweep sparkle anywhere: lids, cheekbones or temples."}
 ];
 const MK_COLORS = {
-  concealer:[["match","#f1c6a6","neutral"],["peach corrector","#f2a079","warm"],["green corrector","#b7d9a3","cool"]],
-  contour:[["cool taupe","#7a5c4f","cool"],["warm bronze","#9b6a45","warm"],["deep","#5a3b2c","neutral"]],
+  concealer:[["match","#f1c6a6","neutral"],["peach corrector","#f2a079","warm"],["green corrector","#b7d9a3","cool"],["lavender corrector","#d4c2ef","cool"],["yellow corrector","#f3dc8c","warm"]],
+  contour:[["cool taupe","#7a5c4f","cool"],["warm bronze","#9b6a45","warm"],["deep","#5a3b2c","neutral"],["light","#a8846c","neutral"],["espresso","#3e271d","neutral"]],
+  bronzer:[["sun-kissed","#c4874f","warm"],["golden","#b07a3c","warm"],["deep bronze","#7f4f2a","warm"],["rosy bronze","#b0705e","cool"]],
+  lipliner:[["nude","#9c5f4f"],["rose","#b5566f"],["red","#a3121f"],["berry","#6b1638"],["brown","#5a3426"],["black","#1d1416"]],
+  facepaint:[["white","#ffffff"],["black","#1a1a1a"],["red","#e63946"],["orange","#ff8a3d"],["yellow","#ffd43b"],["green","#2bb673"],["teal","#1fb5b5"],["blue","#3a6df0"],["purple","#8e5bd1"],["pink","#ff5fa2"],["gold","#d4af37"],["silver","#c0c7d0"]],
+  glitter:[["gold","#f5c542"],["silver","#dfe6ee"],["rose gold","#f1a7a0"],["holographic","#b8e2ff"],["pink","#ff8ac2"],["blue","#5fa8ff"],["green","#6fd38a"],["purple","#b07cff"]],
   blush:BLUSHES.map(b => [b[0], b[1], b[2]]),
-  highlight:[["champagne","#fff1d6","warm"],["gold","#ffd98a","warm"],["pearl","#f4ecff","cool"],["rose","#ffd2e2","cool"]],
+  highlight:[["champagne","#fff1d6","warm"],["gold","#ffd98a","warm"],["pearl","#f4ecff","cool"],["rose","#ffd2e2","cool"],["bronze","#e7b47a","warm"],["icy","#e3f6ff","cool"],["lilac","#efd9ff","cool"]],
   shadow:[...SHADOWS.map(s => [s[0], s[1], s[2]]), ["silver","#c9ced6","cool"], ["white","#f7f7f7","neutral"], ["pink","#ff8fb8","cool"], ["orange","#ff8a3d","warm"], ["turquoise","#22b8c4","cool"], ["black","#1d1d1d","neutral"]],
-  liner:[["black","#1a1a1a"],["brown","#5a3a24"],["navy","#1f3a8a"],["green","#1f7a4f"]],
-  mascara:[["black","#141414"],["brown","#4a2c1d"],["blue","#2b5cd6"]],
-  brow:[["soft black","#2b1d14"],["dark brown","#4a2c1d"],["brown","#7a4a2a"],["taupe","#9c8070"]],
+  liner:[["black","#1a1a1a"],["brown","#5a3a24"],["navy","#1f3a8a"],["green","#1f7a4f"],["white","#f7f7f7"],["teal","#138a8a"],["purple","#6a3db8"],["gold","#c9a227"],["cobalt","#1f5fe0"],["burgundy","#6e1630"]],
+  mascara:[["black","#141414"],["brown","#4a2c1d"],["blue","#2b5cd6"],["green","#1f7a4f"],["purple","#6a3db8"],["burgundy","#6e1630"]],
+  brow:[["soft black","#2b1d14"],["dark brown","#4a2c1d"],["brown","#7a4a2a"],["taupe","#9c8070"],["auburn","#8a3d1f"],["blonde","#b8955a"],["grey","#8d8a86"]],
   lipstick:[...LIPS.map(l => [l[0], l[1], l[2], l[3]]), ["hot pink","#ff3d8b","cool","bold"], ["nude-brown","#8e5a48","neutral","soft"]],
-  gloss:[["clear","#ffffff"],["pink shimmer","#ffc2d9"]],
-  freckles:[["brown","#8a5233"],["deep brown","#5c341e"]],
-  gems:[["aqua","#4cc9f0"],["pink","#ff7db8"],["gold","#ffd166"],["mint","#b5e48c"],["diamond","#ffffff"]]
+  gloss:[["clear","#ffffff"],["pink shimmer","#ffc2d9"],["peach","#ffcfb0"],["berry tint","#d06b94"],["gold fleck","#ffe08a"]],
+  freckles:[["brown","#8a5233"],["deep brown","#5c341e"],["light brown","#b07a52"],["golden","#c99a5b"]],
+  gems:[["aqua","#4cc9f0"],["pink","#ff7db8"],["gold","#ffd166"],["mint","#b5e48c"],["diamond","#ffffff"],["ruby","#e0115f"],["sapphire","#2747c9"],["amethyst","#9b5de5"],["emerald","#14a76c"]]
 };
 /* zones: ellipses in portrait coordinates (cx, cy, rx, ry, rotation in degrees) */
 const MK_ZONES = {
@@ -3413,7 +3426,7 @@ const JUDGES = [{n:"Mira", look:{skin:SKINS[1][0], hair:"bob", hairC:"black", ey
 STUDIO.makeup = {
   start(mode){ this.mode = mode === "theme" ? "theme" : "studio"; this.round = 0; this.total = 0; this.log = []; this.n = this.mode === "theme" ? 3 : 4; this.newRound(); },
   newRound(){
-    this.locked = false; this.strokes = []; this.cur = null; this.prod = "foundation"; this.colors = {}; this.showGuide = S.rating.makeup < 5;
+    this.locked = false; this.strokes = []; this.cur = null; this.prod = "foundation"; this.colors = {}; this.showGuide = false; this.size = this.size || 1; this.erase = false;
     if(this.mode === "theme"){
       this.theme = freshItems("mktheme", MK_THEMES, 1)[0];
       const depth = R(0, SKINS.length-1);
@@ -3430,10 +3443,11 @@ STUDIO.makeup = {
     const rules = this.mode === "theme" ? this.theme.checks.map(x => x[0]) : c.rules.map(r => r.label);
     stage.innerHTML = `<div class="studio-grid mk-grid">
       <div class="mirror"><div class="mirror-frame paintable" id="mkFace"></div><div class="vanity">${["#ff7db8","#ffbf2e","#22b8a7"].map((col,i)=>`<span class="bottle" style="background:${col};height:${30+i*8}px"></span>`).join("")}<span class="mirror-name">${c.name}</span></div>
-        <div class="row-btns"><button class="btn-sm" type="button" id="mkUndo">Undo</button><button class="btn-sm" type="button" id="mkWipe">Wipe this product</button><button class="btn-sm" type="button" id="mkGuide">${this.showGuide ? "Hide" : "Show"} guide</button></div>
+        <div class="row-btns"><button class="btn-sm" type="button" id="mkUndo">Undo</button><button class="btn-sm" type="button" id="mkWipe">Wipe this product</button><button class="btn-sm" type="button" id="mkGuide">${this.showGuide ? "Hide" : "Show"} guide</button><button class="btn-sm" type="button" id="mkErase">Eraser</button></div>
+        <div class="row-btns mk-size" id="mkSize"><span>Brush</span>${[[.6,"S"],[1,"M"],[1.6,"L"],[2.4,"XL"]].map(([v,l]) => `<button class="btn-sm" type="button" data-sz="${v}">${l}</button>`).join("")}</div>
         <p class="msg" id="mkTip"></p></div>
       <div class="ctl-col">${sessionHeader(this.mode === "theme" ? `Look ${this.round+1} of ${this.n} · judges are waiting` : `Client ${this.round+1} of ${this.n}`, title, this.mode === "theme" ? this.theme.s : "")}
-        <div class="brief" style="padding-top:12px"><ul id="mkRules">${rules.map(r=>`<li>${r}</li>`).join("")}<li>Neat work: stay on the lines</li></ul></div>
+        <div class="brief" style="padding-top:12px"><ul id="mkRules">${rules.map(r=>`<li>${r}</li>`).join("")}</ul></div>
         <div class="opt-group"><h4>Products</h4><div class="prodbar" id="mkProds">${MK_PRODUCTS.map(p => `<button type="button" class="prod" data-p="${p.k}"><i></i>${p.name}</button>`).join("")}</div></div>
         <div class="opt-group"><h4 id="mkShadeH">Shade</h4><div class="swgrid" id="mkShades"></div></div>
         <button class="btn btn-solid" type="button" id="mkGo">${this.mode === "theme" ? "Walk out to the judges" : `Show ${c.name} the mirror`}</button><div id="mkRes"></div></div></div>`;
@@ -3442,6 +3456,10 @@ STUDIO.makeup = {
     $("mkShades").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if(b && !this.locked){ this.colors[this.prod] = b.dataset.c; sfx.click(); this.renderTools(); } });
     $("mkUndo").addEventListener("click", () => { if(this.locked) return; this.strokes.pop(); this.paint(); });
     $("mkWipe").addEventListener("click", () => { if(this.locked) return; this.strokes = this.strokes.filter(s => s.p !== this.prod); this.paint(); });
+    $("mkErase").addEventListener("click", () => { this.erase = !this.erase; $("mkErase").classList.toggle("sel", this.erase); $("mkFace").classList.toggle("erasing", this.erase); });
+    $("mkSize").addEventListener("click", e => { const b = e.target.closest("[data-sz]"); if(!b) return; this.size = +b.dataset.sz; sfx.click(); $("mkSize").querySelectorAll("[data-sz]").forEach(x => x.classList.toggle("sel", +x.dataset.sz === this.size)); });
+    $("mkSize").querySelectorAll("[data-sz]").forEach(x => x.classList.toggle("sel", +x.dataset.sz === this.size));
+    $("mkShades").addEventListener("input", e => { if(e.target.id === "mkCustom" && !this.locked){ this.colors[this.prod] = e.target.value; this.renderTools(); } });
     $("mkGuide").addEventListener("click", () => { this.showGuide = !this.showGuide; $("mkGuide").textContent = (this.showGuide ? "Hide" : "Show") + " guide"; this.paint(); });
     $("mkGo").addEventListener("click", () => this.submit());
     setSide("Score", fmt(this.total));
@@ -3453,14 +3471,16 @@ STUDIO.makeup = {
     const svg = $("mkFace").querySelector("svg");
     const pt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [+q.x.toFixed(1), +q.y.toFixed(1)]; };
     svg.addEventListener("pointerdown", e => { if(this.locked) return; e.preventDefault(); const P = MK_PRODUCTS.find(p => p.k === this.prod), q = pt(e);
-      this.cur = {p:this.prod, c:this.colors[this.prod], r:P.r, pts:[q]}; this.strokes.push(this.cur);
+      if(this.erase){ this.eraseAt(q); this.cur = {erasing:true, pts:[q]}; try{ svg.setPointerCapture(e.pointerId); }catch(_){} return; }
+      this.cur = {p:this.prod, c:this.colors[this.prod], r:+(P.r * (P.tap ? Math.min(this.size, 1.6) : this.size)).toFixed(2), pts:[q]}; this.strokes.push(this.cur);
       if(P.tap){ this.cur = null; sfx.click(); } else { try{ svg.setPointerCapture(e.pointerId); }catch(_){} } this.paint(); });
-    svg.addEventListener("pointermove", e => { if(!this.cur) return; const q = pt(e), l = this.cur.pts[this.cur.pts.length-1]; if(Math.hypot(q[0]-l[0], q[1]-l[1]) >= 1.2){ this.cur.pts.push(q); this.paint(); } });
+    svg.addEventListener("pointermove", e => { if(!this.cur) return; if(this.cur.erasing){ this.eraseAt(pt(e)); return; } const q = pt(e), l = this.cur.pts[this.cur.pts.length-1]; if(Math.hypot(q[0]-l[0], q[1]-l[1]) >= 1.2){ this.cur.pts.push(q); this.paint(); } });
     const end = () => { this.cur = null; };
     svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
     this.paint();
   },
-  colorOf(p, name){ return (MK_COLORS[p].find(x => x[0] === name) || MK_COLORS[p][0])[1]; },
+  eraseAt(q){ const n = this.strokes.length; this.strokes = this.strokes.filter(s => !s.pts.some(p => Math.hypot(p[0]-q[0], p[1]-q[1]) < s.r + 3)); if(this.strokes.length !== n){ sfx.click(); this.paint(); this.renderTools(); } },
+  colorOf(p, name){ if(typeof name === "string" && name[0] === "#") return name; return ((MK_COLORS[p] || []).find(x => x[0] === name) || MK_COLORS[p][0])[1]; },
   paint(){
     const under = $("mkUnder"), over = $("mkOver"), guide = $("mkGuideG"); if(!under) return;
     const shapeD = FACE_SHAPES[this.c.shape];
@@ -3468,24 +3488,27 @@ STUDIO.makeup = {
     const groupFor = (pk, clip) => { const P = MK_PRODUCTS.find(p => p.k === pk), list = this.strokes.filter(s => s.p === pk); if(!list.length) return "";
       const byColor = {}; list.forEach(s => (byColor[s.c] = byColor[s.c] || []).push(s));
       return Object.entries(byColor).map(([cn, ss]) => `<g opacity="${P.op}" ${clip ? `clip-path="url(#mkClip)"` : ""}>${ss.map(s => `<path d="${pathOf(s)}" fill="none" stroke="${this.colorOf(pk, cn)}" stroke-width="${s.r*2}" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}</g>`).join(""); };
-    const BL = {foundation:1.8, concealer:2.4, contour:3.2, blush:3.6, highlight:2, shadow:1.3};
-    const OPS = {foundation:.58, concealer:.5, contour:.42, blush:.5, highlight:.58, shadow:.88};
+    const BL = {foundation:1.8, concealer:2.4, bronzer:3.4, contour:3.2, blush:3.6, highlight:2, shadow:1.3};
+    const OPS = {foundation:.58, concealer:.5, bronzer:.4, contour:.42, blush:.5, highlight:.58, shadow:.88};
     const sock = [80,120].map(x => `<ellipse cx="${x}" cy="96.8" rx="16.5" ry="8"/>`).join("");
     const strokesOf = (pk, width = 2, colorFn) => this.strokes.filter(s => s.p === pk).map(s => `<path d="${pathOf(s)}" fill="none" stroke="${colorFn ? colorFn(s) : this.colorOf(pk, s.c)}" stroke-width="${s.r*width}" stroke-linecap="round" stroke-linejoin="round"/>`).join("");
     const defs = `<defs><clipPath id="mkClip"><path d="${shapeD}"/></clipPath><clipPath id="mkSock">${sock}</clipPath><clipPath id="mkLips"><path d="${LIP_UP}"/><path d="${LIP_LO}"/></clipPath><clipPath id="mkBrowC">${[80,120].map((x,i) => { const xi = x + (i === 0 ? 11 : -11), xo = x + (i === 0 ? -13 : 13); return `<path d="M${xi} 84.4 Q${x} 79.6 ${xo} 86.4 Q${x} 87.6 ${xi} 91.4Z"/>`; }).join("")}</clipPath>${Object.entries(BL).map(([k,v]) => `<filter id="mkB${k}" filterUnits="userSpaceOnUse" x="0" y="-14" width="200" height="246"><feGaussianBlur stdDeviation="${v}"/></filter>`).join("")}<filter id="mkBsoft" filterUnits="userSpaceOnUse" x="0" y="-14" width="200" height="246"><feGaussianBlur stdDeviation=".7"/></filter></defs>`;
-    under.innerHTML = defs + ["foundation","concealer","contour","blush","highlight","shadow"].map(k => {
+    under.innerHTML = defs + ["foundation","concealer","bronzer","contour","blush","highlight","shadow"].map(k => {
       const body = strokesOf(k); if(!body) return "";
       const inner = `<g opacity="${OPS[k]}" filter="url(#mkB${k})" ${k === "highlight" ? `style="mix-blend-mode:screen"` : ""}>${body}</g>`;
-      return `<g clip-path="url(#mkClip)">${k === "shadow" ? `<g clip-path="url(#mkSock)">${inner}</g>` : inner}</g>`;
+      return inner;
     }).join("");
     let o = "";
-    const brow = strokesOf("brow", 3);
-    if(brow) o += `<g clip-path="url(#mkBrowC)" opacity=".8" filter="url(#mkBsoft)">${brow}</g>`;
+    const brow = strokesOf("brow", 2);
+    if(brow) o += `<g opacity=".8" filter="url(#mkBsoft)">${brow}</g>`;
     const lipS = strokesOf("lipstick");
-    if(lipS) o += `<g opacity=".3" filter="url(#mkBsoft)">${lipS}</g><g clip-path="url(#mkLips)" opacity=".95">${strokesOf("lipstick", 3)}</g><path d="${LIP_UP}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="${LIP_LO}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="M84 141 C92 143.4 108 143.4 116 141" fill="none" stroke="${INK}" stroke-width="1.4" opacity=".8"/><ellipse cx="102" cy="146.8" rx="5" ry="1.4" fill="#fff" opacity=".28"/>`;
+    if(lipS) o += `<g opacity=".92" filter="url(#mkBsoft)">${lipS}</g><path d="${LIP_UP}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="${LIP_LO}" fill="none" stroke="${INK}" stroke-width="1.1" opacity=".6"/><path d="M84 141 C92 143.4 108 143.4 116 141" fill="none" stroke="${INK}" stroke-width="1.4" opacity=".8"/><ellipse cx="102" cy="146.8" rx="5" ry="1.4" fill="#fff" opacity=".28"/>`;
     const gl = strokesOf("gloss", 1.6);
-    if(gl) o += `<g clip-path="url(#mkLips)" opacity=".5" filter="url(#mkBsoft)">${gl}</g><ellipse cx="101" cy="146.6" rx="6.5" ry="1.7" fill="#fff" opacity=".55"/><ellipse cx="96" cy="138.6" rx="2.6" ry=".9" fill="#fff" opacity=".45"/>`;
+    if(gl) o += `<g opacity=".5" filter="url(#mkBsoft)">${gl}</g><ellipse cx="101" cy="146.6" rx="6.5" ry="1.7" fill="#fff" opacity=".55"/><ellipse cx="96" cy="138.6" rx="2.6" ry=".9" fill="#fff" opacity=".45"/>`;
     o += strokesOf("liner");
+    const lpl = strokesOf("lipliner", 1.6); if(lpl) o += `<g opacity=".9">${lpl}</g>`;
+    const fp = strokesOf("facepaint", 2); if(fp) o += `<g opacity=".88" filter="url(#mkBsoft)">${fp}</g>`;
+    const gt = this.strokes.filter(s => s.p === "glitter"); if(gt.length){ o += `<g opacity=".35" filter="url(#mkBsoft)">${strokesOf("glitter", 2)}</g>`; gt.forEach((st, si) => st.pts.forEach((q, qi) => { if(qi % 2) return; const R2 = rng("g" + si + "-" + qi); for(let k = 0; k < 3; k++) o += `<circle cx="${(q[0] + (R2()-.5)*st.r*2).toFixed(1)}" cy="${(q[1] + (R2()-.5)*st.r*2).toFixed(1)}" r="${(.3 + R2()*.6).toFixed(2)}" fill="${k ? this.colorOf("glitter", st.c) : "#fff"}"/>`; })); }
     const ms = this.strokes.filter(s => s.p === "mascara");
     if(ms.length){
       const col = this.colorOf("mascara", ms[ms.length-1].c), cov = Math.min(1, this.coverage("mascara", "lashline") * 1.4), ey = 104, op = 9;
@@ -3518,7 +3541,9 @@ STUDIO.makeup = {
     stage.querySelectorAll(".prod").forEach(b => { b.classList.toggle("sel", b.dataset.p === this.prod); const used = this.strokes.some(s => s.p === b.dataset.p); b.classList.toggle("used", used); b.querySelector("i").style.background = this.colorOf(b.dataset.p, this.colors[b.dataset.p]); });
     const P = MK_PRODUCTS.find(p => p.k === this.prod);
     $("mkShadeH").textContent = P.k === "foundation" ? "Shade · depth & undertone (C cool, N neutral, W warm)" : `${P.name} shade`;
-    $("mkShades").innerHTML = MK_COLORS[P.k].map(([n, col]) => `<button type="button" class="${P.k === "foundation" ? "fswatch" : "dot-sw lip"}${this.colors[P.k] === n ? " sel" : ""}" data-c="${n}" style="background:${col}" title="${n}"><span>${n}</span></button>`).join("");
+    const cur = this.colors[P.k], isCustom = typeof cur === "string" && cur[0] === "#";
+    $("mkShades").innerHTML = MK_COLORS[P.k].map(([n, col]) => `<button type="button" class="${P.k === "foundation" ? "fswatch" : "dot-sw lip"}${cur === n ? " sel" : ""}" data-c="${n}" style="background:${col}" title="${n}"><span>${n}</span></button>`).join("")
+      + (P.k === "foundation" ? "" : `<label class="dot-sw lip custom-sw${isCustom ? " sel" : ""}" title="Any color" style="background:${isCustom ? cur : "conic-gradient(red,yellow,lime,cyan,blue,magenta,red)"}"><input type="color" id="mkCustom" value="${isCustom ? cur : "#ff3d8b"}" aria-label="Pick any color"><span>any color</span></label>`);
     $("mkTip").textContent = `${P.name}: ${P.tip}`;
   },
   coverage(pk, z){
@@ -3565,7 +3590,7 @@ STUDIO.makeup = {
     if(!this.strokes.length){ $("mkTip").textContent = "Paint something on first: choose a product, then draw on the face."; return; }
     const m = this.derive(), ni = this.neat();
     const res = this.mode === "theme" ? this.theme.checks.map(([label, t]) => ({label, ok:t(m), why:""})) : this.c.rules.map(r => ({label:r.label, why:r.why, ok:r.test(m)}));
-    res.push({label:"Neat work: stay on the lines", ok:!ni.length, why: ni.length ? `Careful: ${listAnd(ni)}. Pros use a lip liner and tape for crisp edges.` : "Clean edges make any look look professional."});
+
     const f = res.filter(r => r.ok).length / res.length; this.f = f; this.locked = true;
     if(this.mode === "theme" && f === 1) grant("judges");
     const pts = Math.round(1000*f); this.total += pts; this.log.push({n: this.mode === "theme" ? this.theme.n : this.c.name, pts}); adapt("makeup", f);
