@@ -866,6 +866,10 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 #mkFace.erasing svg{cursor:cell}
 .custom-sw{position:relative;cursor:pointer;overflow:hidden}
 .custom-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.recipe-card{position:relative}
+.rc-pic{float:right;margin:-6px -4px 4px 10px;border:2px solid var(--ink);border-radius:10px;overflow:hidden;line-height:0;transform:rotate(3deg);box-shadow:0 3px 0 var(--ink)}
+.served{border:2.5px solid var(--ink);border-radius:14px;overflow:hidden;line-height:0;max-width:280px;animation:stampin .4s ease-out}
+.served svg{width:100%;height:auto}
 </style>
 </head>
 <body>
@@ -2743,7 +2747,7 @@ STUDIO.cook = {
         <ol class="tastelog" id="ckLog"></ol>
       </div>
       <div class="ctl-col">
-        <div class="recipe-card"><span class="eyebrow">Order ${this.round+1} of ${this.list.length} · serves 4</span><h3>${r.n}</h3><p>From ${r.from}${this.namesHint ? ` · needs <b>${r.core.length}</b> ingredients` : ""}</p></div>
+        <div class="recipe-card"><div class="rc-pic">${dishSVG(r.n, 120)}</div><span class="eyebrow">Order ${this.round+1} of ${this.list.length} · serves 4</span><h3>${r.n}</h3><p>From ${r.from}${this.namesHint ? ` · needs <b>${r.core.length}</b> ingredients` : ""}</p></div>
         <div class="opt-group"><h4>Pantry · tap to add or remove</h4><div class="pantry" id="ckPantry"></div></div>
         <div class="opt-group"><h4>In the pot · set the amounts</h4><div class="amts" id="ckAmts"></div></div>
         <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckServe">Cook & serve</button><button class="btn btn-ghost" type="button" id="ckGive" hidden>Show me the recipe</button></div>
@@ -2845,7 +2849,7 @@ STUDIO.cook = {
     this.render();
     const last = this.round === this.list.length - 1;
     $("ckServe").hidden = true; $("ckGive").hidden = true;
-    $("ckRes").innerHTML = `<div class="reveal"><span class="eyebrow">${pts >= 700 ? "Five stars from the customer" : "Recipe card"}</span><span class="pts">+${fmt(pts)}</span><p>${r.f}</p>
+    $("ckRes").innerHTML = `<div class="reveal"><span class="eyebrow">${pts >= 700 ? "Five stars from the customer" : "Recipe card"}</span><span class="pts">+${fmt(pts)}</span><div class="served">${dishSVG(r.n, 260)}</div><p>${r.f}</p>
       <ul class="ingnotes">${r.core.map(k => `<li class="ok">${ingIcon(k, 28)}<div><b>${fmtAmt(this.amt[k][0], this.amt[k][1])} ${ING[k][0].toLowerCase()}</b><p>Origin: ${ING[k][3]}</p></div></li>`).join("")}</ul>
       <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckNext">${last ? "See results" : "Next order"}</button></div></div>`;
     $("ckNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
@@ -6080,6 +6084,254 @@ Object.assign(STUDIO.lab, LAB_NEW);
   };
 }
 ROOMS.lab.blurb = "Find organs and bones on the body, mix colored light and ink, predict what sinks or floats, and line up the planets.";
+
+/* =========================================================
+   DISH ART v2: table scene, real vessels, recognizable food
+   ========================================================= */
+const DISH2 = {
+  "Sushi":{v:"board", hero:["🍣","🍣","🍣","🍣"], g:["🥒"], ut:"chop", sauce:true},
+  "Pizza Margherita":{v:"board", sp:"pizza", ut:"hand"},
+  "Tacos al pastor":{v:"plate", hero:["🌮","🌮","🌮"], g:["🍍","🍋","🧅"], ut:"hand"},
+  "Pad thai":{v:"plate", fill:"#e8b34a", sp:"noodles", g:["🍤","🍤","🥜","🍋"], ut:"chop"},
+  "Croissant":{v:"plate", hero:["🥐","🥐"], side:"☕", ut:"hand"},
+  "Paella":{v:"pan", fill:"#f2b51c", sp:"rice", g:["🍤","🍤","🍋","🫑","🦪"], ut:"spoon", steam:true},
+  "Peking duck":{v:"plate", sp:"slices", fill:"#a0522d", g:["🫓","🥒","🧅"], ut:"chop"},
+  "Butter chicken":{v:"bowl", fill:"#e07a3f", chunks:"#c9622b", cream:true, g:["🌿"], side:"🫓", ut:"spoon", steam:true},
+  "Fish and chips":{v:"paper", sp:"fish", hero:["🍟"], g:["🍋"], ut:"hand"},
+  "Pho":{v:"bowl", fill:"#c8935a", sp:"noodles", g:["🌿","🍋","🌶️","🥩"], ut:"chop", steam:true},
+  "Jollof rice":{v:"plate", fill:"#e2552b", sp:"rice", g:["🍗","🍅","🧅"], ut:"spoon"},
+  "Pierogi":{v:"plate", hero:["🥟","🥟","🥟","🥟"], g:["🧅","🥓"], ut:"fork"},
+  "Feijoada":{v:"bowl", fill:"#3b2a2a", beans:true, g:["🥓"], side:"🍚", ut:"spoon", steam:true},
+  "Poutine":{v:"bowl", fill:"#f2c14e", hero:["🍟","🍟"], gravy:true, g:["🧀"], ut:"fork"},
+  "Bibimbap":{v:"bowl", fill:"#f5f0e6", g:["🥚","🥕","🥬","🍄","🌶️"], ut:"spoon"},
+  "Moussaka":{v:"casserole", layers:["#5b2a4f","#7a4a2a","#f3e1b5"], g:["🍆","🍅"], ut:"fork"},
+  "Ceviche":{v:"bowl", fill:"#f3efe6", cubes:"#ffffff", g:["🍋","🧅","🌽","🌶️"], ut:"fork"},
+  "Goulash":{v:"bowl", fill:"#b23a1e", chunks:"#7a2a14", g:["🥔","🫑","🌶️"], side:"🍞", ut:"spoon", steam:true},
+  "Tagine":{v:"tagine", fill:"#c0682e", g:["🍋","🫒","🍗"], ut:"hand", steam:true},
+  "Lamington":{v:"plate", sp:"lamington", g:["🥥"], ut:"fork"},
+  "Borscht":{v:"bowl", fill:"#9b1b30", cream:true, g:["🌿"], side:"🍞", ut:"spoon", steam:true},
+  "Doro wat with injera":{v:"injera", fill:"#8b2e16", g:["🥚","🍗"], ut:"hand"},
+  "Plov":{v:"plate", fill:"#d9a441", sp:"rice", g:["🥕","🥕","🥩","🧄"], ut:"spoon"},
+  "Khachapuri":{v:"board", sp:"khachapuri", g:["🧈"], ut:"hand"},
+  "Rendang":{v:"plate", fill:"#5a2e1a", chunks:"#3d1d10", g:["🌶️","🥥"], side:"🍚", ut:"fork"},
+  "Bobotie":{v:"casserole", layers:["#8b5a2b","#a8743e","#f0d77a"], g:["🍚","🍇"], ut:"fork"},
+  "Pupusa":{v:"plate", sp:"pupusa", g:["🥬","🍅"], ut:"hand"},
+  "Mansaf":{v:"tray", fill:"#f4ecd8", sp:"rice", chunks:"#8a5a3a", g:["🥩","🥜","🌿"], ut:"hand"},
+  "Ackee and saltfish":{v:"plate", fill:"#f6d55c", sp:"scramble", g:["🐟","🌶️","🍅","🧅"], ut:"fork"},
+  "Pastel de nata":{v:"plate", sp:"tarts", side:"☕", ut:"hand"},
+  "Fårikål":{v:"bowl", fill:"#e8e2c8", chunks:"#9c7a5a", g:["🥬","🥔"], ut:"fork", steam:true},
+  "Hákarl":{v:"board", sp:"cubes", g:["🦈"], side:"🥃", ut:"hand"},
+  "Penang asam laksa":{v:"bowl", fill:"#b5532a", sp:"noodles", g:["🐟","🍍","🌿","🌶️"], ut:"chop", steam:true},
+  "Mole poblano":{v:"plate", fill:"#3d1f14", sp:"sauce", g:["🍗","🌶️","🍫"], ut:"fork"},
+  "Tonkotsu ramen":{v:"bowl", fill:"#efe3c8", sp:"noodles", g:["🥚","🍥","🍖","🌿"], ut:"chop", steam:true},
+  "Hyderabadi biryani":{v:"plate", fill:"#f2d38a", sp:"rice", saffron:true, g:["🍗","🧅","🌿","🥚"], ut:"spoon"},
+  "Ta'ameya (falafel)":{v:"plate", hero:["🧆","🧆","🧆"], g:["🥙","🍅","🥒"], ut:"hand"},
+  "Churros with chocolate":{v:"plate", sp:"churros", ut:"hand"},
+  "Spaghetti carbonara":{v:"plate", hero:["🍝"], g:["🥓","🥚","🧀"], ut:"fork"},
+  "Har gow":{v:"steamer", hero:["🥟","🥟","🥟","🥟"], ut:"chop", steam:true},
+  "Baklava":{v:"plate", sp:"baklava", g:["🍯"], ut:"hand"},
+  "Haggis, neeps and tatties":{v:"plate", sp:"mounds", side:"🥃", ut:"fork"},
+  "Arepa":{v:"plate", sp:"arepa", g:["🥑","🧀"], ut:"hand"},
+  "Kimchi":{v:"bowl", fill:"#d9452b", sp:"leaves", g:["🌶️","🧄"], ut:"chop"},
+  "Poke":{v:"bowl", fill:"#f5f0e6", cubes:"#e5383b", g:["🥑","🥒","🐟"], ut:"chop"}
+};
+function dish2SVG(name, w = 220){
+  const v = DISH2[name]; if(!v) return null;
+  const id = "d2" + (++SVGID), R2 = rng(name), L = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
+  const cloth = ["#e63946","#3a8dff","#2a9d8f","#f4a259","#6f62ff","#2b9348"][(hashStr(name) >>> 0) % 6];
+  const emo = (e, x, y, sz, rot = 0) => `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${sz}" text-anchor="middle" dominant-baseline="central" transform="rotate(${rot.toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})">${e}</text>`;
+  let g = `<defs><pattern id="${id}cl" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#fffdf8"/><rect width="7" height="14" fill="${cloth}" opacity=".35"/><rect width="14" height="7" fill="${cloth}" opacity=".35"/></pattern>
+    <radialGradient id="${id}sh" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`;
+  g += `<rect width="200" height="140" fill="#c8915a"/>${[18,46,80,112,128].map(y => `<path d="M0 ${y} q60 ${R2()*6-3} 120 0 t80 0" fill="none" stroke="#a8733f" stroke-width="1.4" opacity=".6"/>`).join("")}`;
+  g += `<rect x="14" y="12" width="172" height="120" rx="8" fill="url(#${id}cl)" stroke="${INK}" stroke-width="2" opacity=".95"/>`;
+  // utensils
+  if(v.ut === "chop") g += `<path d="M168 30 L150 128 M178 32 L158 128" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><path d="M168 30 L150 128 M178 32 L158 128" stroke="#c8915a" stroke-width="3.4" stroke-linecap="round"/>`;
+  if(v.ut === "fork") g += `<path d="M24 40 V126" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><path d="M24 40 V126" stroke="#d9dde3" stroke-width="3.4" stroke-linecap="round"/><path d="M19 30 v14 q5 6 10 0 v-14 M24 30 v12" fill="none" stroke="${INK}" stroke-width="2"/><path d="M176 34 q8 20 0 40 V126" stroke="${INK}" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M176 34 q8 20 0 40 V126" stroke="#d9dde3" stroke-width="3.4" stroke-linecap="round" fill="none"/>`;
+  if(v.ut === "spoon") g += `<path d="M176 60 V128" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><path d="M176 60 V128" stroke="#d9dde3" stroke-width="3.4" stroke-linecap="round"/><ellipse cx="176" cy="46" rx="8" ry="13" fill="#d9dde3" ${L}/>`;
+  if(v.side) g += `<circle cx="34" cy="38" r="17" fill="#fffdf8" ${L}/>${emo(v.side, 34, 39, 22)}`;
+  if(v.sauce) g += `<circle cx="34" cy="38" r="13" fill="#fffdf8" ${L}/><circle cx="34" cy="38" r="9" fill="#3b1f12"/>`;
+  // vessel + contents
+  const cx = 100, cy = 78;
+  const rice = (rx, ry, col) => { let s = `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${col}" ${L}/><ellipse cx="${cx}" cy="${cy-4}" rx="${rx*.7}" ry="${ry*.55}" fill="${shade(col,.18)}"/>`;
+    for(let i = 0; i < 70; i++){ const a = R2()*Math.PI*2, r = Math.sqrt(R2()); s += `<ellipse cx="${(cx + Math.cos(a)*r*rx*.92).toFixed(1)}" cy="${(cy + Math.sin(a)*r*ry*.9).toFixed(1)}" rx="1.6" ry=".8" fill="${shade(col,.4)}" transform="rotate(${(R2()*180).toFixed(0)} ${(cx + Math.cos(a)*r*rx*.92).toFixed(1)} ${(cy + Math.sin(a)*r*ry*.9).toFixed(1)})"/>`; }
+    if(v.saffron) for(let i = 0; i < 18; i++){ const a = R2()*Math.PI*2, r = Math.sqrt(R2()); s += `<ellipse cx="${(cx + Math.cos(a)*r*rx*.85).toFixed(1)}" cy="${(cy + Math.sin(a)*r*ry*.8).toFixed(1)}" rx="2" ry="1" fill="#e8a317"/>`; }
+    return s; };
+  const chunks = (n, col, rx, ry) => { let s = ""; for(let i = 0; i < n; i++){ const a = R2()*Math.PI*2, r = Math.sqrt(R2())*.8; s += `<rect x="${(cx + Math.cos(a)*r*rx - 5).toFixed(1)}" y="${(cy - 4 + Math.sin(a)*r*ry - 4).toFixed(1)}" width="${(8 + R2()*4).toFixed(1)}" height="${(7 + R2()*3).toFixed(1)}" rx="2.5" fill="${col}" stroke="${INK}" stroke-width="1.2" transform="rotate(${(R2()*60-30).toFixed(0)} ${(cx + Math.cos(a)*r*rx).toFixed(1)} ${(cy + Math.sin(a)*r*ry).toFixed(1)})"/>`; } return s; };
+  const noodles = (rx, ry, col) => { let s = ""; for(let i = 0; i < 9; i++){ const y = cy - ry*.6 + i*ry*.15, x0 = cx - rx*.8 + R2()*8; s += `<path d="M${x0.toFixed(1)} ${y.toFixed(1)} q10 -6 20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round" opacity=".9"/><path d="M${x0.toFixed(1)} ${y.toFixed(1)} q10 -6 20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="${col}" stroke-width="2.6" stroke-linecap="round"/>`; } return `<g clip-path="url(#${id}in)">${s}</g>`; };
+  const plate = (rx = 66, ry = 40) => `<ellipse cx="${cx}" cy="${cy+5}" rx="${rx+2}" ry="${ry+3}" fill="${INK}" opacity=".18"/><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#fffdf8" ${L}/><ellipse cx="${cx}" cy="${cy}" rx="${rx*.76}" ry="${ry*.74}" fill="#f4efe6" stroke="${INK}" stroke-width="1.2" opacity=".9"/>`;
+  let inner = "";
+  if(v.v === "plate") g += plate();
+  if(v.v === "tray") g += `<ellipse cx="${cx}" cy="${cy+5}" rx="78" ry="46" fill="${INK}" opacity=".18"/><ellipse cx="${cx}" cy="${cy}" rx="76" ry="44" fill="#c9ced6" ${L}/><ellipse cx="${cx}" cy="${cy}" rx="68" ry="38" fill="#dfe3e8" stroke="${INK}" stroke-width="1.2"/>`;
+  if(v.v === "board") g += `<rect x="30" y="${cy-34}" width="140" height="70" rx="14" fill="#b07a45" ${L}/><rect x="36" y="${cy-28}" width="128" height="58" rx="10" fill="#c48b52"/><circle cx="160" cy="${cy-24}" r="3" fill="none" stroke="${INK}" stroke-width="1.6"/>`;
+  if(v.v === "pan") g += `<path d="M20 ${cy} h-12 M180 ${cy} h12" stroke="${INK}" stroke-width="7" stroke-linecap="round"/><ellipse cx="${cx}" cy="${cy+4}" rx="76" ry="42" fill="#2b2b2b" ${L}/><ellipse cx="${cx}" cy="${cy}" rx="70" ry="37" fill="#444" stroke="${INK}" stroke-width="1.4"/>`;
+  if(v.v === "steamer") g += `<ellipse cx="${cx}" cy="${cy+18}" rx="62" ry="22" fill="#c9a26b" ${L}/><rect x="${cx-62}" y="${cy-8}" width="124" height="26" fill="#c9a26b" stroke="none"/><path d="M${cx-62} ${cy-8} V${cy+18} M${cx+62} ${cy-8} V${cy+18}" ${L}/><path d="M${cx-62} ${cy+4} q62 18 124 0" fill="none" stroke="${INK}" stroke-width="1.4" opacity=".5"/><ellipse cx="${cx}" cy="${cy-8}" rx="62" ry="22" fill="#e9d3a8" ${L}/>${[-40,-20,0,20,40].map(x => `<path d="M${cx+x} ${cy-28} V${cy+12}" stroke="#b8925a" stroke-width="1.2" opacity=".6"/>`).join("")}`;
+  if(v.v === "paper") g += `<path d="M50 30 L150 30 L130 120 L70 120 Z" fill="#f2efe6" ${L}/>${[44,58,72,86,100].map(y => `<path d="M${56 + (y-30)*.2} ${y} H${144 - (y-30)*.2}" stroke="${INK}" stroke-width=".8" opacity=".3"/>`).join("")}<path d="M50 30 L150 30 L140 46 L60 46 Z" fill="#e6e0d0" stroke="${INK}" stroke-width="1.4"/>`;
+  if(v.v === "injera") g += `<ellipse cx="${cx}" cy="${cy+4}" rx="80" ry="46" fill="${INK}" opacity=".15"/><ellipse cx="${cx}" cy="${cy}" rx="78" ry="44" fill="#d8c3a0" ${L}/>${Array.from({length:60}, () => `<circle cx="${(cx + (R2()-.5)*140).toFixed(1)}" cy="${(cy + (R2()-.5)*74).toFixed(1)}" r="${(1 + R2()*1.6).toFixed(1)}" fill="#b89c72" opacity=".7"/>`).join("")}<ellipse cx="${cx}" cy="${cy}" rx="34" ry="20" fill="${v.fill}" ${L}/>${chunks(5, shade(v.fill,-.3), 26, 14)}`;
+  if(v.v === "tagine") g += `<ellipse cx="${cx}" cy="${cy+26}" rx="70" ry="20" fill="#b5542b" ${L}/><ellipse cx="${cx}" cy="${cy+20}" rx="62" ry="15" fill="${v.fill}" stroke="${INK}" stroke-width="1.4"/><path d="M${cx-46} ${cy+18} Q${cx-30} ${cy-30} ${cx} ${cy-52} Q${cx+30} ${cy-30} ${cx+46} ${cy+18} Z" fill="#d9763b" ${L}/><path d="M${cx-30} ${cy+10} Q${cx-18} ${cy-24} ${cx} ${cy-40}" fill="none" stroke="#fff" stroke-width="3" opacity=".35" stroke-linecap="round"/><circle cx="${cx}" cy="${cy-54}" r="6" fill="#d9763b" ${L}/>${[-30,0,30].map(x => `<path d="M${cx+x-6} ${cy+4} l6 -6 l6 6 l-6 6z" fill="#2a9d8f" stroke="${INK}" stroke-width="1"/>`).join("")}`;
+  if(v.v === "glass") g += `<ellipse cx="${cx}" cy="${cy+44}" rx="30" ry="6" fill="${INK}" opacity=".18"/><path d="M${cx-28} ${cy-46} L${cx-22} ${cy+42} H${cx+22} L${cx+28} ${cy-46} Z" fill="#f3fbff" ${L}/><path d="M${cx-26} ${cy-30} L${cx-21} ${cy+40} H${cx+21} L${cx+26} ${cy-30} Z" fill="${v.fill}"/><ellipse cx="${cx}" cy="${cy-30}" rx="26" ry="5" fill="${shade(v.fill,.2)}" stroke="${INK}" stroke-width="1.2"/><path d="M${cx-18} ${cy-24} L${cx-14} ${cy+34}" stroke="#fff" stroke-width="4" opacity=".5" stroke-linecap="round"/><path d="M${cx+8} ${cy-64} L${cx+2} ${cy+20}" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><path d="M${cx+8} ${cy-64} L${cx+2} ${cy+20}" stroke="#ff5fa2" stroke-width="3.6" stroke-linecap="round"/><path d="M${cx-28} ${cy-46} L${cx+28} ${cy-46}" ${L}/>${[-12,6].map(x => `<circle cx="${cx+x}" cy="${cy-30}" r="2" fill="#7cb342"/>`).join("")}`;
+  if(v.v === "casserole") g += `<path d="M28 ${cy-22} H172 L166 ${cy+40} H34 Z" fill="#f6f1e7" ${L}/>${v.layers.map((c, i) => { const y0 = cy + 30 - (i+1)*16; return `<rect x="38" y="${y0}" width="124" height="16" fill="${c}" stroke="${INK}" stroke-width="1"/>`; }).join("")}<path d="M36 ${cy-18} H164 V${cy-12} Q100 ${cy-24} 36 ${cy-12}Z" fill="${shade(v.layers[v.layers.length-1], -.15)}" stroke="${INK}" stroke-width="1.2"/>${Array.from({length:14}, () => `<circle cx="${(44 + R2()*112).toFixed(1)}" cy="${(cy - 16 + R2()*8).toFixed(1)}" r="${(1.5 + R2()*2).toFixed(1)}" fill="#c2851e" opacity=".7"/>`).join("")}<path d="M22 ${cy-14} h8 M170 ${cy-14} h8" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
+  if(v.v === "bowl"){
+    g += `<defs><clipPath id="${id}in"><ellipse cx="${cx}" cy="${cy-12}" rx="54" ry="18"/></clipPath></defs><ellipse cx="${cx}" cy="${cy+40}" rx="44" ry="8" fill="${INK}" opacity=".18"/>
+      <path d="M${cx-58} ${cy-12} Q${cx-56} ${cy+40} ${cx} ${cy+42} Q${cx+56} ${cy+40} ${cx+58} ${cy-12} Z" fill="#fffdf8" ${L}/><path d="M${cx-50} ${cy+4} Q${cx} ${cy+26} ${cx+50} ${cy+4}" fill="none" stroke="${cloth}" stroke-width="4"/>
+      <ellipse cx="${cx}" cy="${cy-12}" rx="58" ry="20" fill="#f4efe6" ${L}/><ellipse cx="${cx}" cy="${cy-12}" rx="54" ry="18" fill="${v.fill}"/><ellipse cx="${cx-14}" cy="${cy-17}" rx="22" ry="5" fill="url(#${id}sh)"/>`;
+    if(v.sp === "noodles") g += noodles(54, 18, ["#efe3c8","#e8b34a"].includes(v.fill) ? "#f7e7a8" : "#f3e6c0");
+    if(v.chunks) g += `<g clip-path="url(#${id}in)">${chunks(7, v.chunks, 44, 12)}</g>`;
+    if(v.beans) g += `<g clip-path="url(#${id}in)">${Array.from({length:40}, () => `<ellipse cx="${(cx + (R2()-.5)*100).toFixed(1)}" cy="${(cy - 12 + (R2()-.5)*30).toFixed(1)}" rx="3" ry="2" fill="#1d1414" stroke="#5a4040" stroke-width=".6"/>`).join("")}</g>`;
+    if(v.cubes) g += `<g clip-path="url(#${id}in)">${Array.from({length:12}, () => { const x = cx + (R2()-.5)*90, y = cy - 12 + (R2()-.5)*24; return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="9" height="8" rx="1.5" fill="${v.cubes}" stroke="${INK}" stroke-width="1"/>`; }).join("")}</g>`;
+    if(v.sp === "leaves") g += `<g clip-path="url(#${id}in)">${Array.from({length:10}, () => { const x = cx + (R2()-.5)*96, y = cy - 12 + (R2()-.5)*26; return `<path d="M${x.toFixed(1)} ${y.toFixed(1)} q10 -8 18 0 q-8 8 -18 0z" fill="#e8553b" stroke="${INK}" stroke-width="1.1"/><path d="M${x.toFixed(1)} ${y.toFixed(1)} h16" stroke="#f6d6b0" stroke-width="1.4"/>`; }).join("")}</g>`;
+    if(v.swirl) g += `<path d="M${cx-34} ${cy-12} q34 -14 68 0 q-34 12 -56 -2 q24 -6 40 0" fill="none" stroke="${shade(v.fill,-.18)}" stroke-width="2.4" stroke-linecap="round"/><path d="M${cx-12} ${cy-13} q12 -4 24 0" stroke="#d9a400" stroke-width="3" fill="none" opacity=".7" stroke-linecap="round"/>${Array.from({length:6}, () => `<circle cx="${(cx + (R2()-.5)*60).toFixed(1)}" cy="${(cy - 12 + (R2()-.5)*14).toFixed(1)}" r="1.3" fill="#c1440e"/>`).join("")}`;
+    if(v.sp === "leaves2") g += `<g clip-path="url(#${id}in)">${Array.from({length:40}, () => { const x = cx + (R2()-.5)*104, y = cy - 12 + (R2()-.5)*32; return `<path d="M${x.toFixed(1)} ${y.toFixed(1)} q3 -3 6 0 q-3 3 -6 0z" fill="${R2() < .5 ? "#2d8a3e" : "#74c365"}" stroke="${INK}" stroke-width=".5"/>`; }).join("")}</g>`;
+    if(v.cream) g += `<path d="M${cx-8} ${cy-14} q8 -8 16 0 q-2 6 -8 5 q-6 1 -8 -5z" fill="#fffaf0" stroke="${INK}" stroke-width="1.2"/><path d="M${cx-30} ${cy-10} q20 6 40 -2" fill="none" stroke="#fffaf0" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>`;
+  }
+  // plate-type contents
+  if(["plate","tray","pan"].includes(v.v)){
+    if(v.v === "pan" && v.sp === "shakshuka") g += `<ellipse cx="${cx}" cy="${cy}" rx="68" ry="35" fill="${v.fill}"/>${Array.from({length:16}, () => `<path d="M${(cx + (R2()-.5)*110).toFixed(1)} ${(cy + (R2()-.5)*50).toFixed(1)} q4 -3 8 0" stroke="#e8553b" stroke-width="3" fill="none" stroke-linecap="round"/>`).join("")}${[[-34,-6],[0,-14],[30,0],[-8,14]].map(([x,y]) => `<path d="M${cx+x-15} ${cy+y} q2 -11 15 -10 q14 1 15 10 q-3 9 -15 9 q-13 0 -15 -9z" fill="#fffdf8" stroke="${INK}" stroke-width="1.4"/><circle cx="${cx+x+1}" cy="${cy+y-1}" r="6" fill="#ffb703" stroke="${INK}" stroke-width="1.2"/><circle cx="${cx+x-1}" cy="${cy+y-3}" r="1.6" fill="#fff" opacity=".8"/>`).join("")}`;
+    else if(v.v === "pan") g += `<defs><clipPath id="${id}in"><ellipse cx="${cx}" cy="${cy}" rx="68" ry="35"/></clipPath></defs><g clip-path="url(#${id}in)">${rice(68, 35, v.fill)}</g>`;
+    else if(v.sp === "rice") g += rice(v.v === "tray" ? 58 : 46, v.v === "tray" ? 30 : 24, v.fill) + (v.chunks ? chunks(6, v.chunks, 40, 16) : "");
+    if(v.sp === "noodles" && v.v === "plate") g += `<defs><clipPath id="${id}in"><ellipse cx="${cx}" cy="${cy}" rx="48" ry="26"/></clipPath></defs><ellipse cx="${cx}" cy="${cy}" rx="48" ry="26" fill="${shade(v.fill,-.1)}"/>` + noodles(48, 26, v.fill);
+    if(v.pesto) g += Array.from({length:9}, () => `<circle cx="${(cx + (R2()-.5)*70).toFixed(1)}" cy="${(cy + (R2()-.5)*30).toFixed(1)}" r="${(3 + R2()*4).toFixed(1)}" fill="#4f8a2a" stroke="${INK}" stroke-width=".8" opacity=".95"/>`).join("");
+    if(v.sp === "sauce") g += `<path d="M${cx-46} ${cy} q10 -26 46 -24 q40 2 44 22 q-6 22 -46 24 q-40 0 -44 -22z" fill="${v.fill}" ${L}/><path d="M${cx-20} ${cy-10} q20 -6 40 0" stroke="#fff" stroke-width="2" opacity=".25" fill="none"/>${Array.from({length:14}, () => `<circle cx="${(cx + (R2()-.5)*70).toFixed(1)}" cy="${(cy + (R2()-.5)*30).toFixed(1)}" r="1.4" fill="#f3e6c0"/>`).join("")}`;
+    if(v.sp === "scramble") g += Array.from({length:22}, () => { const x = cx + (R2()-.5)*80, y = cy + (R2()-.5)*36; return `<path d="M${x.toFixed(1)} ${y.toFixed(1)} q5 -6 10 0 q-2 5 -5 4 q-4 1 -5 -4z" fill="${R2() < .7 ? v.fill : "#f6f1e7"}" stroke="${INK}" stroke-width="1"/>`; }).join("");
+    if(v.sp === "slices") g += Array.from({length:7}, (_, i) => { const x = cx - 42 + i*13; return `<path d="M${x} ${cy+12} q2 -26 14 -30 q4 14 -2 32z" fill="${v.fill}" stroke="${INK}" stroke-width="1.5"/><path d="M${x+2} ${cy+10} q2 -22 11 -26" stroke="#f3e6c0" stroke-width="2" fill="none"/>`; }).join("");
+    if(v.chunks && v.v === "plate" && !v.sp) g += `<ellipse cx="${cx}" cy="${cy}" rx="44" ry="22" fill="${v.fill}" ${L}/>` + chunks(8, v.chunks, 36, 14);
+  }
+  // special items
+  const sp = {
+    pizza:() => `<circle cx="${cx}" cy="${cy}" r="44" fill="#e9b872" ${L}/><circle cx="${cx}" cy="${cy}" r="37" fill="#d62828" stroke="${INK}" stroke-width="1.4"/>${[[-18,-12],[14,-18],[-4,8],[22,10],[-22,16],[6,-30],[-30,-4]].map(([x,y]) => `<path d="M${cx+x} ${cy+y} q6 -8 12 -2 q4 8 -4 10 q-10 2 -8 -8z" fill="#fff8e7" stroke="${INK}" stroke-width="1"/>`).join("")}${[[0,-14],[-14,2],[18,-4],[6,18]].map(([x,y]) => `<path d="M${cx+x} ${cy+y} q6 -6 10 0 q-4 6 -10 0z" fill="#2f9e44" stroke="${INK}" stroke-width="1"/>`).join("")}${[0,60,120].map(a => `<path d="M${cx} ${cy} L${cx + 44*Math.cos(a*Math.PI/180)} ${cy + 44*Math.sin(a*Math.PI/180)} M${cx} ${cy} L${cx - 44*Math.cos(a*Math.PI/180)} ${cy - 44*Math.sin(a*Math.PI/180)}" stroke="${INK}" stroke-width="1" opacity=".35"/>`).join("")}`,
+    fish:() => `<path d="M64 74 q30 -30 72 -8 q8 6 0 12 q-40 22 -72 -4z" fill="#e8a33a" ${L}/>${Array.from({length:12}, () => `<circle cx="${(76 + R2()*56).toFixed(1)}" cy="${(64 + R2()*18).toFixed(1)}" r="2" fill="#f6c76a"/>`).join("")}`,
+    lamington:() => [[-30,4],[0,-6],[28,6]].map(([x,y]) => `<rect x="${cx+x-14}" y="${cy+y-12}" width="28" height="24" rx="3" fill="#5a3222" ${L}/><path d="M${cx+x-14} ${cy+y-2} h28" stroke="#f6e6c0" stroke-width="2"/>${Array.from({length:14}, () => `<circle cx="${(cx + x - 12 + R2()*24).toFixed(1)}" cy="${(cy + y - 10 + R2()*20).toFixed(1)}" r="1" fill="#fffaf0"/>`).join("")}`).join(""),
+    tarts:() => [[-30,4],[0,-8],[30,4]].map(([x,y]) => `<ellipse cx="${cx+x}" cy="${cy+y}" rx="18" ry="13" fill="#d9a35b" ${L}/><ellipse cx="${cx+x}" cy="${cy+y-1}" rx="13" ry="9" fill="#f6d165"/>${[[-4,-2],[3,1],[0,-4],[5,-3]].map(([a,b]) => `<circle cx="${cx+x+a}" cy="${cy+y+b}" r="${1.5 + R2()*1.5}" fill="#6b3a1a" opacity=".8"/>`).join("")}`).join(""),
+    pupusa:() => [[-22,0],[22,-4]].map(([x,y]) => `<ellipse cx="${cx+x}" cy="${cy+y}" rx="24" ry="16" fill="#e7c38b" ${L}/>${Array.from({length:6}, () => `<circle cx="${(cx + x - 14 + R2()*28).toFixed(1)}" cy="${(cy + y - 8 + R2()*16).toFixed(1)}" r="2.4" fill="#9c6a3a" opacity=".7"/>`).join("")}`).join(""),
+    khachapuri:() => `<path d="M40 ${cy} Q70 ${cy-38} 100 ${cy-30} Q130 ${cy-38} 160 ${cy} Q130 ${cy+30} 100 ${cy+26} Q70 ${cy+30} 40 ${cy}Z" fill="#d9a35b" ${L}/><path d="M58 ${cy} Q100 ${cy-30} 142 ${cy} Q100 ${cy+20} 58 ${cy}Z" fill="#fff4cc" stroke="${INK}" stroke-width="1.4"/><circle cx="${cx}" cy="${cy-2}" r="9" fill="#ffb703" ${L}/><circle cx="${cx-3}" cy="${cy-5}" r="2.4" fill="#fff" opacity=".7"/>`,
+    churros:() => [0,1,2,3].map(i => `<path d="M46 ${cy-24+i*14} L124 ${cy-34+i*14}" stroke="${INK}" stroke-width="12" stroke-linecap="round"/><path d="M46 ${cy-24+i*14} L124 ${cy-34+i*14}" stroke="#d48a3a" stroke-width="8.6" stroke-linecap="round"/><path d="M48 ${cy-24+i*14} L122 ${cy-34+i*14}" stroke="#f3c27a" stroke-width="1.4" stroke-dasharray="4 3"/>`).join("") + `<path d="M130 ${cy-10} h36 l-4 34 h-28z" fill="#fffdf8" ${L}/><ellipse cx="148" cy="${cy-10}" rx="18" ry="5" fill="#4a2414" ${L}/>`,
+    baklava:() => [[-34,6],[-12,-4],[10,6],[32,-4]].map(([x,y]) => `<path d="M${cx+x} ${cy+y-14} l14 14 l-14 14 l-14 -14z" fill="#d9a35b" ${L}/><path d="M${cx+x-9} ${cy+y-5} l9 9 l9 -9" fill="none" stroke="#a8743e" stroke-width="1.2"/><circle cx="${cx+x}" cy="${cy+y-4}" r="3.4" fill="#7cb342" stroke="${INK}" stroke-width="1"/>`).join(""),
+    mounds:() => [[-30,"#5b3a26"],[2,"#f08c2e"],[32,"#f3ead0"]].map(([x,c]) => `<path d="M${cx+x-20} ${cy+10} q4 -30 20 -28 q16 -2 20 28z" fill="${c}" ${L}/>`).join("") + `<path d="M${cx-30} ${cy+12} q30 10 60 0" stroke="#7a4a2a" stroke-width="3" fill="none" opacity=".6"/>`,
+    arepa:() => `<ellipse cx="${cx}" cy="${cy+8}" rx="38" ry="16" fill="#efd28e" ${L}/><path d="M${cx-36} ${cy+2} q36 -14 72 0" fill="#7a3b1f" stroke="${INK}" stroke-width="1.4"/><path d="M${cx-34} ${cy} q34 -10 68 0" fill="none" stroke="#5fa04e" stroke-width="3"/><ellipse cx="${cx}" cy="${cy-8}" rx="38" ry="15" fill="#f3dc9c" ${L}/>${Array.from({length:6}, () => `<circle cx="${(cx - 26 + R2()*52).toFixed(1)}" cy="${(cy - 12 + R2()*8).toFixed(1)}" r="2" fill="#c9a050" opacity=".7"/>`).join("")}`,
+    caprese:() => Array.from({length:10}, (_, i) => { const a = i/10*Math.PI*2, x = cx + Math.cos(a)*36, y = cy + Math.sin(a)*18; return i % 2 ? `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="13" ry="9" fill="#fffdf8" stroke="${INK}" stroke-width="1.4"/>` : `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="13" ry="9" fill="#e63946" stroke="${INK}" stroke-width="1.4"/><ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="7" ry="4.6" fill="#ff8a80"/>`; }).join("") + `<path d="M${cx-24} ${cy-6} q24 -10 48 2" stroke="#2f9e44" stroke-width="2" fill="none"/>`,
+    crepe:() => [[-26,4,-18],[4,-4,8],[30,6,26]].map(([x,y,r]) => `<path d="M${cx+x-22} ${cy+y+10} L${cx+x+20} ${cy+y+12} L${cx+x-4} ${cy+y-22} Z" fill="#f2c56b" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round" transform="rotate(${r} ${cx+x} ${cy+y})"/>${Array.from({length:4}, () => `<circle cx="${(cx + x - 8 + R2()*14).toFixed(1)}" cy="${(cy + y - 4 + R2()*10).toFixed(1)}" r="1.6" fill="#c98a2e"/>`).join("")}`).join("") + `<path d="M${cx-40} ${cy-14} q40 -12 80 0" stroke="#fffaf0" stroke-width="3" fill="none" stroke-dasharray="1 5" stroke-linecap="round"/>`,
+    omelette:() => `<path d="M${cx-46} ${cy+4} Q${cx-40} ${cy-20} ${cx} ${cy-20} Q${cx+44} ${cy-20} ${cx+46} ${cy+4} Q${cx+40} ${cy+20} ${cx} ${cy+20} Q${cx-40} ${cy+20} ${cx-46} ${cy+4}Z" fill="#ffd25e" stroke="${INK}" stroke-width="2.2"/><path d="M${cx-34} ${cy-4} Q${cx} ${cy-14} ${cx+34} ${cy-4}" stroke="#fff6c9" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/><path d="M${cx-40} ${cy+6} Q${cx} ${cy+12} ${cx+40} ${cy+6}" stroke="#e8b33a" stroke-width="1.6" fill="none"/>`,
+    loaf:() => `<path d="M40 ${cy+18} V${cy-6} Q40 ${cy-30} 80 ${cy-30} H98 V${cy+18} Z" fill="#8b5a2b" stroke="${INK}" stroke-width="2.2"/>${[0,1,2].map(i => `<path d="M${102+i*20} ${cy+18} V${cy-14} Q${102+i*20} ${cy-28} ${111+i*20} ${cy-28} Q${120+i*20} ${cy-28} ${120+i*20} ${cy-14} V${cy+18} Z" fill="#e2b46b" stroke="${INK}" stroke-width="2"/><path d="M${102+i*20} ${cy-14} Q${102+i*20} ${cy-28} ${111+i*20} ${cy-28} Q${120+i*20} ${cy-28} ${120+i*20} ${cy-14}" fill="none" stroke="#6b3e1a" stroke-width="3"/>${Array.from({length:4}, () => `<circle cx="${(105 + i*20 + R2()*12).toFixed(1)}" cy="${(cy - 10 + R2()*24).toFixed(1)}" r="1.2" fill="#5a3222"/>`).join("")}`).join("")}<path d="M48 ${cy-14} q20 -12 44 -8" stroke="#c48b52" stroke-width="2" fill="none"/>`,
+    cubes:() => Array.from({length:8}, (_, i) => { const x = 54 + (i % 4)*24, y = cy - 18 + Math.floor(i/4)*24; return `<rect x="${x}" y="${y}" width="16" height="16" rx="2" fill="#efe7d2" ${L}/><path d="M${x+16} ${y} l4 -4 v16 l-4 4" fill="#d8cfb6" stroke="${INK}" stroke-width="1.4"/><path d="M${x+8} ${y-8} V${y+2}" stroke="${INK}" stroke-width="1.6"/>`; }).join("")
+  };
+  if(v.sp && sp[v.sp]) g += sp[v.sp]();
+  if(v.gravy) g += `<path d="M${cx-40} ${cy-16} q20 10 30 0 q10 12 22 2 q12 8 26 -4" fill="none" stroke="#6b3a1a" stroke-width="5" stroke-linecap="round"/>`;
+  // emoji food on top
+  const surfY = v.v === "bowl" ? cy - 14 : v.v === "steamer" ? cy - 10 : v.v === "paper" ? cy - 12 : cy - 2;
+  const hero = v.hero || [];
+  const hs = hero.length === 1 ? 54 : hero.length === 2 ? 40 : 30;
+  hero.forEach((e, i) => { const n = hero.length, x = cx + (i - (n-1)/2) * (hs*.85), y = surfY - 2 + (i % 2 ? 4 : -2) + (v.v === "paper" ? -14 : 0); g += emo(e, x, y, hs, (R2()-.5)*24); });
+  (v.g || []).forEach((e, i) => { const a = i / Math.max(1, (v.g || []).length) * Math.PI*2 + .6, rx = v.v === "bowl" ? 34 : 44, ry = v.v === "bowl" ? 9 : 22; g += emo(e, cx + Math.cos(a)*rx, surfY + Math.sin(a)*ry + (v.v === "bowl" ? 0 : 4), v.v === "bowl" ? 18 : 20, (R2()-.5)*40); });
+  if(v.steam) g += `<g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8" class="steam">${[-22,0,22].map(x => `<path d="M${cx+x} ${surfY - 22} q-6 -8 0 -16 q6 -8 0 -16"/>`).join("")}</g>`;
+  return `<svg viewBox="0 0 200 140" width="${w}" role="img" aria-label="Illustration of ${name}" class="dish2">${g}</svg>`;
+}
+{
+  const origDish = dishSVG;
+  dishSVG = function(name, w = 220){ return dish2SVG(name, w) || origDish(name, w); };
+}
+
+/* ---------- Test Kitchen content pack: 13 more recipes + plated pictures ---------- */
+Object.assign(ING, {
+  parsley:["Parsley","herb","#2d8a3e","The eastern Mediterranean. Ancient Greeks crowned athletes with it."],
+  bulgur:["Bulgur","sack","#d9b26b","The Middle East. Wheat that's boiled, dried and cracked, so it cooks fast."],
+  mint:["Mint","herb","#52b788","The Mediterranean and Asia. Its cool feel comes from menthol tricking cold sensors."],
+  bellpepper:["Bell pepper","fruit","#e63946","The Americas. It's a chili without capsaicin, so no heat."],
+  paprika:["Paprika","shaker","#c1440e","Ground dried peppers. Hungary and Spain made it famous."],
+  pasta:["Spaghetti","long","#f2d16b","Italy, though noodles were eaten in China far earlier."],
+  mango:["Mango","fruit","#ffb703","South Asia, where it's been grown for over 4,000 years."],
+  cardamom:["Cardamom","pile","#9bbf7a","Southern India. By weight it's one of the most expensive spices."],
+  feta:["Feta","block","#f8f9fa","Greece. A brined cheese traditionally made with sheep's milk."],
+  olive:["Olives","pile","#3d405b","The Mediterranean. Olive trees can live for over 2,000 years."],
+  oregano:["Oregano","herb","#6a8f3a","The Mediterranean. Its name means “joy of the mountain” in Greek."],
+  chocolate:["Chocolate chips","pile","#5a3222","Cacao comes from Mesoamerica, where it was drunk bitter and spiced."],
+  bakingpowder:["Baking powder","jar","#e9ecef","Invented in the 1840s. Acid and baking soda fizz to make bubbles."],
+  vinegar:["Vinegar","bottle","#c9a227","Ancient Babylon. The name means “sour wine” in French."],
+  bread:["Stale bread","block","#d9a35b","Used up in soups all over the world, from gazpacho to ribollita."],
+  chives:["Chives","long","#40916c","Europe and Asia. The smallest member of the onion family."],
+  oats:["Oats","sack","#e9d8a6","Northern Europe. Scotland's cool, wet climate suited them."],
+  honey:["Honey","jar","#f4a261","Everywhere bees live. Sealed honey never spoils; edible honey was found in Egyptian tombs."],
+  banana:["Banana","long","#ffd166","Southeast Asia and New Guinea. Botanically, it's a berry."]
+});
+Object.assign(ING_TASTE, {parsley:"fresh", mint:"fresh", oregano:"fresh", chives:"fresh", vinegar:"sour", paprika:"heat", feta:"salt", olive:"salt", honey:"sweet", cardamom:"fresh"});
+Object.assign(ING_LINES, {
+  bulgur:{over:"It's mostly grain. Tabbouleh is a herb salad, not a grain salad.", under:"Where's the bulgur? It needs a little bite.", note:"In Lebanon, tabbouleh is mostly parsley, with just a sprinkle of bulgur."},
+  pasta:{over:"So much pasta, the sauce has vanished.", under:"There's hardly any pasta here!", note:"Toss pasta with a splash of its starchy cooking water so the oil clings to it."},
+  bakingpowder:{over:"It tastes metallic and soapy.", under:"Flat and dense. It needed more lift.", note:"Too much baking powder leaves a bitter taste; too little and nothing rises."},
+  banana:{over:"It's gummy and heavy with banana.", under:"I can barely taste banana.", note:"Use very ripe, spotty bananas: their starch has turned to sugar."},
+  oats:{over:"It's like cement. Too many oats.", under:"It's soupy. It needs more oats.", note:"Scots traditionally stir porridge with a wooden stick called a spurtle."},
+  bread:{over:"It's thick like a dip.", under:"It's thin and watery. Bread gives gazpacho its body.", note:"Stale bread thickens cold soups without any cream."},
+  mango:{over:"Too thick, like a mango pudding.", under:"It's mostly yogurt. More mango!", note:"Alphonso mangoes are India's favorite for lassi."},
+  chocolate:{over:"It's more chocolate than cookie!", under:"Where are the chocolate chips?", note:"Chocolate chip cookies were invented around 1938 at the Toll House Inn in Massachusetts."}
+});
+RECIPES.push(
+ {n:"Tabbouleh",t:1,from:"Lebanon",core:["parsley","bulgur","tomato","mint","lemon","oil","salt"],decoy:["rice","cheddar","mayo","carrot","cream","soy"],f:"In Lebanon there's a National Tabbouleh Day, the first Saturday in July. The real thing is green, not beige."},
+ {n:"Pancakes",t:1,from:"United States",core:["flour","milk","egg","sugar","butter","bakingpowder","salt"],decoy:["yeast","cheddar","garlic","tomato","rice","soy"],f:"Fluffy American pancakes get their rise from baking powder, unlike flat French crêpes."},
+ {n:"Greek salad",t:1,from:"Greece",core:["tomato","cucumber","onion","feta","olive","oil","oregano"],decoy:["lettuce","mayo","cheddar","carrot","rice","soy"],f:"In Greece it's called horiatiki, “village salad”. Traditionally there's no lettuce."},
+ {n:"Chocolate chip cookies",t:1,from:"United States",core:["flour","butter","sugar","egg","chocolate","bakingpowder","salt"],decoy:["yeast","cheddar","oil","rice","tomato","garlic"],f:"Ruth Wakefield created them in the 1930s. She sold the recipe to Nestlé for a lifetime supply of chocolate."},
+ {n:"Mango lassi",t:1,from:"India",core:["mango","yogurt","milk","sugar","cardamom"],decoy:["cream","salt","lemon","banana","honey","rice"],f:"Lassi is a Punjabi yogurt drink. It can be salty or sweet; mango lassi is the sweet favorite abroad."},
+ {n:"Shakshuka",t:2,from:"Tunisia",core:["tomato","egg","onion","bellpepper","cumin","paprika","oil","salt"],decoy:["cheddar","rice","cream","soy","milk","sugar"],f:"Eggs poached in spiced tomato and pepper sauce. The name may come from a word meaning “mixed up”."},
+ {n:"Spaghetti aglio e olio",t:2,from:"Naples, Italy",core:["pasta","garlic","oil","chili","parsley","salt"],decoy:["cream","cheddar","basil","butter","tomato","onion"],f:"A Neapolitan late-night classic made from things in every pantry: garlic, oil and chili."},
+ {n:"Gazpacho",t:2,from:"Andalusia, Spain",core:["tomato","cucumber","bellpepper","garlic","oil","vinegar","bread","salt"],decoy:["cream","cheddar","rice","milk","potato","soy"],f:"A cold soup from sunny southern Spain. Before tomatoes arrived from the Americas, it was white: bread, garlic and almonds."},
+ {n:"Peanut sauce",t:2,from:"Indonesia",core:["peanut","soy","garlic","chili","lime","sugar","coconut"],decoy:["cream","cheddar","basil","milk","flour","potato"],f:"Called sambal kacang, it's served with satay skewers and gado-gado salad."},
+ {n:"Chimichurri",t:2,from:"Argentina",core:["parsley","garlic","oil","vinegar","oregano","chili","salt"],decoy:["cream","mayo","cheddar","sugar","basil","soy"],f:"Argentina's sauce for grilled meat. Nobody agrees where the name comes from."},
+ {n:"French omelette",t:3,from:"France",core:["egg","butter","salt","chives"],decoy:["milk","cheddar","flour","oil","cream","onion"],f:"Chefs once proved their skill with it: pale gold outside, soft and barely set inside, never browned."},
+ {n:"Porridge",t:3,from:"Scotland",core:["oats","milk","water","salt","honey"],decoy:["sugar","cream","butter","flour","egg","banana"],f:"Traditional Scottish porridge is made with salt, not sugar. There's a World Porridge Making Championship."},
+ {n:"Banana bread",t:3,from:"United States",core:["banana","flour","sugar","egg","butter","bakingpowder","salt"],decoy:["yeast","cheddar","rice","oil","tomato","garlic"],f:"It took off in the 1930s, when baking powder was common and nobody wanted to waste overripe bananas."}
+);
+Object.assign(AMT, {
+  "Tabbouleh":{parsley:[3,"bunches",1,6], bulgur:[2,"tbsp",1,6], tomato:[2,"tomatoes",1,5], mint:[1,"handful",1,4], lemon:[3,"tbsp",1,6], oil:[3,"tbsp",1,6], salt:[1,"tsp",.5,3]},
+  "Pancakes":{flour:[1.5,"cups",.25,3], milk:[1.25,"cups",.25,3], egg:[1,"egg",1,4], sugar:[2,"tbsp",1,5], butter:[3,"tbsp",1,6], bakingpowder:[2,"tsp",1,5], salt:[.5,"tsp",.25,2]},
+  "Greek salad":{tomato:[3,"tomatoes",1,6], cucumber:[1,"cucumber",1,3], onion:[1,"tbsp",1,4], feta:[1,"slab",1,3], olive:[10,"olives",2,20], oil:[3,"tbsp",1,6], oregano:[1,"tsp",.5,3]},
+  "Chocolate chip cookies":{flour:[2,"cups",.25,4], butter:[8,"tbsp",2,16], sugar:[.75,"cup",.25,2], egg:[1,"egg",1,4], chocolate:[1,"cup",.25,2.5], bakingpowder:[1,"tsp",.5,3], salt:[.5,"tsp",.25,2]},
+  "Mango lassi":{mango:[2,"mangoes",1,4], yogurt:[1,"cup",.25,2.5], milk:[.5,"cup",.25,1.5], sugar:[2,"tbsp",1,5], cardamom:[1,"pinch",1,4]},
+  "Shakshuka":{tomato:[5,"tomatoes",1,9], egg:[4,"eggs",1,8], onion:[1,"onion",1,3], bellpepper:[1,"pepper",1,3], cumin:[1,"tsp",.5,3], paprika:[1,"tsp",.5,3], oil:[2,"tbsp",1,5], salt:[1,"tsp",.5,3]},
+  "Spaghetti aglio e olio":{pasta:[400,"g",50,800], garlic:[4,"cloves",1,10], oil:[5,"tbsp",1,10], chili:[1,"chili",1,4], parsley:[1,"handful",1,3], salt:[1,"tsp",.5,3]},
+  "Gazpacho":{tomato:[6,"tomatoes",1,10], cucumber:[1,"cucumber",1,3], bellpepper:[1,"pepper",1,3], garlic:[1,"clove",1,4], oil:[4,"tbsp",1,8], vinegar:[2,"tbsp",1,5], bread:[1,"slice",1,3], salt:[1,"tsp",.5,3]},
+  "Peanut sauce":{peanut:[1,"cup",.25,2], soy:[2,"tbsp",1,5], garlic:[1,"clove",1,4], chili:[1,"chili",1,4], lime:[2,"tbsp",1,5], sugar:[1,"tbsp",1,4], coconut:[.5,"cup",.25,1.5]},
+  "Chimichurri":{parsley:[1,"bunch",1,3], garlic:[3,"cloves",1,8], oil:[.5,"cup",.25,1.5], vinegar:[3,"tbsp",1,6], oregano:[1,"tbsp",1,4], chili:[1,"tsp",.5,3], salt:[1,"tsp",.5,3]},
+  "French omelette":{egg:[3,"eggs",1,6], butter:[1,"tbsp",1,4], salt:[1,"pinch",1,4], chives:[1,"tbsp",1,4]},
+  "Porridge":{oats:[1,"cup",.25,2.5], milk:[1,"cup",.25,2.5], water:[1,"cup",.25,2.5], salt:[1,"pinch",1,4], honey:[1,"tbsp",1,4]},
+  "Banana bread":{banana:[3,"bananas",1,6], flour:[1.75,"cups",.25,3], sugar:[.5,"cup",.25,1.5], egg:[2,"eggs",1,4], butter:[6,"tbsp",2,12], bakingpowder:[2,"tsp",1,5], salt:[.5,"tsp",.25,2]}
+});
+Object.assign(PREP, {
+  "Tabbouleh":[["chop","parsley"],["chop","tomato"]],
+  "Pancakes":[["whisk",null],["flip",null]],
+  "Greek salad":[["chop","tomato"],["slice","cucumber"]],
+  "Chocolate chip cookies":[["whisk",null],["bake",null]],
+  "Mango lassi":[["blend","mango"]],
+  "Shakshuka":[["chop","onion"],["simmer",null]],
+  "Spaghetti aglio e olio":[["slice","garlic"],["simmer",null]],
+  "Gazpacho":[["chop","tomato"],["blend",null]],
+  "Peanut sauce":[["grind","peanut"]],
+  "Chimichurri":[["chop","parsley"]],
+  "French omelette":[["whisk",null],["flip",null]],
+  "Porridge":[["simmer",null]],
+  "Banana bread":[["mash","banana"],["bake",null]]
+});
+Object.assign(DISH2, {
+  "Guacamole":{v:"bowl", fill:"#8fbf4f", chunks:"#cfe39a", g:["🥑","🍋","🌶️"], side:"🌮", ut:"hand"},
+  "Caprese salad":{v:"plate", sp:"caprese", g:["🌿"], ut:"fork"},
+  "Crêpe batter":{v:"plate", sp:"crepe", g:["🍓","🍋"], ut:"fork"},
+  "Pesto alla Genovese":{v:"plate", fill:"#f2d16b", sp:"noodles", pesto:true, g:["🌿","🧀"], ut:"fork"},
+  "Hummus":{v:"bowl", fill:"#e9d3a1", swirl:true, g:["🫒"], side:"🫓", ut:"hand"},
+  "Miso soup":{v:"bowl", fill:"#c9a26b", cubes:"#fffdf8", g:["🌿"], ut:"spoon", steam:true},
+  "Tzatziki":{v:"bowl", fill:"#f4f1e6", swirl:true, g:["🥒","🌿"], side:"🫓", ut:"hand"},
+  "Egg fried rice":{v:"plate", fill:"#f2d38a", sp:"rice", g:["🥚","🌽","🥕","🧅"], ut:"chop"},
+  "Basic bread":{v:"board", hero:["🍞"], g:["🧈"], ut:"hand"},
+  "Pico de gallo":{v:"bowl", fill:"#e63946", cubes:"#ff6b6b", g:["🧅","🌿","🌶️"], side:"🌮", ut:"hand"},
+  "Tabbouleh":{v:"bowl", fill:"#3f9e4d", sp:"leaves2", g:["🍅","🍋","🌿"], ut:"fork"},
+  "Pancakes":{v:"plate", hero:["🥞"], g:["🧈","🍓"], ut:"fork"},
+  "Greek salad":{v:"bowl", fill:"#e9f5db", cubes:"#fffdf8", g:["🍅","🥒","🫒","🧅"], ut:"fork"},
+  "Chocolate chip cookies":{v:"plate", hero:["🍪","🍪","🍪"], side:"🥛", ut:"hand"},
+  "Mango lassi":{v:"glass", fill:"#ffc145", g:["🥭"], ut:"hand"},
+  "Shakshuka":{v:"pan", fill:"#c0392b", sp:"shakshuka", g:["🌿"], side:"🍞", ut:"spoon", steam:true},
+  "Spaghetti aglio e olio":{v:"plate", hero:["🍝"], g:["🧄","🌶️","🌿"], ut:"fork"},
+  "Gazpacho":{v:"bowl", fill:"#d9442b", g:["🥒","🫑","🍅"], ut:"spoon"},
+  "Peanut sauce":{v:"bowl", fill:"#b07a3c", swirl:true, g:["🥜","🌶️"], side:"🍢", ut:"hand"},
+  "Chimichurri":{v:"bowl", fill:"#4f8a3a", sp:"leaves2", g:["🌿","🧄","🌶️"], side:"🥩", ut:"spoon"},
+  "French omelette":{v:"plate", sp:"omelette", g:["🌿"], ut:"fork"},
+  "Porridge":{v:"bowl", fill:"#efe3c8", swirl:true, g:["🍯"], ut:"spoon", steam:true},
+  "Banana bread":{v:"board", sp:"loaf", g:["🍌","🧈"], ut:"hand"}
+});
 
 renderHub();
 </script>
