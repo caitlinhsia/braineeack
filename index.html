@@ -8388,8 +8388,13 @@ STUDIO.atlas = {
     const it = this.it, show = this.type !== "find" || hl;
     $("atMap").innerHTML = `<svg viewBox="0 0 1000 ${MAP_H}" id="atSvg" aria-label="Unlabeled world map"><rect width="1000" height="${MAP_H}" fill="var(--sea)"/><g class="atland">${Object.entries(MAP_PATHS).map(([n, d]) => `<path d="${d}" data-n="${n}" class="${show && n === it.n ? "hl" : ""}${hl && hl.wrong === n ? " wrong" : ""}"/>`).join("")}</g></svg>`;
     const svg = $("atSvg"), tgt = svg.querySelector(`[data-n="${CSS.escape(it.n)}"]`);
-    if(tgt){ const bb = tgt.getBBox(), w = Math.max(220, Math.min(1000, bb.width*4 + 160)), h = w*MAP_H/1000; const cx = bb.x + bb.width/2, cy = bb.y + bb.height/2; svg.setAttribute("viewBox", `${clamp(cx - w/2 + (Math.random()-.5)*w*.25, 0, 1000 - w).toFixed(0)} ${clamp(cy - h/2 + (Math.random()-.5)*h*.25, 0, MAP_H - h).toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}`); }
-    if(this.type === "find" && !hl) svg.onclick = e => { const p = e.target.closest("[data-n]"); if(!p || this.locked) return; this.answer(p.dataset.n, null, p); };
+    if(tgt){ const bb = tgt.getBBox(), sz = Math.max(bb.width, bb.height*1.6), w = clamp(sz*3.2 + 70, 110, 1000), h = w*MAP_H/1000; const cx = bb.x + bb.width/2, cy = bb.y + bb.height/2; svg.setAttribute("viewBox", `${clamp(cx - w/2 + (Math.random()-.5)*w*.25, 0, 1000 - w).toFixed(0)} ${clamp(cy - h/2 + (Math.random()-.5)*h*.25, 0, MAP_H - h).toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}`); }
+    if(this.type === "find" && !hl) svg.onclick = e => { if(this.locked) return; let p = e.target.closest("[data-n]");
+      if(!p){ /* tapped the sea: accept the nearest country within ~14 screen px, smallest first, so tiny islands are tappable */
+        let best = null, bestA = 1e12; svg.querySelectorAll("[data-n]").forEach(el => { const r = el.getBoundingClientRect(), t = 14;
+          if(e.clientX >= r.left - t && e.clientX <= r.right + t && e.clientY >= r.top - t && e.clientY <= r.bottom + t){ const a = r.width*r.height; if(a < bestA){ bestA = a; best = el; } } });
+        p = best; }
+      if(p) this.answer(p.dataset.n, null, p); };
   },
   answer(v, btn, path){
     this.locked = true; const it = this.it, ok = this.type === "capital" ? v === it.cap : v === it.n;
