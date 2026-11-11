@@ -8534,6 +8534,120 @@ Object.assign(DISH2, {
   "Chocolate mug cake":{v:"glass", fill:"#5a3222", g:["🍓"], ut:"spoon", steam:true}
 });
 
+/* ---------- Peacemaker: three more everyday conflicts ---------- */
+SCEN.push(
+ {id:"groupchat", tier:1, title:"Left Out of the Trip", setting:"A school courtyard at lunch. Photos from a weekend camping trip have just appeared in the group chat.",
+  cast:[{n:"Zara",role:"Found out about the trip from the photos"},{n:"Ben",role:"Organized the trip"}], tension:72,
+  beats:[
+   {narr:"Zara holds up her phone, screen first.", lines:[[0,"A whole weekend away, and nobody even told me? I had to find out from the photos."],[1,"It wasn't a big deal. It was a last-minute thing!"]],
+    opts:[["Zara, finding out from photos sounds like it really stung. Ben, you didn't expect this reaction. Can we hear Zara out first?","Affect labeling + structure",2,-15,12,6,[[0,"It did sting. A lot."],[1,"Okay. I'm listening."]],"Naming the hurt lowers its intensity, and giving one person the floor first stops both from shouting at once."],
+          ["Ben, that was pretty mean of you.","Taking sides",0,15,8,-22,[[1,"Wow. I'm the villain now? Forget it."]],"Calling one side mean turns you into a judge, and the accused stops listening."],
+          ["It's just a camping trip. There'll be others.","Minimizing",0,10,-14,4,[[0,"That's not the point. It's about being forgotten."]],"Minimizing tells someone their feelings don't count, which usually makes them stronger."],
+          ["Ben, can you invite her next time?","Jumping to solutions",1,5,-4,-4,[[0,"“Next time” doesn't fix this time."]],"Quick fixes skip the part where people feel understood, so they bounce off."]]},
+   {narr:"Zara's voice cracks a little.", lines:[[0,"You always plan things without me. I'm basically invisible to you guys."],[1,"Always? Come on. You came bowling last week!"]],
+    opts:[["Zara, could you tell Ben what this weekend specifically felt like, rather than “always”?","Concrete over absolute",2,-10,6,12,[[0,"I saw everyone in one photo, laughing, and I felt like I'd been dropped."],[1,"…I didn't know you'd see it like that."]],"Words like “always” and “never” invite a counterexample. A specific moment invites empathy instead."],
+          ["Ben, you did leave her out. Just apologize.","Forcing an apology",1,5,4,-10,[[1,"Fine. Sorry. Happy?"]],"Forced apologies sound hollow and often make the hurt person feel worse."],
+          ["You're both being dramatic.","Dismissing",0,12,-10,-10,[[0,"Great. Thanks a lot."],[1,"I'm not the one being dramatic."]],"Labeling feelings as “drama” dismisses both people at once."],
+          ["Let's talk about bowling instead. That was fun, right?","Changing the subject",0,5,-8,0,[[0,"Seriously?"]],"Avoiding the issue leaves it to grow."]]},
+   {narr:"Ben looks at the ground.", lines:[[1,"The tent only fit four. And you said last month you hate camping."]],
+    opts:[["So space was limited, and you thought Zara wouldn't want to go. Zara, what did you actually need here?","Interests over positions",2,-15,10,10,[[0,"Honestly? Just to be asked. Even if I said no."],[1,"Huh. I can do that."]],"Underneath “you excluded me” there's often a simpler need, like being included in the choice."],
+          ["Zara, did you say you hate camping?","Cross-examining",1,5,-6,4,[[0,"Once! When it rained!"]],"Questions that sound like an interrogation put people on trial."],
+          ["Ben, that's a pretty weak excuse.","Judging",0,12,6,-15,[[1,"It's not an excuse, it's what happened."]],"Judging someone's reasons makes them defend instead of reflect."],
+          ["It sounds like a misunderstanding.","Reflecting",1,-8,4,4,[[0,"Maybe."],[1,"Yeah, kind of."]],"Accurate, but it doesn't yet uncover what each person needs going forward."]]},
+   {narr:"The bell is about to ring.", lines:[[0,"So what happens now?"]],
+    opts:[["What would make you both feel okay about plans from now on?","Empowering the parties",2,-18,10,10,[[1,"I'll ask in the main group chat before planning anything, even if it's small."],[0,"And I'll say if I'm in, instead of assuming I'm not invited."]],"People keep agreements they design themselves."],
+          ["Ben asks everyone in the group chat before planning, and Zara gets first pick of the next activity?","Specific, mutual proposal",2,-15,8,8,[[0,"First pick? I'd like that."],[1,"Deal. Mini-golf, probably."]],"Specific, two-sided deals work because everyone knows what “better” looks like."],
+          ["Ben owes Zara a trip. End of story.","Imposed win-lose",0,10,4,-15,[[1,"I don't owe anyone anything."]],"One-sided penalties breed resentment."],
+          ["Just be nicer to each other, okay?","Vague agreement",1,5,-5,-5,[[0,"Sure…"]],"Vague promises are easy to make and easy to break."]]}
+  ]},
+ {id:"car", tier:2, title:"The Shared Car", setting:"A driveway on a Saturday morning. One car, two drivers, and the fuel light is on.",
+  cast:[{n:"Elena",role:"Older sister, has a part-time job"},{n:"Marco",role:"Younger brother, just passed his test"}], tension:74,
+  beats:[
+   {narr:"Elena holds up the keys and points at the dashboard.", lines:[[0,"Empty. Again. I'm going to be late for work because you can't put fuel in a car."],[1,"I was going to fill it up today! Chill."]],
+    opts:[["Elena, you sound stressed about being late. Marco, you sound blindsided. Let's take this one step at a time.","Validating both sides",2,-15,10,10,[[0,"I am stressed. My manager already warned me once."],[1,"Fine. One step at a time."]],"Validation calms the stress response so people can think."],
+          ["Marco, that's irresponsible.","Labeling",0,14,8,-20,[[1,"Oh, so you're perfect now?"]],"Labels describe a person, not a problem, so they trigger defense."],
+          ["Can't you just take the bus, Elena?","Dismissing a need",0,10,-15,5,[[0,"It's 40 minutes on the bus. That's not the point."]],"Brushing past someone's need tells them you're not neutral."],
+          ["Who's paying for fuel? Let's do the math.","Jumping to logistics",1,5,-3,-3,[[0,"I always pay. That's the point."]],"Logistics are useful, but only after people feel heard."]]},
+   {narr:"Marco crosses his arms.", lines:[[1,"You treat that car like it's yours. I'm allowed to use it too, Mum said so."],[0,"You use it for driving your friends around!"]],
+    opts:[["It sounds like this is about fairness for both of you. What does fair look like to each of you?","Reframing to shared value",2,-14,10,10,[[0,"Fair is I can get to work, which pays for fuel."],[1,"Fair is I'm not treated like a kid who needs permission."]],"Reframing a fight into a shared value (fairness) turns opponents into problem-solvers."],
+          ["Your mum decides, so ask her.","Passing the buck",1,5,-5,-5,[[0,"She'll just say sort it out yourselves."]],"Handing the problem up the chain avoids it rather than solving it."],
+          ["Marco, driving friends around is a waste of fuel.","Taking sides",0,12,8,-18,[[1,"So I'm not allowed a social life?"]],"Siding with one person ends your neutrality."],
+          ["You both have a point.","Empty validation",1,-4,2,2,[[0,"Which point?"]],"Validation without detail sounds like a brush-off."]]},
+   {narr:"There's a pause. Elena's phone buzzes with a work message.", lines:[[0,"I just need the car on Tuesdays, Thursdays and Saturdays, with fuel in it."]],
+    opts:[["Marco, what do you need from the car, and when?","Gathering interests",2,-12,6,12,[[1,"Friday nights and Sunday afternoons, mostly. And I'd chip in if I had a job."],[0,"Wait, those don't even clash with mine."]],"Laying both needs side by side often reveals there was less conflict than it seemed."],
+          ["So Elena gets the car, done.","Imposed win-lose",0,10,4,-14,[[1,"Of course she does."]],"A quick win for one side becomes a long-term grudge for the other."],
+          ["Marco should get a job then.","Lecturing",0,10,0,-12,[[1,"Thanks for the life advice."]],"Lecturing someone in front of their sibling humiliates them."],
+          ["Maybe make a schedule?","Premature solution",1,-2,2,2,[[1,"Maybe."]],"Right idea, but suggesting it before the needs are clear makes it feel imposed."]]},
+   {narr:"Both look calmer.", lines:[[1,"Okay. So what do we do about the fuel?"]],
+    opts:[["Shall we put the schedule on the fridge, and whoever drops it below a quarter tank fills it before handing over?","Specific, mutual proposal",2,-18,10,10,[[0,"Yes. That would actually solve it."],[1,"Quarter-tank rule. Fair."]],"A clear, shared rule removes the need to argue each time."],
+          ["How would you two like to handle the fuel?","Empowering the parties",2,-16,9,9,[[0,"Split it by how much we drive?"],[1,"We could check the trip counter. Okay."]],"Agreements people design themselves are the ones they keep."],
+          ["Elena pays, Marco drives. Simple.","Imposed win-lose",0,12,-12,6,[[0,"That's exactly what's happening now!"]],"Imposing the status quo leaves the original problem in place."],
+          ["Just communicate better.","Vague agreement",1,5,-5,-5,[[1,"Sure."]],"Vague advice gives no one a concrete next step."]]}
+  ]},
+ {id:"match", tier:2, title:"After the Final Whistle", setting:"A changing room after a 2–1 loss in the cup final. Mud on the floor, nobody talking.",
+  cast:[{n:"Kofi",role:"Captain, missed a penalty"},{n:"Lena",role:"Defender, was subbed off"}], tension:78,
+  beats:[
+   {narr:"Lena throws her boots into her bag.", lines:[[1,"If you'd just passed to me instead of shooting, we'd have won."],[0,"Says the one who let their striker through for the winner."]],
+    opts:[["That loss hurts, and it sounds like you're both carrying it. Can we pause the blame and each say how you're feeling?","Naming emotions",2,-16,10,10,[[0,"…Gutted. I missed a penalty in a final."],[1,"Same. I feel like I let everyone down."]],"Under blame there's often shame. Naming the feeling lets people put the blame down."],
+          ["Kofi, you did miss the penalty.","Taking sides",0,15,-18,6,[[0,"Oh thanks, I hadn't noticed."]],"Pointing out someone's mistake while they're hurting adds humiliation."],
+          ["It's just a game. Let's move on.","Minimizing",0,12,-10,-10,[[1,"It's not just a game to us."]],"Telling people their disappointment is silly makes them feel misunderstood."],
+          ["Let's go over the tactics for next season.","Jumping to solutions",1,6,-4,-4,[[0,"Not now."]],"Problem-solving too early skips the emotional part people need first."]]},
+   {narr:"Kofi sits down heavily.", lines:[[0,"Everyone's going to remember I missed it."],[1,"And everyone's going to remember I was subbed off."]],
+    opts:[["You're both worried about how the team sees you. What do you think the team actually needs from you two right now?","Shifting to shared goals",2,-14,10,10,[[1,"For us not to be fighting, probably."],[0,"Yeah. The younger ones are watching us."]],"Pointing to a goal both people care about turns rivals back into teammates."],
+          ["Nobody will remember. Don't worry.","False reassurance",1,0,2,2,[[0,"They will."]],"Reassurance that isn't true can feel like you're not really listening."],
+          ["Lena, being subbed off is the coach's choice, not Kofi's fault.","Lecturing",1,5,0,-8,[[1,"I know that."]],"Correct, but it lands as a lecture."],
+          ["You both played badly. It happens.","Blunt judgment",0,12,-10,-10,[[0,"Wow, thanks."],[1,"Great pep talk."]],"Blunt judgments add insult when people are already low."]]},
+   {narr:"Lena takes a breath.", lines:[[1,"I wasn't really angry about the pass. I was angry I wasn't on the pitch at the end."]],
+    opts:[["So the real hurt was being taken off. Kofi, what was going on for you when you took that shot?","Interests over positions",2,-15,10,10,[[0,"I saw a gap and thought it was our chance. I didn't even see you."],[1,"…That's fair. I'd probably have shot too."]],"When people share what was going on inside, the other person often realizes it wasn't personal."],
+          ["Kofi, apologize for not passing.","Forcing an apology",1,5,-6,4,[[0,"I'm not apologizing for trying to score."]],"Demanding an apology for a reasonable choice creates a new fight."],
+          ["Talk to the coach about being subbed, not Kofi.","Redirecting",1,0,2,4,[[1,"I will. Later."]],"Useful advice, but it ends the conversation instead of mending it."],
+          ["See? It wasn't even about the pass.","Point-scoring",0,8,4,-8,[[1,"Don't make it sound silly."]],"Turning someone's honest admission into a “gotcha” shuts them down."]]},
+   {narr:"Outside, the rest of the team is waiting for the bus.", lines:[[0,"So what do we tell them?"]],
+    opts:[["What would you two like to say to the team, together?","Empowering the parties",2,-18,10,10,[[0,"That we lost as a team and we'll come back as a team."],[1,"And that we've got next season. Together."]],"Shared messages repair the relationship and lead the group."],
+          ["Shake hands, and practice passing together on Tuesday?","Specific, mutual proposal",2,-15,9,9,[[1,"Tuesday works."],[0,"Deal. You can take the next penalty."]],"A concrete next step gives the repair something real to stand on."],
+          ["Tell them it was the ref's fault.","Blaming outsiders",1,-4,-2,-2,[[1,"I mean… it kind of was?"],[0,"That's not really true though."]],"Blaming outsiders feels good briefly but teaches nothing."],
+          ["Don't say anything. Just get on the bus.","Avoidance",0,6,-6,-6,[[1,"Fine."]],"Avoiding the issue lets the tension follow everyone home."]]}
+  ]}
+);
+Object.assign(CAST_LOOK, {
+  groupchat:[{skin:SKINS[3][0], hair:"curls", hairC:"black", top:"#ff7db8", eye:"brown", shape:"heart", eyeShape:"round", lashes:true}, {skin:SKINS[1][0], hair:"pixie", hairC:"brown", top:"#3a8dff", eye:"blue", shape:"square", freckles:true}],
+  car:[{skin:SKINS[2][0], hair:"ponytail", hairC:"darkbrown", top:"#22b8a7", eye:"hazel", shape:"oval", lashes:true}, {skin:SKINS[2][0], hair:"buzz", hairC:"darkbrown", top:"#ffbf2e", eye:"hazel", shape:"long"}],
+  match:[{skin:SKINS[6][0], hair:"buzz", hairC:"black", top:"#e63946", eye:"darkbrown", shape:"square"}, {skin:SKINS[1][0], hair:"ponytail", hairC:"blonde", top:"#e63946", eye:"green", shape:"oval", freckles:true}]
+});
+Object.assign(SCENE_ART, {
+  groupchat:`<rect width="400" height="200" fill="#e6f4ea"/><rect x="0" y="150" width="400" height="50" fill="#c9b79c"/><rect x="20" y="40" width="70" height="110" fill="#d9a35b" stroke="${INK}" stroke-width="3"/><circle cx="55" cy="40" r="44" fill="#57cc99" stroke="${INK}" stroke-width="3"/><rect x="300" y="30" width="70" height="120" rx="10" fill="#3d405b" stroke="${INK}" stroke-width="3"/><rect x="308" y="44" width="54" height="80" rx="4" fill="#a9dcef"/><path d="M314 60 h30 M314 72 h40 M314 84 h24" stroke="#fffdf8" stroke-width="5" stroke-linecap="round"/>`,
+  car:`<rect width="400" height="200" fill="#dff0ff"/><rect x="0" y="140" width="400" height="60" fill="#9aa5b1"/><path d="M60 140 L80 100 H220 L250 140Z" fill="#e63946" stroke="${INK}" stroke-width="3"/><rect x="40" y="130" width="230" height="22" rx="8" fill="#e63946" stroke="${INK}" stroke-width="3"/><path d="M96 104 H150 V130 H86Z M160 104 H212 L232 130 H160Z" fill="#a9dcef" stroke="${INK}" stroke-width="2.5"/><circle cx="90" cy="154" r="14" fill="#2b2f3a" stroke="${INK}" stroke-width="3"/><circle cx="220" cy="154" r="14" fill="#2b2f3a" stroke="${INK}" stroke-width="3"/><rect x="300" y="60" width="70" height="80" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><path d="M300 60 L335 34 L370 60" fill="#c0392b" stroke="${INK}" stroke-width="3"/>`,
+  match:`<rect width="400" height="200" fill="#e9eef2"/><rect x="0" y="150" width="400" height="50" fill="#b8c2cc"/>${[30,90,150,210,270,330].map(x => `<rect x="${x}" y="30" width="44" height="100" rx="4" fill="#5a7ec2" stroke="${INK}" stroke-width="2.5"/><circle cx="${x+36}" cy="80" r="2.4" fill="${INK}"/>`).join("")}<rect x="20" y="130" width="360" height="12" rx="3" fill="#c8915a" stroke="${INK}" stroke-width="3"/><circle cx="330" cy="168" r="12" fill="#fffdf8" stroke="${INK}" stroke-width="2.5"/><path d="M324 162 l6 4 l6 -4 M330 166 v8" stroke="${INK}" stroke-width="1.6" fill="none"/>`
+});
+
+/* ---------- More situations: Atelier occasions, Deep Dive categories, Floorplan clients ---------- */
+Object.assign(OCC, {
+  graduation:{who:["Ama, graduating from university","Lucas, giving the graduation speech"],
+    rules:[{label:"Smart and practical: knee or midi length", why:"A knee or midi hem looks polished under a gown and won't catch on the stage steps.", test:d=>d.len==="knee"||d.len==="midi"},
+           {label:"Sleeves or a simple neckline under the gown", why:"Graduation gowns are heavy; a crew or V-neck sits neatly underneath.", test:d=>d.neck==="crew"||d.neck==="vneck"}]},
+  tour:{who:["Yuki, on a rainy walking tour of Edinburgh","Sam, exploring Amsterdam by foot in October"],
+    rules:[{label:"Nothing floor-length on wet cobblestones", why:"Long hems soak up puddles and trip you on uneven streets.", test:d=>d.len!=="floor"},
+           {label:"Long sleeves for chilly, damp weather", why:"Damp cold feels colder than dry cold, so cover up.", test:d=>d.sleeve==="long"}]},
+  museum:{who:["Omar, giving a talk at a science museum","Dr. Ines, presenting her research"],
+    rules:[{label:"A confident color: not all neutrals", why:"Speakers on stage are easier to watch in a clear color; all-grey fades into the background.", test:d=>harmonyOf([d.main,d.second,d.accent]).hues.length > 0},
+           {label:"Sleeves for a polished look", why:"Sleeves read as professional for a talk and hide a clip-on mic cable.", test:d=>d.sleeve!=="none"}]}
+});
+Object.assign(OCC_ACC, {
+  graduation:{label:"Flats for walking across the stage", why:"Every year someone trips in heels on the stage steps. Flats are the safe, smart choice.", test:d=>d.shoes==="flats"},
+  tour:{label:"Waterproof boots and a jacket", why:"Boots keep feet dry on wet cobbles, and a jacket is a layer you can take off indoors.", test:d=>d.shoes==="boots" && d.wrap==="jacket"},
+  museum:{label:"One memorable piece of jewelry", why:"A pendant or statement necklace draws the audience's eyes up to your face as you speak.", test:d=>["pendant","statement"].includes(d.jewel)}
+});
+Object.assign(FABRIC_RULE, {
+  tour:{label:"A warm fabric: wool or velvet", why:"Wool stays warm even when damp, perfect for drizzle.", ok:["wool","velvet"]},
+  graduation:{label:"A crisp fabric: cotton or wool", why:"Crisp fabrics stay smooth under a heavy gown.", ok:["cotton","wool"]}
+});
+DIVE_CATS.push(...[
+ {n:"Dinosaurs", e:"🦴", fact:"Birds are living dinosaurs, descended from small feathered theropods.", a:"Tyrannosaurus rex,T rex,T. rex,Tyrannosaurus|Triceratops|Velociraptor,Raptor|Stegosaurus|Brachiosaurus|Diplodocus|Spinosaurus|Ankylosaurus|Pterodactyl,Pteranodon|Brontosaurus|Allosaurus|Parasaurolophus|Iguanodon|Apatosaurus|Pachycephalosaurus|Archaeopteryx|Giganotosaurus|Dilophosaurus|Carnotaurus|Gallimimus|Compsognathus|Mosasaurus|Plesiosaurus|Argentinosaurus|Oviraptor|Deinonychus|Therizinosaurus|Baryonyx|Maiasaura|Protoceratops|Microraptor|Styracosaurus|Edmontosaurus|Corythosaurus|Troodon|Megalosaurus|Coelophysis|Kentrosaurus|Utahraptor|Amargasaurus|Herrerasaurus|Patagotitan|Nigersaurus|Minmi|Yi qi"},
+ {n:"Famous painters", e:"🎭", fact:"Vincent van Gogh sold very few paintings during his lifetime; now they're among the most expensive ever.", a:"Leonardo da Vinci,Leonardo,Da Vinci|Vincent van Gogh,Van Gogh|Pablo Picasso,Picasso|Claude Monet,Monet|Michelangelo|Frida Kahlo,Kahlo|Salvador Dalí,Dali,Dalí|Rembrandt|Andy Warhol,Warhol|Johannes Vermeer,Vermeer|Henri Matisse,Matisse|Georgia O'Keeffe,O'Keeffe|Raphael|Edvard Munch,Munch|Gustav Klimt,Klimt|Jackson Pollock,Pollock|Paul Cézanne,Cezanne|Edgar Degas,Degas|Pierre-Auguste Renoir,Renoir|Banksy|Katsushika Hokusai,Hokusai|Caravaggio|Sandro Botticelli,Botticelli|Francisco Goya,Goya|Wassily Kandinsky,Kandinsky|Mark Rothko,Rothko|Jean-Michel Basquiat,Basquiat|René Magritte,Magritte|Diego Rivera|J. M. W. Turner,Turner|Paul Gauguin,Gauguin|Yayoi Kusama,Kusama|Artemisia Gentileschi,Gentileschi|Hieronymus Bosch,Bosch|Titian|El Greco|Piet Mondrian,Mondrian|Kehinde Wiley|Hilma af Klint|Amrita Sher-Gil"},
+ {n:"Countries in Asia", e:"🌍", fact:"Asia holds about 60% of the world's people.", a:"China|Japan|India|South Korea,Korea|Thailand|Vietnam|Indonesia|Philippines|Malaysia|Singapore|Pakistan|Russia|Saudi Arabia|Iran|Turkey|Israel|Nepal|Bangladesh|Sri Lanka|Afghanistan|Iraq|North Korea|Mongolia|Kazakhstan|Cambodia|Myanmar,Burma|Laos|Taiwan|United Arab Emirates,UAE|Qatar|Jordan|Lebanon|Syria|Uzbekistan|Kuwait|Oman|Yemen|Bhutan|Maldives|Brunei|Georgia|Armenia|Azerbaijan|Kyrgyzstan|Tajikistan|Turkmenistan|Bahrain|Timor-Leste,East Timor|Cyprus|Palestine"}
+].map(c => { const items = c.a.split("|").map(x => x.split(",")); return {...c, items, n2:items.length}; }));
+CLIENTS.push("A family with a grandparent who uses a wheelchair needs step-free rooms.", "Two musicians want a home where practice won't wake the neighbors.", "A dog trainer wants easy access to the garden from the kitchen.");
+
 renderHub();
 </script>
 </body>
