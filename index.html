@@ -20,7 +20,7 @@
   --bg:#fbf2e2; --ink:#2b1d14; --text:#2b1d14; --muted:#7b6553; --panel:#fffdf8; --panel2:#f6e6c9; --line:#e5d2b2; --skin:#d9c3ea;
   --mem:#ff6b57; --math:#ffbf2e; --word:#22b8a7; --logic:#6f62ff;
   --atelier:#ff7db8; --sew:#78c552; --floor:#3a8dff; --peace:#ff9a1f; --kitchen:#e85d3a; --thread:#b97cf6; --mix:#ffd166;
-  --flag:#e63946; --land-c:#2a9d8f; --cook:#f4a259; --time:#577590; --lab:#00b4d8; --makeup:#ff5d8f; --hair:#9c6644;
+  --flag:#e63946; --land-c:#2a9d8f; --cook:#f4a259; --time:#577590; --lab:#00b4d8; --makeup:#ff5d8f; --dive:#1f8fd6; --hair:#9c6644;
   --good:#22b26b; --bad:#ef476f; --scrim:rgb(43 29 20 / .45);
   --sea:#a9dcef; --land:#f7e4bd;
   --shadow:0 5px 0 var(--ink); --shadow-sm:0 3px 0 var(--ink); --bw:2.5px;
@@ -870,6 +870,23 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .rc-pic{float:right;margin:-6px -4px 4px 10px;border:2px solid var(--ink);border-radius:10px;overflow:hidden;line-height:0;transform:rotate(3deg);box-shadow:0 3px 0 var(--ink)}
 .served{border:2.5px solid var(--ink);border-radius:14px;overflow:hidden;line-height:0;max-width:280px;animation:stampin .4s ease-out}
 .served svg{width:100%;height:auto}
+.dive-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:20px;align-items:start}
+@media (max-width:820px){ .dive-grid{grid-template-columns:1fr} .ocean{max-height:360px;overflow:hidden} }
+.ocean{border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;line-height:0;box-shadow:0 4px 0 var(--ink)}
+.diver{transition:transform 1s cubic-bezier(.4,1.4,.5,1)}
+.bub{animation:bub 1.6s ease-in infinite}
+@keyframes bub{0%{opacity:0;transform:translateY(8px)}30%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+.dv-fish{animation:swim 4s ease-in-out infinite alternate}
+@keyframes swim{to{transform:translateX(16px)}}
+.dive-hud{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dive-hud span{border:2.5px solid var(--ink);border-radius:12px;padding:6px 12px;background:#fffdf8;font:700 18px "DM Mono",monospace;box-shadow:0 3px 0 var(--ink)}
+.dv-time.low{background:#ffe1e1;animation:pulse .8s infinite}
+.dv-depth{background:#d7f0ff!important}
+.dv-form{display:flex;gap:8px}
+.dv-form input{flex:1;min-width:0;font:600 18px Figtree,sans-serif;padding:10px 14px;border:2.5px solid var(--ink);border-radius:14px;background:#fffdf8}
+.dv-found{display:flex;flex-wrap:wrap;gap:6px}
+.dv-chip{display:flex;flex-direction:column;padding:5px 10px;border:2px solid var(--ink);border-radius:12px;background:color-mix(in srgb, var(--tc) 55%, white);animation:stampin .3s ease-out}
+.dv-chip b{font-size:13px}.dv-chip small{font:10px "DM Mono",monospace;opacity:.75}
 </style>
 </head>
 <body>
@@ -1012,6 +1029,10 @@ const ROOMS = {
     blurb:"Cook for real customers. Pick ingredients, set the amounts, then chop, mash, whisk, flip and bake it yourself. They'll tell you if it's too salty or missing something, so adjust and serve again until they love it.",
     tip:"<b>Tip:</b> fix the biggest complaint first. Salt, acid, fat and heat balance each other, and every complaint comes with a chef's note on why.",
     modes:[["studio","Start cooking"],["sprint","Pantry sprint · 60s"],["practice","Quiz"]]},
+  dive:{name:"Deep Dive", skill:"Knowledge breadth", color:"var(--dive)", wing:"core",
+    blurb:"Name as many things in a category as you can. Common answers keep you shallow; rare ones send your diver plunging into the abyss.",
+    tip:"<b>Tip:</b> skip the first answers everyone thinks of and go for the obscure ones. A legendary answer is worth sixteen common ones.",
+    modes:[["studio","Dive · 3 categories"],["theme","Daily dive"],["practice","Quiz"]]},
   lab:{name:"Science Lab", skill:"Body & science", color:"var(--lab)", wing:"core",
     blurb:"Find organs and bones on the body, and mix colored light and ink to match a target color.",
     tip:"<b>Tip:</b> the body is shown facing you, so its left side is on your right. Light mixes by adding; ink mixes by subtracting.",
@@ -1038,7 +1059,7 @@ const ROOMS = {
   mix:{name:"Daily Mix", skill:"Interleaved practice", color:"var(--mix)", wing:"none",
     blurb:"Eight questions from across the arcade, mixed together.", tip:"<b>Why mix?</b> Switching topics forces your brain to pick the right strategy each time, and that is what makes it stick.", modes:[]}
 };
-const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
+const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","flags","time"], CORE_KEYS = ["dive","lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
 const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab","makeup","hair"];
 const RANKS = [[1,"Novice"],[3,"Apprentice"],[6,"Thinker"],[10,"Strategist"],[15,"Sage"],[22,"Mastermind"]];
 const MODE_NAMES = {studio:"Studio", daily:"Daily puzzle", blitz:"Blitz", theme:"Theme challenge", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
@@ -1218,6 +1239,7 @@ const ART = {
   flags: svgA(`<path d="M30 104 V8" stroke-width="5"/><path d="M32 12 q30 -8 56 2 t52 0 v52 q-26 8 -52 -2 t-56 2z"/><path d="M32 12 q14 -4 28 -2 v54 q-14 -2 -28 2z" fill="#3a8dff"/><path d="M60 10 q14 2 28 6 v52 q-14 -4 -28 -6z"/><path d="M88 16 q26 8 52 0 v52 q-26 8 -52 0z" fill="#ef476f"/><circle cx="30" cy="8" r="5" fill="#ffbf2e"/>`),
   time: svgA(`<path d="M10 70 H150" stroke-width="4"/>${[24,62,100,138].map((x,i) => `<circle cx="${x}" cy="70" r="7" fill="${["#ffbf2e","#ef476f","#22b8a7","#6f62ff"][i]}"/><rect x="${x-16}" y="${i%2 ? 82 : 22}" width="32" height="26" rx="5"/><path d="M${x} ${i%2 ? 82 : 48} V${i%2 ? 77 : 63}" fill="none"/>`).join("")}`),
   cook: svgA(`<path d="M26 54 h108 v30 a20 20 0 0 1 -20 20 h-68 a20 20 0 0 1 -20 -20z" fill="#e85d3a"/><path d="M14 62 h12 M134 62 h12" stroke-width="7"/><ellipse cx="80" cy="54" rx="54" ry="10"/><path d="M60 40 q-6 -8 0 -16 M80 36 q-6 -8 0 -16 M100 40 q-6 -8 0 -16" fill="none"/><path d="M118 10 L100 50" stroke-width="5"/><ellipse cx="122" cy="10" rx="8" ry="5" transform="rotate(-60 122 10)" fill="#c8915a"/><circle cx="56" cy="52" r="5" fill="#e63946"/><circle cx="72" cy="50" r="4" fill="#78c552"/><circle cx="96" cy="52" r="5" fill="#ffbf2e"/>`),
+  dive: svgA(`<rect x="6" y="20" width="148" height="86" rx="10" fill="#3f8fc7"/><rect x="6" y="64" width="148" height="42" rx="10" fill="#1f4f86" stroke="none"/><path d="M6 24 q18 -8 37 0 t37 0 t37 0 t37 0" fill="none" stroke="#fff"/><path d="M80 24 V58" stroke="#fff" stroke-dasharray="4 4"/><circle cx="80" cy="66" r="12" fill="#ffbf2e"/><rect x="72" y="61" width="16" height="9" rx="3" fill="#a9dcef"/><circle cx="96" cy="50" r="3" fill="none" stroke="#fff"/><circle cx="102" cy="40" r="4" fill="none" stroke="#fff"/><path d="M28 86 q8 -8 16 0 q-8 8 -16 0z M44 86 l6 -5 v10z" fill="#ff7db8"/><path d="M120 90 q6 -10 12 0 l-2 8 h-8z" fill="#c77dff"/>`),
   lab: svgA(`<path d="M52 10 h28 M58 10 v28 l-26 50 a8 8 0 0 0 7 12 h54 a8 8 0 0 0 7 -12 l-26 -50 v-28"/><path d="M40 74 h60 l10 18 a6 6 0 0 1 -5 8 h-70 a6 6 0 0 1 -5 -8z" fill="#22b8a7" stroke="none"/><path d="M58 38 l-26 50 a8 8 0 0 0 7 12 h54 a8 8 0 0 0 7 -12 l-26 -50" fill="none"/><circle cx="60" cy="86" r="4"/><circle cx="76" cy="80" r="3"/><circle cx="120" cy="40" r="16" fill="#ff6b57" opacity=".85"/><circle cx="136" cy="40" r="16" fill="#3a8dff" opacity=".85"/><circle cx="128" cy="54" r="16" fill="#78c552" opacity=".85"/>`),
   makeup: svgA(`<circle cx="56" cy="58" r="38"/><circle cx="56" cy="58" r="28" fill="#a9dcef"/><path d="M42 44 q8 -6 16 0" fill="none" stroke="${W_}" stroke-width="4"/><rect x="104" y="44" width="24" height="56" rx="4" fill="#2b1d14"/><rect x="106" y="22" width="20" height="24" rx="3" fill="#ffbf2e"/><path d="M108 22 L116 4 L124 22Z" fill="#e63946"/><path d="M138 100 L150 30" stroke-width="5"/><path d="M146 36 q6 -18 12 -30 q2 16 -4 32z" fill="#ff7db8"/>`),
   hair: svgA(`<circle cx="44" cy="80" r="12" fill="none" stroke-width="4"/><circle cx="80" cy="80" r="12" fill="none" stroke-width="4"/><path d="M50 70 L98 14 M74 70 L40 18" stroke-width="5"/><path d="M98 14 L104 8 M40 18 L34 12" stroke-width="5"/><rect x="104" y="58" width="48" height="12" rx="4" fill="#ffbf2e"/>${[0,1,2,3,4,5,6,7].map(i=>`<path d="M${108+i*5.6} 70 v14" stroke-width="2.5"/>`).join("")}<path d="M112 26 h30 a8 8 0 0 1 0 16 h-30z" fill="#ff7db8"/><path d="M118 42 v12" stroke-width="5"/>`),
@@ -6332,6 +6354,107 @@ Object.assign(DISH2, {
   "Porridge":{v:"bowl", fill:"#efe3c8", swirl:true, g:["🍯"], ut:"spoon", steam:true},
   "Banana bread":{v:"board", sp:"loaf", g:["🍌","🧈"], ut:"hand"}
 });
+
+/* =========================================================
+   DEEP DIVE: name things; the rarer the answer, the deeper you sink
+   Lists run from the answers most people give to the rarest.
+   ========================================================= */
+const DIVE_CATS = [
+ {n:"Countries in Africa", e:"🌍", fact:"Africa has 54 countries, more than any other continent.", a:"Egypt|South Africa|Nigeria|Kenya|Morocco|Ethiopia|Ghana|Madagascar|Algeria|Tanzania|Uganda|Somalia|Libya|Tunisia|Sudan|Zimbabwe|Senegal|Cameroon|Rwanda|Congo|Democratic Republic of the Congo,DRC,DR Congo|Angola|Mali|Zambia|Mozambique|Namibia|Botswana|Ivory Coast,Cote d'Ivoire|Niger|Chad|Sierra Leone|Liberia|South Sudan|Malawi|Burkina Faso|Guinea|Togo|Benin|Mauritania|Eritrea|Gabon|Lesotho|Burundi|Djibouti|Gambia,The Gambia|Central African Republic,CAR|Equatorial Guinea|Guinea-Bissau,Guinea Bissau|Mauritius|Seychelles|Cape Verde,Cabo Verde|Eswatini,Swaziland|Comoros|Sao Tome and Principe,Sao Tome"},
+ {n:"Countries in Europe", e:"🏰", fact:"Vatican City, the smallest country in the world, is less than half a square kilometer.", a:"France|Germany|Italy|Spain|United Kingdom,UK,England,Britain|Portugal|Greece|Netherlands,Holland|Belgium|Switzerland|Sweden|Norway|Poland|Ireland|Austria|Denmark|Finland|Russia|Ukraine|Iceland|Czechia,Czech Republic|Hungary|Romania|Croatia|Turkey|Serbia|Bulgaria|Scotland|Luxembourg|Monaco|Slovakia|Slovenia|Lithuania|Latvia|Estonia|Belarus|Bosnia and Herzegovina,Bosnia|Albania|Montenegro|Malta|Cyprus|Vatican City,Vatican|Andorra|Liechtenstein|San Marino|North Macedonia,Macedonia|Moldova|Kosovo"},
+ {n:"Fruits", e:"🍓", fact:"Botanically, tomatoes, cucumbers and even pumpkins are fruits.", a:"Apple|Banana|Orange|Strawberry|Grape|Mango|Pineapple|Watermelon|Pear|Peach|Cherry|Kiwi|Lemon|Blueberry|Raspberry|Lime|Plum|Coconut|Melon|Grapefruit|Papaya|Pomegranate|Apricot|Blackberry|Avocado|Fig|Cantaloupe|Nectarine|Tangerine|Passion fruit|Dragon fruit|Lychee|Guava|Date|Cranberry|Clementine|Tomato|Honeydew|Persimmon|Star fruit,Carambola|Durian|Jackfruit|Mangosteen|Gooseberry|Kumquat|Quince|Rambutan|Elderberry|Mulberry|Plantain|Ugli fruit|Physalis|Feijoa|Soursop|Loquat|Cherimoya|Salak,Snake fruit|Jabuticaba|Ackee|Breadfruit"},
+ {n:"Ocean animals", e:"🐙", fact:"Over 80% of the ocean has never been mapped or explored.", a:"Shark|Whale|Dolphin|Octopus|Jellyfish|Starfish,Sea star|Crab|Seal|Turtle,Sea turtle|Squid|Lobster|Clownfish|Stingray|Seahorse|Shrimp|Orca,Killer whale|Blue whale|Eel|Tuna|Walrus|Sea lion|Penguin|Coral|Manta ray|Sea urchin|Swordfish|Narwhal|Pufferfish|Clam|Oyster|Salmon|Anglerfish|Barracuda|Hammerhead|Manatee|Sea otter|Beluga|Krill|Sea cucumber|Mussel|Cuttlefish|Plankton|Anemone,Sea anemone|Marlin|Sardine|Humpback whale|Sperm whale|Dugong|Moray eel|Nautilus|Lionfish|Sunfish,Mola|Giant squid|Coelacanth|Blobfish|Vampire squid|Oarfish|Sea pig|Dumbo octopus|Gulper eel|Goblin shark|Frilled shark|Barreleye|Yeti crab"},
+ {n:"Chemical elements", e:"⚗️", fact:"There are 118 known elements; only about 90 occur naturally.", a:"Oxygen|Hydrogen|Carbon|Gold|Iron|Nitrogen|Helium|Silver|Sodium|Copper|Calcium|Chlorine|Aluminium,Aluminum|Lead|Zinc|Uranium|Neon|Potassium|Magnesium|Mercury|Platinum|Sulfur,Sulphur|Lithium|Silicon|Titanium|Tin|Phosphorus|Nickel|Fluorine|Iodine|Argon|Cobalt|Plutonium|Chromium|Radium|Tungsten|Boron|Beryllium|Manganese|Bromine|Krypton|Xenon|Radon|Arsenic|Barium|Cadmium|Strontium|Selenium|Bismuth|Palladium|Cesium,Caesium|Osmium|Iridium|Vanadium|Gallium|Germanium|Thorium|Polonium|Francium|Rubidium|Scandium|Indium|Antimony|Tellurium|Zirconium|Molybdenum|Rhodium|Ruthenium|Tantalum|Hafnium|Rhenium|Thallium|Astatine|Actinium|Neodymium|Europium|Gadolinium|Yttrium|Lanthanum|Cerium|Promethium|Samarium|Terbium|Dysprosium|Holmium|Erbium|Thulium|Ytterbium|Lutetium|Praseodymium|Niobium|Technetium|Protactinium|Neptunium|Americium|Curium|Berkelium|Californium|Einsteinium|Fermium|Mendelevium|Nobelium|Lawrencium|Rutherfordium|Dubnium|Seaborgium|Bohrium|Hassium|Meitnerium|Darmstadtium|Roentgenium|Copernicium|Nihonium|Flerovium|Moscovium|Livermorium|Tennessine|Oganesson"},
+ {n:"Dog breeds", e:"🐕", fact:"The Basenji from Central Africa doesn't bark; it yodels.", a:"Labrador,Labrador retriever|Golden retriever|German shepherd|Poodle|Bulldog|Beagle|Chihuahua|Pug|Husky,Siberian husky|Dachshund|Rottweiler|Boxer|Corgi|Shih tzu|Pomeranian|Dalmatian|Great Dane|Border collie|Yorkshire terrier,Yorkie|Doberman|French bulldog|Cocker spaniel|Greyhound|Chow chow|Saint Bernard|Maltese|Jack Russell|Pit bull|Akita|Shiba Inu|Bernese mountain dog|Samoyed|Bichon frise|Labradoodle|Whippet|Bloodhound|Basset hound|Collie|Malamute,Alaskan malamute|Newfoundland|Weimaraner|Schnauzer|Cavalier King Charles spaniel|Australian shepherd|Mastiff|Shar pei|Pekingese|Afghan hound|Vizsla|Papillon|Irish setter|Borzoi|Basenji|Saluki|Komondor|Puli|Xoloitzcuintli,Xolo|Bedlington terrier|Otterhound|Lagotto Romagnolo|Norwegian Lundehund|Azawakh|Catalburun"},
+ {n:"Musical instruments", e:"🎻", fact:"The oldest known instruments are 40,000-year-old flutes carved from bird bone.", a:"Piano|Guitar|Drums|Violin|Flute|Trumpet|Saxophone|Cello|Clarinet|Harp|Ukulele|Bass,Bass guitar|Trombone|Keyboard|Harmonica|Xylophone|Tuba|Oboe|Accordion|Banjo|Viola|French horn|Recorder|Triangle|Tambourine|Double bass|Bagpipes|Organ|Bassoon|Cymbals|Mandolin|Glockenspiel|Bongos|Sitar|Marimba|Didgeridoo|Piccolo|Harpsichord|Steel drum,Steelpan|Kazoo|Lute|Djembe|Castanets|Theremin|Erhu|Koto|Kalimba|Tabla|Zither|Balalaika|Bouzouki|Oud|Shamisen|Hurdy-gurdy|Kora|Duduk|Guzheng|Nyckelharpa|Ondes Martenot|Hang drum,Handpan"},
+ {n:"Vegetables", e:"🥕", fact:"Broccoli, cabbage, kale, cauliflower and Brussels sprouts are all the same species.", a:"Carrot|Broccoli|Potato|Tomato|Lettuce|Onion|Cucumber|Spinach|Pepper,Bell pepper|Corn|Peas|Cabbage|Cauliflower|Celery|Garlic|Mushroom|Zucchini,Courgette|Eggplant,Aubergine|Pumpkin|Green beans|Sweet potato|Kale|Asparagus|Radish|Beetroot,Beet|Brussels sprouts|Leek|Artichoke|Squash|Turnip|Parsnip|Okra|Bok choy|Chili|Avocado|Ginger|Arugula,Rocket|Watercress|Fennel|Shallot|Endive|Kohlrabi|Swiss chard,Chard|Yam|Cassava|Rutabaga,Swede|Jicama|Daikon|Taro|Bamboo shoots|Celeriac|Salsify|Romanesco|Lotus root|Fiddlehead|Samphire|Oca|Chayote|Mashua"},
+ {n:"Bones in the human body", e:"🦴", fact:"More than half of your 206 bones are in your hands and feet.", a:"Skull|Femur|Rib,Ribs|Spine|Tibia|Humerus|Pelvis|Fibula|Radius|Ulna|Clavicle,Collarbone|Patella,Kneecap|Jaw,Mandible|Sternum|Scapula,Shoulder blade|Vertebra,Vertebrae|Coccyx,Tailbone|Phalanges|Sacrum|Hip bone|Metacarpals|Metatarsals|Cranium|Carpals|Tarsals|Stapes|Hyoid|Maxilla|Incus|Malleus|Talus|Calcaneus,Heel bone|Ilium|Ischium|Pubis|Atlas|Axis|Zygomatic,Cheekbone|Frontal bone|Occipital|Parietal|Temporal bone|Sphenoid|Ethmoid|Nasal bone|Vomer|Lacrimal|Scaphoid|Lunate|Hamate|Pisiform|Trapezium|Cuboid|Navicular|Cuneiform"},
+ {n:"Greek gods & goddesses", e:"⚡", fact:"The 12 Olympians were said to live on Mount Olympus, Greece's highest mountain.", a:"Zeus|Poseidon|Hades|Athena|Aphrodite|Apollo|Hera|Ares|Hermes|Artemis|Dionysus|Hephaestus|Demeter|Persephone|Eros|Hestia|Nike|Gaia|Kronos,Cronus|Pan|Helios|Hecate|Nemesis|Selene|Eos|Iris|Morpheus|Hypnos|Thanatos|Nyx|Uranus|Rhea|Tyche|Asclepius|Hebe|Eris|Atlas|Prometheus|Themis|Mnemosyne|Hyperion|Phoebe|Tethys|Oceanus|Erebus|Chaos|Tartarus|Aether|Hemera|Nereus|Proteus|Triton|Aeolus|Harmonia|Enyo|Deimos|Phobos|Momus|Hygieia"},
+ {n:"Sports", e:"🏅", fact:"Tug of war was an Olympic sport until 1920.", a:"Football,Soccer|Basketball|Tennis|Baseball|Swimming|Golf|Cricket|Volleyball|Rugby|American football|Hockey,Ice hockey|Boxing|Running,Athletics|Badminton|Table tennis,Ping pong|Cycling|Skiing|Gymnastics|Surfing|Skateboarding|Wrestling|Snowboarding|Karate|Judo|Fencing|Rowing|Archery|Handball|Water polo|Lacrosse|Softball|Bowling|Darts|Snooker|Taekwondo|Curling|Polo|Triathlon|Squash|Climbing|Netball|Sailing|Diving|Equestrian|Bobsled|Luge|Skeleton|Biathlon|Kabaddi|Sepak takraw|Hurling|Korfball|Pelota|Jai alai|Underwater hockey|Chess boxing|Bandy|Bossaball|Kin-ball|Sumo"},
+ {n:"Shakespeare plays", e:"🎭", fact:"Shakespeare wrote about 38 plays and gave English words like “lonely” and “bedroom”.", a:"Romeo and Juliet|Hamlet|Macbeth|Othello|A Midsummer Night's Dream|King Lear|The Tempest|Julius Caesar|Much Ado About Nothing|Twelfth Night|The Merchant of Venice|As You Like It|The Taming of the Shrew|Richard III|Antony and Cleopatra|Henry V|The Winter's Tale|Measure for Measure|Coriolanus|Titus Andronicus|Richard II|Henry IV|King John|The Comedy of Errors|All's Well That Ends Well|Love's Labour's Lost|The Two Gentlemen of Verona|The Merry Wives of Windsor|Troilus and Cressida|Cymbeline|Pericles|Timon of Athens|Henry VI|Henry VIII|The Two Noble Kinsmen"},
+ {n:"Planets, moons & dwarf planets", e:"🪐", fact:"Saturn has over 140 known moons, the most of any planet.", a:"Earth|Mars|Jupiter|Saturn|Venus|Mercury|Neptune|Uranus|Moon|Pluto|Titan|Europa|Io|Ganymede|Phobos|Callisto|Deimos|Enceladus|Triton|Ceres|Charon|Eris|Makemake|Haumea|Miranda|Titania|Oberon|Mimas|Rhea|Iapetus|Dione|Tethys|Ariel|Umbriel|Hyperion|Proteus|Nereid|Sedna|Amalthea|Himalia|Phoebe|Janus|Epimetheus|Pandora|Prometheus|Larissa|Puck|Thebe|Metis|Adrastea|Pan|Atlas|Dysnomia|Nix|Hydra|Kerberos|Styx|Quaoar|Gonggong|Orcus"}
+].map(c => { const items = c.a.split("|").map(x => x.split(",")); return {...c, items, n2:items.length}; });
+const DIVE_ZONES = [[0,"Sunlight zone","#7fd3f7",["🐠","🐬","🐢","🪸"]],[200,"Twilight zone","#3f8fc7",["🦑","🪼","🐟"]],[1000,"Midnight zone","#1f4f86",["🐙","🦐","🐡"]],[4000,"Abyss","#14305a",["🦀","🪼","🦑"]],[6000,"Hadal zone","#0b1a33",["🦐","🐌"]]];
+const DIVE_TIERS = [[.25,"Common",20,"#a8dadc"],[.55,"Uncommon",60,"#90e0ef"],[.8,"Rare",150,"#c77dff"],[1.01,"Legendary",320,"#ffd166"]];
+const diveNorm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/^the\s+/, "").replace(/[^a-z0-9]/g, "");
+STUDIO.dive = {
+  start(mode){
+    this.daily = mode === "theme"; const d = S.rating.dive;
+    const rnd = this.daily ? seeded(hashStr("dive:" + dayStr(new Date()))) : Math.random;
+    const pool = DIVE_CATS.slice(); for(let i = pool.length - 1; i > 0; i--){ const j = Math.floor(rnd()*(i+1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    this.cats = this.daily ? pool.slice(0, 3) : freshItems("dive", DIVE_CATS, 3);
+    this.secs = Math.round(clamp(60 - d*2, 40, 60)); this.round = 0; this.depth = 0; this.log = []; this.best = null;
+    this.newRound();
+  },
+  zoneOf(m){ return DIVE_ZONES.filter(z => m >= z[0]).pop(); },
+  newRound(){
+    const c = this.cats[this.round]; this.c = c; this.found = []; this.strikes = 0; this.left = this.secs; this.over = false;
+    stage.innerHTML = `<div class="dive-grid"><div class="ocean" id="dvOcean"></div>
+      <div class="ctl-col"><div class="brief"><span class="eyebrow">${this.daily ? "Daily dive · " : ""}Dive ${this.round+1} of ${this.cats.length}</span><h3>${c.e} Name: ${c.n}</h3><p>Common answers keep you near the surface. Rare ones send you plunging. 3 misses and you surface.</p></div>
+        <div class="dive-hud"><span class="dv-time" id="dvTime">${this.left}s</span><span class="dv-strikes" id="dvStrikes">${"🫧".repeat(3)}</span><span class="dv-depth" id="dvDepth">${fmt(this.depth)} m</span></div>
+        <form id="dvForm" class="dv-form" autocomplete="off"><input id="dvIn" placeholder="Type an answer and press Enter" aria-label="Your answer" autocomplete="off" spellcheck="false"><button class="btn btn-solid" type="submit">Dive</button></form>
+        <p class="msg" id="dvMsg"></p><div class="dv-found" id="dvFound"></div><div id="dvRes"></div></div></div>`;
+    $("dvForm").addEventListener("submit", e => { e.preventDefault(); this.answer($("dvIn").value); $("dvIn").value = ""; });
+    this.renderOcean(); setTimeout(() => { const i = $("dvIn"); if(i) i.focus(); }, 100);
+    clearInterval(this.tick); this.tick = setInterval(() => { if(!$("dvTime")){ clearInterval(this.tick); return; } if(!$("modal").hidden) return; this.left--; $("dvTime").textContent = this.left + "s"; $("dvTime").classList.toggle("low", this.left <= 10); if(this.left <= 0) this.endRound("Time's up!"); }, 1000);
+    setSide("Depth", fmt(this.depth) + " m");
+  },
+  answer(raw){
+    if(this.over) return; const v = diveNorm(raw); if(!v) return;
+    const c = this.c, idx = c.items.findIndex(al => al.some(a => diveNorm(a) === v || (v.length >= 5 && diveNorm(a).length >= 5 && (diveNorm(a) === v + "s" || diveNorm(a) + "s" === v))));
+    if(idx < 0){ this.strikes++; sfx.bad(); buzz && buzz(30); $("dvMsg").innerHTML = `<b>“${raw.replace(/[<>&]/g, "")}”</b> isn't on our list.`; $("dvStrikes").textContent = "🫧".repeat(3 - this.strikes) + "💥".repeat(this.strikes); if(this.strikes >= 3) this.endRound("Out of air!"); return; }
+    if(this.found.includes(idx)){ sfx.click(); $("dvMsg").textContent = "You already said that one."; return; }
+    const pct = idx / c.n2, tier = DIVE_TIERS.find(t => pct < t[0]), said = Math.max(1, Math.round(92*Math.pow(1 - pct, 1.6)));
+    const gain = tier[2] + Math.round(pct*40);
+    const z0 = this.zoneOf(this.depth); this.found.push(idx); this.depth += gain; const z1 = this.zoneOf(this.depth);
+    if(!this.best || pct > this.best.pct) this.best = {n:c.items[idx][0], pct, tier:tier[1], cat:c.n};
+    tier[1] === "Legendary" ? sfx.win() : tier[1] === "Rare" ? sfx.good() : sfx.click();
+    $("dvMsg").innerHTML = `<b>${c.items[idx][0]}</b>: ${tier[1]}! About ${said}% of divers think of it. <b>+${gain} m</b>${z1 !== z0 ? ` · Entering the <b>${z1[1]}</b>` : ""}`;
+    $("dvFound").insertAdjacentHTML("afterbegin", `<span class="dv-chip" style="--tc:${tier[3]}"><b>${c.items[idx][0]}</b><small>${tier[1]} · ${said}%</small></span>`);
+    $("dvDepth").textContent = fmt(this.depth) + " m"; setSide("Depth", fmt(this.depth) + " m");
+    if(tier[1] === "Legendary") grant && BADGES.some(b => b[0] === "deepdive") && grant("deepdive");
+    this.renderOcean();
+  },
+  renderOcean(){
+    const el = $("dvOcean"); if(!el) return;
+    const maxM = 7000, y = m => 30 + Math.min(1, Math.pow(m / maxM, .6)) * 520;
+    const dy = y(this.depth);
+    let g = `<defs><linearGradient id="dvSea" x1="0" y1="0" x2="0" y2="1">${DIVE_ZONES.map(z => `<stop offset="${(y(z[0]) - 30)/540}" stop-color="${z[2]}"/>`).join("")}<stop offset="1" stop-color="#050b18"/></linearGradient></defs>
+      <rect width="300" height="600" fill="#bfe9ff"/><rect y="30" width="300" height="570" fill="url(#dvSea)"/><path d="M0 30 q25 -8 50 0 t50 0 t50 0 t50 0 t50 0 t50 0" fill="none" stroke="#fff" stroke-width="3"/><text x="240" y="22" font-size="20">⛵</text>`;
+    DIVE_ZONES.forEach(z => { const zy = y(z[0]); g += `<path d="M0 ${zy} H300" stroke="#fff" stroke-opacity=".25" stroke-dasharray="4 6"/><text x="8" y="${zy + 16}" font-size="11" font-family="DM Mono, monospace" fill="#fff" opacity=".85">${z[1]} · ${fmt(z[0])} m</text>`;
+      z[3].forEach((e, i) => { const R2 = rng(z[1] + i); g += `<text x="${(40 + R2()*220).toFixed(0)}" y="${(zy + 40 + R2()*50).toFixed(0)}" font-size="${16 + R2()*10}" class="dv-fish" style="animation-delay:${(R2()*3).toFixed(1)}s" opacity="${this.depth + 400 >= z[0] ? 1 : .25}">${e}</text>`; }); });
+    g += `<path d="M150 30 V${dy - 14}" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"/>`;
+    g += `<g class="diver" style="transform:translateY(${dy}px)"><text x="150" y="0" font-size="34" text-anchor="middle" dominant-baseline="central">🤿</text>${[0,1,2].map(i => `<circle cx="${160 + i*4}" cy="${-22 - i*12}" r="${2 + i}" fill="none" stroke="#fff" class="bub" style="animation-delay:${i*.4}s"/>`).join("")}</g>`;
+    g += `<text x="292" y="${Math.min(590, dy + 4)}" text-anchor="end" font-size="14" font-family="DM Mono, monospace" font-weight="700" fill="#fff">${fmt(this.depth)} m</text>`;
+    el.innerHTML = `<svg viewBox="0 0 300 600" width="100%" aria-label="Ocean depth: ${fmt(this.depth)} meters">${g}</svg>`;
+  },
+  endRound(why){
+    if(this.over) return; this.over = true; clearInterval(this.tick);
+    const c = this.c, inp = $("dvIn"); if(inp) inp.disabled = true;
+    const missed = c.items.map((al, i) => [al[0], i]).filter(([, i]) => !this.found.includes(i)).slice(-6).reverse();
+    const rare = this.found.filter(i => i / c.n2 >= .55).length;
+    this.log.push({n:c.n, k:this.found.length, rare});
+    adapt("dive", clamp((this.found.length / 12) * .6 + (rare / 4) * .4, 0, 1));
+    const last = this.round === this.cats.length - 1;
+    $("dvRes").innerHTML = `<div class="reveal"><span class="eyebrow">${why}</span><h3>${this.found.length} answers · ${rare} rare</h3><p>${c.fact}</p>
+      <p class="m-note">Deep-sea answers you didn't find: ${missed.map(m => `<b>${m[0]}</b>`).join(", ")}.</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="dvNext">${last ? "Surface and see results" : "Next dive"}</button></div></div>`;
+    $("dvNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+    sfx.good();
+  },
+  finish(){
+    clearInterval(this.tick);
+    const z = this.zoneOf(this.depth), stars = this.depth >= 4000 ? 3 : this.depth >= 1500 ? 2 : 1;
+    if(this.daily){ S.dailyGym = S.dailyGym || {}; S.dailyGym["dive:" + dayStr(new Date())] = this.depth; save(); }
+    endSession({title: stars === 3 ? "Abyss explorer" : stars === 2 ? "Deep diver" : "Snorkeler", stars, xp:20+15*stars,
+      body:`<div class="big">${fmt(this.depth)} m</div><p class="m-note">You reached the <b>${z[1]}</b>.${this.best ? ` Your rarest find: <b>${this.best.n}</b> (${this.best.tier}, ${this.best.cat}).` : ""} The real ocean's deepest point, the Challenger Deep, is about 10,935 m down.</p><ul class="roundlog">${this.log.map(l => `<li><span>${l.n}</span><span>${l.k} found · ${l.rare} rare</span></li>`).join("")}</ul>`,
+      actions:[["Dive again", () => startRoom("dive", this.daily ? "theme" : "studio"), true], ["Lobby", goHub]]});
+  }
+};
+HOWTO.dive = ["You get a category, like “Fruits” or “Ocean animals”. Type as many answers as you can.","Common answers keep you near the surface. Rare answers send your diver plunging through the ocean's zones.","Three wrong answers or the timer running out ends the dive. Reach the abyss for 3 stars."];
+GEN.dive = d => { const c = pick(DIVE_CATS), n = c.n2, pickI = (lo, hi) => Math.floor(lo*n + Math.random()*(hi-lo)*n); const rare = c.items[pickI(.8, 1)][0], common = [pickI(0, .2), pickI(0, .25), pickI(.05, .35)].map(i => c.items[i][0]).filter((v, i, a) => a.indexOf(v) === i && v !== rare);
+  while(common.length < 3) common.push(c.items[pickI(0, .3)][0]);
+  return mk(`Deep dive · <b>${c.n}</b><br>Which answer is the rarest?`, rare, [...new Set(common)].slice(0, 3), `${rare} is one of the deep-sea answers. ${c.fact}`, {text:true}); };
 
 renderHub();
 </script>

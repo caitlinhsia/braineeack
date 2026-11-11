@@ -16,6 +16,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Studios | **Sewing Room**: pick from 11 patterns, lay out the pieces, then sew by tracing each seam | Spatial planning, fine motor control |
 | Studios | **Floorplan Lab**: draw a home that meets a client's rules, then add doors, windows and furniture (reachability, daylight, kitchen work triangle) | Spatial reasoning, area, building basics |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
+| Brain gym | **Deep Dive**: name things in a category; the rarer your answer, the deeper your diver sinks through 5 ocean zones | Knowledge breadth, recall |
 | Brain gym | **Science Lab**: find organs and bones, mix light versus ink, sink or float, line up the planets | Biology, color science |
 | Brain gym | Echo Grid, Quick Sums, Unscramble, Switchboard | Memory, mental math, vocabulary, logic |
 
