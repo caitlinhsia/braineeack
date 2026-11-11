@@ -13,7 +13,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Studios | **Atelier**: design a dress and accessorize it (shoes, bag, jewelry, layers) to a client brief | Color theory, proportion, dress codes |
 | Studios | **Hair Salon**: a full appointment: wash at the basin (water temperature, shampoo pumps, scalp massage, rinse, conditioner timer, towel), blow-dry with heat settings, products, a sectioned cut from behind, color and styling, with a client comfort meter | Hair care, proportion, color theory |
 | Studios | **Makeup Studio**: paint 17 products onto the face with brush size, intensity, softness, finish and a blending tool | Color theory, skin undertones, makeup history |
-| Studios | **Sewing Room**: take a commission, design it (12 materials, colors, prints, bodice, sleeves, skirt, layers), set up the machine, lay out and sew 19 garments, add trims, walk the runway | Materials, spatial planning, fine motor control |
+| Studios | **Sewing Room**: take a commission, design it (12 materials, prints, bodice, sleeves, skirt, layers), set up the machine, lay out and sew 24 garments, then hands-on finishing (boning, grommets, lacing, buttons, pleats, gathering, pressing) and trims | Materials, construction, spatial planning |
 | Studios | **Floorplan Lab**: draw a home that meets a client's rules, then add doors, windows and furniture (reachability, daylight, kitchen work triangle) | Spatial reasoning, area, building basics |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
 | Brain gym | **Deep Dive**: two versions. Classic: name as many as you can; rare answers sink you deeper. Rare Pick: one answer per category, so pick the rarest you dare | Knowledge breadth, recall |

@@ -975,6 +975,8 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .sec-list{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
 .secbtn{display:flex;flex-direction:column;align-items:flex-start;padding:5px 8px;border:2px solid var(--ink);border-radius:10px;background:#dcf5e6;color:var(--ink);font:600 12px Figtree,sans-serif;cursor:pointer}
 .secbtn small{font:10px "DM Mono",monospace;opacity:.75}.secbtn.s-clip{background:#ff9ec7}.secbtn.s-lift{background:#ffd166}
+.tech-stage{border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;line-height:0;touch-action:none}
+.tech-stage svg{width:100%;height:auto;display:block}
 </style>
 
 <div class="wrap">
@@ -7171,7 +7173,7 @@ Object.assign(STUDIO.sewing, {
     const d = this.d, f = this.fabricObj(), mat = this.mat;
     const neck = {fitted:"crew", corset:"sweet", wrap:"vneck", off:"off"}[d.bodice] || "crew", sleeve = d.sleeve === "puff" ? "short" : d.sleeve;
     const pat = {gingham:"check", hstripes:"hstripe", dots:"dots"}[f.pat] || "solid";
-    return {sil:d.skirt, len:d.len, neck, sleeve, main:"ivo", second:"ivo", accent:"ivo", mainHex: d.topWhite ? "#fbfaf5" : f.c1, secondHex:f.c1, accentHex: d.topWhite ? "#fbfaf5" : f.c1, pattern:pat, fabric:mat.tex, sew:{corset:d.bodice === "corset", wrap:d.bodice === "wrap", puff:d.sleeve === "puff", petticoat:d.petticoat, overlay:d.overlay, lace:d.lace, tiers:d.tiers || 0, sequin:mat.k === "sequin", mesh:mat.k === "tulle", sheen:["satin","velvet","leather","nylon"].includes(mat.k)}};
+    return {sil:d.skirt, len:d.len, neck, sleeve, main:"ivo", second:"ivo", accent:"ivo", mainHex: d.topWhite ? "#fbfaf5" : f.c1, secondHex:f.c1, accentHex: d.topWhite ? "#fbfaf5" : f.c1, pattern:pat, fabric:mat.tex, sew:{corset:d.bodice === "corset", wrap:d.bodice === "wrap", puff:d.sleeve === "puff", petticoat:d.petticoat, overlay:d.overlay, lace:d.lace, tiers:d.tiers || 0, pleats:!!d.pleats, sequin:mat.k === "sequin", mesh:mat.k === "tulle", sheen:["satin","velvet","leather","nylon"].includes(mat.k)}};
   },
   model(w = 220){
     const g = this.g0 || this.g;
@@ -7899,5 +7901,193 @@ function randomFeatures(seed){
   return {eyeShape:pk(FACE_FEAT.eyeShape), nose:pk(FACE_FEAT.nose), lips:pk(FACE_FEAT.lips), brow:pk(FACE_FEAT.brow), lashes:R2() < .7, freckles:R2() < .22, mole:R2() < .25 ? [pk([76,124,90,112]), pk([132,148,118])] : null, dimples:R2() < .3, stud:R2() < .15 ? pk(["left","right"]) : null};
 }
 const featuresOf = c => ({eyeShape:c.eyeShape, nose:c.nose, lips:c.lips, brow:c.brow, lashes:c.lashes, freckles:c.freckles, mole:c.mole, dimples:c.dimples, stud:c.stud});
+/* =========================================================
+   SEWING ROOM v3: construction techniques as mini-games
+   (boning, grommets, lacing, buttons, pleats, gathering, pressing)
+   and five more designs.
+   ========================================================= */
+GARMENTS.push(
+  {name:"Pleated skirt", tier:2, pieces:[["Skirt panel",5,4,2],["Waistband",1,7,1,"x"]], steps:[]},
+  {name:"Cape", tier:1, pieces:[["Cape body",5,6,1,"f"],["Hood",3,3,2],["Tie",1,5,2,"x"]], steps:[]},
+  {name:"Bomber jacket", tier:3, pieces:[["Back",3,5,1,"f"],["Front",2,5,2],["Sleeve",3,5,2],["Rib cuff",1,3,2,"x"],["Rib waistband",1,7,1,"x"]], steps:[]},
+  {name:"Halter top", tier:1, pieces:[["Front",3,3,1,"f"],["Halter strap",1,6,1,"x"],["Back band",1,7,1,"x"]], steps:[]},
+  {name:"Jumpsuit", tier:4, pieces:[["Bodice",3,3,1,"f"],["Leg front",3,7,2],["Leg back",3,7,2],["Waist tie",1,7,1,"x"],["Pocket",2,2,2]], steps:[]}
+);
+Object.assign(SEW_STEPS, {
+  "Pleated skirt":{outline:"M120 30 h80 l34 150 h-148 z", extra:["M136 34 L118 176","M152 34 L146 178","M168 34 L174 178","M184 34 L202 176"], seams:[["Join the skirt panels","Two big rectangles become one loop.","M120 32 L86 178"],["Baste the pleats at the top","A quick line holds every fold in place before the waistband goes on.","M122 44 H198"],["Attach the waistband","The band locks the pleats at the waist.","M120 32 H200"]]},
+  "Cape":{outline:"M160 26 L236 190 H84 Z", extra:["M140 40 Q160 20 180 40"], seams:[["Sew the hood's center seam","One curved seam shapes the hood.","M144 40 Q160 16 176 40"],["Attach the hood to the neckline","Match the centers first.","M140 44 H180"],["Hem the cape","A long curved hem: go slowly.","M86 188 H234"]]},
+  "Bomber jacket":{outline:"M120 30 h80 l30 30 v100 h-20 v30 h-100 v-30 h-20 v-100 z", extra:["M160 30 V190"], seams:[["Sew the raglan sleeves","Raglan seams run diagonally from neck to underarm.","M124 32 L94 64"],["Attach the rib cuffs","Stretch the rib to fit as you sew.","M90 150 H110"],["Attach the rib waistband","Ribbing pulls the hem in for the bomber shape.","M120 188 H200"]]},
+  "Halter top":{outline:"M126 60 L160 30 L194 60 L204 140 H116 Z", extra:[], seams:[["Make the halter strap","Fold and stitch the strap into a tube.","M160 30 L160 12"],["Attach the strap to the neckline","Reinforce: the strap carries the whole top.","M140 46 L180 46"],["Hem the bottom","A narrow hem finishes the edge.","M118 138 H202"]]},
+  "Jumpsuit":{outline:"M130 30 h60 l6 60 l14 100 h-34 l-16 -70 l-16 70 h-34 l14 -100 z", extra:["M124 90 H196"], seams:[["Sew the bodice side seams","Fit the top first.","M130 32 L126 88"],["Join the bodice to the trousers","The waist seam is where everything meets.","M124 90 H196"],["Sew the inseam","One long seam from ankle to ankle.","M144 190 L160 120 L176 190"]]}
+});
+Object.assign(SUITS, {"Pleated skirt":["wool","cotton","satin"], "Cape":["wool","velvet","fleece"], "Bomber jacket":["satin","nylon","leather"], "Halter top":["cotton","knit","satin"], "Jumpsuit":["cotton","linen","knit"]});
+Object.assign(COMM, {
+  "Pleated skirt":[["A school-uniform style skirt", ["minimal","warm"]],["A tennis-court look", ["breezy","minimal"]]],
+  "Cape":[["A superhero costume", ["playful","lined"]],["A cozy autumn cape", ["warm","lined"]]],
+  "Bomber jacket":[["A streetwear drop", ["playful","lined"]],["A smart travel jacket", ["minimal","lined"]]],
+  "Halter top":[["A summer rooftop party", ["breezy","sparkle"]],["A beach holiday top", ["breezy","minimal"]]],
+  "Jumpsuit":[["A gallery opening outfit", ["minimal"]],["A weekend festival look", ["playful","breezy"]]]
+});
+DRESSY["Pleated skirt"] = {bodice:"fitted", sleeve:"short", skirt:"aline", len:"knee", topWhite:true, pleats:true};
+ACC.cape = c => `<path d="M52 66 L26 252 L58 252 L62 74 Z M108 66 L134 252 L102 252 L98 74 Z" fill="${c}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M60 64 Q80 74 100 64" fill="none" stroke="${INK}" stroke-width="3"/>`;
+{
+  const spec0 = garmentModel;
+  garmentModel = function(g, f, w = 170){
+    const extra = {"Cape":{top:"tee", t1:"#fbfaf5", bottom:"trousers", b1:"#3d5a80", acc:[["cape","PAT"]]}, "Bomber jacket":{top:"jacket", bottom:"trousers", b1:"#264653"}, "Halter top":{top:"bodice", bottom:"trousers", b1:"#3d5a80"}, "Jumpsuit":{top:"short", bottom:"trousers"}}[g.name];
+    if(!extra) return spec0(g, f, w);
+    return outfitSVG(g.name, w, {...extra, c1:f.c1, pat:f.pat, c2:f.c2, c3:f.c3});
+  };
+}
+{
+  const ds0 = dressSewX;
+  dressSewX = function(x, o){ let g = ds0(x, o); if(x.pleats) for(let i = -3; i <= 3; i++){ const tx = 100 + i*(o.he/3.4); g += `<path d="M${100 + i*2.4} ${o.wy+2} L${tx.toFixed(1)} ${o.hemY-1}" stroke="${INK}" stroke-width="1.3" opacity=".45"/>`; } return g; };
+}
+const SEW_TECH = {
+  "Corset top":["boning","grommets","lacing","press"], "Prom gown":["boning","gather","press"], "Button-up shirt":["buttons","press"], "Puff-sleeve blouse":["gather","buttons","press"],
+  "Tiered skirt":["gather","press"], "Pleated skirt":["pleats","press"], "Overalls":["rivets","press"], "Bomber jacket":["snaps","press"], "Lined jacket":["buttons","press"], "Raincoat":["snaps","press"], "Summer dress":["press"], "Wrap dress":["press"], "Jumpsuit":["buttons","press"]
+};
+const TECH_INFO = {
+  boning:["Insert the boning","Slide a bone into every channel. Boning keeps a corset smooth and upright; without it the fabric wrinkles and collapses."],
+  grommets:["Set the grommets","Tap 6 evenly spaced points down the back edge. Even spacing makes the lacing pull evenly."],
+  lacing:["Lace it up","Criss-cross from top to bottom, alternating sides: left, right, left, right…"],
+  buttons:["Sew on the buttons","Tap 6 evenly spaced points down the placket. Uneven buttons make the front gape."],
+  rivets:["Hammer in the rivets","Tap 4 evenly spaced points along the pocket edge. Rivets were patented in 1873 to stop miners' pockets tearing."],
+  snaps:["Set the snaps","Tap 5 evenly spaced points down the front opening."],
+  pleats:["Fold the pleats","Tap 8 evenly spaced fold lines across the waist. Equal pleats hang straight."],
+  gather:["Gather the ruffle","Pull the gathering threads until the ruffle exactly matches the band. Too loose and it droops; too tight and it bunches."],
+  press:["Press the seams","Set the iron for the fabric, then press every seam open. Pressing as you go is what makes homemade clothes look professional."]
+};
+const IRON = {low:["satin","nylon","leather","tulle","sequin"], medium:["wool","velvet","knit","fleece"], high:["cotton","linen","denim"]};
+Object.assign(STUDIO.sewing, {
+  finishSew(){ this.techs = (SEW_TECH[this.g.name] || ["press"]).slice(); this.techIdx = 0; this.techScores = []; this.techNotes = []; if(this.techs.length) this.runTech(); else this.accessorize(); },
+  runTech(){
+    const k = this.techs[this.techIdx], [title, why] = TECH_INFO[k];
+    stage.onclick = null;
+    stage.innerHTML = `<div class="studio-grid"><div><div class="tech-stage"><svg id="tkSvg" viewBox="0 0 320 220" aria-label="${title}"></svg></div><p class="msg" id="tkMsg"></p></div>
+      <div class="ctl-col">${sessionHeader(`${this.g.name} · finishing ${this.techIdx+1} of ${this.techs.length}`, title, why)}<div id="tkCtl"></div><div id="tkRes"></div></div></div>`;
+    this["tech_" + (["grommets","buttons","rivets","snaps","pleats"].includes(k) ? "even" : k)](k);
+  },
+  techDone(score, note){
+    this.techScores.push(score); this.techNotes.push([TECH_INFO[this.techs[this.techIdx]][0], score, note]);
+    score >= .85 ? sfx.win() : score >= .5 ? sfx.good() : sfx.bad();
+    const last = this.techIdx === this.techs.length - 1;
+    $("tkRes").innerHTML = `<div class="reveal"><span class="eyebrow">${score >= .85 ? "Beautifully done" : score >= .5 ? "Good enough" : "A bit rough"}</span><span class="pts">${Math.round(score*100)}%</span><p>${note}</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="tkNext">${last ? "Add trims →" : "Next technique →"}</button></div></div>`;
+    $("tkNext").onclick = () => { if(last) this.accessorize(); else { this.techIdx++; this.runTech(); } };
+  },
+  techCloth(extra = ""){ const f = this.fabricObj(); return `<defs>${f.pat ? patternDef("tkP", f.pat, f.c1, f.c2, f.c3) : ""}</defs><rect width="320" height="220" fill="#efe2c8"/>${extra}`; },
+  tech_even(k){
+    const n = {grommets:6, buttons:6, rivets:4, snaps:5, pleats:8}[k], f = this.fabricObj(), fill = f.pat ? "url(#tkP)" : f.c1;
+    const horiz = k === "pleats" || k === "rivets";
+    const L = horiz ? {x1:70, y1:110, x2:250, y2:110} : {x1:160, y1:36, x2:160, y2:184};
+    const marks = [];
+    const draw = () => {
+      let g = this.techCloth(`<rect x="60" y="24" width="200" height="172" rx="8" fill="${fill}" stroke="${INK}" stroke-width="2.5"/>`);
+      g += `<path d="M${L.x1} ${L.y1} L${L.x2} ${L.y2}" stroke="#fff" stroke-width="3" stroke-dasharray="5 4"/><path d="M${L.x1} ${L.y1} L${L.x2} ${L.y2}" stroke="${INK}" stroke-width="1" stroke-dasharray="5 4" opacity=".5"/>`;
+      marks.forEach(t => { const x = L.x1 + (L.x2 - L.x1)*t, y = L.y1 + (L.y2 - L.y1)*t;
+        g += k === "pleats" ? `<path d="M${x} 30 L${x} 190" stroke="${INK}" stroke-width="2"/><path d="M${x+3} 30 L${x+3} 190" stroke="#000" stroke-width="3" opacity=".15"/>`
+          : k === "grommets" || k === "snaps" ? `<circle cx="${x}" cy="${y}" r="6" fill="#d9dde3" stroke="${INK}" stroke-width="2"/><circle cx="${x}" cy="${y}" r="2.6" fill="#efe2c8" stroke="${INK}" stroke-width="1.2"/>`
+          : k === "rivets" ? `<circle cx="${x}" cy="${y}" r="5" fill="#c99a06" stroke="${INK}" stroke-width="2"/><circle cx="${x-1.4}" cy="${y-1.4}" r="1.4" fill="#fff" opacity=".6"/>`
+          : iconG("🔘", x, y, 18); });
+      $("tkSvg").innerHTML = g;
+      $("tkCtl").innerHTML = `<p class="stage-tip">Tap along the dashed line. Placed ${marks.length} of ${n}.</p><div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="tkUndo">Undo</button></div>`;
+      $("tkUndo").onclick = () => { if(marks.length < n){ marks.pop(); draw(); } };
+    };
+    draw();
+    $("tkSvg").onpointerdown = e => {
+      if(marks.length >= n) return;
+      const svg = $("tkSvg"), p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse());
+      const t = horiz ? (q.x - L.x1)/(L.x2 - L.x1) : (q.y - L.y1)/(L.y2 - L.y1), off = horiz ? Math.abs(q.y - L.y1) : Math.abs(q.x - L.x1);
+      if(t < -.02 || t > 1.02 || off > 18){ $("tkMsg").textContent = "Place it on the dashed line."; return; }
+      marks.push(clamp(t, 0, 1)); marks.sort((a, b) => a - b); sfx.click(); draw();
+      if(marks.length === n){
+        const gaps = marks.slice(1).map((m, i) => m - marks[i]), avg = gaps.reduce((a, b) => a + b, 0)/gaps.length, sd = Math.sqrt(gaps.reduce((a, g2) => a + (g2 - avg)**2, 0)/gaps.length);
+        const cover = marks[n-1] - marks[0], even = clamp(1 - (sd/avg)*2.2, 0, 1), span = clamp(cover/.8, 0, 1), score = +(even*.75 + span*.25).toFixed(2);
+        this.techDone(score, `Spacing evenness ${Math.round(even*100)}%. ${even >= .85 ? "Perfectly even: pros mark spacing with a ruler or a sliding gauge first." : "Some gaps are wider than others. Measuring and marking every point with chalk before you start keeps them even."}`);
+      }
+    };
+  },
+  tech_lacing(){
+    const rows = 6, Lx = 140, Rx = 180, y0 = 44, dy = 26, holes = [];
+    for(let r = 0; r < rows; r++){ holes.push({side:"L", r, x:Lx, y:y0 + r*dy}); holes.push({side:"R", r, x:Rx, y:y0 + r*dy}); }
+    const path = [], f = this.fabricObj(); let errors = 0;
+    const draw = () => {
+      let g = this.techCloth(`<rect x="70" y="24" width="64" height="172" rx="6" fill="${f.pat ? "url(#tkP)" : f.c1}" stroke="${INK}" stroke-width="2.5"/><rect x="186" y="24" width="64" height="172" rx="6" fill="${f.pat ? "url(#tkP)" : f.c1}" stroke="${INK}" stroke-width="2.5"/>`);
+      for(let i = 1; i < path.length; i++){ const a = holes[path[i-1]], b = holes[path[i]]; g += `<path d="M${a.x} ${a.y} L${b.x} ${b.y}" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M${a.x} ${a.y} L${b.x} ${b.y}" stroke="#ff7db8" stroke-width="3" stroke-linecap="round"/>`; }
+      holes.forEach((h, i) => g += `<circle cx="${h.x}" cy="${h.y}" r="6" fill="${path.includes(i) ? "#ffd166" : "#d9dde3"}" stroke="${INK}" stroke-width="2" data-h="${i}" style="cursor:pointer"/>`);
+      $("tkSvg").innerHTML = g;
+      $("tkCtl").innerHTML = `<p class="stage-tip">Start at the top left, then alternate sides moving down one row each time. Laced ${Math.max(0, path.length - 1)} of ${rows*2 - 1} crossings${errors ? ` · ${errors} slip${errors === 1 ? "" : "s"}` : ""}.</p>`;
+    };
+    draw();
+    $("tkSvg").onclick = e => { const c = e.target.closest("[data-h]"); if(!c) return; const i = +c.dataset.h, h = holes[i];
+      const expect = path.length === 0 ? {side:"L", r:0} : {side:holes[path[path.length-1]].side === "L" ? "R" : "L", r:Math.ceil(path.length/2) === path.length/2 ? path.length/2 : (path.length - 1)/2 + (holes[path[path.length-1]].side === "L" ? 0 : 1)};
+      const want = path.length === 0 ? holes.findIndex(x => x.side === "L" && x.r === 0) : (() => { const last = holes[path[path.length-1]]; const side = last.side === "L" ? "R" : "L"; const r = last.side === "L" ? last.r : last.r + 1; return holes.findIndex(x => x.side === side && x.r === r); })();
+      if(i !== want){ errors++; sfx.bad(); $("tkMsg").textContent = "Not that one: alternate sides, moving down a row on each return."; draw(); return; }
+      path.push(i); sfx.click(); $("tkMsg").textContent = ""; draw();
+      if(path.length === rows*2){ const score = clamp(1 - errors*.12, 0, 1); this.techDone(score, `${errors ? `${errors} slip${errors === 1 ? "" : "s"}. ` : ""}Criss-cross lacing spreads the pull evenly down the back, which is why corsets have been laced this way since the 1600s.`); }
+    };
+  },
+  tech_boning(){
+    const ch = [100,124,148,172,196,220], filled = new Set(), f = this.fabricObj(); let miss = 0;
+    const draw = () => {
+      let g = this.techCloth(`<path d="M84 40 q76 -24 152 0 l-8 150 h-136 z" fill="${f.pat ? "url(#tkP)" : f.c1}" stroke="${INK}" stroke-width="2.5"/>`);
+      ch.forEach((x, i) => { g += `<rect x="${x-5}" y="40" width="10" height="146" rx="3" fill="${filled.has(i) ? "#fffdf8" : "rgb(255 255 255 / .25)"}" stroke="${INK}" stroke-width="1.4" stroke-dasharray="${filled.has(i) ? "0" : "4 3"}" data-ch="${i}" style="cursor:pointer"/>`; if(filled.has(i)) g += `<rect x="${x-2.4}" y="44" width="4.8" height="138" rx="2.4" fill="#9aa5b1" stroke="${INK}" stroke-width="1"/>`; });
+      $("tkSvg").innerHTML = g; $("tkCtl").innerHTML = `<p class="stage-tip">Tap each empty channel to slide a bone in. Inserted ${filled.size} of ${ch.length}.</p>`;
+    };
+    draw();
+    $("tkSvg").onclick = e => { const c = e.target.closest("[data-ch]"); if(!c){ miss++; $("tkMsg").textContent = "Aim for a channel (the dashed strips)."; return; } const i = +c.dataset.ch; if(filled.has(i)) return; filled.add(i); sfx.click(); draw();
+      if(filled.size === ch.length) this.techDone(clamp(1 - miss*.06, .5, 1), "Spiral steel boning bends side to side for curves; flat boning is for straight edges. Historical corsets used whalebone, which was really baleen.");
+    };
+  },
+  tech_gather(){
+    const target = 62, f = this.fabricObj(); let v = 0;
+    const draw = () => {
+      const w = 260 - v*2, folds = Math.round(8 + v/3);
+      let g = this.techCloth(`<rect x="${160 - target}" y="60" width="${target*2}" height="16" fill="#fffdf8" stroke="${INK}" stroke-width="2"/><text x="160" y="52" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" fill="${INK}">band</text>`);
+      g += `<path d="M${160 - w/2} 80 ${Array.from({length:folds}, () => `q${w/folds/2} 8 ${w/folds} 0`).join(" ")} L${160 + w/2 + 10} 180 L${160 - w/2 - 10} 180 Z" fill="${f.pat ? "url(#tkP)" : f.c1}" stroke="${INK}" stroke-width="2.4"/>`;
+      g += Array.from({length:folds}, (_, i) => `<path d="M${160 - w/2 + (i + .5)*w/folds} 86 L${160 - w/2 - 8 + (i + .5)*(w + 16)/folds} 178" stroke="${INK}" stroke-width="1" opacity=".3"/>`).join("");
+      $("tkSvg").innerHTML = g;
+    };
+    $("tkCtl").innerHTML = `<label class="temp"><span>Pull threads</span><input type="range" id="tkG" min="0" max="80" value="0"><b id="tkGv"></b></label><button class="btn btn-solid" type="button" id="tkGo">Knot the threads</button>`;
+    $("tkG").oninput = e => { v = +e.target.value; $("tkGv").textContent = Math.round((260 - v*2)/(target*2)*100) + "%"; draw(); };
+    $("tkGo").onclick = () => { const ratio = (260 - v*2)/(target*2), err = Math.abs(ratio - 1); this.techDone(clamp(1 - err*3, 0, 1), `The ruffle is ${Math.round(ratio*100)}% of the band's width. ${err < .05 ? "A perfect match." : ratio > 1 ? "It's still too loose, so it'll droop." : "Pulled too tight, so it bunches."} Most ruffles start 1.5 to 2 times longer than the edge they're sewn to.`); };
+    draw();
+  },
+  tech_press(){
+    const f = this.fabricObj(), m = this.mat.k, want = Object.keys(IRON).find(k => IRON[k].includes(m)) || "medium";
+    const seams = [[90, 40, 90, 180], [160, 30, 160, 186], [230, 40, 230, 180], [96, 110, 224, 110]], pts = [];
+    seams.forEach(([x1, y1, x2, y2]) => { for(let t = 0; t <= 1.0001; t += .1) pts.push({x:x1 + (x2-x1)*t, y:y1 + (y2-y1)*t, done:false}); });
+    let setting = null, scorched = 0, down = false;
+    const draw = () => {
+      let g = this.techCloth(`<rect x="70" y="24" width="180" height="172" rx="8" fill="${f.pat ? "url(#tkP)" : f.c1}" stroke="${INK}" stroke-width="2.5"/>`);
+      seams.forEach(([x1, y1, x2, y2]) => g += `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#e63946" stroke-width="2" stroke-dasharray="5 3"/>`);
+      pts.forEach(q => { if(q.done) g += `<circle cx="${q.x}" cy="${q.y}" r="7" fill="#fff" opacity=".35"/>`; if(q.burn) g += `<circle cx="${q.x}" cy="${q.y}" r="6" fill="#6b3a1a" opacity=".55"/>`; });
+      $("tkSvg").innerHTML = g + `<g id="tkIron"></g>`;
+    };
+    $("tkCtl").innerHTML = `<p class="stage-tip">Fabric: <b>${this.mat.name}</b>. Pick a temperature, then drag the iron along every red seam.</p><div class="chips" id="tkHeat">${["low","medium","high"].map(h => `<button type="button" class="ch" data-ih="${h}">${h === "low" ? "Low (silk, synthetics)" : h === "medium" ? "Medium (wool, knits)" : "High (cotton, linen)"}</button>`).join("")}</div><div class="meter"><i id="tkBar" style="width:0%"></i><span>Pressed</span></div>`;
+    $("tkHeat").onclick = e => { const b = e.target.closest("[data-ih]"); if(!b) return; setting = b.dataset.ih; sfx.click(); $("tkHeat").querySelectorAll("[data-ih]").forEach(x => x.classList.toggle("sel", x === b)); };
+    const svg = $("tkSvg"), at = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+    const move = e => { const q = at(e); const ir = $("tkIron"); if(ir) ir.innerHTML = `<path d="M${q.x-14} ${q.y+6} L${q.x+10} ${q.y+6} Q${q.x+18} ${q.y-4} ${q.x+6} ${q.y-8} L${q.x-10} ${q.y-8} Z" fill="#d9dde3" stroke="${INK}" stroke-width="2"/><path d="M${q.x-6} ${q.y-8} Q${q.x} ${q.y-18} ${q.x+8} ${q.y-8}" fill="none" stroke="${INK}" stroke-width="2.4"/>`;
+      if(!down) return; if(!setting){ $("tkMsg").textContent = "Choose an iron temperature first."; return; }
+      let hit = false; pts.forEach(q2 => { if(Math.hypot(q2.x - q.x, q2.y - q.y) < 12 && !q2.done){ q2.done = true; hit = true; if(["low","medium","high"].indexOf(setting) > ["low","medium","high"].indexOf(want)){ q2.burn = true; scorched++; } } });
+      if(hit){ draw(); $("tkBar").style.width = Math.round(100*pts.filter(x => x.done).length/pts.length) + "%"; if(scorched === 1) $("tkMsg").textContent = "Something smells hot! That setting is too much for this fabric.";
+        if(pts.every(x => x.done)){ down = false; const tooLow = ["low","medium","high"].indexOf(setting) < ["low","medium","high"].indexOf(want); const score = scorched ? clamp(.6 - scorched*.02, .1, .6) : tooLow ? .75 : 1;
+          this.techDone(score, scorched ? `Too hot for ${this.mat.name.toLowerCase()}: it scorched or melted. ${this.mat.name} needs a ${want} setting.` : tooLow ? `Safe, but a ${want} setting would have pressed the seams crisper.` : `Perfect: ${want} heat is right for ${this.mat.name.toLowerCase()}. Pressing seams open makes them lie flat.`); } } };
+    svg.onpointerdown = e => { down = true; try{ svg.setPointerCapture(e.pointerId); }catch(_){} move(e); };
+    svg.onpointermove = move; svg.onpointerup = () => { down = false; };
+    draw();
+  }
+});
+{
+  const run0 = STUDIO.sewing.runway;
+  STUDIO.sewing.runway = function(){
+    const saved = this.seamScores.slice();
+    if(this.techScores && this.techScores.length) this.seamScores = [...saved, ...this.techScores];
+    run0.call(this);
+    this.seamScores = saved;
+    if(this.techNotes && this.techNotes.length) $("mBody").insertAdjacentHTML("beforeend", `<ol class="order-review" style="text-align:left">${this.techNotes.map(([t, s, n]) => `<li><span class="eyebrow">${Math.round(s*100)}%</span><div><b>${t}</b><p>${n}</p></div></li>`).join("")}</ol>`);
+  };
+}
+
 renderHub();
 </script>
