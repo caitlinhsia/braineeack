@@ -1023,6 +1023,12 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .spotlight{position:absolute;top:0;left:50%;width:70%;height:100%;transform:translateX(-50%);background:linear-gradient(180deg,rgb(255 230 160 / .35),rgb(255 230 160 / 0));clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)}
 .guest{position:relative;filter:brightness(0) opacity(.85);transition:filter .8s}.guest.revealed{filter:none}
 .guest-tag{position:relative;margin:8px 0 14px;background:#ffd166;border:2px solid var(--ink);border-radius:99px;padding:4px 14px;font:700 14px Fredoka,sans-serif}
+
+.shampoo-shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.sh-bottle{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border:2px solid var(--ink);border-radius:12px;background:var(--card,#fffdf8);cursor:pointer;text-align:center;font:inherit;color:inherit;transition:transform .12s}
+.sh-bottle:hover{transform:translateY(-2px) rotate(-2deg)}
+.sh-bottle b{font-size:13px}.sh-bottle small{font-size:11px;line-height:1.25;opacity:.75}
+.detangle svg{max-width:320px;display:block;margin:0 auto;border:2px solid var(--ink);border-radius:14px}
 </style>
 </head>
 <body>
@@ -8652,6 +8658,422 @@ DIVE_CATS.push(...[
  {n:"Countries in Asia", e:"🌍", fact:"Asia holds about 60% of the world's people.", a:"China|Japan|India|South Korea,Korea|Thailand|Vietnam|Indonesia|Philippines|Malaysia|Singapore|Pakistan|Russia|Saudi Arabia|Iran|Turkey|Israel|Nepal|Bangladesh|Sri Lanka|Afghanistan|Iraq|North Korea|Mongolia|Kazakhstan|Cambodia|Myanmar,Burma|Laos|Taiwan|United Arab Emirates,UAE|Qatar|Jordan|Lebanon|Syria|Uzbekistan|Kuwait|Oman|Yemen|Bhutan|Maldives|Brunei|Georgia|Armenia|Azerbaijan|Kyrgyzstan|Tajikistan|Turkmenistan|Bahrain|Timor-Leste,East Timor|Cyprus|Palestine"}
 ].map(c => { const items = c.a.split("|").map(x => x.split(",")); return {...c, items, n2:items.length}; }));
 CLIENTS.push("A family with a grandparent who uses a wheelchair needs step-free rooms.", "Two musicians want a home where practice won't wake the neighbors.", "A dog trainer wants easy access to the garden from the kitchen.");
+
+/* =========================================================
+   SEWING ROOM v4: six more designs and four new techniques
+   (zipper, embroidery, hem pinning, drawstring)
+   ========================================================= */
+GARMENTS.push(
+  {name:"Princess ballgown", tier:4, pieces:[["Bodice front",2,3,1,"f"],["Bodice back",2,3,2],["Skirt panel",4,6,4],["Tulle underlayer",5,2,3]], steps:[]},
+  {name:"Cocktail dress", tier:3, pieces:[["Bodice front",2,3,1,"f"],["Bodice back",2,3,2],["Skirt front",3,3,1,"f"],["Skirt back",3,3,2]], steps:[]},
+  {name:"Flamenco dress", tier:4, pieces:[["Bodice",2,4,1,"f"],["Fitted skirt",3,4,2],["Ruffle tier",5,1,3]], steps:[]},
+  {name:"Mermaid gown", tier:5, pieces:[["Bodice front",2,3,1,"f"],["Bodice back",2,3,2],["Fitted skirt",3,6,2],["Godet flare",2,2,4]], steps:[]},
+  {name:"Sundress", tier:1, pieces:[["Bodice",3,2,1,"f"],["Skirt",4,4,2],["Strap",1,4,2,"x"]], steps:[]},
+  {name:"Waistcoat", tier:3, pieces:[["Front",2,4,2],["Back",3,4,1,"f"],["Lining",3,4,1,"f"],["Welt pocket",1,1,2,"x"]], steps:[]}
+);
+Object.assign(DRESSY, {
+  "Princess ballgown":{bodice:"corset", sleeve:"puff", skirt:"ballgown", len:"floor", petticoat:true},
+  "Cocktail dress":{bodice:"fitted", sleeve:"none", skirt:"sheath", len:"knee"},
+  "Flamenco dress":{bodice:"fitted", sleeve:"short", skirt:"mermaid", len:"floor", tiers:3},
+  "Mermaid gown":{bodice:"corset", sleeve:"none", skirt:"mermaid", len:"floor"},
+  "Sundress":{bodice:"fitted", sleeve:"none", skirt:"aline", len:"knee"}
+});
+Object.assign(SEW_STEPS, {
+  "Princess ballgown":{outline:"M136 26 h48 l6 50 q64 44 80 116 h-220 q16 -72 80 -116 z", extra:["M130 76 H190","M110 120 Q160 136 210 120"], seams:[["Sew the boned bodice seams","Each seam gets a channel for boning later.","M150 28 Q146 52 150 76"],["Gather the huge skirt onto the bodice","Spread the gathers evenly: a ballgown skirt can be 5 metres around.","M130 76 Q160 86 190 76"],["Hem the skirt and underlayer","Hem the tulle slightly shorter so it never peeks out.","M42 190 H278"]]},
+  "Cocktail dress":{outline:"M134 28 h52 l6 54 l8 96 h-80 l8 -96 z", extra:["M128 82 H192"], seams:[["Sew the bodice darts","Darts shape flat fabric around curves.","M146 40 L150 74"],["Join bodice and skirt","Match the side seams first so the waist lines up.","M128 82 H192"],["Sew the center-back seam","Leave the top open for the zipper.","M160 82 V176"]]},
+  "Flamenco dress":{outline:"M136 28 h48 l6 60 l4 50 q40 20 50 52 h-160 q10 -32 50 -52 l4 -50 z", extra:["M110 168 Q160 150 210 168","M120 150 Q160 136 200 150"], seams:[["Sew the fitted bodice","Flamenco dresses hug the body to the hip.","M138 30 L132 88"],["Sew the fitted skirt to the hip","The skirt stays narrow until the knee.","M132 88 L128 138"],["Attach the ruffle tiers","Each ruffle is gathered and layered so it flips when you dance.","M90 188 Q160 160 230 188"]]},
+  "Mermaid gown":{outline:"M136 26 h48 l6 54 l4 74 q30 20 40 40 h-140 q10 -20 40 -40 l4 -74 z", extra:["M130 80 H190","M134 154 H186"], seams:[["Sew the boned bodice","A strapless gown needs boning to stay up.","M150 28 Q146 52 150 80"],["Sew the fitted skirt seams","Fitted to the knee: check the fit as you go.","M134 80 L130 154"],["Set the godets for the flare","Triangular godets let the skirt flare like a tail.","M126 158 L114 192 M194 158 L206 192"]]},
+  "Sundress":{outline:"M128 40 h64 l4 30 q40 50 46 110 h-164 q6 -60 46 -110 z", extra:["M136 40 L136 18 M184 40 L184 18"], seams:[["Make the straps","Turn the tubes right side out with a safety pin.","M136 40 L136 18"],["Gather the skirt to the bodice","A light gather gives a breezy swing.","M128 70 Q160 78 192 70"],["Hem the skirt","Press the hem up twice, then stitch.","M84 180 H236"]]},
+  "Waistcoat":{outline:"M124 30 l36 30 l36 -30 l14 20 v110 l-50 16 l-50 -16 v-110 z", extra:["M160 60 V176"], seams:[["Sew the shoulder seams","Shoulders first so you can try it on.","M124 30 L140 44 M196 30 L180 44"],["Bag out the lining","Sew lining and shell together, then turn it through the side seam.","M110 52 V160 L160 176 L210 160 V52"],["Sew the welt pockets","A welt is a neat slit pocket with a narrow lip.","M126 120 h22 M172 120 h22"]]}
+});
+Object.assign(SUITS, {"Princess ballgown":["satin","tulle","velvet"], "Cocktail dress":["satin","velvet","sequin"], "Flamenco dress":["cotton","satin","knit"], "Mermaid gown":["satin","sequin","velvet"], "Sundress":["cotton","linen"], "Waistcoat":["wool","velvet","satin"]});
+Object.assign(SR, {
+  twirl:{label:"Twirls when she dances", why:"Ruffle tiers or a flared skirt swing out when you spin.", test:st => (st.d.tiers || 0) >= 2 || ["ballgown","mermaid"].includes(st.d.skirt)},
+  royal:{label:"Fit for royalty: puff sleeves or a corset bodice", why:"Fairy-tale gowns borrow from 1800s court dress: boned bodices and puffed sleeves.", test:st => st.d.bodice === "corset" || st.d.sleeve === "puff"},
+  short:{label:"Short enough to dance: knee length or shorter", why:"Cocktail parties traditionally call for knee-length or shorter dresses.", test:st => ["mini","knee"].includes(st.d.len)}
+});
+Object.assign(COMM, {
+  "Princess ballgown":[["A fairy-tale costume for a theatre show", ["royal","full","floor"]],["Mia's quinceañera: the dress of her dreams", ["full","sparkle"]]],
+  "Cocktail dress":[["A New Year's Eve party", ["sparkle","short"]],["An awards dinner: chic and simple", ["minimal","short"]]],
+  "Flamenco dress":[["A flamenco performance in Seville", ["twirl","playful"]],["A Feria de Abril costume", ["twirl"]]],
+  "Mermaid gown":[["A red-carpet premiere", ["floor","sparkle"]],["An under-the-sea themed ball", ["floor","twirl"]]],
+  "Sundress":[["A picnic in the park", ["breezy"]],["A summer holiday in Greece", ["breezy","minimal"]]],
+  "Waistcoat":[["A groom's wedding waistcoat", ["lined","buttons"]],["A steampunk costume", ["lined","playful"]]]
+});
+{
+  const spec0 = garmentModel;
+  garmentModel = function(g, f, w = 170){
+    if(g.name === "Waistcoat") return outfitSVG(g.name, w, {blouse:true, top:"bodice", bottom:"trousers", b1:"#2b2f3a", c1:f.c1, pat:f.pat, c2:f.c2, c3:f.c3});
+    return spec0(g, f, w);
+  };
+}
+Object.assign(SEW_TECH, {
+  "Princess ballgown":["boning","zip","gather","hem","press"], "Cocktail dress":["zip","embroider","press"], "Flamenco dress":["gather","zip","press"],
+  "Mermaid gown":["boning","zip","hem","press"], "Sundress":["drawstring","hem","press"], "Waistcoat":["buttons","embroider","press"],
+  "Summer dress":["zip","hem","press"], "A-line skirt":["zip","hem","press"], "Pajama pants":["drawstring","press"], "Zip-free hoodie":["drawstring","press"],
+  "Kimono robe":["embroider","press"], "Canvas tote bag":["embroider","press"], "Prom gown":["boning","zip","gather","press"], "Corset top":["boning","grommets","lacing","embroider","press"]
+});
+Object.assign(TECH_INFO, {
+  zip:["Install the zipper","Drag the zipper pull from top to bottom along the teeth. Stay on the track: a wobbly zipper seam puckers and catches."],
+  embroider:["Embroider a motif","Stitch the design by tapping the dots in number order. Embroidery has decorated clothes for over 2,000 years."],
+  hem:["Pin the hem","Tap 7 pins evenly along the fold line. Even pins stop the hem from twisting as you sew it."],
+  drawstring:["Thread the drawstring","Drag the safety pin through the casing from one opening to the other without poking out of the channel."]
+});
+const EMB_MOTIFS = {
+  heart:[[160,80],[176,62],[198,66],[204,90],[186,116],[160,140],[134,116],[116,90],[122,66],[144,62],[160,80]],
+  star:[[160,46],[172,84],[212,84],[180,108],[192,146],[160,122],[128,146],[140,108],[108,84],[148,84],[160,46]],
+  flower:[[160,96],[160,56],[184,72],[160,96],[198,104],[180,128],[160,96],[160,140],[136,128],[160,96],[122,104],[136,72],[160,96]],
+  bolt:[[176,40],[132,112],[164,112],[146,172],[196,92],[164,92],[176,40]]
+};
+Object.assign(STUDIO.sewing, {
+  runTech(){
+    const k = this.techs[this.techIdx], [title, why] = TECH_INFO[k];
+    stage.onclick = null;
+    stage.innerHTML = `<div class="studio-grid"><div><div class="tech-stage"><svg id="tkSvg" viewBox="0 0 320 220" aria-label="${title}"></svg></div><p class="msg" id="tkMsg"></p></div>
+      <div class="ctl-col">${sessionHeader(`${this.g.name} · finishing ${this.techIdx+1} of ${this.techs.length}`, title, why)}<div id="tkCtl"></div><div id="tkRes"></div></div></div>`;
+    const m = ["grommets","buttons","rivets","snaps","pleats"].includes(k) ? "even" : k;
+    this["tech_" + m](k);
+  },
+  svgPt(e){ const svg = $("tkSvg"), p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); },
+  /* drag along a track: zipper (vertical, straight) or drawstring (curved casing) */
+  tech_track(path, opts){
+    const f = this.fabricObj(), fill = f.pat ? "url(#tkP)" : f.c1, N = 60;
+    const pts = Array.from({length:N + 1}, (_, i) => path(i/N));
+    let prog = 0, offs = 0, samples = 0, dragging = false, slips = 0, done = false;
+    const draw = () => {
+      const [px, py] = pts[Math.round(prog*N)];
+      let g = this.techCloth(opts.cloth(fill));
+      g += opts.track(pts, prog);
+      g += opts.puller(px, py);
+      $("tkSvg").innerHTML = g;
+      $("tkCtl").innerHTML = `<p class="stage-tip">${opts.tip} ${Math.round(prog*100)}% done${slips ? ` · ${slips} slip${slips === 1 ? "" : "s"}` : ""}.</p>`;
+    };
+    draw();
+    const svg = $("tkSvg");
+    svg.onpointerdown = e => { if(done) return; const q = this.svgPt(e), [px, py] = pts[Math.round(prog*N)]; if(Math.hypot(q.x - px, q.y - py) < 26){ dragging = true; svg.setPointerCapture?.(e.pointerId); } else $("tkMsg").textContent = opts.grab; };
+    svg.onpointermove = e => {
+      if(!dragging || done) return; const q = this.svgPt(e);
+      let best = Math.round(prog*N), bd = 1e9;
+      for(let i = Math.max(0, best - 4); i <= Math.min(N, best + 6); i++){ const d = Math.hypot(q.x - pts[i][0], q.y - pts[i][1]); if(d < bd){ bd = d; best = i; } }
+      samples++; offs += Math.min(bd, 30);
+      if(bd > opts.tol){ slips++; dragging = false; sfx.bad(); $("tkMsg").textContent = opts.slip; draw(); return; }
+      if(best/N > prog){ prog = best/N; $("tkMsg").textContent = ""; draw(); }
+      if(prog >= 1){ done = true; dragging = false; const wob = samples ? offs/samples : 0;
+        const score = +clamp(1 - slips*.15 - Math.max(0, wob - 4)*.03, .3, 1).toFixed(2); this.techDone(score, opts.note(slips, wob)); }
+    };
+    svg.onpointerup = svg.onpointercancel = () => { dragging = false; };
+  },
+  tech_zip(){
+    this.tech_track(t => [160, 34 + t*150], {tol:14,
+      cloth:fill => `<rect x="70" y="24" width="86" height="172" rx="6" fill="${fill}" stroke="${INK}" stroke-width="2.5"/><rect x="164" y="24" width="86" height="172" rx="6" fill="${fill}" stroke="${INK}" stroke-width="2.5"/>`,
+      track:(pts, prog) => { let g = `<rect x="152" y="30" width="16" height="160" fill="#2b2f3a" rx="3"/>`; for(let y = 34; y < 186; y += 6){ const closed = (y - 34)/150 <= prog; g += `<rect x="${closed ? 154 : 151}" y="${y}" width="5" height="3" fill="#d9dde3"/><rect x="${closed ? 161 : 164}" y="${y+3}" width="5" height="3" fill="#d9dde3"/>`; } g += `<path d="M146 34 V${34 + prog*150} M174 34 V${34 + prog*150}" stroke="#ffd166" stroke-width="2" stroke-dasharray="4 3"/>`; return g; },
+      puller:(x, y) => `<g><rect x="${x-9}" y="${y-8}" width="18" height="16" rx="4" fill="#c0c6cf" stroke="${INK}" stroke-width="2"/><rect x="${x-4}" y="${y+6}" width="8" height="18" rx="3" fill="#ffd166" stroke="${INK}" stroke-width="2"/></g>`,
+      tip:"Grab the pull and drag it straight down, stitching both sides of the tape.", grab:"Grab the zipper pull (the yellow tab) to start.", slip:"You drifted off the zipper teeth. Grab the pull and carry on.",
+      note:(s, w) => `${s ? `${s} slip${s === 1 ? "" : "s"}. ` : "No slips! "}Dressmakers use a zipper foot so the needle can sew right next to the teeth. An invisible zipper hides completely inside the seam.`});
+  },
+  tech_drawstring(){
+    this.tech_track(t => [70 + t*180, 100 + Math.sin(t*Math.PI)*14], {tol:12,
+      cloth:fill => `<path d="M60 80 Q160 106 260 80 V200 H60 Z" fill="${fill}" stroke="${INK}" stroke-width="2.5"/>`,
+      track:(pts, prog) => { let d = `M${pts[0][0]} ${pts[0][1]}`; pts.forEach(p => d += ` L${p[0]} ${p[1]}`); const n = Math.round(prog*(pts.length - 1)); let c = `M${pts[0][0]} ${pts[0][1]}`; pts.slice(0, n + 1).forEach(p => c += ` L${p[0]} ${p[1]}`);
+        return `<path d="${d}" stroke="${INK}" stroke-width="22" fill="none" opacity=".18" stroke-linecap="round"/><path d="${d}" stroke="#fffdf8" stroke-width="2" fill="none" stroke-dasharray="5 4"/><path d="${c}" stroke="#ff7db8" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="5" fill="${INK}"/><circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="5" fill="${INK}"/>`; },
+      puller:(x, y) => `<g transform="translate(${x} ${y}) rotate(0)"><ellipse rx="13" ry="5" fill="#d9dde3" stroke="${INK}" stroke-width="2"/><circle cx="-9" r="2" fill="${INK}"/></g>`,
+      tip:"Drag the safety pin through the casing (the shaded channel).", grab:"Grab the safety pin to start threading.", slip:"The pin poked out of the casing! Grab it and keep going.",
+      note:(s) => `${s ? `${s} slip${s === 1 ? "" : "s"}. ` : "Smooth threading! "}Pinning the far end of the cord to the fabric stops it disappearing into the casing, a classic beginner's mistake.`});
+  },
+  tech_hem(){
+    const n = 7, f = this.fabricObj(), fill = f.pat ? "url(#tkP)" : f.c1, marks = [], L = {x1:70, x2:250, y:150};
+    const draw = () => {
+      let g = this.techCloth(`<rect x="60" y="30" width="200" height="150" fill="${fill}" stroke="${INK}" stroke-width="2.5"/><rect x="60" y="140" width="200" height="40" fill="#000" opacity=".12"/>`);
+      g += `<path d="M60 140 H260" stroke="#fff" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+      marks.forEach(t => { const x = L.x1 + (L.x2 - L.x1)*t; g += `<path d="M${x} 128 L${x} 162" stroke="#9aa5b1" stroke-width="2"/><circle cx="${x}" cy="126" r="4.5" fill="#e63946" stroke="${INK}" stroke-width="1.5"/>`; });
+      $("tkSvg").innerHTML = g;
+      $("tkCtl").innerHTML = `<p class="stage-tip">Tap along the fold line to pin the hem. Pinned ${marks.length} of ${n}.</p><div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="tkUndo">Undo</button></div>`;
+      $("tkUndo").onclick = () => { if(marks.length < n){ marks.pop(); draw(); } };
+    };
+    draw();
+    $("tkSvg").onpointerdown = e => {
+      if(marks.length >= n) return; const q = this.svgPt(e), t = (q.x - L.x1)/(L.x2 - L.x1);
+      if(Math.abs(q.y - 140) > 20 || t < -.03 || t > 1.03){ $("tkMsg").textContent = "Pin on the fold line (the dashed line)."; return; }
+      marks.push(clamp(t, 0, 1)); marks.sort((a, b) => a - b); sfx.click(); draw();
+      if(marks.length === n){ const gaps = marks.slice(1).map((m, i) => m - marks[i]), avg = gaps.reduce((a, b) => a + b, 0)/gaps.length, sd = Math.sqrt(gaps.reduce((a, g2) => a + (g2 - avg)**2, 0)/gaps.length);
+        const even = clamp(1 - (sd/avg)*2.2, 0, 1), span = clamp((marks[n-1] - marks[0])/.8, 0, 1), score = +(even*.75 + span*.25).toFixed(2);
+        this.techDone(score, `Pin evenness ${Math.round(even*100)}%. Pins go in at right angles to the edge so the machine can sew over them slowly, though pros pull each pin out just before the needle reaches it.`); }
+    };
+  },
+  tech_embroider(){
+    const key = pick(Object.keys(EMB_MOTIFS)), P = EMB_MOTIFS[key], f = this.fabricObj(), fill = f.pat ? "url(#tkP)" : f.c1;
+    let at = 0, miss = 0; const thread = pick(["#e63946","#ffd166","#3a8dff","#2ec4b6","#fbfaf5"]);
+    const draw = () => {
+      let g = this.techCloth(`<circle cx="160" cy="100" r="86" fill="#c8915a" stroke="${INK}" stroke-width="3"/><circle cx="160" cy="100" r="78" fill="${fill}" stroke="${INK}" stroke-width="2"/>`);
+      for(let i = 1; i <= at && i < P.length; i++) g += `<path d="M${P[i-1][0]} ${P[i-1][1]} L${P[i][0]} ${P[i][1]}" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M${P[i-1][0]} ${P[i-1][1]} L${P[i][0]} ${P[i][1]}" stroke="${thread}" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 2"/>`;
+      const seen = new Set();
+      P.forEach(([x, y], i) => { const id = x + "," + y; if(seen.has(id) && i !== at) return; seen.add(id);
+        g += `<circle cx="${x}" cy="${y}" r="8" fill="${i === at ? "#ffd166" : i < at ? thread : "#fffdf8"}" stroke="${INK}" stroke-width="1.6" data-e="${i}" style="cursor:pointer"/>${i >= at ? `<text x="${x}" y="${y + 3.5}" text-anchor="middle" font-size="9" font-family="DM Mono, monospace" fill="${INK}" pointer-events="none">${i + 1}</text>` : ""}`; });
+      $("tkSvg").innerHTML = g;
+      $("tkCtl").innerHTML = `<p class="stage-tip">Stitching a ${key}: ${at < P.length ? `tap dot ${at + 1} next.` : "done!"} ${Math.max(0, at - 1)} of ${P.length - 1} stitches${miss ? ` · ${miss} wrong dot${miss === 1 ? "" : "s"}` : ""}.</p>`;
+    };
+    draw();
+    $("tkSvg").onclick = e => {
+      const q = this.svgPt(e); let best = -1, bd = 14;
+      P.forEach(([x, y], i) => { const d = Math.hypot(q.x - x, q.y - y); if(d < bd && i >= at){ bd = d; best = i; } });
+      if(best < 0) return;
+      const want = P[at], got = P[best];
+      if(got[0] !== want[0] || got[1] !== want[1]){ miss++; sfx.bad(); $("tkMsg").textContent = `That's not dot ${at + 1}.`; draw(); return; }
+      at++; sfx.click(); $("tkMsg").textContent = ""; draw();
+      if(at >= P.length){ this.techDone(+clamp(1 - miss*.1, .4, 1).toFixed(2), `Your ${key} is done in a running backstitch. An embroidery hoop keeps the fabric drum-tight so stitches don't pucker.`); return; }
+    };
+  }
+});
+
+/* =========================================================
+   HAIR SALON v6: six braided styles, curl-pattern and porosity
+   detail, a shampoo shelf, and a detangling mini-game
+   ========================================================= */
+HS_STYLES.push(["pigtails","Pigtails"],["sidebraid","Side braid"],["fishtail","Fishtail braid"],["crownbraid","Crown braid"],["cornrows","Cornrows"],["locs","Locs"]);
+Object.assign(HS_NAMES, {pigtails:"Pigtails", sidebraid:"Side braid", fishtail:"Fishtail braid", crownbraid:"Crown braid", cornrows:"Cornrows", locs:"Locs"});
+const HS_STYLE_CUT = {pigtails:"ponytail", sidebraid:"braids", fishtail:"braids", crownbraid:"braids", cornrows:"braids", locs:"braids"};
+const HS_STYLE_NEED = {pigtails:150, sidebraid:172, fishtail:180, crownbraid:180, cornrows:130, locs:150};
+const HS_SHAMPOOS = [
+  ["moist","Moisturizing","For dry, curly or coily hair: adds slip and softness.","#7ec8e3"],
+  ["clarify","Clarifying","Deep-cleans oily scalps and product build-up. Too stripping for dry hair.","#9be7a6"],
+  ["volume","Volumizing","Lightweight for fine, flat hair. Leaves thick curls frizzy.","#ffd166"],
+  ["purple","Purple","Cancels yellow in blonde or grey hair. Only needed for light, brassy colors.","#b388eb"],
+  ["gentle","Gentle everyday","Mild and balanced for normal hair.","#ffb4a2"]
+];
+function hsShampooFor(c){
+  const t = c.type;
+  if(["brassy","grey"].includes(c.hairC)) return t.cond === "dry" || t.tex === "curly" || t.tex === "coily" ? ["purple","moist"] : ["purple"];
+  if(t.cond === "oily") return ["clarify"];
+  if(t.tex === "curly" || t.tex === "coily" || t.cond === "dry") return ["moist"];
+  if(t.thick === "fine") return ["volume","gentle"];
+  return ["gentle","moist"];
+}
+const HS_POR_NOTE = {low:"Low porosity: the cuticle lies flat, so products sit on top. Use light, water-based products and skip heavy oils.", normal:"Normal porosity: hair takes in and holds moisture well.", high:"High porosity: a raised, gappy cuticle loses moisture fast. Seal it in with a leave-in conditioner."};
+{
+  const prevRule = hsProductRule;
+  hsProductRule = function(c){
+    const t = c.type;
+    if(!t.code){ const L = {straight:["1A","1B","1C"], wavy:["2A","2B","2C"], curly:["3A","3B","3C"], coily:["4A","4B","4C"]}[t.tex] || ["1B"]; t.code = pick(L); }
+    if(!t.por) t.por = pick(t.tex === "coily" || t.tex === "curly" ? ["high","high","normal","low"] : ["low","normal","normal","high"]);
+    const r = prevRule(c);
+    if(t.por === "high" && !r.ban.includes("leavein") && !r.need.includes("leavein")) r.need.push("leavein");
+    if(t.por === "low"){ r.need = r.need.filter(k => k !== "oil"); if(!r.ban.includes("oil")) r.ban.push("oil"); }
+    return r;
+  };
+}
+{
+  const H = STUDIO.hair, prev = {hairParts:H.hairParts, look:H.look, setStyle:H.setStyle, newRound:H.newRound, enterStage:H.enterStage, renderTools:H.renderTools, submit:H.submit};
+  const med = a => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length/2)] || 0; };
+  Object.assign(H, {
+    look(raw){ const L = prev.look.call(this, raw); if(!raw && HS_STYLE_CUT[this.hs.style]){ L.styleName = this.hs.style; L.cut = HS_STYLE_CUT[this.hs.style]; } return L; },
+    setStyle(v){
+      if(HS_STYLE_NEED[v]){ const L = this.look(true);
+        if(L.buzz){ sfx.bad(); $("hsMsg").textContent = "There's nothing left to braid after a buzz cut!"; return; }
+        if(L.E < HS_STYLE_NEED[v]){ sfx.bad(); $("hsMsg").textContent = `Too short for ${HS_NAMES[v].toLowerCase()}: it needs hair ${HS_STYLE_NEED[v] > 160 ? "past the shoulders" : "past the chin"}.`; return; }
+        this.push(); this.hs.style = v; sfx.click(); this.render();
+        $("hsMsg").textContent = {pigtails:"Part down the middle, then tie each half at ear level.", sidebraid:"A three-strand braid: cross the left strand over the middle, then the right, and repeat.", fishtail:"A fishtail uses just two strands, passing a thin piece from the outside of one to the other.", crownbraid:"Braid each side, then pin the braids across the top of the head like a crown. Milkmaids wore it to keep hair out of the way.", cornrows:"Cornrows are braided flat to the scalp in neat rows, picking up a little hair each cross. The style is thousands of years old in Africa.", locs:"Locs form when coily hair is left to coil and mat into rope-like strands. Installing them neatly starts with even square parts."}[v];
+        return; }
+      return prev.setStyle.call(this, v);
+    },
+    plait(x0, y0, x1, y1, w, n, hc, fine){
+      let g = ""; const dx = (x1 - x0)/n, dy = (y1 - y0)/n, len = Math.hypot(dx, dy), ang = Math.atan2(dy, dx)*180/Math.PI - 90;
+      for(let i = 0; i < n; i++){
+        const t = i/n, ww = w*(1 - t*.35), cx = x0 + dx*(i + .5), cy = y0 + dy*(i + .5), side = i % 2 ? 1 : -1;
+        const ox = Math.cos((ang)*Math.PI/180)*ww*.28*side, oy = Math.sin((ang)*Math.PI/180)*ww*.28*side;
+        g += `<ellipse cx="${(cx + ox).toFixed(1)}" cy="${(cy + oy).toFixed(1)}" rx="${(ww*(fine ? .42 : .55)).toFixed(1)}" ry="${(len*(fine ? .62 : .78)).toFixed(1)}" transform="rotate(${(ang + side*(fine ? 38 : 28)).toFixed(0)} ${(cx + ox).toFixed(1)} ${(cy + oy).toFixed(1)})" fill="${hc}" stroke="${INK}" stroke-width="1.8"/>`;
+        g += `<path d="M${(cx + ox - side*ww*.15).toFixed(1)} ${(cy + oy - len*.3).toFixed(1)} q${(side*ww*.2).toFixed(1)} ${(len*.3).toFixed(1)} 0 ${(len*.6).toFixed(1)}" fill="none" stroke="${shade(hc, .35)}" stroke-width="1.2" opacity=".8"/>`;
+      }
+      return g;
+    },
+    tie(x, y, col = "#ff7db8"){ return `<ellipse cx="${x}" cy="${y}" rx="6.5" ry="3.6" fill="${col}" stroke="${INK}" stroke-width="2"/>`; },
+    tuft(x, y, hc){ return `<path d="M${x-5} ${y} q-2 9 -4 12 M${x} ${y} q0 9 0 13 M${x+5} ${y} q2 9 4 12" stroke="${INK}" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M${x-5} ${y} q-2 9 -4 12 M${x} ${y} q0 9 0 13 M${x+5} ${y} q2 9 4 12" stroke="${hc}" stroke-width="2.6" stroke-linecap="round" fill="none"/>`; },
+    hairParts(){
+      const st = this.hs.style;
+      if(!HS_STYLE_CUT[st]) return prev.hairParts.call(this);
+      const hc = this.capColor ? this.capColor() : HAIRC[tonedColor(this.c.hairC, this.mainTone().tone)];
+      const Lk = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
+      const all = this.all(), E = clamp(med(all.map(s => s.end)), 150, 222);
+      const sleek = `<path d="M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z" fill="${hc}" ${Lk}/>`;
+      const part = `<path d="M100 31 L100 56" stroke="${shade(hc, -.35)}" stroke-width="1.6"/>`;
+      const shine = `<path d="M74 44 C84 39 94 39 102 41 M110 40 C122 42 132 47 138 56" fill="none" stroke="${shade(hc,.35)}" stroke-width="2" stroke-linecap="round" opacity=".8"/>`;
+      const bangs = this.hs.combed ? this.strandLayer(this.hs.B, 8.4) : "";
+      let back = "", drape = "", front = sleek + shine;
+      if(st === "pigtails"){
+        const tail = (x, dir) => `<path d="M${x} 98 C${x + dir*18} 120 ${x + dir*16} ${E - 30} ${x + dir*6} ${E} C${x - dir*4} ${E - 24} ${x - dir*2} 124 ${x} 98Z" fill="${hc}" ${Lk}/><path d="M${x + dir*4} 110 C${x + dir*10} 140 ${x + dir*8} ${E - 30} ${x + dir*4} ${E - 8}" fill="none" stroke="${shade(hc,.35)}" stroke-width="1.6"/>`;
+        drape = tail(50, -1) + tail(150, 1);
+        front = sleek + part + shine + this.tie(51, 98) + this.tie(149, 98) + bangs;
+      } else if(st === "sidebraid" || st === "fishtail"){
+        const fine = st === "fishtail", x0 = fine ? 140 : 60, dir = fine ? 1 : -1;
+        drape = this.plait(x0, 104, x0 + dir*6, E, fine ? 15 : 18, fine ? 13 : 7, hc, fine) + this.tie(x0 + dir*6, E + 2) + this.tuft(x0 + dir*6, E + 5, hc);
+        front = sleek + `<path d="M${fine ? 82 : 118} 31 Q${fine ? 120 : 80} 50 ${x0} 104" fill="none" stroke="${shade(hc,-.3)}" stroke-width="1.6"/>` + shine + bangs;
+      } else if(st === "crownbraid"){
+        let arc = ""; const n = 12; for(let i = 0; i < n; i++){ const a0 = Math.PI*(1.08 - i/n*1.16), a1 = Math.PI*(1.08 - (i + 1)/n*1.16); arc += this.plait(100 + Math.cos(a0)*50, 64 - Math.sin(a0)*36, 100 + Math.cos(a1)*50, 64 - Math.sin(a1)*36, 15, 1, hc); }
+        front = sleek + part + arc + `<circle cx="146" cy="70" r="2.6" fill="#ffd166" stroke="${INK}" stroke-width="1.2"/><circle cx="54" cy="70" r="2.6" fill="#ffd166" stroke="${INK}" stroke-width="1.2"/>` + bangs;
+      } else if(st === "cornrows"){
+        const cap = `<path d="M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z" fill="${shade(hc, -.15)}" ${Lk}/>`;
+        let rows = ""; [-40, -24, -8, 8, 24, 40].forEach(dx => { const xs = 100 + dx*1.12, ys = 62 - Math.abs(dx)*.12 + (Math.abs(dx) > 30 ? 10 : 0); rows += this.plait(xs, ys, 100 + dx*.55, 33, 7.5, 5, hc, true); });
+        const tails = [-1, 1].map(d => this.plait(100 + d*46, 100, 100 + d*50, E, 7, 8, hc, true) + this.plait(100 + d*36, 104, 100 + d*38, E - 6, 7, 8, hc, true)).join("");
+        drape = tails; front = cap + rows;
+      } else if(st === "locs"){
+        let cords = ""; const xs = [48,56,64,72,128,136,144,152];
+        xs.forEach((x, i) => { const end = E - (i % 3)*6, dir = x < 100 ? -1 : 1; let d = `M${x} 80`; for(let y = 88; y <= end; y += 8) d += ` L${(x + dir*(y - 80)*.04 + Math.sin(y*.3 + i)*1.6).toFixed(1)} ${y}`;
+          cords += `<path d="${d}" stroke="${INK}" stroke-width="11" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${hc}" stroke-width="7.5" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${shade(hc, .3)}" stroke-width="7.5" fill="none" stroke-dasharray="1.4 5" stroke-linecap="round"/>`; });
+        let top = ""; for(let i = 0; i < 9; i++){ const x = 62 + i*9.5, y = 40 + Math.abs(i - 4)*2.8; top += `<path d="M${x} ${y} q${(x - 100)*.06} 10 ${(x - 100)*.12} 22" stroke="${INK}" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M${x} ${y} q${(x - 100)*.06} 10 ${(x - 100)*.12} 22" stroke="${hc}" stroke-width="6.5" fill="none" stroke-linecap="round"/>`; }
+        drape = cords; front = sleek + top;
+      }
+      return {back, drape, front};
+    },
+    newRound(){
+      prev.newRound.call(this);
+      const t = this.c.type; this.w.shampoo = null; this.w.detangle = null;
+      const box = stage.querySelector(".hs-type");
+      if(box && t.code) box.insertAdjacentHTML("beforeend", `<span><small>Pattern</small><b>${t.code}</b></span><span><small>Porosity</small><b>${t.por}</b></span>`);
+    },
+    enterStage(){
+      prev.enterStage.call(this);
+      const k = HS_STAGES[this.stage][0];
+      if(k === "consult" && this.c.type.por){ const tip = stage.querySelector("#hsPanel .stage-tip"); if(tip) tip.insertAdjacentHTML("afterend", `<p class="tooltip-line"><b>${this.c.type.code}</b> on the curl chart: 1 is straight, 2 wavy, 3 curly, 4 coily; A to C go from looser to tighter. ${HS_POR_NOTE[this.c.type.por]}</p>`); }
+      if(k === "dry" && $("hsTools") && !stage.querySelector('[data-t="detangle"]')){
+        $("hsTools").insertAdjacentHTML("beforeend", `<button type="button" class="tool" data-t="detangle" data-tip="Wide-tooth comb: always start at the ends and work up to the roots."><span class="ti">${icon("🪮", 30)}</span>Detangle</button>`);
+      }
+    },
+    renderTools(){
+      const k = HS_STAGES[this.stage][0], w = this.w;
+      if(k === "wash" && this.tool === "shampoo" && w.reclineOk && w.neck && !w.shampoo){
+        prev.renderTools.call(this);
+        const o = $("hsOpts"); if(!o) return;
+        o.innerHTML = `<div class="opt-group"><h4>Pick a shampoo for ${this.c.name}</h4><div class="shampoo-shelf">${HS_SHAMPOOS.map(([s, l, d, c]) => `<button type="button" class="sh-bottle" data-sh="${s}"><svg viewBox="0 0 40 60" width="34"><rect x="14" y="2" width="12" height="8" rx="2" fill="${INK}"/><path d="M8 14 Q8 10 14 10 H26 Q32 10 32 14 V54 Q32 58 28 58 H12 Q8 58 8 54Z" fill="${c}" stroke="${INK}" stroke-width="2.5"/><rect x="12" y="26" width="16" height="16" rx="2" fill="#fffdf8" opacity=".85"/></svg><b>${l}</b><small>${d}</small></button>`).join("")}</div><p class="tooltip-line">Read the client card: texture, scalp and color decide the shampoo.</p></div>`;
+        o.onclick = e => { const b = e.target.closest("[data-sh]"); if(!b || this.locked) return; w.shampoo = b.dataset.sh; const ok = hsShampooFor(this.c).includes(w.shampoo);
+          ok ? sfx.good() : sfx.bad(); this.say(ok ? "Ooh, that one smells amazing." : {clarify:"Hmm, that one makes my hair feel squeaky and dry.", volume:"Will that make my hair frizzy?", purple:"Purple shampoo? My hair isn't blonde…", moist:"Isn't that a bit heavy for my hair?", gentle:"Okay, the basic one."}[w.shampoo], ok ? "good" : "bad");
+          o.onclick = null; this.renderTools(); };
+        return;
+      }
+      if(k === "dry" && this.tool === "detangle"){
+        stage.querySelectorAll("#hsTools .tool").forEach(b => b.classList.toggle("sel", b.dataset.t === "detangle"));
+        const o = $("hsOpts"); if(!o) return;
+        if(!w.detangle){ const tex = HS_TEXNUM[this.c.type.tex] || 0, n = [1, 2, 3, 4][tex]; w.detangle = {knots:{ends:n, mid:Math.max(1, n - 1), roots:tex >= 2 ? 1 : 0}, ouch:0, done:false}; }
+        const dt = w.detangle, zones = [["roots", 30, 62], ["mid", 62, 112], ["ends", 112, 160]];
+        const knot = (x, y) => `<path d="M${x-7} ${y} c4 -8 10 -6 8 0 s-10 8 -8 0 c2 -6 10 -4 12 2" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/>`;
+        let svg = `<rect width="200" height="170" rx="12" fill="#f6efe2"/>`;
+        const hc = this.capColor ? this.capColor() : HAIRC.brown;
+        for(let i = 0; i < 7; i++){ const x = 70 + i*10; svg += `<path d="M${x} 24 C${x - 4} 70 ${x + 6} 110 ${x - 2} 160" stroke="${INK}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M${x} 24 C${x - 4} 70 ${x + 6} 110 ${x - 2} 160" stroke="${hc}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`; }
+        zones.forEach(([z, y0, y1]) => { svg += `<rect x="54" y="${y0}" width="92" height="${y1 - y0}" fill="#fff" opacity="0" data-zone="${z}" style="cursor:pointer"/><text x="152" y="${(y0 + y1)/2 + 4}" font-size="10" font-family="DM Mono, monospace" fill="${INK}">${z} ${dt.knots[z] ? "· " + dt.knots[z] : "✓"}</text>`;
+          for(let j = 0; j < dt.knots[z]; j++) svg += knot(82 + j*16, y0 + (y1 - y0)*(.35 + (j % 2)*.3)); });
+        o.innerHTML = `<div class="detangle"><svg viewBox="0 0 200 170" width="100%" id="hsDt" aria-label="Detangling">${svg}</svg><p class="tooltip-line">${dt.done ? `All knots out${dt.ouch ? `, but ${dt.ouch} painful tug${dt.ouch === 1 ? "" : "s"}` : " without a single tug"}!` : "Tap a zone to comb through it. Work from the ends up: combing above a knot drags it tighter."}</p></div>`;
+        $("hsDt").onclick = e => { const r = e.target.closest("[data-zone]"); if(!r || dt.done || this.locked) return; const z = r.dataset.zone, order = ["ends","mid","roots"], idx = order.indexOf(z);
+          if(!dt.knots[z]){ $("hsMsg").textContent = "That part is already smooth."; return; }
+          if(order.slice(0, idx).some(q => dt.knots[q])){ dt.ouch++; sfx.bad(); this.bump(-.25, "tugging knots from the roots"); this.say("OW! That pulled!", "bad"); }
+          else { dt.knots[z]--; sfx.click(); if(Object.values(dt.knots).every(v => !v)){ dt.done = true; sfx.good(); this.say("Wow, no tangles and no pain!", "good"); } }
+          this.renderTools(); this.render(); };
+        return;
+      }
+      return prev.renderTools.call(this);
+    },
+    submit(){
+      if(this.locked) return;
+      prev.submit.call(this);
+      const res = $("hsRes"); if(!res || !res.querySelector(".checks")) return;
+      const w = this.w, okSham = !!w.shampoo && hsShampooFor(this.c).includes(w.shampoo), dt = w.detangle;
+      const nm = s => (HS_SHAMPOOS.find(x => x[0] === s) || [0, "none"])[1].toLowerCase();
+      const kept = [...res.querySelectorAll(".checks li")].map(li => ({label:li.querySelector("b").textContent, why:li.querySelector("p").textContent, ok:li.classList.contains("ok")}));
+      const extra = [
+        {label:`The right shampoo (${listAnd(hsShampooFor(this.c).map(nm))})`, ok:okSham, why:okSham ? "Matching the shampoo to the hair is the first thing a stylist decides at the basin." : `You used ${w.shampoo ? nm(w.shampoo) : "no shampoo choice"}. ${HS_SHAMPOOS.find(x => x[0] === hsShampooFor(this.c)[0])[2]}`},
+        {label:"Detangled from the ends up, without tugging", ok:!!(dt && dt.done && dt.ouch === 0), why:dt && dt.done ? (dt.ouch ? "Starting at the roots pushes every knot down into a tighter tangle. Start at the ends and work up." : "Ends first, then mid-lengths, then roots: knots slide out instead of tightening.") : "Use the wide-tooth comb in the dry step before cutting. Cutting tangled hair gives an uneven line."}
+      ];
+      const all = [...kept, ...extra], f = all.filter(r => r.ok).length/all.length, old = this.log[this.log.length - 1], pts = Math.round(1000*f);
+      this.total += pts - old.pts; old.pts = pts; this.f = f;
+      res.querySelector(".checks").outerHTML = checklist(all);
+      res.querySelector(".pts").textContent = "+" + fmt(pts);
+      res.querySelector(".eyebrow").textContent = f >= .9 ? `${this.c.name} is thrilled` : f >= .6 ? "Nearly perfect" : "Not quite what they asked for";
+      setSide("Score", fmt(this.total));
+    }
+  });
+}
+Object.assign(GOALS, {
+  wedding:{label:"An elegant updo for a wedding", why:"Updos keep hair off the neck for photos and last through a long day of dancing: buns, half-up styles and braids are the classics.", test:h => ["bun","halfup","braids","spacebuns"].includes(h.cut)},
+  sport:{label:"Secure for a football match", why:"Anything tied up or braided stays out of the eyes when running; loose hair whips into the face.", test:h => ["ponytail","braids","bun","pixie","buzz"].includes(h.cut)}
+});
+
+/* =========================================================
+   MAKEUP v4: more kinds of faces (headscarves, mature skin,
+   vitiligo, nose rings, hoops), plus new occasions and themes
+   ========================================================= */
+const FACE_EXTRA = new Map();
+const faceKey = p => [p.eyeShape, p.nose, p.lips, p.brow, p.lashes, p.freckles, JSON.stringify(p.mole || null), p.dimples, p.stud, p.skin].join("|");
+const SCARF_COLS = ["#2a9d8f","#e76f51","#6d597a","#264653","#f4a261","#b5838d","#3d5a80","#e9c46a"];
+function randomExtras(c){
+  const r = Math.random, x = {};
+  if(r() < .14) x.scarf = pick(SCARF_COLS);
+  if(r() < .16) x.senior = true;
+  if(r() < .1) x.vitiligo = R(1, 99999);
+  if(r() < .14) x.noseRing = pick(["left","right"]);
+  if(!x.scarf && r() < .22) x.hoops = pick(["#ffd166","#d9dde3"]);
+  return x;
+}
+function vitiligoPatches(seed, shape){
+  const R2 = rng("vt" + seed), id = "vt" + (++SVGID);
+  const blobs = Array.from({length:5}, () => { const cx = 62 + R2()*76, cy = 74 + R2()*80, r = 5 + R2()*9; return `<path d="M${cx - r} ${cy} C${cx - r} ${cy - r*1.1} ${cx + r*.4} ${cy - r*1.2} ${cx + r} ${cy - r*.2} C${cx + r*1.2} ${cy + r*.8} ${cx} ${cy + r*1.2} ${cx - r*.6} ${cy + r*.7}Z"/>`; }).join("");
+  return `<defs><clipPath id="${id}"><path d="${FACE_SHAPES[shape || "oval"]}"/></clipPath></defs><g clip-path="url(#${id})" fill="#fbe9dc" opacity=".72">${blobs}</g>`;
+}
+{
+  const prevFace = faceInner;
+  faceInner = function(p){
+    const x = p.extra || FACE_EXTRA.get(faceKey(p)) || {};
+    if(!x.scarf && !x.senior && !x.vitiligo && !x.noseRing && !x.hoops) return prevFace(p);
+    const q = {...p};
+    if(x.vitiligo) q.paintUnder = vitiligoPatches(x.vitiligo, p.shape) + (p.paintUnder || "");
+    if(x.scarf){ q.hair = "bun"; q.hairC = shade(x.scarf, -.25); q.strands = null; q.bangs = "none"; q.earring = null; }
+    if(x.senior && !x.scarf && !p.strands) q.hairC = "#c9c9c9";
+    let g = prevFace(q);
+    const skin = p.skin || SKINS[2][0], L = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
+    if(x.senior) g += `<g fill="none" stroke="${shade(skin, -.32)}" stroke-width="1.1" stroke-linecap="round" opacity=".75"><path d="M84 132 q-5 8 -3 16 M116 132 q5 8 3 16"/><path d="M60 100 l-5 -2 M60 104 l-6 1 M140 100 l5 -2 M140 104 l6 1"/><path d="M86 70 q14 -3 28 0 M90 76 q10 -2 20 0"/></g>`;
+    if(x.noseRing) g += `<circle cx="${x.noseRing === "left" ? 92 : 108}" cy="129" r="2.6" fill="none" stroke="#ffd166" stroke-width="1.4"/><circle cx="${x.noseRing === "left" ? 92 : 108}" cy="129" r="2.6" fill="none" stroke="${INK}" stroke-width=".5"/>`;
+    if(x.hoops && !x.scarf) g += `<g fill="none"><circle cx="50" cy="132" r="8" stroke="${INK}" stroke-width="3.6"/><circle cx="50" cy="132" r="8" stroke="${x.hoops}" stroke-width="2"/><circle cx="150" cy="132" r="8" stroke="${INK}" stroke-width="3.6"/><circle cx="150" cy="132" r="8" stroke="${x.hoops}" stroke-width="2"/></g>`;
+    if(x.scarf){
+      const shapeD = FACE_SHAPES[p.shape || "oval"], sc = x.scarf;
+      g += `<path fill-rule="evenodd" d="M40 122 C34 54 66 24 100 24 C134 24 166 54 160 122 C160 152 152 170 176 196 C160 214 130 222 100 222 C70 222 40 214 24 196 C48 170 40 152 40 122Z ${shapeD}" fill="${sc}" ${L}/>`;
+      g += `<path d="M58 76 C70 50 90 42 100 42 M142 76 C130 50 110 42 100 42" fill="none" stroke="${shade(sc, .3)}" stroke-width="2" stroke-linecap="round" opacity=".8"/><path d="M36 190 C60 200 80 206 100 206 M164 190 C140 200 120 206 100 206" fill="none" stroke="${shade(sc, -.25)}" stroke-width="1.8" opacity=".7"/>`;
+      g += `<circle cx="146" cy="142" r="3" fill="#ffd166" stroke="${INK}" stroke-width="1.2"/>`;
+    }
+    return g;
+  };
+}
+{
+  const MK = STUDIO.makeup, prev = {newClient:MK.newClient, mountFace:MK.mountFace};
+  Object.assign(MK, {
+    newClient(){
+      const c = prev.newClient.call(this); c.extra = randomExtras(c);
+      if(c.extra.senior) c.rules.push({label:"Gentle on mature skin: no glitter, light layers", why:"As skin ages it gets drier and fine lines appear. Chunky glitter and heavy powder settle into lines; creamy, sheer layers look fresher.", test:m => !m.used.has("glitter") && m.cov.face < 1.01});
+      if(c.extra.vitiligo) c.note = "Vitiligo is a condition where some patches of skin lose their pigment. Lots of people love their patches and don't cover them; always ask what the client wants.";
+      if(c.extra.scarf) c.note = "Many people wear headscarves, like a hijab, for faith or culture. Makeup works around the scarf: keep foundation off the fabric.";
+      return c;
+    },
+    mountFace(mood){
+      const c = this.c;
+      if(c){ if(!c.feat) Object.assign(c, randomFeatures(), {feat:true}); if(!c.extra) c.extra = randomExtras(c);
+        FACE_EXTRA.set(faceKey({...featuresOf(c), skin:SKINS[c.depth][0]}), c.extra);
+        if(c.note && !stage.querySelector(".mk-note")){ const brief = stage.querySelector(".brief"); if(brief) brief.insertAdjacentHTML("beforeend", `<p class="tooltip-line mk-note">${c.note}</p>`); } }
+      return prev.mountFace.call(this, mood);
+    }
+  });
+}
+Object.assign(MK_OCC, {
+  graduation:{label:"their graduation ceremony", rules:[{label:"Long-lasting: lip liner under the lipstick", why:"Liner stops lipstick feathering and fading through a long day of photos and hugs.", test:m => m.used.has("lipliner")},{label:"Defined brows that frame the face in photos", why:"Brows frame the face; filled-in brows read clearly in group photos.", test:m => m.cov.brow >= .3}]},
+  theatre:{label:"playing a villain in the school play", rules:[{label:"Dramatic winged liner", why:"Stage makeup exaggerates features so the back row can read your face. A sharp wing looks fierce under lights.", test:m => m.liner === "winged"},{label:"Contour to carve cheekbones", why:"Stage lights flatten faces. Contour adds shadows back so the face has shape from far away.", test:m => m.used.has("contour")}]},
+  swim:{label:"a pool party", rules:[{label:"No heavy foundation in the pool", why:"Chlorine and water break down foundation fast. Keep skin bare or very light.", test:m => m.cov.face < .3},{label:"Something fun: gems or faux freckles", why:"Waterproof stick-on gems and freckles are perfect pool-party extras.", test:m => m.gems > 0 || m.freckles > 0}]},
+  diwali:{label:"a Diwali celebration", rules:[{label:"Festive shimmer or gold", why:"Diwali is the festival of lights; shimmery, golden makeup echoes the glowing diyas (oil lamps).", test:m => m.shimmer || m.shadows.some(c => ["gold","bronze","copper"].includes(c)) || m.gems > 0},{label:"Defined eyes: liner", why:"Kohl eyeliner has been worn in South Asia for thousands of years.", test:m => m.liner !== "none"}]},
+  photo:{label:"a passport photo", rules:[{label:"Natural and recognizable: no face paint, gems or glitter", why:"Passport photos must look like you on an ordinary day so border officers can recognize you.", test:m => !m.used.has("facepaint") && !m.gems && !m.used.has("glitter")},{label:"Even skin under harsh light", why:"Flat, bright photo lighting shows shine and redness; an even base helps.", test:m => m.cov.face >= .4}]}
+});
+MK_THEMES.push(
+  {n:"Tiger face paint", s:"Fierce orange with bold black stripes.", f:"Every tiger's stripes are unique, like a fingerprint, and the stripes are on its skin too, not just its fur.",
+   checks:[["Face paint stripes", m => m.used.has("facepaint")],["Warm orange or gold eyeshadow", m => m.shadows.some(c => ["orange","gold","bronze","copper","peach"].includes(c))],["A strong liner", m => m.liner !== "none"]]},
+  {n:"Superhero mask", s:"A painted mask and a heroic glow.", f:"Comic-book heroes wear masks to hide their identity; the domino mask dates back to 1700s Venetian carnival.",
+   checks:[["A painted mask around the eyes", m => m.used.has("facepaint")],["Bold lips", m => MK_LIPS_ALL().find(l => l[0] === m.lip)?.[3] === "bold"],["Glow: highlighter", m => m.cov.highlight >= .2]]},
+  {n:"Snow fairy", s:"Icy blues, frosty white and tiny crystals.", f:"Every snowflake has six sides because water molecules lock together in a hexagonal pattern when they freeze.",
+   checks:[["Icy eyes: sky, silver, white or lilac", m => m.shadows.some(c => ["sky","silver","white","lilac"].includes(c))],["Crystal gems", m => m.gems >= 2],["Frosty highlight", m => m.cov.highlight >= .2]]},
+  {n:"Rainbow pride", s:"Every color of the rainbow.", f:"A rainbow's colors always appear in the same order (red, orange, yellow, green, blue, violet) because each wavelength bends by a different amount.",
+   checks:[["At least three eyeshadow colors", m => m.shadows.length >= 3],["Some sparkle", m => m.used.has("glitter") || m.gems > 0 || m.shimmer],["Painted detail", m => m.used.has("facepaint")]]}
+);
 
 renderHub();
 </script>
