@@ -11,7 +11,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Caveat:wght@600&display=swap">
 <style>
 /* Layout: an arcade lobby with two wings (Studios, Core skills) of colored rooms under a player card; playing swaps to one focused stage. Single committed dark look. */
 :root{
@@ -20,7 +20,7 @@
   --bg:#fbf2e2; --ink:#2b1d14; --text:#2b1d14; --muted:#7b6553; --panel:#fffdf8; --panel2:#f6e6c9; --line:#e5d2b2; --skin:#d9c3ea;
   --mem:#ff6b57; --math:#ffbf2e; --word:#22b8a7; --logic:#6f62ff;
   --atelier:#ff7db8; --sew:#78c552; --floor:#3a8dff; --peace:#ff9a1f; --kitchen:#e85d3a; --thread:#b97cf6; --mix:#ffd166;
-  --flag:#e63946; --land-c:#2a9d8f; --cook:#f4a259; --time:#577590; --lab:#00b4d8; --makeup:#ff5d8f; --dive:#1f8fd6; --gift:#e5383b; --atlas:#3a86ff; --hist:#b5838d; --hair:#9c6644;
+  --flag:#e63946; --land-c:#2a9d8f; --cook:#f4a259; --time:#577590; --lab:#00b4d8; --makeup:#ff5d8f; --dive:#1f8fd6; --gift:#e5383b; --atlas:#3a86ff; --trip:#f77f00; --hist:#b5838d; --hair:#9c6644;
   --good:#22b26b; --bad:#ef476f; --scrim:rgb(43 29 20 / .45);
   --sea:#a9dcef; --land:#f7e4bd;
   --shadow:0 5px 0 var(--ink); --shadow-sm:0 3px 0 var(--ink); --bw:2.5px;
@@ -1029,6 +1029,19 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .sh-bottle:hover{transform:translateY(-2px) rotate(-2deg)}
 .sh-bottle b{font-size:13px}.sh-bottle small{font-size:11px;line-height:1.25;opacity:.75}
 .detangle svg{max-width:320px;display:block;margin:0 auto;border:2px solid var(--ink);border-radius:14px}
+
+.trip-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.trip-grid{grid-template-columns:1fr}}
+.trip-map svg{width:100%;display:block;border:2.5px solid var(--ink);border-radius:16px;background:var(--sea)}
+.trip-map .atland path{fill:#f2e2b8;stroke:var(--ink);stroke-width:.5}
+.postcard{position:relative;background:#fffdf8;border:2.5px solid var(--ink);border-radius:14px;padding:16px 18px;box-shadow:4px 4px 0 var(--ink);background-image:linear-gradient(90deg,transparent 62%,rgb(0 0 0 / .06) 62%,rgb(0 0 0 / .06) calc(62% + 2px),transparent calc(62% + 2px));color:#2b2118}
+.postcard h3{margin:4px 0 8px}.pc-clues{margin:0 0 10px;padding-left:20px;font-family:"Caveat","Segoe Print",cursive;font-size:20px;line-height:1.3}
+.pc-clues li{margin:3px 0;animation:pcIn .3s ease}@keyframes pcIn{from{opacity:0;transform:translateY(4px)}}
+.pc-stamp{position:absolute;top:10px;right:12px;width:52px;height:60px;border:2px dashed var(--ink);border-radius:4px;display:grid;place-items:center;background:#ffe8cc;transform:rotate(5deg)}
+.pc-stamp span{font:700 12px "DM Mono",monospace}
+#tpOpts .choice{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;gap:1px}#tpOpts .choice b{font-size:18px;line-height:1.15}#tpOpts .choice small{font-size:13px}.postcard .eyebrow,.postcard h3{padding-right:70px}#tpOpts .choice small{opacity:.7}
+.odo{display:flex;gap:8px;margin-top:10px}.odo span{flex:1;border:2px solid var(--ink);border-radius:10px;padding:6px 8px;background:var(--card,#fffdf8)}.odo small{display:block;font:11px "DM Mono",monospace;opacity:.7}.odo b{font-size:15px}
+.fly-leg{stroke-dashoffset:1;animation:flyLeg 1.2s ease forwards}@keyframes flyLeg{from{stroke-dasharray:0 1}to{stroke-dasharray:1 0}}
 </style>
 </head>
 <body>
@@ -1325,6 +1338,10 @@ const ROOMS = {
     blurb:"No labels allowed. Find countries on a bare map, name highlighted ones by their shape and neighbors, and pick capitals.",
     tip:"<b>Tip:</b> anchor on big, easy shapes first (Italy's boot, Chile's ribbon) and work outward to the neighbors.",
     modes:[["studio","Explore the map"],["practice","Capitals quiz"]]},
+  trip:{name:"Postcard Trip", skill:"World geography", color:"var(--trip)", wing:"explore",
+    blurb:"Postcards arrive from your next stop. Read the clues, pick the city, and fly around the world, 8 legs at a time.",
+    tip:"<b>Tip:</b> language, climate and food narrow down the continent fast; the landmark line is the giveaway.",
+    modes:[["studio","Start a trip"],["practice","Quiz"]]},
   history:{name:"Mystery Guest", skill:"History", color:"var(--hist)", wing:"explore",
     blurb:"A silhouette from history steps into the spotlight. Reveal clues one by one and guess who they are, from Hatshepsut to Neil Armstrong.",
     tip:"<b>Tip:</b> the first clue is the hardest. Look for a place, an invention or a date to narrow it down.",
@@ -1363,7 +1380,7 @@ const ROOMS = {
   mix:{name:"Daily Mix", skill:"Interleaved practice", color:"var(--mix)", wing:"none",
     blurb:"Eight questions from across the arcade, mixed together.", tip:"<b>Why mix?</b> Switching topics forces your brain to pick the right strategy each time, and that is what makes it stick.", modes:[]}
 };
-const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","gift","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","atlas","flags","time","history"], CORE_KEYS = ["dive","lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
+const STUDIO_KEYS = ["atelier","hair","makeup","sewing","floor","cook","gift","peace"], EXPLORE_KEYS = ["kitchen","thread","landmarks","atlas","trip","flags","time","history"], CORE_KEYS = ["dive","lab","memory","math","words","logic"], ALL = [...STUDIO_KEYS, ...EXPLORE_KEYS, ...CORE_KEYS];
 const MIX_ROOMS = ["math","words","atelier","sewing","floor","peace","kitchen","thread","landmarks","flags","time","cook","lab","makeup","hair"];
 const RANKS = [[1,"Novice"],[3,"Apprentice"],[6,"Thinker"],[10,"Strategist"],[15,"Sage"],[22,"Mastermind"]];
 const MODE_NAMES = {studio:"Studio", daily:"Daily puzzle", blitz:"Blitz", theme:"Theme challenge", sprint:"Sprint", practice:"Quiz", arcade:"Arcade", zen:"Zen"};
@@ -1543,6 +1560,7 @@ const ART = {
   flags: svgA(`<path d="M30 104 V8" stroke-width="5"/><path d="M32 12 q30 -8 56 2 t52 0 v52 q-26 8 -52 -2 t-56 2z"/><path d="M32 12 q14 -4 28 -2 v54 q-14 -2 -28 2z" fill="#3a8dff"/><path d="M60 10 q14 2 28 6 v52 q-14 -4 -28 -6z"/><path d="M88 16 q26 8 52 0 v52 q-26 8 -52 0z" fill="#ef476f"/><circle cx="30" cy="8" r="5" fill="#ffbf2e"/>`),
   time: svgA(`<path d="M10 70 H150" stroke-width="4"/>${[24,62,100,138].map((x,i) => `<circle cx="${x}" cy="70" r="7" fill="${["#ffbf2e","#ef476f","#22b8a7","#6f62ff"][i]}"/><rect x="${x-16}" y="${i%2 ? 82 : 22}" width="32" height="26" rx="5"/><path d="M${x} ${i%2 ? 82 : 48} V${i%2 ? 77 : 63}" fill="none"/>`).join("")}`),
   cook: svgA(`<path d="M26 54 h108 v30 a20 20 0 0 1 -20 20 h-68 a20 20 0 0 1 -20 -20z" fill="#e85d3a"/><path d="M14 62 h12 M134 62 h12" stroke-width="7"/><ellipse cx="80" cy="54" rx="54" ry="10"/><path d="M60 40 q-6 -8 0 -16 M80 36 q-6 -8 0 -16 M100 40 q-6 -8 0 -16" fill="none"/><path d="M118 10 L100 50" stroke-width="5"/><ellipse cx="122" cy="10" rx="8" ry="5" transform="rotate(-60 122 10)" fill="#c8915a"/><circle cx="56" cy="52" r="5" fill="#e63946"/><circle cx="72" cy="50" r="4" fill="#78c552"/><circle cx="96" cy="52" r="5" fill="#ffbf2e"/>`),
+  trip: svgA(`<rect x="22" y="22" width="116" height="78" rx="6" fill="#fffdf8" transform="rotate(-6 80 61)"/><path d="M84 30 V92" stroke-width="2" transform="rotate(-6 80 61)" opacity=".5"/><rect x="104" y="30" width="22" height="26" rx="2" fill="#f77f00" transform="rotate(-6 80 61)"/><path d="M34 52 h36 M34 64 h40 M34 76 h28" stroke-width="3" transform="rotate(-6 80 61)" opacity=".6"/><path d="M98 82 l34 -14 l-6 -4 l-26 6 l-10 -10 l-6 2 l6 12 l-12 6 l-6 -4 l-4 2 l8 8z" fill="#3a86ff"/>`),
   atlas: svgA(`<rect x="10" y="16" width="140" height="84" rx="8" fill="#7cc4f0"/><path d="M26 40 q20 -14 34 0 q8 18 -6 30 q-20 6 -28 -10z" fill="#f2e2b8"/><path d="M80 30 q30 -10 50 6 q6 24 -16 30 q-20 -2 -34 -14z" fill="#f2e2b8"/><path d="M96 76 q14 -4 20 8 q-4 12 -18 8z" fill="#f2e2b8"/><circle cx="104" cy="46" r="7" fill="#e5383b"/><path d="M104 53 V62" stroke-width="3"/><path d="M40 92 l10 -14 l10 14z" fill="#ffd166"/>`),
   history: svgA(`<rect x="10" y="10" width="140" height="94" rx="10" fill="#2b2f3a"/><path d="M50 10 L30 104 H130 L110 10Z" fill="#ffd166" opacity=".35" stroke="none"/><circle cx="80" cy="50" r="18" fill="#3d405b"/><path d="M50 104 C52 78 66 70 80 70 C94 70 108 78 110 104Z" fill="#3d405b"/><text x="80" y="58" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="22" font-weight="700" fill="#ffd166" stroke="none">?</text>`),
   gift: svgA(`<rect x="34" y="40" width="92" height="64" rx="6" fill="#e5383b"/><rect x="28" y="28" width="104" height="18" rx="4" fill="#ff7db8"/><path d="M80 28 V104" stroke-width="10" stroke="#ffd166"/><path d="M80 28 V104" fill="none"/><path d="M80 28 C64 8 44 14 56 26 C62 30 72 30 80 28 C88 30 98 30 104 26 C116 14 96 8 80 28Z" fill="#ffd166"/><circle cx="130" cy="22" r="12" fill="#fffdf8"/><path d="M138 30 L146 38" stroke-width="4"/>`),
@@ -9074,6 +9092,297 @@ MK_THEMES.push(
   {n:"Rainbow pride", s:"Every color of the rainbow.", f:"A rainbow's colors always appear in the same order (red, orange, yellow, green, blue, violet) because each wavelength bends by a different amount.",
    checks:[["At least three eyeshadow colors", m => m.shadows.length >= 3],["Some sparkle", m => m.used.has("glitter") || m.gems > 0 || m.shimmer],["Painted detail", m => m.used.has("facepaint")]]}
 );
+
+/* ---------- Gift Detective: 17 more products, 8 more people ---------- */
+GIFT_ITEMS.push(
+  {n:"Snorkel set", p:25, i:"🤿", c:"Outdoors", t:["swim","holiday","sport"], d:"Mask, snorkel and mesh bag. Folds flat."},
+  {n:"Model sailboat kit", p:22, i:"⛵", c:"Kids", t:["build","kids","slow","smallparts"], d:"Wooden kit, 120 pieces, ages 10+."},
+  {n:"Fossil dig kit", p:16, i:"🦴", c:"Kids", t:["dinosaur","kids","science"], d:"Chip a real fossil out of a plaster block, ages 8+."},
+  {n:"Chemistry set", p:30, i:"⚗", c:"Kids", t:["science","kids","smallparts"], d:"30 experiments, ages 10+."},
+  {n:"Volcano science kit", p:18, i:"🌋", c:"Kids", t:["science","kids"], d:"Build and erupt your own volcano, ages 8+."},
+  {n:"Crystal growing kit", p:14, i:"🔮", c:"Kids", t:["science","kids","smallparts"], d:"Grow seven sparkling crystals, ages 10+."},
+  {n:"Violin rosin and cloth", p:9, i:"🎻", c:"Music", t:["music","violin","small"], d:"Professional rosin plus a polishing cloth."},
+  {n:"Magnetic dartboard", p:24, i:"🎯", c:"Home", t:["games","big"], d:"Safe magnetic darts, wall-mounted."},
+  {n:"Sushi-making kit", p:24, i:"🍣", c:"Food", t:["cooking","food","japanese"], d:"Bamboo mat, rice paddle and recipes."},
+  {n:"Artisan cheese box", p:28, i:"🧀", c:"Food", t:["food","cheese","dairy"], d:"Four cheeses from small farms."},
+  {n:"Hot sauce trio", p:15, i:"🌶", c:"Food", t:["food","spicy","vegan","small"], d:"Mild, hot and ghost pepper."},
+  {n:"Fluffy bathrobe", p:32, i:"🧖", c:"Self-care", t:["selfcare","cozy","robe"], d:"Unscented, hypoallergenic cotton."},
+  {n:"Potted rose bush", p:14, i:"🌸", c:"Outdoors", t:["garden","plant"], d:"Fragrant pink roses, ready to plant."},
+  {n:"Medal display hanger", p:18, i:"🏅", c:"Home", t:["sport","running","medal"], d:"Steel hanger for 30 race medals."},
+  {n:"Sketching pencil set", p:10, i:"✏", c:"Art", t:["art","small"], d:"12 graphite pencils from 6H to 8B."},
+  {n:"Octopus plush", p:13, i:"🐙", c:"Kids", t:["kids","cozy","ocean","small"], d:"Reversible: happy on one side, grumpy on the other."},
+  {n:"Ocean night-light", p:19, i:"🐠", c:"Kids", t:["kids","ocean","nightlight"], d:"Projects swimming fish onto the ceiling."}
+);
+GIFT_PEOPLE.push(
+  {name:"Aunt Rosa", rel:"your aunt", bio:"Marathon runner · teacher · allergic to perfume", budget:30, look:{skin:SKINS[2][0], hair:"ponytail", hairC:"darkbrown", eye:"brown", top:"#22b8a7", shape:"oval"},
+   need:["medal"], like:["running","sport"], avoid:["scented"], why:{need:"Her race medals are tangled in a drawer.", avoid:"Perfume and scented products set off her allergies."},
+   posts:[["Half marathon #12!","Sunday","Finished in 1:52, a personal best! <<n:Now I just need somewhere to put all these medals; they're tangled up in a sock drawer.>>"],["Staff room drama","Thursday","<<a:Someone sprayed perfume in the staff room and I sneezed for an hour. Allergies are no joke.>>"],["Training plan","Monday","<<l:Six weeks until the big city marathon. Long runs every Saturday!>>"]]},
+  {name:"Theo", rel:"your little brother (age 11)", bio:"Dinosaur superfan · museum regular · not allowed screens after 7", budget:30, look:{skin:SKINS[4][0], hair:"curls", hairC:"black", eye:"darkbrown", top:"#3fa34d", shape:"round"},
+   need:["dinosaur"], like:["science","kids"], avoid:["screen"], why:{need:"He wants to dig up a fossil like a real palaeontologist.", avoid:"Screen time is strictly limited."},
+   posts:[["Museum trip!","Saturday","(Posted by Mum) Theo stood under the T. rex skeleton for 40 minutes. <<n:Now he says he wants to dig up a real fossil, just like the palaeontologists in the film.>>"],["New family rule","Last week","<<a:No more tablets or games. Screens are off for the kids from now on.>>"],["Science fair","Wednesday","<<l:Theo's volcano model won second place! He loves anything with experiments.>>"]]},
+  {name:"Noor", rel:"your best friend's sister", bio:"Youth orchestra violinist · shares a bedroom with two sisters", budget:20, look:{skin:SKINS[3][0], hair:"long", hairC:"black", eye:"brown", top:"#6f62ff", shape:"heart"},
+   need:["violin"], like:["music"], avoid:["big"], why:{need:"She's run out of rosin right before a concert.", avoid:"Three sisters in one room means no space for big things."},
+   posts:[["Concert in two weeks!","Today","Rehearsal went badly. <<n:My bow kept slipping because I've completely run out of rosin.>> Panic!"],["Room tour (lol)","Sunday","<<a:Three sisters, one bedroom. If it's bigger than a shoebox, there's no room for it.>>"],["Practice playlist","Friday","<<l:Listening to Vivaldi's Four Seasons on repeat to get in the mood.>>"]]},
+  {name:"Mr. Okafor", rel:"your neighbour", bio:"Retired chef · chili grower · lactose intolerant", budget:25, look:{skin:SKINS[5][0], hair:"buzz", hairC:"grey", eye:"darkbrown", top:"#e76f51", shape:"square", glasses:true},
+   need:["spicy"], like:["food","cooking"], avoid:["dairy","cheese"], why:{need:"He puts hot sauce on everything.", avoid:"Dairy upsets his stomach."},
+   posts:[["Chili harvest","Monday","My scotch bonnets are ready! <<n:Nothing goes on my plate without hot sauce, the hotter the better.>>"],["Doctor's news","Last month","<<a:Turns out I'm lactose intolerant. Goodbye cheese, goodbye milk. So sad.>>"],["Cooking class","Thursday","<<l:Taught the community centre how to make jollof rice. Cooking for people is my joy.>>"]]},
+  {name:"Kenji", rel:"your coworker", bio:"First holiday in 3 years · flying hand-luggage only · learning to swim", budget:35, look:{skin:SKINS[1][0], hair:"pixie", hairC:"black", eye:"brown", top:"#3a8dff", shape:"long"},
+   need:["swim"], like:["holiday","sport"], avoid:["big"], why:{need:"He's going snorkelling for the first time.", avoid:"Hand luggage only, so it has to pack small."},
+   posts:[["Booked it!","Tuesday","Two weeks in the Philippines! <<n:I've never been snorkelling, but the coral reefs there are supposed to be incredible.>>"],["Packing challenge","Yesterday","<<a:Flying hand-luggage only, so everything has to fit in one small bag.>>"],["Swimming lessons","Saturday","<<l:Lesson 6 done. I can finally swim a whole length without stopping!>>"]]},
+  {name:"Lily", rel:"your cousin (age 6)", bio:"Loves the aquarium · scared of the dark · still puts everything in her mouth", budget:25, look:{skin:SKINS[0][0], hair:"bun", hairC:"blonde", eye:"blue", top:"#ff7db8", shape:"round"},
+   need:["nightlight","ocean"], like:["kids","cozy"], avoid:["smallparts","science"], why:{need:"She's scared of the dark and adores sea creatures.", avoid:"At 6, small parts are a choking risk and most science kits are for 8+."},
+   posts:[["Aquarium day","Saturday","(Posted by Lily's dad) <<n:Lily pressed her nose to the octopus tank for an hour. She's obsessed with sea creatures.>>"],["Bedtime battles","Tuesday","<<n:She's been scared of the dark lately and won't sleep with the light off.>>"],["Toy clear-out","Last week","<<a:Getting rid of anything with tiny pieces; she still puts things in her mouth. And no science kits until she's older.>>"]]},
+  {name:"Grandma Mei", rel:"your grandma", bio:"Rose gardener for 50 years · arthritis in her knees · no smartphone", budget:30, look:{skin:SKINS[1][0], hair:"bun", hairC:"grey", eye:"darkbrown", top:"#b5838d", shape:"oval", glasses:true},
+   need:["plant","knees"], like:["garden"], avoid:["tech"], why:{need:"She loves roses, but kneeling hurts.", avoid:"She doesn't use gadgets."},
+   posts:[["My roses","Sunday","(Typed by your cousin for Grandma) <<n:My favourite pink rose bush died in the frost. I miss it.>>"],["Doctor visit","Thursday","<<n:My knees ache when I kneel down to weed, but I won't give up my garden!>>"],["Phone? No thanks","Last month","<<a:Everyone wants me to get a smartphone. I'm happy with my landline, thank you.>>"]]},
+  {name:"Sam", rel:"your classmate", bio:"Exam season survivor · bath enthusiast · sensitive skin (eczema)", budget:40, look:{skin:SKINS[3][0], hair:"lob", hairC:"auburn", eye:"green", top:"#e9c46a", shape:"heart"},
+   need:["robe","cozy"], like:["selfcare"], avoid:["scented"], why:{need:"They want to feel cozy and calm after exams.", avoid:"Fragrance makes their eczema flare up."},
+   posts:[["Exams are DONE","Today","<<n:All I want now is to curl up somewhere warm and cozy and do absolutely nothing.>>"],["Skin update","Last week","<<a:My eczema flared again. The doctor says no scented products at all: no candles, bath bombs or perfumed creams.>>"],["Self-care Sunday","Sunday","<<l:A long bath and a good book is my idea of heaven.>>"]]}
+);
+
+/* ---------- Mystery Guest: 17 more historical figures ---------- */
+H_GUESTS.push(
+ {n:"Aristotle", y:"384–322 BCE", p:"Greece", t:2, c:["I studied for 20 years under a famous philosopher.","I described more than 500 kinds of animals.","I founded a school called the Lyceum.","I was the tutor of the young Alexander the Great."], f:"He's often called the father of biology, and his rules of logic were taught for 2,000 years.", look:{skin:SKINS[2][0], hair:"buzz", hairC:"grey", top:"#fbfaf5", eye:"brown"}},
+ {n:"Qin Shi Huang", y:"259–210 BCE", p:"China", t:2, c:["I made everyone use the same coins, writing and weights.","I joined old border walls into an early Great Wall.","I was the first emperor of a united China.","I was buried with an army of about 8,000 clay soldiers."], f:"His tomb has never been fully opened. Ancient writers said it held rivers of mercury.", look:{skin:SKINS[2][0], hair:"bun", hairC:"black", top:"#1d1d1d", eye:"darkbrown"}},
+ {n:"Ashoka", y:"c. 304–232 BCE", p:"Maurya Empire (India)", t:3, c:["I won a terrible war, then regretted the bloodshed.","I had my laws carved on stone pillars across my empire.","I helped spread Buddhism across Asia.","A lion statue from one of my pillars is India's national emblem."], f:"The wheel on India's flag, the Ashoka Chakra, comes from his pillars.", look:{skin:SKINS[4][0], hair:"bun", hairC:"black", top:"#ff9f1c", eye:"darkbrown"}},
+ {n:"Hypatia", y:"c. 360–415 CE", p:"Alexandria, Egypt", t:3, c:["I lived in a city famous for its great library.","I taught mathematics, astronomy and philosophy.","Students traveled far to attend my lectures.","I'm one of the first women mathematicians whose life is well recorded."], f:"She edited and explained difficult math books so that students could understand them.", look:{skin:SKINS[3][0], hair:"bun", hairC:"darkbrown", top:"#fbfaf5", eye:"brown"}},
+ {n:"Murasaki Shikibu", y:"c. 973–1014", p:"Japan", t:3, c:["I served as a lady-in-waiting at the imperial court.","As a girl, I secretly learned Chinese classics meant for boys.","Nobody knows my real name; I'm known by a nickname.","I wrote The Tale of Genji, often called the world's first novel."], f:"Her nickname, Murasaki, comes from a character in her own book.", look:{skin:SKINS[1][0], hair:"long", hairC:"black", top:"#9b5de5", eye:"darkbrown"}},
+ {n:"Elizabeth I", y:"1533–1603", p:"England", t:1, c:["My father had six wives.","I never married, and was called the Virgin Queen.","My navy defeated the Spanish Armada in 1588.","Shakespeare's plays were first performed while I reigned."], f:"The US state of Virginia is named after her.", look:{skin:SKINS[0][0], hair:"curls", hairC:"auburn", top:"#e63946", eye:"blue"}},
+ {n:"Moctezuma II", y:"c. 1466–1520", p:"Aztec Empire (Mexico)", t:2, c:["My capital city was built on an island in a lake.","Conquered cities sent me tribute of cacao, feathers and cotton.","I drank chocolate from golden cups.","I met Hernán Cortés when the Spanish arrived in 1519."], f:"His capital, Tenochtitlan, was bigger than any city in Spain at the time. Mexico City is built on its ruins.", look:{skin:SKINS[4][0], hair:"lob", hairC:"black", top:"#2a9d8f", eye:"darkbrown"}},
+ {n:"Ching Shih", y:"1775–1844", p:"China", t:3, c:["I commanded a fleet of hundreds of ships.","My sailors followed a strict code of rules, or else.","I'm one of the most successful pirates in history.","I negotiated a surrender that let me keep my fortune."], f:"Unlike most pirates, she retired rich and lived to old age, running a gambling house.", look:{skin:SKINS[2][0], hair:"bun", hairC:"black", top:"#e63946", eye:"darkbrown"}},
+ {n:"Ludwig van Beethoven", y:"1770–1827", p:"Germany", t:1, c:["I was born in Bonn and moved to Vienna.","I kept composing even after I lost my hearing.","I wrote a piano piece called Für Elise.","My Ninth Symphony ends with the Ode to Joy."], f:"The Ode to Joy is now the anthem of the European Union.", look:{skin:SKINS[1][0], hair:"curls", hairC:"darkbrown", top:"#22222a", eye:"brown"}},
+ {n:"Simón Bolívar", y:"1783–1830", p:"Venezuela", t:2, c:["I was born into a rich family in Caracas.","I led armies across the freezing Andes mountains.","I helped free six South American countries from Spanish rule.","A whole country is named after me."], f:"He's called El Libertador, and Bolivia and Venezuela's currency carry his name.", look:{skin:SKINS[2][0], hair:"lob", hairC:"black", top:"#1d3557", eye:"brown"}},
+ {n:"Charles Darwin", y:"1809–1882", p:"England", t:1, c:["I sailed around the world on a ship called the Beagle.","I studied finches and giant tortoises on the Galápagos Islands.","I waited about 20 years before publishing my big idea.","I explained evolution by natural selection."], f:"His book On the Origin of Species sold out on its first day in 1859.", look:{skin:SKINS[0][0], hair:"buzz", hairC:"grey", top:"#5a3622", eye:"blue"}},
+ {n:"Mary Seacole", y:"1805–1881", p:"Jamaica", t:2, c:["My mother taught me herbal medicine in Kingston.","I traveled to Panama and treated people during a cholera outbreak.","I paid my own way to the Crimean War to nurse soldiers.","Soldiers called me “Mother Seacole”."], f:"Her autobiography, Wonderful Adventures of Mrs Seacole in Many Lands, was a bestseller in 1857.", look:{skin:SKINS[4][0], hair:"bun", hairC:"black", top:"#3fa34d", eye:"darkbrown"}},
+ {n:"Amelia Earhart", y:"1897–1937", p:"USA", t:1, c:["I bought my first plane with money from odd jobs.","I set many speed and height records.","I was the first woman to fly solo across the Atlantic, in 1932.","I disappeared over the Pacific trying to fly around the world."], f:"What happened to her plane is still one of history's great mysteries.", look:{skin:SKINS[0][0], hair:"pixie", hairC:"blonde", top:"#7a4a2a", eye:"blue"}},
+ {n:"Alan Turing", y:"1912–1954", p:"England", t:2, c:["I liked to run marathons as well as do math.","I imagined a machine that could compute anything computable.","I helped crack Germany's secret Enigma code at Bletchley Park.","A famous test for artificial intelligence is named after me."], f:"He appears on the Bank of England's £50 note.", look:{skin:SKINS[0][0], hair:"lob", hairC:"darkbrown", top:"#3d5a80", eye:"brown"}},
+ {n:"Katherine Johnson", y:"1918–2020", p:"USA", t:2, c:["I started high school at age 10.","I calculated flight paths for spacecraft by hand.","An astronaut asked me to check the computer's numbers before he flew.","My story was told in the film Hidden Figures."], f:"Her calculations helped Apollo 11 reach the Moon and get home safely.", look:{skin:SKINS[4][0], hair:"curls", hairC:"black", top:"#6f62ff", eye:"darkbrown", glasses:true}},
+ {n:"Yuri Gagarin", y:"1934–1968", p:"Soviet Union", t:1, c:["I grew up on a farm and trained as a fighter pilot.","My spacecraft was called Vostok 1.","Just before launch, I shouted “Poyekhali!”, meaning “Let's go!”","In 1961 I became the first human in space."], f:"His flight around Earth took just 108 minutes. April 12 is now the International Day of Human Space Flight.", look:{skin:SKINS[1][0], hair:"buzz", hairC:"brown", top:"#e63946", eye:"blue"}},
+ {n:"Wangari Maathai", y:"1940–2011", p:"Kenya", t:2, c:["I was the first woman in East Africa to earn a PhD.","I noticed streams drying up as forests were cut down.","My Green Belt Movement paid women to plant trees.","I was the first African woman to win the Nobel Peace Prize."], f:"Her movement has planted tens of millions of trees across Kenya.", look:{skin:SKINS[5][0], hair:"pixie", hairC:"black", top:"#3fa34d", eye:"darkbrown"}}
+);
+
+/* =========================================================
+   POSTCARD TRIP: follow postcard clues around the world.
+   Each stop: read clues, pick the city, fly there and watch
+   the kilometres add up on the map.
+   ========================================================= */
+const TRIP = [
+ ["Paris","France",[48.86,2.35],1,["Locals buy a long, thin loaf of bread every morning.","The river Seine winds through the city.","An iron tower built for an 1889 world fair looms over everything.","The Louvre, the world's most visited museum, is here."],"The Eiffel Tower was meant to stand for only 20 years."],
+ ["Tokyo","Japan",[35.68,139.69],1,["Trains here are famous for arriving within seconds of schedule.","People write with three different scripts.","A snowy volcano, Mount Fuji, is visible on clear days.","It's the biggest metropolitan area on Earth."],"Over 37 million people live in greater Tokyo."],
+ ["Cairo","Egypt",[30.04,31.24],1,["It almost never rains here.","The Nile, the world's longest river, flows through it.","People here speak Arabic and pay in pounds.","Three giant pyramids stand at the edge of the city."],"The Great Pyramid was the tallest human-made structure for about 3,800 years."],
+ ["Rio de Janeiro","Brazil",[-22.91,-43.17],1,["People here speak Portuguese, not Spanish.","It hosts one of the world's biggest carnivals.","A huge statue of Christ stands on a mountain above the city.","Sugarloaf Mountain rises over Copacabana beach."],"Rio was the capital of Portugal's whole empire for 13 years, while Napoleon occupied Lisbon."],
+ ["New York City","United States",[40.71,-74.01],1,["Yellow taxis crowd the streets.","Its subway runs 24 hours a day.","A copper statue holding a torch greets ships in the harbor.","Its nickname is the Big Apple."],"More than 800 languages are spoken in New York, more than in any other city."],
+ ["Sydney","Australia",[-33.87,151.21],1,["Christmas here falls in summer.","A huge steel bridge locals call the Coathanger crosses the harbor.","Its opera house looks like a row of white sails.","It's the largest city on its continent."],"The Sydney Opera House roof is covered in over a million tiles."],
+ ["Rome","Italy",[41.90,12.50],1,["People toss coins into a famous fountain to make sure they return.","A whole country, Vatican City, sits inside it.","Gladiators once fought in its Colosseum.","Legend says it was founded by twins raised by a wolf."],"Rome has more fountains than any other city in the world, over 2,000."],
+ ["London","United Kingdom",[51.51,-0.13],1,["Red double-decker buses carry commuters.","Its underground railway, the Tube, was the world's first.","A big bell called Big Ben chimes by the river Thames.","The King lives in Buckingham Palace here."],"Big Ben is the name of the bell, not the tower."],
+ ["Beijing","China",[39.90,116.40],2,["People here eat roast duck sliced at the table.","Its Forbidden City palace has around 9,000 rooms.","The Great Wall winds over hills just outside it.","It hosted both a Summer and a Winter Olympics."],"Beijing is the only city to have hosted both the Summer (2008) and Winter (2022) Olympics."],
+ ["Mexico City","Mexico",[19.43,-99.13],2,["It sits 2,240 m high, and the air feels thin.","It's built on top of an ancient lake.","The Aztecs called their city here Tenochtitlan.","Mariachi bands play in Garibaldi Square."],"The city sinks several centimeters every year because it's built on soft lake clay."],
+ ["Mumbai","India",[19.08,72.88],2,["It's home to Bollywood, one of the world's biggest film industries.","Dabbawalas deliver hundreds of thousands of home-cooked lunches every day.","The Gateway of India arch faces the Arabian Sea.","Its old name was Bombay."],"Mumbai's lunchbox carriers deliver about 200,000 meals a day with almost no mistakes."],
+ ["Moscow","Russia",[55.76,37.62],2,["Winters here regularly drop below −20°C.","Its metro stations look like underground palaces with chandeliers.","St. Basil's Cathedral has colorful onion domes.","The Kremlin fortress sits beside Red Square."],"Moscow's metro stations were designed as 'palaces for the people', with marble, mosaics and chandeliers."],
+ ["Cape Town","South Africa",[-33.92,18.42],2,["Penguins live on a beach nearby.","A flat-topped mountain often wears a 'tablecloth' of cloud.","Nelson Mandela was imprisoned on Robben Island, offshore.","It sits near the southern tip of Africa."],"Table Mountain is one of the oldest mountains on Earth, about 260 million years old."],
+ ["Istanbul","Turkey",[41.01,28.98],2,["It's split between two continents, Europe and Asia.","The Bosphorus strait runs through the middle.","Its Grand Bazaar has over 4,000 shops.","It was once called Constantinople."],"The Grand Bazaar, opened in 1461, is one of the oldest covered markets in the world."],
+ ["Bangkok","Thailand",[13.76,100.50],2,["Tuk-tuks and long-tail boats are popular ways to get around.","Floating markets sell fruit from boats.","Golden temples hold a giant reclining Buddha.","Its full ceremonial name is one of the longest place names in the world."],"Bangkok's full ceremonial name has 168 letters."],
+ ["Buenos Aires","Argentina",[-34.60,-58.38],2,["People here eat dinner very late, often after 10 p.m.","It's the birthplace of the tango.","Its widest avenue has up to 14 lanes.","It sits on the Río de la Plata."],"Avenida 9 de Julio is often called the widest avenue in the world."],
+ ["Reykjavík","Iceland",[64.15,-21.94],2,["In June the sun barely sets; in December it barely rises.","Hot springs heat homes and pools for free.","The northern lights dance overhead in winter.","It's the world's northernmost capital of a sovereign country."],"Almost all of the city's heating comes from geothermal energy."],
+ ["Nairobi","Kenya",[-1.29,36.82],2,["People here speak Swahili and English.","Giraffes and lions roam a national park inside the city limits.","Its name comes from a Maasai phrase meaning 'cool water'.","It's a hub for safaris in East Africa."],"Nairobi National Park is the only national park in the world bordering a capital city."],
+ ["Marrakesh","Morocco",[31.63,-8.00],3,["Snake charmers and storytellers fill its great square at night.","Its old walls are a rosy red color.","The snowy Atlas Mountains rise behind it.","Its souks sell spices, lamps and leather slippers."],"Jemaa el-Fnaa square is a UNESCO masterpiece of oral and intangible heritage."],
+ ["Lima","Peru",[-12.05,-77.04],3,["It barely ever rains, yet the sky is often grey with sea fog.","It's famous for ceviche, raw fish 'cooked' in lime juice.","It's the starting point for trips to Machu Picchu.","It was the capital of Spain's South American empire."],"Lima gets less than 2 cm of rain a year, making it one of the driest capitals."],
+ ["Hanoi","Vietnam",[21.03,105.85],3,["Millions of motorbikes stream through the streets.","Locals start the day with a noodle soup called phở.","A turtle lives in legend in the lake at the city's heart.","It's the capital of a long, S-shaped country."],"Hanoi is over 1,000 years old; it was founded in 1010."],
+ ["Vancouver","Canada",[49.28,-123.12],3,["You can ski in the mountains and swim in the sea on the same day.","A huge park called Stanley Park juts into the harbor.","It's nicknamed 'Hollywood North' for its film industry.","It's on the Pacific coast, just north of the US border."],"Stanley Park is bigger than New York's Central Park."],
+ ["Dubai","United Arab Emirates",[25.20,55.27],3,["Summer temperatures top 45°C.","It has an indoor ski slope in a shopping mall.","Islands shaped like palm trees were built in the sea.","The world's tallest building, the Burj Khalifa, is here."],"The Burj Khalifa is 828 m tall; you can watch the sunset twice by taking the fast lift up."],
+ ["Kathmandu","Nepal",[27.72,85.32],3,["Prayer flags flutter over the city.","Monkeys live at the Swayambhunath temple.","It's the gateway for climbers heading to Everest.","It sits in a valley in the Himalayas."],"Nepal's flag is the only national flag in the world that isn't a rectangle."],
+ ["Venice","Italy",[45.44,12.32],2,["There are no cars at all.","People get around by boat on canals.","Gondoliers steer long black boats with a single oar.","It's built on more than 100 small islands in a lagoon."],"Venice is built on millions of wooden piles driven into the mud, some over 1,000 years old."],
+ ["Havana","Cuba",[23.11,-82.37],3,["Colorful 1950s American cars still drive the streets.","Salsa music drifts out of doorways.","A long seawall called the Malecón lines the waterfront.","It's the capital of the largest Caribbean island."],"Many of Havana's classic cars are kept running with homemade spare parts."],
+ ["Seoul","South Korea",[37.57,126.98],2,["People eat spicy fermented cabbage called kimchi with almost every meal.","Its alphabet, Hangul, was invented by a king in the 1400s.","K-pop stars film music videos in its neon districts.","It's less than 60 km from the world's most heavily guarded border."],"Hangul was designed to be so simple that anyone could learn it in a few days."],
+ ["Athens","Greece",[37.98,23.73],2,["Olive trees and white marble are everywhere.","The first modern Olympic Games were held here in 1896.","The Parthenon temple stands on a rocky hill called the Acropolis.","It's named after the goddess of wisdom."],"Athens is one of the oldest cities in the world, with about 3,400 years of recorded history."]
+].map(([city, c, ll, t, clues, f]) => ({city, c, ll, t, clues, f}));
+STUDIO.trip = {
+  start(){
+    const d = S.rating.trip, pool = TRIP.filter(x => x.t <= (d < 3 ? 1 : d < 6 ? 2 : 3));
+    this.stops = freshItems("trip", pool.length >= 9 ? pool : TRIP, 9);
+    this.home = this.stops.shift(); this.n = 8; this.round = 0; this.score = 0; this.km = 0; this.detour = 0; this.log = []; this.route = [this.home];
+    this.next();
+  },
+  next(){
+    const it = this.stops[this.round]; this.it = it; this.clues = 1; this.locked = false; this.wrong = [];
+    const others = shuffle(TRIP.filter(x => x.city !== it.city && !this.route.includes(x))).slice(0, 3);
+    this.opts = shuffle([it, ...others]);
+    const from = this.route[this.route.length - 1];
+    stage.innerHTML = `<div class="trip-grid"><div class="trip-map" id="tpMap"></div>
+      <div class="ctl-col"><div class="postcard" id="tpCard"></div><div id="tpOpts"></div><div id="tpRes"></div>
+      <div class="odo"><span><small>Leg</small><b>${this.round + 1}/${this.n}</b></span><span><small>Flown</small><b id="tpKm">${fmt(this.km)} km</b></span><span><small>Detours</small><b>${fmt(this.detour)} km</b></span></div></div></div>`;
+    this.drawCard(from); this.drawMap();
+    $("tpOpts").innerHTML = `<div class="choices">${this.opts.map(o => `<button type="button" class="choice" data-city="${o.city}"><b>${o.city}</b><small>${cname(o.c)}</small></button>`).join("")}</div>`;
+    $("tpOpts").onclick = e => { const b = e.target.closest("[data-city]"); if(b && !this.locked && !b.disabled) this.answer(b.dataset.city, b); };
+    setSide("Score", fmt(this.score));
+  },
+  drawCard(from){
+    const it = this.it;
+    $("tpCard").innerHTML = `<div class="pc-stamp">${icon("🌍", 30)}<span>${this.round + 1}</span></div>
+      <span class="eyebrow">Postcard from your next stop · leaving ${from.city}</span>
+      <h3>Where am I?</h3><ol class="pc-clues">${it.clues.slice(0, this.clues).map(c => `<li>${c}</li>`).join("")}</ol>
+      ${this.clues < 4 && !this.locked ? `<button class="btn-sm" type="button" id="tpMore">Read another line (−25 pts)</button>` : ""}`;
+    const m = $("tpMore"); if(m) m.onclick = () => { this.clues++; sfx.click(); this.drawCard(from); };
+  },
+  drawMap(fly){
+    const pts = this.route.map(s => llToXY(s.ll)); let xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    if(fly){ xs = xs.slice(-2); ys = ys.slice(-2); } else { xs = xs.slice(-1); ys = ys.slice(-1); }
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+    const w = clamp(Math.max(maxX - minX, (maxY - minY)*1000/MAP_H)*1.5 + 120, 220, 1000), h = w*MAP_H/1000;
+    const vx = clamp((minX + maxX)/2 - w/2, 0, 1000 - w), vy = clamp((minY + maxY)/2 - h/2, 0, MAP_H - h), r = w/1000*7;
+    const arc = (a, b) => { const mx = (a[0] + b[0])/2, my = (a[1] + b[1])/2 - Math.hypot(b[0] - a[0], b[1] - a[1])*.18; return `M${a[0].toFixed(1)} ${a[1].toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`; };
+    let legs = ""; for(let i = 1; i < pts.length; i++) legs += `<path d="${arc(pts[i-1], pts[i])}" fill="none" stroke="var(--ink)" stroke-width="${r*.55}" stroke-dasharray="${r*1.2} ${r*.8}" ${fly && i === pts.length - 1 ? `class="fly-leg" pathLength="1"` : ""}/>`;
+    const pins = pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r*(i === pts.length - 1 ? 1.2 : .8)}" fill="${i === 0 ? "#ffd166" : i === pts.length - 1 ? "var(--c)" : "#fffdf8"}" stroke="var(--ink)" stroke-width="${r*.35}"/>`).join("");
+    const plane = fly ? (() => { const a = pts[pts.length - 2], b = pts[pts.length - 1]; return `<g class="tp-plane"><path d="M0 -${r*1.6} L${r*.6} ${r*1.2} L0 ${r*.6} L-${r*.6} ${r*1.2}Z" fill="#fffdf8" stroke="var(--ink)" stroke-width="${r*.25}"><animateMotion dur="1.2s" fill="freeze" rotate="auto" path="${arc(a, b)}" keyPoints="0;1" keyTimes="0;1" calcMode="linear"/></path></g>`; })() : "";
+    $("tpMap").innerHTML = `<svg viewBox="${vx.toFixed(0)} ${vy.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" aria-label="Your route"><rect width="1000" height="${MAP_H}" fill="var(--sea)"/><g class="atland">${Object.entries(MAP_PATHS).map(([n, d]) => `<path d="${d}"/>`).join("")}</g>${legs}${pins}${plane}</svg>`;
+  },
+  answer(city, btn){
+    const it = this.it;
+    if(city !== it.city){
+      const o = TRIP.find(x => x.city === city), from = this.route[this.route.length - 1], dk = Math.round(haversine(from.ll, o.ll) + haversine(o.ll, it.ll) - haversine(from.ll, it.ll));
+      this.detour += dk; this.wrong.push(city); btn.disabled = true; btn.classList.add("wrong"); sfx.bad();
+      $("tpRes").innerHTML = `<p class="msg">Not ${city}: that detour would add ${fmt(dk)} km. ${this.clues < 4 ? "Read another line and try again." : "Try again."}</p>`;
+      if(this.clues < 4){ this.clues++; this.drawCard(this.route[this.route.length - 1]); }
+      this.drawOdo();
+      return;
+    }
+    this.locked = true; const from = this.route[this.route.length - 1], km = Math.round(haversine(from.ll, it.ll));
+    const pts = Math.max(25, 175 - this.clues*25 - this.wrong.length*40); this.score += pts; this.km += km; this.route.push(it);
+    this.log.push({city:it.city, ok:!this.wrong.length, pts}); adapt("trip", this.wrong.length ? 0 : 1); sfx.good();
+    stage.querySelectorAll("#tpOpts [data-city]").forEach(b => { b.disabled = true; if(b.dataset.city === it.city) b.classList.add("right"); });
+    this.drawCard(from); this.drawMap(true); this.drawOdo();
+    const last = this.round === this.n - 1;
+    $("tpRes").innerHTML = `<div class="reveal"><span class="eyebrow">${this.wrong.length ? "Found it" : this.clues === 1 ? "First-line genius!" : "Correct"}</span><span class="pts">+${pts}</span><h3>${it.city}, ${cname(it.c)}</h3><p>${fmt(km)} km from ${from.city}. ${it.f}</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="tpNext">${last ? "Finish the trip" : "Next postcard ✈"}</button></div></div>`;
+    $("tpNext").onclick = () => { if(last) this.finish(); else { this.round++; this.next(); } };
+    setSide("Score", fmt(this.score));
+  },
+  drawOdo(){ const o = stage.querySelector(".odo"); if(o) o.innerHTML = `<span><small>Leg</small><b>${this.round + 1}/${this.n}</b></span><span><small>Flown</small><b>${fmt(this.km)} km</b></span><span><small>Detours</small><b>${fmt(this.detour)} km</b></span>`; },
+  finish(){
+    const right = this.log.filter(l => l.ok).length, stars = right >= 7 ? 3 : right >= 5 ? 2 : 1, laps = this.km/40075;
+    endSession({title: stars === 3 ? "Globetrotter" : stars === 2 ? "Seasoned traveler" : "Happy wanderer", stars, xp:20 + 15*stars,
+      body:`<div class="big">${fmt(this.km)}</div><p class="m-note"><b>Kilometres flown.</b> You flew ${laps >= 1 ? `${laps.toFixed(1)} times around the Earth` : `${Math.round(laps*100)}% of the way around the Earth`} (its equator is 40,075 km). Score ${fmt(this.score)}${this.detour ? `, plus ${fmt(this.detour)} km of wrong turns` : ", with zero wrong turns"}.</p><ul class="roundlog">${this.log.map(l => `<li><span>${l.city}</span><span>${l.ok ? "✓" : "✗"} +${l.pts}</span></li>`).join("")}</ul>`,
+      actions:[["Fly again", () => startRoom("trip","studio"), true], ["Lobby", goHub]]});
+  }
+};
+HOWTO.trip = ["You start in one city. A postcard arrives from your next stop.","Read its clues (fewer clues means more points), then pick the city.","Fly there, watch the kilometres add up, and visit 8 stops."];
+GEN.trip = d => { const it = pick(TRIP), others = shuffle(TRIP.filter(x => x.city !== it.city)).slice(0, 3).map(x => x.city); return mk(`Which city is this? “${it.clues[2]}”`, it.city, others, `${it.city}, ${cname(it.c)}. ${it.f}`, {text:true}); };
+
+/* ---------- Food pack 4: 12 more dishes ---------- */
+DISHES.push(
+ {n:"Shakshuka",t:2,c:"Tunisia",city:"Tunis",ll:[36.81,10.18],clues:["Eggs gently poached in a bubbling sauce.","The sauce is tomatoes, peppers, cumin and chili.","Served straight from the pan with bread to mop it up."],fact:"Its name is often said to mean “all mixed up”; it's loved across North Africa and the Middle East."},
+ {n:"Xiaolongbao",t:2,c:"China",city:"Shanghai",ll:[31.23,121.47],clues:["Delicate dumplings steamed in bamboo baskets.","Each one has at least 18 tiny folds on top.","Bite carefully: they're full of hot soup!"],fact:"The soup comes from jellied broth folded in cold, which melts as the dumpling steams."},
+ {n:"Okonomiyaki",t:2,c:"Japan",city:"Osaka",ll:[34.69,135.50],clues:["A savory pancake packed with shredded cabbage.","Cooked on a hot griddle right at your table.","Topped with a sweet brown sauce, mayo and dancing fish flakes."],fact:"The name means “grilled as you like it”, because you choose the fillings."},
+ {n:"Bulgogi",t:2,c:"South Korea",city:"Seoul",ll:[37.57,126.98],clues:["Thin slices of beef marinated in soy, sugar, garlic and pear.","Grilled quickly over a flame.","Often wrapped in lettuce leaves with rice and spicy paste."],fact:"Grated Asian pear in the marinade contains enzymes that make the beef tender."},
+ {n:"Hummus with pita",t:1,c:"Lebanon",city:"Beirut",ll:[33.89,35.50],clues:["A smooth, creamy dip.","Made from chickpeas, sesame paste, lemon and garlic.","Drizzled with olive oil and scooped up with warm flatbread."],fact:"Lebanon once set a world record with a plate of hummus weighing over 10 tonnes."},
+ {n:"Bánh mì",t:2,c:"Vietnam",city:"Ho Chi Minh City",ll:[10.82,106.63],clues:["A crackly, airy baguette sandwich.","Stuffed with pickled carrot, cucumber, chili and fresh cilantro.","The bread arrived with French colonists; the fillings are all local."],fact:"Vietnamese baguettes often include rice flour, which makes them lighter and crispier."},
+ {n:"Chili con carne",t:1,c:"United States of America",city:"San Antonio",ll:[29.42,-98.49],clues:["A thick, spicy stew of minced beef.","Simmered with chili peppers, cumin and often beans.","Topped with cheese and onions, sometimes served in a bread bowl."],fact:"In the 1880s, “chili queens” sold it from carts in the plazas of San Antonio, Texas."},
+ {n:"Tamales",t:2,c:"Mexico",city:"Oaxaca",ll:[17.07,-96.73],clues:["A corn dough parcel with a savory or sweet filling.","Wrapped and steamed in a corn husk or banana leaf.","You unwrap it before eating; never eat the wrapper!"],fact:"Tamales date back thousands of years; Maya and Aztec warriors carried them as portable food."},
+ {n:"Chicken satay",t:2,c:"Indonesia",city:"Jakarta",ll:[-6.21,106.85],clues:["Small pieces of marinated meat threaded onto skewers.","Grilled over charcoal until smoky.","Dipped in a thick, sweet peanut sauce."],fact:"Indonesia has dozens of regional satay styles; it's considered one of the national dishes."},
+ {n:"Lomo saltado",t:3,c:"Peru",city:"Lima",ll:[-12.05,-77.04],clues:["Strips of beef stir-fried in a smoking-hot wok.","Tossed with tomato, red onion and soy sauce.","Served with both rice and fries on the same plate!"],fact:"It's a Chinese-Peruvian “chifa” dish, created by Chinese immigrants who arrived in the 1800s."},
+ {n:"Smørrebrød",t:3,c:"Denmark",city:"Copenhagen",ll:[55.68,12.57],clues:["An open-faced sandwich eaten with a knife and fork.","Dense, dark rye bread is the base.","Piled with toppings like pickled herring, egg and dill."],fact:"Some Copenhagen restaurants offer menus of over 100 different smørrebrød toppings."},
+ {n:"Mango sticky rice",t:2,c:"Thailand",city:"Bangkok",ll:[13.76,100.50],clues:["A sweet dessert of glutinous rice.","Soaked in warm, salty-sweet coconut cream.","Served beside slices of ripe yellow fruit."],fact:"It's most popular from April to May, the peak of Thailand's mango season."}
+);
+Object.assign(DISH2, {
+  "Shakshuka":{v:"pan", sp:"shakshuka", fill:"#d9442b", g:["🌿","🌶️"], side:"🫓", ut:"spoon", steam:true},
+  "Xiaolongbao":{v:"tray", fill:"#e8c27e", hero:["🥟","🥟","🥟","🥟"], g:["🌿"], ut:"spoon", steam:true},
+  "Okonomiyaki":{v:"plate", hero:["🥞"], g:["🥬","🥓","🌿"], ut:"fork"},
+  "Bulgogi":{v:"plate", hero:["🥩","🥩"], g:["🧅","🥬","🧄"], side:"🍚", ut:"fork"},
+  "Hummus with pita":{v:"bowl", fill:"#e8d5a8", g:["🫒","🌿","🫒"], side:"🫓", ut:"hand"},
+  "Bánh mì":{v:"board", hero:["🍞"], g:["🥕","🥒","🌶️","🌿"], ut:"hand"},
+  "Chili con carne":{v:"bowl", fill:"#8b2e16", beans2:true, g:["🌶️","🧅","🧀"], side:"🌽", ut:"spoon", steam:true},
+  "Tamales":{v:"board", hero:["🌽","🌽"], g:["🌶️","🧅"], ut:"hand", steam:true},
+  "Chicken satay":{v:"board", hero:["🍢","🍢","🍢"], g:["🥜","🥒"], ut:"hand"},
+  "Lomo saltado":{v:"plate", hero:["🥩"], g:["🍅","🧅","🍟"], side:"🍚", ut:"fork"},
+  "Smørrebrød":{v:"board", hero:["🍞","🍞"], g:["🐟","🥚","🌿"], ut:"fork"},
+  "Mango sticky rice":{v:"plate", sp:"rice", fill:"#f3dfa6", g:["🥭","🥭","🥥"], ut:"spoon"}
+});
+
+/* ---------- Peacemaker: three more everyday conflicts ---------- */
+SCEN.push(
+ {id:"groupwork", tier:1, title:"Doing It All Alone", setting:"A study room the night before a science fair. One partner has done almost all of it, and nobody knows why the other went quiet.",
+  cast:[{n:"Priya",role:"Did most of the project"},{n:"Jonah",role:"Hasn't finished his part"}], tension:70,
+  beats:[
+   {narr:"Priya drops a thick folder on the table.", lines:[[0,"I did the research, the poster AND the slides. You did nothing, Jonah."],[1,"That's not true! I've just been… busy."]],
+    opts:[["Priya, you sound exhausted and frustrated. Jonah, it sounds like there's more to “busy”. Priya, can you go first?","Affect labeling + structure",2,-15,12,8,[[0,"I am exhausted. I stayed up till midnight."],[1,"Yeah… there is more to it."]],"Naming feelings lowers them, and a clear turn order stops both people talking over each other."],
+          ["Jonah, that's really unfair on Priya.","Taking sides",0,14,8,-20,[[1,"You don't even know what's going on."]],"Judging one side early makes them shut down."],
+          ["Let's just split what's left and finish it.","Jumping to solutions",1,4,-6,2,[[0,"That doesn't fix the last three weeks."]],"Skipping past the hurt means the fix doesn't stick."],
+          ["Group projects are always like this.","Minimizing",0,8,-12,0,[[0,"That's not helpful."]],"Shrugging it off tells Priya her effort doesn't matter."]]},
+   {narr:"Jonah rubs his eyes.", lines:[[1,"My mum's been sick. I've been working at my uncle's restaurant every night."],[0,"Then why didn't you SAY something?"]],
+    opts:[["That sounds like a lot to carry, Jonah. Priya, how does hearing that change things for you?","Reframing with empathy",2,-15,8,12,[[0,"I… didn't know. I'm sorry about your mum."],[1,"I didn't want anyone to feel sorry for me."]],"New information can shift a conflict, but only if both people get space to react to it."],
+          ["Priya, you should have asked him if he was okay.","Blaming",0,10,-15,6,[[0,"How was I supposed to know?"]],"Blaming the hurt person for not guessing adds a new grievance."],
+          ["Well, that's no excuse for not doing the work.","Dismissing",0,14,6,-18,[[1,"Wow. Okay."]],"Dismissing a real hardship destroys trust instantly."],
+          ["Why didn't you tell the teacher?","Interrogating",1,4,0,-6,[[1,"I didn't want everyone to know!"]],"Rapid questions can feel like a trial, even when they're reasonable."]]},
+   {narr:"Priya sits down.", lines:[[0,"I just felt like I was doing it all alone. Like it didn't matter to anyone but me."]],
+    opts:[["So what you needed was a partner, someone in it with you. Jonah, what would you have needed?","Interests over positions",2,-15,10,10,[[1,"Honestly? Someone to say it was okay to do less this month and help with the easy bits."],[0,"I could have done that."]],"Underneath “you did nothing” there are needs: to feel supported, and for the load to be fair."],
+          ["Jonah, say sorry so we can move on.","Forcing an apology",1,5,4,-10,[[1,"Sorry. I guess."]],"Apologies on command sound hollow."],
+          ["You'll both get the same grade anyway.","Missing the point",0,10,-12,0,[[0,"It's not about the grade!"]],"Talking about outcomes misses the feelings."],
+          ["That's how teams work: sometimes one person carries it.","Normalizing",0,8,-10,2,[[0,"That's not how a team should work."]],"Normalizing unfairness tells the person to stop asking for fairness."]]},
+   {narr:"There's one evening left.", lines:[[1,"What can we still do tonight?"]],
+    opts:[["Jonah practices the presentation tonight, and you both tell the teacher who did which part.","Specific, fair proposal",2,-18,10,10,[[0,"That's fair. And I'll send you my notes."],[1,"Deal. And I'll ask about an extension next time instead of hiding it."]],"Concrete, two-way agreements work because everyone knows exactly what happens next."],
+          ["What would feel fair to both of you, with the time you've got?","Empowering the parties",2,-15,10,10,[[1,"I can do the speaking part. That's the scary bit anyway."],[0,"Then I'll handle the questions."]],"People stick to plans they build themselves."],
+          ["Priya, just finish it; you're faster.","Imposed solution",0,12,-18,4,[[0,"Of course. Me again."]],"An unfair fix repeats the original problem."],
+          ["Do whatever, as long as it's done.","Vague",1,5,-4,-4,[[0,"Great."]],"Vague endings leave both people unsure and still tense."]]}
+  ]},
+ {id:"noise", tier:2, title:"Drums Through the Wall", setting:"The hallway between two flats, 9:40 p.m. A drum beat is still thumping.",
+  cast:[{n:"Mrs. Adeyemi",role:"Nurse who starts work at 6 a.m."},{n:"Leo",role:"Teen drummer with an audition on Friday"}], tension:80,
+  beats:[
+   {narr:"Mrs. Adeyemi knocks hard, still in her dressing gown.", lines:[[0,"Every night! I have to be up at five. This has to stop."],[1,"I'm allowed to practice! It's not even 10 o'clock!"]],
+    opts:[["Mrs. Adeyemi, it sounds like you're desperate for sleep. Leo, you sound worried about practicing. Can we talk this through?","Validating both sides",2,-16,12,10,[[0,"I'm exhausted. I nearly fell asleep driving home."],[1,"I am worried. It's my big chance."]],"When both people hear their feelings named, they stop needing to shout them."],
+          ["Leo, it's late; just stop.","Taking sides",0,14,8,-22,[[1,"It's not late! You're not my mum."]],"Ordering one side around makes them dig in."],
+          ["Can't you wear earplugs?","Dismissing a need",0,12,-18,6,[[0,"Through a wall that thin? Please."]],"Brushing off a need makes you look biased."],
+          ["What do the building rules say?","Jumping to rules",1,5,-2,-2,[[1,"Quiet hours start at 10."],[0,"That's not the point!"]],"Rules matter, but leading with them skips the people."]]},
+   {narr:"Leo crosses his arms.", lines:[[1,"Friday's audition is for a music school. If I don't practice, I don't get in."],[0,"And if I don't sleep, I can't look after patients."]],
+    opts:[["So you both have something important at stake: Leo's future, and your patients' safety. Neither of those is wrong.","Reframing to shared ground",2,-16,10,10,[[0,"…No. I want him to get in, really."],[1,"I didn't know you were a nurse."]],"Showing that both needs are legitimate turns opponents into problem-solvers."],
+          ["Patients matter more than drums.","Ranking needs",0,12,8,-18,[[1,"So my dream doesn't matter?"]],"Ranking needs makes the loser feel worthless."],
+          ["Could you both just compromise?","Vague push",1,4,-4,-4,[[0,"How?"],[1,"Like what?"]],"“Compromise” without specifics gives people nothing to work with."],
+          ["Leo, music school is a long shot anyway.","Belittling",0,16,0,-24,[[1,"Thanks a lot."]],"Belittling someone's goals is a fast way to escalate."]]},
+   {narr:"The hallway goes quiet.", lines:[[0,"What times do you actually need to practice?"],[1,"About an hour a day. After school's best."]],
+    opts:[["When does your shift finish, Mrs. Adeyemi? Maybe there's a window when you're out or awake.","Exploring options",2,-15,8,10,[[0,"I'm home by three and up until about nine."],[1,"So if I practice four to five-thirty…"]],"Asking about schedules turns a fight into a puzzle to solve together."],
+          ["Leo, practice on a practice pad with headphones.","Expert fix",1,-4,4,0,[[1,"It's not the same, but… maybe for warm-ups."]],"A good idea, but proposing it for him rather than with him lands less well."],
+          ["Mrs. Adeyemi, move your bed to the other room.","Imposing",0,10,-14,4,[[0,"Excuse me?"]],"Telling someone to rearrange their home is not mediation."],
+          ["Let's call the landlord.","Escalating",0,10,-6,-6,[[1,"Seriously?"]],"Bringing in authority too soon makes things formal and cold."]]},
+   {narr:"It's nearly ten.", lines:[[1,"So what's the deal?"]],
+    opts:[["Drums from four to five-thirty, a practice pad after that, and Leo knocks to say sorry if he runs late?","Specific, mutual proposal",2,-18,10,10,[[0,"That works. And good luck on Friday."],[1,"Thanks. Really."]],"A clear schedule plus a way to handle slip-ups makes agreements last."],
+          ["What schedule could you both live with this week?","Empowering the parties",2,-16,10,10,[[1,"After school, never after seven."],[0,"And I'll text you if I'm on a late shift."]],"People keep the deals they design."],
+          ["No drums at all until after the audition.","Win-lose",0,12,8,-18,[[1,"Then I'll fail!"]],"A solution that wrecks one person's goal won't hold."],
+          ["Just try to be considerate.","Vague",1,5,-4,-4,[[0,"We'll see."]],"Vague promises are easy to break."]]}
+  ]},
+ {id:"garden", tier:3, title:"The Dug-Up Garden", setting:"Two back gardens, a fence with a hole, and a ruined vegetable patch.",
+  cast:[{n:"Aisha",role:"Grows vegetables for her family"},{n:"Tom",role:"Owns a puppy called Biscuit"}], tension:78,
+  beats:[
+   {narr:"Aisha holds up a squashed tomato plant.", lines:[[0,"Your dog has dug up my tomatoes for the third time. Three months of work!"],[1,"He's a puppy! He doesn't know any better."]],
+    opts:[["Aisha, losing three months of work is really upsetting. Tom, you sound embarrassed. Let's look at what happened.","Validating both sides",2,-15,12,8,[[0,"It is upsetting. I grow them with my kids."],[1,"I am embarrassed, honestly."]],"Validation slows things down so people can think instead of react."],
+          ["Tom, control your dog.","Taking sides",0,14,8,-20,[[1,"I do! He's just fast."]],"Commands make people defensive."],
+          ["They're just tomatoes. You can buy more.","Minimizing",0,12,-18,4,[[0,"That's not the point at all."]],"Minimizing ignores what the garden means to her."],
+          ["Whose fence is it?","Jumping to blame",1,6,0,-4,[[1,"Why does that matter?"]],"Hunting for fault early turns mediation into a court case."]]},
+   {narr:"Tom points at the fence.", lines:[[1,"That hole's been there for ages. Your side, by the way."],[0,"So it's MY fault your dog destroyed my garden?"]],
+    opts:[["It sounds like the hole is a shared problem, and you both want Biscuit out of the vegetable patch.","Reframing to shared ground",2,-15,8,10,[[1,"Yeah. I don't want him eating tomato plants; they're bad for dogs."],[0,"I didn't know that."]],"Reframing blame as a shared problem gives both people the same goal."],
+          ["Tom's right, it is your fence.","Taking sides",0,14,-18,8,[[0,"Unbelievable."]],"Siding on a technicality makes the other person feel ganged up on."],
+          ["Let's stop arguing about the fence.","Shutting down",1,4,-4,-4,[[1,"Fine."],[0,"Fine."]],"Stopping the argument without a reframe just pauses it."],
+          ["You two clearly don't like each other.","Labeling the relationship",0,12,-8,-8,[[0,"I liked him before this!"]],"Labeling the relationship makes the conflict feel permanent."]]},
+   {narr:"Biscuit wags his tail through the hole.", lines:[[0,"What I really want is for my kids' garden to be safe."],[1,"And I want Biscuit to have space to run."]],
+    opts:[["So you need the vegetables protected, and Tom needs room for Biscuit. What could do both?","Interests over positions",2,-16,10,10,[[1,"If the hole's fixed, he has my whole garden to run in."],[0,"And I could put a little fence round the beds too."]],"Naming both interests side by side invites solutions that serve both."],
+          ["Tom, keep him on a lead outside.","Imposed fix",0,10,6,-14,[[1,"In my own garden?"]],"A fix that ignores one person's need won't last."],
+          ["Aisha, grow flowers instead.","Dismissing",0,12,-16,4,[[0,"My kids want to grow food!"]],"Telling someone to give up what they care about isn't a solution."],
+          ["Maybe get a professional dog trainer?","Partial idea",1,-4,2,2,[[1,"Maybe, but that takes time."]],"Useful, but it doesn't address the hole or the garden now."]]},
+   {narr:"The sun is setting over both gardens.", lines:[[0,"So who fixes the fence?"]],
+    opts:[["Split the cost of fixing the fence this weekend, and Tom helps replant the tomatoes?","Specific, mutual proposal",2,-18,10,10,[[1,"Deal. Biscuit owes you one."],[0,"Bring him over to say sorry, then."]],"Shared costs and a gesture of repair rebuild the relationship."],
+          ["What would feel fair to both of you?","Empowering the parties",2,-16,10,10,[[1,"I'll buy the panel; you've got the tools."],[0,"And I'll show you which plants are safe for dogs."]],"People are more committed to solutions they create."],
+          ["Tom pays for everything.","Win-lose",0,12,8,-18,[[1,"For a hole on her side? No way."]],"One-sided penalties breed resentment."],
+          ["Sort it out between yourselves.","Abdicating",0,8,-8,-8,[[0,"That's what we were trying to do!"]],"Walking away leaves the conflict unresolved."]]}
+  ]}
+);
+Object.assign(CAST_LOOK, {
+  groupwork:[{skin:SKINS[4][0], hair:"long", hairC:"black", top:"#6f62ff", eye:"darkbrown", shape:"oval", lashes:true}, {skin:SKINS[0][0], hair:"curls", hairC:"auburn", top:"#3fa34d", eye:"green", shape:"round", freckles:true}],
+  noise:[{skin:SKINS[6][0], hair:"bun", hairC:"black", top:"#b5838d", eye:"darkbrown", shape:"heart", lashes:true}, {skin:SKINS[2][0], hair:"pixie", hairC:"brown", top:"#22222a", eye:"hazel", shape:"long"}],
+  garden:[{skin:SKINS[3][0], hair:"bun", hairC:"darkbrown", top:"#e9c46a", eye:"brown", shape:"oval", lashes:true}, {skin:SKINS[1][0], hair:"buzz", hairC:"blonde", top:"#3a8dff", eye:"blue", shape:"square"}]
+});
+Object.assign(SCENE_ART, {
+  groupwork:`<rect width="400" height="200" fill="#f4ecdd"/><rect x="0" y="150" width="400" height="50" fill="#c8915a"/>${[20,60,100,280,320,360].map((x, i) => `<rect x="${x}" y="30" width="30" height="110" fill="${["#e63946","#3a8dff","#ffd166","#57cc99","#b388eb","#ff9f1c"][i]}" stroke="${INK}" stroke-width="2.5"/>`).join("")}<rect x="150" y="96" width="100" height="40" rx="4" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><path d="M162 108 h40 M162 118 h60" stroke="${INK}" stroke-width="2.5" opacity=".5"/>`,
+  noise:`<rect width="400" height="200" fill="#ece4f2"/><rect x="0" y="150" width="400" height="50" fill="#9a8c98"/><rect x="40" y="30" width="90" height="120" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><circle cx="118" cy="92" r="4" fill="#ffd166" stroke="${INK}" stroke-width="2"/><rect x="270" y="30" width="90" height="120" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><circle cx="282" cy="92" r="4" fill="#ffd166" stroke="${INK}" stroke-width="2"/><text x="315" y="22" font-size="22" text-anchor="middle" fill="${INK}">♪ ♫</text><circle cx="200" cy="40" r="14" fill="#fff3a8" stroke="${INK}" stroke-width="2.5"/>`,
+  garden:`<rect width="400" height="200" fill="#d8f0ff"/><rect x="0" y="140" width="400" height="60" fill="#8fd16a"/>${Array.from({length:14}, (_, i) => `<rect x="${i*30}" y="80" width="24" height="70" rx="4" fill="#d9a35b" stroke="${INK}" stroke-width="2"/>`).join("")}<ellipse cx="200" cy="140" rx="22" ry="12" fill="#5a3b2c"/><rect x="40" y="160" width="110" height="26" rx="4" fill="#6b4226" stroke="${INK}" stroke-width="2.5"/><circle cx="70" cy="160" r="8" fill="#e63946" stroke="${INK}" stroke-width="2"/><circle cx="110" cy="158" r="8" fill="#e63946" stroke="${INK}" stroke-width="2"/><circle cx="330" cy="40" r="22" fill="#ffd166" stroke="${INK}" stroke-width="3"/>`
+});
 
 renderHub();
 </script>
