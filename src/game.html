@@ -913,6 +913,14 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .acc-btn span{font-size:22px}.acc-btn.sel{background:#ffe1ec;transform:translateY(2px);box-shadow:none}
 .machine-art{border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;line-height:0}
 .env-comm{display:block;font:11px "DM Mono",monospace;opacity:.7}
+.dive-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.dive-mode{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:18px;border:3px solid var(--ink);border-radius:20px;background:linear-gradient(180deg,#d7f0ff,#fffdf8 60%);color:var(--ink);cursor:pointer;box-shadow:0 5px 0 var(--ink);transition:transform .12s}
+.dive-mode:hover{transform:translateY(-3px) rotate(-.5deg)}
+.dive-mode .dm-art{font-size:34px;letter-spacing:4px}.dive-mode b{font:700 22px Fredoka,sans-serif}.dive-mode p{margin:0;font-size:14px}.dive-mode small{font:12px "DM Mono",monospace;opacity:.7}
+.rank-ladder{position:relative;display:grid;grid-template-columns:25fr 30fr 25fr 20fr;border:2px solid var(--ink);border-radius:10px;overflow:visible;margin:18px 0 6px}
+.rank-ladder span{background:color-mix(in srgb, var(--tc) 70%, white);font:10px "DM Mono",monospace;text-align:center;padding:3px 0}
+.rank-ladder span:first-child{border-radius:8px 0 0 8px}.rank-ladder span:nth-child(4){border-radius:0 8px 8px 0}
+.rank-ladder i{position:absolute;top:-16px;transform:translateX(-50%);font-style:normal;font-size:14px}
 </style>
 
 <div class="wrap">
@@ -7030,6 +7038,81 @@ Object.assign(STUDIO.sewing, {
 }
 ROOMS.sewing.blurb = "Take a client commission, design it (material, color, print, bodice, sleeves, skirt, layers), set up the machine, lay out and sew the pieces, then add trims for the runway.";
 HOWTO.sewing = ["Choose a pattern and read the client's request.","Design it: pick a material, color and print; for dresses choose the bodice, sleeves, skirt and layers. Then set the right needle and stitch.","Lay out and sew the pieces, add trims, and walk the runway."];
+
+/* ---------- Deep Dive v2: version picker + "Rare Pick" (one answer per category) ---------- */
+{
+  const classicStart = STUDIO.dive.start;
+  Object.assign(STUDIO.dive, {
+    start(mode){
+      clearInterval(this.tick); this.rare = false;
+      if(mode === "theme") return classicStart.call(this, mode);
+      stage.innerHTML = `<div class="ctl-col">${sessionHeader("Deep Dive", "Choose your dive", "Two ways to play. Both reward the answers nobody else thinks of.")}
+        <div class="dive-modes">
+          <button type="button" class="dive-mode" data-v="classic"><span class="dm-art">🤿🐠🐙</span><b>Classic dive</b><p>Name as many as you can in 60 seconds. Every answer takes you down, and rare ones send you plunging. Three misses and you surface.</p><small>3 categories · lots of answers</small></button>
+          <button type="button" class="dive-mode" data-v="rare"><span class="dm-art">🎯🦑🌋</span><b>Rare Pick</b><p>One answer per category, so make it count. The rarer your pick, the deeper you go. One wrong answer and the dive is over, but you can surface any time to keep your depth.</p><small>Up to 8 categories · one shot each</small></button>
+        </div></div>`;
+      stage.querySelectorAll(".dive-mode").forEach(b => b.addEventListener("click", () => { sfx.click(); b.dataset.v === "rare" ? this.startRare() : classicStart.call(this, "studio"); }));
+      setSide("Depth", "0 m");
+    },
+    startRare(){
+      this.rare = true; this.cats = freshItems("dive-rare", DIVE_CATS, 8); this.round = 0; this.depth = 0; this.log = []; this.best = null; this.daily = false;
+      this.rareRound();
+    },
+    rareRound(){
+      const c = this.cats[this.round]; this.c = c; this.found = []; this.over = false; this.left = 20;
+      stage.innerHTML = `<div class="dive-grid"><div class="ocean" id="dvOcean"></div>
+        <div class="ctl-col"><div class="brief"><span class="eyebrow">Rare Pick · ${this.round+1} of ${this.cats.length}</span><h3>${c.e} Name just one: ${c.n}</h3><p>You get one answer. Common picks barely move you; a legendary pick sends you plunging. A wrong answer ends the dive.</p></div>
+          <div class="dive-hud"><span class="dv-time" id="dvTime">${this.left}s</span><span class="dv-depth" id="dvDepth">${fmt(this.depth)} m</span></div>
+          <form id="dvForm" class="dv-form" autocomplete="off"><input id="dvIn" placeholder="Your one answer" aria-label="Your answer" autocomplete="off" spellcheck="false"><button class="btn btn-solid" type="submit">Lock it in</button></form>
+          <div class="row-btns" style="justify-content:flex-start">${this.round > 0 ? `<button class="btn-sm" type="button" id="dvBank">Surface now and keep ${fmt(this.depth)} m</button>` : ""}</div>
+          <p class="msg" id="dvMsg"></p><div id="dvRes"></div></div></div>`;
+      $("dvForm").addEventListener("submit", e => { e.preventDefault(); this.rarePick($("dvIn").value); });
+      if($("dvBank")) $("dvBank").onclick = () => { clearInterval(this.tick); this.finish(true); };
+      this.renderOcean(); setTimeout(() => { const i = $("dvIn"); if(i) i.focus(); }, 100);
+      clearInterval(this.tick); this.tick = setInterval(() => { if(!$("dvTime")){ clearInterval(this.tick); return; } if(!$("modal").hidden) return; this.left--; $("dvTime").textContent = this.left + "s"; $("dvTime").classList.toggle("low", this.left <= 5); if(this.left <= 0) this.rarePick(""); }, 1000);
+      setSide("Depth", fmt(this.depth) + " m");
+    },
+    rarePick(raw){
+      if(this.over) return; this.over = true; clearInterval(this.tick);
+      const c = this.c, v = diveNorm(raw), inp = $("dvIn"); if(inp) inp.disabled = true; if($("dvBank")) $("dvBank").remove();
+      const idx = v ? c.items.findIndex(al => al.some(a => diveNorm(a) === v || (v.length >= 5 && (diveNorm(a) === v + "s" || diveNorm(a) + "s" === v)))) : -1;
+      const rarest = c.items.slice(-3).map(a => a[0]).reverse(), commonest = c.items.slice(0, 3).map(a => a[0]);
+      const ladder = `<div class="rank-ladder">${[0,.25,.55,.8].map((t, i) => `<span style="--tc:${DIVE_TIERS[i][3]}">${DIVE_TIERS[i][1]}</span>`).join("")}${idx >= 0 ? `<i style="left:${(idx / (c.n2 - 1) * 100).toFixed(1)}%">▼</i>` : ""}</div>`;
+      if(idx < 0){
+        sfx.bad(); this.log.push({n:c.n, pick:raw || "(no answer)", ok:false});
+        $("dvRes").innerHTML = `<div class="reveal"><span class="eyebrow">${raw ? "Not on the list" : "Time's up"}</span><h3>${raw ? `“${raw.replace(/[<>&]/g, "")}” sank like a stone` : "You ran out of air"}</h3><p>The dive is over at <b>${fmt(this.depth)} m</b>. The rarest answers here were ${listAnd(rarest.map(x => `<b>${x}</b>`))}.</p>
+          <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="dvNext">Surface and see results</button></div></div>`;
+        $("dvNext").onclick = () => this.finish(false); return;
+      }
+      const pct = idx / c.n2, tier = DIVE_TIERS.find(t => pct < t[0]), said = Math.max(1, Math.round(92*Math.pow(1 - pct, 1.6)));
+      const gain = Math.round(tier[2] * 2.2 + pct*120);
+      const z0 = this.zoneOf(this.depth); this.depth += gain; const z1 = this.zoneOf(this.depth);
+      if(!this.best || pct > this.best.pct) this.best = {n:c.items[idx][0], pct, tier:tier[1], cat:c.n};
+      this.log.push({n:c.n, pick:c.items[idx][0], tier:tier[1], ok:true});
+      tier[1] === "Legendary" ? sfx.win() : tier[1] === "Rare" ? sfx.good() : sfx.click();
+      adapt("dive", clamp(pct + .2, 0, 1));
+      const last = this.round === this.cats.length - 1;
+      $("dvRes").innerHTML = `<div class="reveal"><span class="eyebrow">${tier[1]} pick · +${gain} m${z1 !== z0 ? ` · now in the ${z1[1]}` : ""}</span><h3>${c.items[idx][0]}</h3>${ladder}
+        <p>About ${said}% of divers would say it. Most people say ${listAnd(commonest.map(x => `<b>${x}</b>`))}; the deepest answers are ${listAnd(rarest.map(x => `<b>${x}</b>`))}.</p>
+        <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="dvNext">${last ? "Surface and see results" : "Dive deeper →"}</button>${last ? "" : `<button class="btn" type="button" id="dvBank2">Surface and keep ${fmt(this.depth)} m</button>`}</div></div>`;
+      $("dvDepth").textContent = fmt(this.depth) + " m"; setSide("Depth", fmt(this.depth) + " m"); this.renderOcean();
+      $("dvNext").onclick = () => { if(last) this.finish(true); else { this.round++; this.rareRound(); } };
+      if($("dvBank2")) $("dvBank2").onclick = () => this.finish(true);
+    }
+  });
+  const classicFinish = STUDIO.dive.finish;
+  STUDIO.dive.finish = function(banked){
+    if(!this.rare) return classicFinish.call(this);
+    clearInterval(this.tick); this.rare = false;
+    const z = this.zoneOf(this.depth), stars = this.depth >= 3000 ? 3 : this.depth >= 1200 ? 2 : 1;
+    endSession({title: stars === 3 ? "Legend of the deep" : stars === 2 ? "Bold diver" : "Shallow waters", stars, xp:20+15*stars,
+      body:`<div class="big">${fmt(this.depth)} m</div><p class="m-note">${banked ? "You surfaced safely" : "Your dive ended"} in the <b>${z[1]}</b>.${this.best ? ` Rarest pick: <b>${this.best.n}</b> (${this.best.tier}).` : ""}</p><ul class="roundlog">${this.log.map(l => `<li><span>${l.n}</span><span>${l.ok ? `${l.pick} · ${l.tier}` : `✗ ${l.pick}`}</span></li>`).join("")}</ul>`,
+      actions:[["Dive again", () => startRoom("dive", "studio"), true], ["Lobby", goHub]]});
+  };
+}
+ROOMS.dive.modes = [["studio","Choose a dive"],["theme","Daily dive"],["practice","Quiz"]];
+ROOMS.dive.blurb = "Two dives. Classic: name as many as you can, and rare answers send you plunging. Rare Pick: one answer per category, so pick the rarest you dare.";
+HOWTO.dive = ["Pick a version. Classic: list as many answers in a category as you can. Rare Pick: one answer per category.","The rarer your answer, the deeper your diver sinks through the ocean's zones.","Classic ends after 3 misses or when time runs out. In Rare Pick one wrong answer ends it, so surface early to keep your depth."];
 
 renderHub();
 </script>
