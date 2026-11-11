@@ -895,6 +895,24 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .dyechips .ch{text-transform:capitalize}
 .hs-read .warn{color:#c0392b;font-weight:700}
 .salon-bg{background:linear-gradient(180deg,#f7efe1 0 62%,#d9c3a5 62% 64%,#efe2cc 64%)}
+.sew-stage{display:flex;justify-content:center;background:radial-gradient(circle at 50% 40%,#fff8e6,#f1e1c2);border:2.5px solid var(--ink);border-radius:18px;padding:10px}
+.sew-model{position:relative;display:inline-block;cursor:crosshair;line-height:0}
+.sew-model .sew-dress svg{width:230px;height:auto}
+.sew-sticker{position:absolute;transform:translate(-50%,-50%);font-size:22px;line-height:1;cursor:pointer;filter:drop-shadow(0 1px 0 rgb(0 0 0 / .3));animation:stampin .25s ease-out}
+.matgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+.matcard{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;border:2px solid var(--ink);border-radius:12px;background:#fffdf8;color:var(--ink);font:600 11px Figtree,sans-serif;cursor:pointer}
+.matcard.sel{background:#ffe1ec;box-shadow:0 0 0 2px var(--ink) inset}
+.matsw{width:100%;height:24px;border-radius:6px;border:1.5px solid var(--ink)}
+.mat-cotton{background:#f4efe6}.mat-linen{background:repeating-linear-gradient(0deg,#e9dfc8 0 2px,#efe6d2 2px 4px)}.mat-denim{background:repeating-linear-gradient(45deg,#3d5a80 0 2px,#5d7aa0 2px 4px)}
+.mat-knit{background:repeating-linear-gradient(90deg,#d7c4e8 0 3px,#c8b2de 3px 5px)}.mat-fleece{background:radial-gradient(#fff 20%,#e6d5c3 25%) 0 0/5px 5px}.mat-wool{background:radial-gradient(#8a6a52 20%,#a5866c 25%) 0 0/4px 4px}
+.mat-satin{background:linear-gradient(120deg,#c9a3d9,#f3e6ff 45%,#c9a3d9)}.mat-velvet{background:radial-gradient(circle at 40% 40%,#b5375b,#5e1028)}.mat-tulle{background:repeating-linear-gradient(45deg,transparent 0 3px,#f7b6cf 3px 4px),repeating-linear-gradient(-45deg,#fff 0 3px,#f7b6cf 3px 4px)}
+.mat-sequin{background:radial-gradient(#fff6 30%,transparent 35%) 0 0/6px 6px,linear-gradient(120deg,#d4af37,#fff1b8,#b8901f)}.mat-leather{background:linear-gradient(120deg,#2b1d14,#6b4a36 45%,#2b1d14)}.mat-nylon{background:linear-gradient(120deg,#ffbf2e,#ffe9a8 45%,#f2a900)}
+.sewcols{grid-template-columns:repeat(9,1fr)}
+.acc-tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:6px}
+.acc-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:2px solid var(--ink);border-radius:12px;background:#fffdf8;color:var(--ink);font:600 11px Figtree,sans-serif;cursor:pointer;box-shadow:0 2px 0 var(--ink)}
+.acc-btn span{font-size:22px}.acc-btn.sel{background:#ffe1ec;transform:translateY(2px);box-shadow:none}
+.machine-art{border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;line-height:0}
+.env-comm{display:block;font:11px "DM Mono",monospace;opacity:.7}
 </style>
 
 <div class="wrap">
@@ -3791,7 +3809,7 @@ const FABRIC_RULE = {
   dance:{label:"A light fabric that swings: silk, cotton or tulle", why:"Light fabrics move with every turn; heavy velvet and wool hang still.", ok:["silk","cotton","tulle"]}
 };
 function dressSVG(d, look = {}){
-  const skin = look.skin || SKINS[2][0], M = css(d.main), K = css(d.second), A = css(d.accent), sil = d.sil, fab = d.fabric || "cotton";
+  const skin = look.skin || SKINS[2][0], M = d.mainHex || css(d.main), K = d.secondHex || css(d.second), A = d.accentHex || css(d.accent), sil = d.sil, fab = d.fabric || "cotton";
   const id = "dz" + (++SVGID);
   const wy = sil === "empire" ? 106 : 136, wh = sil === "empire" ? 21 : 17;
   const hemY = {mini:200, knee:240, midi:282, floor:336}[d.len], L = hemY - wy, lx = 100-wh, rx = 100+wh;
@@ -3839,9 +3857,20 @@ function dressSVG(d, look = {}){
     <path d="M${lx+4} ${wy-1} H${rx-4}" stroke="${INK}" stroke-opacity=".35" stroke-width="1.4"/>
     ${d.accent !== d.main ? `<rect x="${lx-1}" y="${wy-4}" width="${2*wh+2}" height="7" rx="2" fill="${A}" stroke="${INK}" stroke-width="2"/><rect x="${98}" y="${wy-5}" width="6" height="9" rx="1.5" fill="none" stroke="${INK}" stroke-width="1.6"/>` : ""}
     ${sleeve ? sleeve.map(p => `<path d="${p}" stroke="${INK}" stroke-width="19" stroke-linecap="round" fill="none"/><path d="${p}" stroke="${M}" stroke-width="14" stroke-linecap="round" fill="none"/>`).join("") : ""}
-    ${atJewel(d.jewel || "none", A)}${atWrap(d.wrap || "none", K)}${atBag(d.bag || "none", A, K)}
+    ${d.sew ? dressSewX(d.sew, {skirt, bodice, hemY, wy, he, M, K, sy, id, lx, rx}) : ""}${atJewel(d.jewel || "none", A)}${atWrap(d.wrap || "none", K)}${atBag(d.bag || "none", A, K)}
     ${head}
   </svg>`;
+}
+function dressSewX(x, o){
+  let g = "";
+  if(x.tiers >= 2) for(let i = 1; i < x.tiers; i++){ const y = o.wy + (o.hemY - o.wy)*i/x.tiers, w = (o.he*.9)*(.45 + .55*i/x.tiers) + 14; g += `<path d="M${100-w} ${y} ${Array.from({length:8}, (_, k) => `q${w/8} 6 ${w/4} 0`).join(" ")}" fill="none" stroke="${INK}" stroke-width="1.6" opacity=".55"/>`; }
+  if(x.overlay) g += `<defs><pattern id="${o.id}lc" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="3" fill="none" stroke="#fff" stroke-width="1"/><circle cx="0" cy="0" r="1.4" fill="#fff"/><circle cx="10" cy="10" r="1.4" fill="#fff"/></pattern></defs><path d="${o.skirt}" fill="url(#${o.id}lc)" opacity=".75"/><path d="${o.bodice}" fill="url(#${o.id}lc)" opacity=".6"/>`;
+  if(x.petticoat) g += `<path d="M${100-o.he-4} ${o.hemY-2} ${Array.from({length:10}, () => `q${(o.he*2+8)/20} 9 ${(o.he*2+8)/10} 0`).join(" ")}" fill="#fffdf8" fill-opacity=".85" stroke="${INK}" stroke-width="1.4"/>`;
+  if(x.lace) g += `<path d="M${100-o.he} ${o.hemY+1} ${Array.from({length:14}, () => `a${o.he/14} ${o.he/14} 0 0 0 ${o.he/7} 0`).join(" ")}" fill="#fffdf8" stroke="${INK}" stroke-width="1"/>`;
+  if(x.corset) g += `<path d="M100 98 V${o.wy-2}" stroke="${INK}" stroke-width="1.2" opacity=".6"/>${Array.from({length:5}, (_, i) => { const y = 102 + i*((o.wy-106)/5); return `<path d="M96 ${y} L104 ${y + 5} M104 ${y} L96 ${y + 5}" stroke="#fffdf8" stroke-width="1.3"/>`; }).join("")}${[84,116].map(xx => `<path d="M${xx} 96 V${o.wy-2}" stroke="${INK}" stroke-width="1" opacity=".35"/>`).join("")}`;
+  if(x.wrap) g += `<path d="M76 84 L${o.rx-2} ${o.wy-2}" stroke="${INK}" stroke-width="1.6" opacity=".55" fill="none"/><path d="M${o.rx-2} ${o.wy+1} q10 6 6 22 M${o.rx-2} ${o.wy+1} q14 2 16 16" fill="none" stroke="${o.M}" stroke-width="4" stroke-linecap="round"/>`;
+  if(x.puff) g += [72,128].map(xx => `<ellipse cx="${xx}" cy="${o.sy+8}" rx="10" ry="11" fill="${o.M}" stroke="${INK}" stroke-width="2"/><path d="M${xx-6} ${o.sy+3} q6 4 12 0 M${xx-6} ${o.sy+12} q6 4 12 0" stroke="${INK}" stroke-width="1" opacity=".4" fill="none"/>`).join("");
+  return g;
 }
 function atShoes(k, c, skin){
   const L = `stroke="${INK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
@@ -4525,7 +4554,11 @@ function garmentModel(g, f, w = 170){
     "A-line skirt":{top:"tee", t1:"#fbfaf5", bottom:"midi", legs:true},
     "Button-up shirt":{top:"shirt", bottom:"trousers", b1:"#3d5a80"},
     "Summer dress":{top:"bodice", bottom:"midi", legs:true},
-    "Lined jacket":{top:"jacket", bottom:"trousers", b1:"#264653", acc:[["pads"]]}
+    "Lined jacket":{top:"jacket", bottom:"trousers", b1:"#264653", acc:[["pads"]]},
+    "Corset top":{top:"bodice", bottom:"trousers", b1:"#3d5a80"},
+    "Overalls":{top:"tee", t1:"#fbfaf5", bottom:"trousers", acc:[["suspenders","PAT"]]},
+    "Raincoat":{top:"jacket", bottom:"trousers", b1:"#264653", acc:[["hood","PAT"]]},
+    "Puff-sleeve blouse":{top:"shirt", bottom:"trousers", b1:"#3d5a80", acc:[["ruffles","PAT"]]}
   };
   const sp = {...(specs[g.name] || {bottom:"long"}), c1:f.c1, pat:f.pat, c2:f.c2, c3:f.c3};
   return outfitSVG(g.name, w, sp);
@@ -6788,6 +6821,215 @@ HAIR_BANK.push(
   [3,"Why use a heat protectant before blow-drying?","It reduces damage from high heat to the hair's surface",["It dyes the hair","It makes hair grow","It washes the hair"],"Very hot tools can boil water inside the hair and crack the cuticle."],
   [4,"What is the first section a stylist usually cuts to set the length?","The under-layer at the nape, as a guide",["The bangs","The crown","The sideburns"],"That first cut is called the guide; every other section is measured against it."]
 );
+
+/* =========================================================
+   SEWING ROOM v2: commissions, materials, design (bodice, sleeves,
+   skirt, layers), machine setup, accessories and a runway scorecard.
+   ========================================================= */
+GARMENTS.push(
+  {name:"Prom gown", tier:3, pieces:[["Bodice front",2,3,1,"f"],["Bodice back",2,3,2],["Skirt panel",4,6,4]], steps:[]},
+  {name:"Wrap dress", tier:3, pieces:[["Front",3,6,2],["Back",3,6,1,"f"],["Tie",1,7,2,"x"]], steps:[]},
+  {name:"Tiered skirt", tier:2, pieces:[["Tier 1",3,2,2],["Tier 2",4,2,2],["Tier 3",5,2,2],["Waistband",1,6,1,"x"]], steps:[]},
+  {name:"Tutu", tier:1, pieces:[["Tulle layer",5,2,4],["Waistband",1,6,1,"x"]], steps:[]},
+  {name:"Corset top", tier:4, pieces:[["Center panel",2,4,1,"f"],["Side panel",2,4,4],["Boning strip",1,4,2,"x"]], steps:[]},
+  {name:"Overalls", tier:3, pieces:[["Bib",2,2,1,"f"],["Front leg",3,6,2],["Back leg",3,6,2],["Strap",1,5,2,"x"],["Pocket",2,1,1]], steps:[]},
+  {name:"Raincoat", tier:4, pieces:[["Back",3,6,1,"f"],["Front",2,6,2],["Sleeve",3,4,2],["Hood",3,3,2],["Pocket",2,2,2]], steps:[]},
+  {name:"Puff-sleeve blouse", tier:2, pieces:[["Front",3,4,1,"f"],["Back",3,4,1,"f"],["Puff sleeve",3,3,2],["Cuff",1,3,2,"x"]], steps:[]}
+);
+Object.assign(SEW_STEPS, {
+  "Prom gown":{outline:"M136 28 h48 l6 52 q50 40 66 112 h-192 q16 -72 66 -112 z", extra:["M130 80 H190"], seams:[["Sew the bodice princess seams","Curved princess seams shape the bodice over the bust without darts.","M150 30 Q146 56 150 80"],["Gather the skirt onto the bodice","Two rows of long basting stitches let you spread the fullness evenly before the waist seam.","M130 80 Q160 88 190 80"],["Hem the full skirt","A big curved hem is long, so a narrow rolled hem keeps it light and floaty.","M40 190 Q160 206 280 190"]]},
+  "Wrap dress":{outline:"M130 30 h60 l14 50 l20 110 h-138 l20 -110 z", extra:["M130 30 L190 80"], seams:[["Sew the shoulder seams","Shoulders first, while the dress is still flat.","M130 32 L118 44"],["Sew the long side seam","Pin at the waist first, then the ends, so the layers don't shift.","M204 80 L224 190"],["Hem the wrap edge and skirt","A knit hem uses a stretch stitch so it won't snap.","M96 190 H224"]]},
+  "Tiered skirt":{outline:"M120 30 h80 l14 50 h-108z M106 80 h108 l14 50 h-136z M92 130 h136 l14 60 h-164z", extra:[], seams:[["Gather tier 2 onto tier 1","Each tier is about 1.5 times wider than the one above, gathered to fit.","M106 80 H214"],["Gather tier 3 onto tier 2","Even gathers make the ruffles fall evenly all round.","M92 130 H228"],["Hem the bottom tier","The widest edge goes last, with a narrow double-fold hem.","M80 190 H240"]]},
+  "Tutu":{outline:"M110 40 h100 v16 h-100z M70 56 h180 q-10 40 -90 60 q-80 -20 -90 -60z", extra:["M80 72 Q160 100 240 72"], seams:[["Stack and baste the tulle layers","Tulle doesn't fray, so the layers need no hems.","M74 60 H246"],["Gather the tulle onto the waistband","Pull the basting threads until the tulle matches the waistband.","M110 56 H210"],["Close the elastic waistband","Overlap the elastic ends and zigzag them so they can stretch.","M110 40 V56"]]},
+  "Corset top":{outline:"M110 40 q50 -16 100 0 l-6 90 h-88 z", extra:["M140 34 V130","M160 30 V130","M180 34 V130"], seams:[["Sew the panels together","Six curved panels hug the body far better than one flat piece.","M140 36 V130"],["Stitch the boning channels","Boning slides into channels to keep the corset from wrinkling.","M150 34 V130"],["Bind the top edge","Binding finishes the edge and stops it stretching out.","M110 40 Q160 24 210 40"]]},
+  "Overalls":{outline:"M136 30 h48 v40 h22 v120 h-36 l-10 -70 l-10 70 h-36 v-120 h22z", extra:["M114 70 H206"], seams:[["Attach the bib to the waistband","The bib takes the strain from the straps, so double-stitch it.","M114 70 H206"],["Sew the inseam","One continuous seam from one ankle to the other.","M150 190 L160 120 L170 190"],["Topstitch the bib pocket","Contrast topstitching is the classic workwear look.","M146 40 h28 v20 h-28 z"]]},
+  "Raincoat":{outline:"M120 30 h80 l30 30 v130 h-140 v-130 z", extra:["M160 30 V190"], seams:[["Sew the shoulder seams","Every needle hole lets rain in, so stitch once and accurately.","M120 32 L90 60"],["Set in the sleeves","Ease the sleeve cap so it doesn't pucker.","M90 60 V120"],["Seal the seams with tape","Heat-sealing tape covers the needle holes so the seams don't leak.","M160 30 V190"]]},
+  "Puff-sleeve blouse":{outline:"M130 40 h60 l26 20 q18 -6 24 12 q-6 22 -24 16 l-4 82 h-104 l-4 -82 q-18 6 -24 -16 q6 -18 24 -12z", extra:[], seams:[["Gather the sleeve cap","Extra fabric gathered at the top is what makes the puff.","M216 62 Q232 54 240 72"],["Set the puffed sleeve","Match the shoulder notch first, then spread the gathers.","M190 42 Q214 54 216 62"],["Hem the blouse","A narrow hem keeps the blouse light.","M110 160 H210"]]}
+});
+const MATERIALS = [
+  {k:"cotton", name:"Cotton", tex:"cotton", print:true, needle:"universal", stitch:"straight", props:"Breathable and easy to sew; presses crisp."},
+  {k:"linen", name:"Linen", tex:"linen", print:true, needle:"universal", stitch:"straight", props:"Cool and breezy for summer, but it wrinkles."},
+  {k:"denim", name:"Denim / canvas", tex:"cotton", pat:"denim", needle:"jeans", stitch:"straight", props:"Tough twill. Needs a strong, thick jeans needle."},
+  {k:"knit", name:"Jersey knit", tex:"cotton", print:true, pat:"rib", needle:"ballpoint", stitch:"zigzag", props:"Soft and stretchy. A straight stitch would snap when it stretches."},
+  {k:"fleece", name:"Fleece", tex:"wool", pat:"fuzz", needle:"ballpoint", stitch:"zigzag", props:"Cozy, warm knit that doesn't fray."},
+  {k:"wool", name:"Wool", tex:"wool", pat:"fuzz", needle:"universal", stitch:"straight", props:"Warm, holds its shape and eases around curves."},
+  {k:"satin", name:"Satin", tex:"silk", pat:"sheen", needle:"microtex", stitch:"straight", props:"Glossy and slippery; shows every pin hole."},
+  {k:"velvet", name:"Velvet", tex:"velvet", pat:"sheen", needle:"microtex", stitch:"straight", props:"Plush pile with a nap: cut every piece facing the same way."},
+  {k:"tulle", name:"Tulle", tex:"tulle", pat:"mesh", needle:"microtex", stitch:"straight", props:"Sheer net that adds volume without weight. Never frays."},
+  {k:"sequin", name:"Sequin mesh", tex:"sequin", pat:"sequin", needle:"microtex", stitch:"straight", props:"All sparkle. Remove sequins from the seam allowances first."},
+  {k:"leather", name:"Faux leather", tex:"silk", pat:"sheen", needle:"leather", stitch:"straight", props:"Pins leave permanent holes, so use clips. Long stitches."},
+  {k:"nylon", name:"Waterproof nylon", tex:"silk", pat:"sheen", needle:"microtex", stitch:"straight", props:"Sheds rain. Seams need sealing tape."}
+];
+const SEW_COLORS = [["white","#fbfaf5"],["black","#22222a"],["red","#d7263d"],["coral","#ff7f6e"],["pink","#ff8fb8"],["blush","#f7c6d0"],["lilac","#c8a2f0"],["purple","#7b3fa0"],["navy","#1d3557"],["blue","#3a8dff"],["sky","#9fd3f5"],["teal","#2a9d8f"],["green","#3fa34d"],["olive","#7d7a3a"],["yellow","#ffd43b"],["mustard","#d4a017"],["camel","#c19a6b"],["brown","#6b4226"]];
+const NEEDLES = [["universal","Universal"],["jeans","Jeans (heavy)"],["ballpoint","Ballpoint (for knits)"],["microtex","Microtex (fine, sharp)"],["leather","Leather (wedge point)"]];
+const STITCHES = [["straight","Straight stitch"],["zigzag","Zigzag / stretch stitch"]];
+const SUITS = {"Envelope pillow cover":["cotton","linen","velvet","denim"], "Kitchen apron":["cotton","denim","linen"], "Pajama pants":["cotton","knit","fleece"], "Tank top":["knit","cotton"], "Kimono robe":["satin","cotton","linen"], "Zip-free hoodie":["fleece","knit"], "Canvas tote bag":["denim","cotton"], "A-line skirt":["cotton","denim","wool","linen"], "Button-up shirt":["cotton","linen"], "Summer dress":["cotton","linen"], "Lined jacket":["wool","denim","leather"], "Prom gown":["satin","velvet","sequin","tulle"], "Wrap dress":["knit","satin","cotton"], "Tiered skirt":["cotton","linen"], "Tutu":["tulle"], "Corset top":["satin","cotton","denim","velvet","leather"], "Overalls":["denim","cotton"], "Raincoat":["nylon"], "Puff-sleeve blouse":["cotton","linen","satin"]};
+const DRESSY = {"Summer dress":{bodice:"fitted", sleeve:"cap", skirt:"aline", len:"midi"}, "Prom gown":{bodice:"corset", sleeve:"none", skirt:"ballgown", len:"floor"}, "Wrap dress":{bodice:"wrap", sleeve:"short", skirt:"aline", len:"knee"}, "Tiered skirt":{bodice:"fitted", sleeve:"short", skirt:"aline", len:"midi", tiers:3, topWhite:true}, "Tutu":{bodice:"fitted", sleeve:"none", skirt:"ballgown", len:"mini", petticoat:true}};
+const SEW_ACC = [["buttons","Buttons","🔘"],["bow","Bow","🎀"],["brooch","Brooch","💎"],["sequins","Sequins","✨"],["flower","Fabric flower","🌸"],["patch","Patch","⭐"],["pearls","Pearls","🦪"],["heart","Heart patch","💖"],["pin","Enamel pin","📌"],["ribbon","Ribbon","🎗️"]];
+const SR = {
+  material:g => ({label:`The right material for a ${g.name.toLowerCase()}`, why:`A ${g.name.toLowerCase()} works in ${listAnd(SUITS[g.name].map(k => MATERIALS.find(m => m.k === k).name.toLowerCase()))}.`, test:st => SUITS[g.name].includes(st.mat.k)}),
+  machine:{label:"Machine set up for the fabric (needle and stitch)", why:"Each fabric needs its own needle: ballpoint slips between knit loops, jeans needles punch through denim, microtex pierces fine silky weaves, leather needles cut a clean slit. Knits need a stretchy zigzag.", test:st => st.needle === st.mat.needle && st.stitch === st.mat.stitch},
+  full:{label:"A full, floaty skirt", why:"A circle skirt or a tulle petticoat underneath holds the skirt out so it floats and swings.", test:st => st.d.skirt === "ballgown" || st.d.petticoat},
+  sparkle:{label:"Some sparkle", why:"Sequins and gems catch the light, so the look shines under party lights.", test:st => st.mat.k === "sequin" || st.acc.some(a => ["sequins","brooch","pearls"].includes(a.k))},
+  floor:{label:"Floor length", why:"Formal events traditionally call for full-length gowns.", test:st => st.d.len === "floor"},
+  warm:{label:"Warm enough for winter", why:"Long sleeves and warm fabrics like velvet, wool or fleece trap body heat.", test:st => ["velvet","wool","fleece"].includes(st.mat.k) || st.d.sleeve === "long"},
+  breezy:{label:"Cool for a hot day", why:"Breathable plant fibers and bare arms let heat escape.", test:st => ["cotton","linen"].includes(st.mat.k) && st.d.sleeve !== "long"},
+  lined:{label:"Lined so it hangs smoothly", why:"A lining hides seams, stops scratchy fabrics touching skin and helps the garment glide on.", test:st => st.d.lining},
+  playful:{label:"Fun details: at least two trims or patches", why:"Accessories make a simple garment personal.", test:st => st.acc.length >= 2},
+  buttons:{label:"Buttons down the front", why:"A button placket lets it open fully and gives the classic look.", test:st => st.acc.some(a => a.k === "buttons")},
+  lace:{label:"A lace detail", why:"A lace overlay or trim adds romance and texture.", test:st => st.d.overlay || st.d.lace},
+  puff:{label:"Statement puff sleeves", why:"Puffs are made by gathering extra fabric into the sleeve cap.", test:st => st.d.sleeve === "puff"},
+  minimal:{label:"Keep it minimal: one accessory at most", why:"Minimalist design lets the cut and fabric speak for themselves.", test:st => st.acc.length <= 1}
+};
+const COMM = {
+  "Prom gown":[["Maya's prom: she wants a full skirt that floats when she dances", ["full","sparkle"]],["Ava's winter formal: elegant and warm", ["floor","warm"]]],
+  "Wrap dress":[["Noor's work trips: a dress that packs without creasing", ["minimal"]],["June's garden party: a romantic touch", ["lace","breezy"]]],
+  "Tiered skirt":[["Rosa's festival weekend: twirly and fun", ["playful","breezy"]],["Bea's summer picnic: light and simple", ["breezy","minimal"]]],
+  "Tutu":[["Lily's ballet recital: full and fluffy", ["full","sparkle"]],["A birthday party costume: as fun as possible", ["playful","full"]]],
+  "Summer dress":[["Kai's beach wedding: cool and pretty", ["breezy","lace"]],["Zoe's graduation: simple and elegant", ["minimal"]]],
+  "Puff-sleeve blouse":[["Iris's first office job: crisp and polished", ["buttons","puff"]],["A vintage-style photo shoot", ["puff","lace"]]],
+  "Corset top":[["A concert outfit with sparkle", ["sparkle","lined"]],["A Renaissance fair costume", ["lined","lace"]]],
+  "Raincoat":[["A rainy-city commute", ["lined"]],["A kids' raincoat that's fun to wear", ["playful"]]],
+  "Overalls":[["A gardener who needs tough workwear", ["minimal"]],["A cute weekend look", ["playful"]]],
+  "Lined jacket":[["A crisp autumn jacket", ["lined","warm"]]],
+  "Zip-free hoodie":[["A cozy weekend hoodie", ["warm","playful"]]]
+};
+{
+  const origPD = patternDef;
+  patternDef = function(id, kind, c1, c2, c3){
+    const P = (w, h, inner) => `<pattern id="${id}" width="${w}" height="${h}" patternUnits="userSpaceOnUse"><rect width="${w}" height="${h}" fill="${c1}"/>${inner}</pattern>`;
+    if(kind === "sequin") return P(6, 6, `<circle cx="3" cy="3" r="2.2" fill="#fff" opacity=".35"/><circle cx="2.4" cy="2.4" r=".8" fill="#fff" opacity=".8"/><circle cx="0" cy="0" r="1.6" fill="#000" opacity=".12"/>`);
+    if(kind === "mesh") return P(5, 5, `<path d="M0 0 L5 5 M5 0 L0 5" stroke="#fff" stroke-width=".6" opacity=".6"/>`);
+    if(kind === "sheen") return P(20, 20, `<path d="M-5 25 L25 -5" stroke="#fff" stroke-width="5" opacity=".18"/>`);
+    if(kind === "rib") return P(4, 4, `<rect width="1.4" height="4" fill="#000" opacity=".1"/>`);
+    if(kind === "fuzz") return P(6, 6, `<circle cx="1.5" cy="1.5" r=".7" fill="#000" opacity=".12"/><circle cx="4.5" cy="4.5" r=".7" fill="#fff" opacity=".2"/>`);
+    return origPD(id, kind, c1, c2, c3);
+  };
+}
+Object.assign(STUDIO.sewing, {
+  chooseFabric(g){
+    const comm = pick(COMM[g.name] || [["A customer who wants it well made", []]]);
+    this.comm = {who:comm[0], rules:[SR.material(g), SR.machine, ...comm[1].map(k => SR[k])]};
+    this.g0 = g; this.mat = MATERIALS.find(m => m.k === SUITS[g.name][0]) && MATERIALS[0]; this.color = "pink"; this.print = null; this.acc = [];
+    this.d = {...(DRESSY[g.name] || {}), lining:false, overlay:false, lace:false, petticoat:!!(DRESSY[g.name] || {}).petticoat};
+    this.needle = "universal"; this.stitch = "straight"; this.renderDesign();
+  },
+  fabricObj(){
+    const col = SEW_COLORS.find(c => c[0] === this.color)[1], m = this.mat, pr = this.print && m.print ? FABRIC_PRINTS.find(f => f.k === this.print) : null;
+    if(pr && pr.pat) return {k:m.k + "-" + pr.k, name:`${pr.name} ${m.name.toLowerCase()}`, c1:pr.k === "denim" ? pr.c1 : col, c2:pr.c2 === "#fffdf8" ? "#fffdf8" : (pr.c2 || INK), c3:pr.c3, pat:pr.pat, fact:`${m.props} ${pr.fact}`};
+    return {k:m.k, name:`${this.color} ${m.name.toLowerCase()}`, c1:col, c2:m.k === "denim" ? "#98c1d9" : INK, c3:W_, pat:m.pat || null, fact:m.props};
+  },
+  dressD(){
+    const d = this.d, f = this.fabricObj(), mat = this.mat;
+    const neck = {fitted:"crew", corset:"sweet", wrap:"vneck", off:"off"}[d.bodice] || "crew", sleeve = d.sleeve === "puff" ? "short" : d.sleeve;
+    const pat = {gingham:"check", hstripes:"hstripe", dots:"dots"}[f.pat] || "solid";
+    return {sil:d.skirt, len:d.len, neck, sleeve, main:"ivo", second:"ivo", accent:"ivo", mainHex: d.topWhite ? "#fbfaf5" : f.c1, secondHex:f.c1, accentHex: d.topWhite ? "#fbfaf5" : f.c1, pattern:pat, fabric:mat.tex, sew:{corset:d.bodice === "corset", wrap:d.bodice === "wrap", puff:d.sleeve === "puff", petticoat:d.petticoat, overlay:d.overlay, lace:d.lace, tiers:d.tiers || 0, sequin:mat.k === "sequin", mesh:mat.k === "tulle", sheen:["satin","velvet","leather","nylon"].includes(mat.k)}};
+  },
+  model(w = 220){
+    const g = this.g0 || this.g;
+    const body = DRESSY[g.name] ? `<div class="sew-dress">${dressSVG(this.dressD(), {skin:SKINS[3][0], hair:"bun", hairC:"darkbrown", eye:"brown"})}</div>` : garmentModel(g, this.fabricObj(), w);
+    return `<div class="sew-model" id="swModel">${body}${(this.acc || []).map((a, i) => `<span class="sew-sticker" data-ai="${i}" style="left:${a.x}%;top:${a.y}%">${SEW_ACC.find(s => s[0] === a.k)[2]}</span>`).join("")}</div>`;
+  },
+  st(){ return {mat:this.mat, d:this.d, acc:this.acc || [], needle:this.needle, stitch:this.stitch}; },
+  renderDesign(){
+    const g = this.g0, dressy = !!DRESSY[g.name];
+    const chips = (k, list) => `<div class="chips">${list.map(([v,l]) => `<button type="button" class="ch${this.d[k] === v ? " sel" : ""}" data-dk="${k}" data-dv="${v}">${l}</button>`).join("")}</div>`;
+    stage.innerHTML = `<div class="studio-grid"><div><div class="sew-stage">${this.model(240)}</div><p class="msg">${this.mat.name}: ${this.mat.props}</p></div>
+      <div class="ctl-col">${sessionHeader(`${g.name} · design`, this.comm.who, "Design it, then lay out and sew the pieces.")}
+        <div class="brief" style="padding-top:10px"><ul id="swRules">${this.comm.rules.map(r => `<li>${r.label}</li>`).join("")}</ul></div>
+        <div class="opt-group"><h4>Material</h4><div class="matgrid">${MATERIALS.map(m => `<button type="button" class="matcard${this.mat.k === m.k ? " sel" : ""}" data-mat="${m.k}"><span class="matsw mat-${m.k}"></span><b>${m.name}</b></button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Color</h4><div class="swatches sewcols">${SEW_COLORS.map(([n, c]) => `<button type="button" class="sw${this.color === n ? " sel" : ""}" data-col="${n}" style="background:${c}" title="${n}" aria-label="${n}"></button>`).join("")}</div></div>
+        ${this.mat.print ? `<div class="opt-group"><h4>Print</h4><div class="chips"><button type="button" class="ch${!this.print ? " sel" : ""}" data-pr="">Plain</button>${FABRIC_PRINTS.filter(f => f.pat && f.k !== "denim").map(f => `<button type="button" class="ch${this.print === f.k ? " sel" : ""}" data-pr="${f.k}"><i class="cdot" style="${swatchStyle(f)}"></i>${f.name}</button>`).join("")}</div></div>` : ""}
+        ${dressy ? `<div class="opt-group"><h4>Bodice</h4>${chips("bodice", [["fitted","Fitted (darts)"],["corset","Corset (boned)"],["wrap","Wrap"],["off","Off-shoulder"]])}</div>
+          <div class="opt-group"><h4>Sleeves</h4>${chips("sleeve", [["none","Sleeveless"],["cap","Cap"],["short","Short"],["puff","Puff"],["long","Long"]])}</div>
+          <div class="opt-group"><h4>Skirt</h4>${chips("skirt", [["aline","A-line"],["ballgown","Full circle"],["sheath","Straight"],["mermaid","Mermaid"]])}${chips("len", [["mini","Mini"],["knee","Knee"],["midi","Midi"],["floor","Floor"]])}</div>` : ""}
+        <div class="opt-group"><h4>Layers & details</h4><div class="chips">${(dressy ? [["petticoat","Tulle petticoat"],["overlay","Lace overlay"],["lace","Lace hem trim"],["lining","Lining"]] : [["lining","Lining"]]).map(([k,l]) => `<button type="button" class="ch${this.d[k] ? " sel" : ""}" data-layer="${k}">${l}</button>`).join("")}${g.name === "Tiered skirt" ? [2,3,4].map(n => `<button type="button" class="ch${this.d.tiers === n ? " sel" : ""}" data-tiers="${n}">${n} tiers</button>`).join("") : ""}</div><p class="tooltip-line">Layers add pattern pieces, so the layout gets harder.</p></div>
+        <button class="btn btn-solid" type="button" id="swNext">Set up the machine →</button></div></div>`;
+    stage.onclick = e => {
+      const t = e.target.closest("[data-mat],[data-col],[data-pr],[data-dk],[data-layer],[data-tiers]"); if(!t) return;
+      if(t.dataset.mat){ this.mat = MATERIALS.find(m => m.k === t.dataset.mat); if(!this.mat.print) this.print = null; }
+      else if(t.dataset.col) this.color = t.dataset.col;
+      else if("pr" in t.dataset) this.print = t.dataset.pr || null;
+      else if(t.dataset.dk) this.d[t.dataset.dk] = t.dataset.dv;
+      else if(t.dataset.layer) this.d[t.dataset.layer] = !this.d[t.dataset.layer];
+      else if(t.dataset.tiers) this.d.tiers = +t.dataset.tiers;
+      sfx.click(); this.renderDesign();
+    };
+    if(S.rating.sewing < 4){ const lis = [...$("swRules").children]; this.comm.rules.forEach((r, i) => { if(r !== SR.machine && lis[i]) lis[i].classList.toggle("ok", r.test(this.st())); }); }
+    $("swNext").onclick = e => { e.stopPropagation(); this.machine(); };
+  },
+  machine(){
+    stage.onclick = null;
+    stage.innerHTML = `<div class="studio-grid"><div class="machine-art">${this.machineSVG()}</div>
+      <div class="ctl-col">${sessionHeader(`${this.g0.name} · machine setup`, `Sewing ${this.mat.name.toLowerCase()}`, this.mat.props)}
+        <div class="opt-group"><h4>Needle</h4><div class="chips" id="swNeedle">${NEEDLES.map(([k,l]) => `<button type="button" class="ch${this.needle === k ? " sel" : ""}" data-nd="${k}">${l}</button>`).join("")}</div></div>
+        <div class="opt-group"><h4>Stitch</h4><div class="chips" id="swStitch">${STITCHES.map(([k,l]) => `<button type="button" class="ch${this.stitch === k ? " sel" : ""}" data-sk="${k}">${l}</button>`).join("")}</div></div>
+        <p class="stage-tip">Woven fabrics (threads crossing at right angles) use a straight stitch. Knits (looped like a sweater) stretch, so they need a stretchy zigzag and a rounded ballpoint needle.</p>
+        <button class="btn btn-solid" type="button" id="swGo">Lay out the pattern →</button></div></div>`;
+    $("swNeedle").onclick = e => { const b = e.target.closest("[data-nd]"); if(b){ this.needle = b.dataset.nd; sfx.click(); this.machine(); } };
+    $("swStitch").onclick = e => { const b = e.target.closest("[data-sk]"); if(b){ this.stitch = b.dataset.sk; sfx.click(); this.machine(); } };
+    $("swGo").onclick = () => {
+      const extra = [];
+      if(this.d.petticoat) extra.push(["Tulle petticoat", 5, 2, 2]);
+      if(this.d.overlay) extra.push(["Lace overlay", 4, 4, 1, "f"]);
+      if(this.d.lining) extra.push(["Lining", 3, 4, 1, "f"]);
+      if(this.d.sleeve === "puff") extra.push(["Puff sleeve", 2, 2, 2]);
+      if((this.d.tiers || 0) > 3) extra.push(["Tier 4", 5, 2, 2]);
+      this.fabric = this.fabricObj();
+      this.begin({...this.g0, pieces:this.g0.pieces.concat(extra)});
+    };
+  },
+  machineSVG(){
+    const f = this.fabricObj(), zig = this.stitch === "zigzag";
+    return `<svg viewBox="0 0 320 220" width="100%" aria-label="Sewing machine"><defs>${f.pat ? patternDef("mcP", f.pat, f.c1, f.c2, f.c3) : ""}</defs>
+      <rect width="320" height="220" fill="#efe2c8"/><rect x="20" y="170" width="280" height="22" rx="6" fill="#c8915a" stroke="${INK}" stroke-width="3"/>
+      <path d="M50 170 V70 Q50 46 74 46 H250 Q274 46 274 70 V104 H232 V82 H92 V170Z" fill="#fffdf8" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
+      <rect x="50" y="150" width="224" height="22" rx="6" fill="#ff7db8" stroke="${INK}" stroke-width="3"/>
+      <rect x="226" y="104" width="22" height="30" fill="#d9dde3" stroke="${INK}" stroke-width="3"/><path d="M237 134 V${zig ? 150 : 152}" stroke="#9aa5b1" stroke-width="3"/>
+      <circle cx="256" cy="66" r="12" fill="#ffbf2e" stroke="${INK}" stroke-width="3"/><path d="M110 46 V30 h16 v16" fill="#3a8dff" stroke="${INK}" stroke-width="3"/>
+      <rect x="120" y="140" width="190" height="14" fill="${f.pat ? "url(#mcP)" : f.c1}" stroke="${INK}" stroke-width="2"/>
+      <path d="${zig ? "M130 147 l6 -4 l6 8 l6 -8 l6 8 l6 -8 l6 8 l6 -8 l6 8 l6 -8 l6 8 l6 -8 l6 8 l6 -4" : "M130 147 H236"}" fill="none" stroke="#e63946" stroke-width="2" stroke-dasharray="${zig ? "0" : "6 3"}"/>
+      <text x="160" y="110" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" fill="${INK}">${NEEDLES.find(n => n[0] === this.needle)[1]} · ${STITCHES.find(s => s[0] === this.stitch)[1]}</text></svg>`;
+  },
+  finishSew(){ this.accessorize(); },
+  accessorize(){
+    stage.onclick = null; this.selAcc = this.selAcc || "bow";
+    stage.innerHTML = `<div class="studio-grid"><div><div class="sew-stage">${this.model(240)}</div><p class="msg" id="swAccMsg">Pick a trim, then tap the garment to place it. Tap a placed trim to remove it.</p></div>
+      <div class="ctl-col">${sessionHeader(`${this.g.name} · finishing`, "Add trims and accessories", this.comm.who)}
+        <div class="brief" style="padding-top:10px"><ul id="swRules">${this.comm.rules.map(r => `<li>${r.label}</li>`).join("")}</ul></div>
+        <div class="acc-tray" id="swTray">${SEW_ACC.map(([k,l,e]) => `<button type="button" class="acc-btn${this.selAcc === k ? " sel" : ""}" data-acc="${k}"><span>${e}</span>${l}</button>`).join("")}</div>
+        <button class="btn btn-solid" type="button" id="swRun">Walk the runway →</button></div></div>`;
+    $("swTray").onclick = e => { const b = e.target.closest("[data-acc]"); if(b){ this.selAcc = b.dataset.acc; sfx.click(); this.accessorize(); } };
+    $("swModel").onclick = e => {
+      const s = e.target.closest(".sew-sticker"); if(s){ this.acc.splice(+s.dataset.ai, 1); sfx.click(); return this.accessorize(); }
+      const r = $("swModel").getBoundingClientRect(); this.acc.push({k:this.selAcc, x:+((e.clientX - r.left)/r.width*100).toFixed(1), y:+((e.clientY - r.top)/r.height*100).toFixed(1)}); sfx.good(); this.accessorize();
+    };
+    $("swRun").onclick = () => this.runway();
+  },
+  runway(){
+    const sd = SEW_STEPS[this.g.name], m = v => (v*CELL_CM/100).toFixed(2)+" m";
+    const u = this.layoutUsed, layoutF = u <= this.best ? 1 : u <= this.target ? .85 : Math.max(0, .85 - .15*(u - this.target));
+    const sewF = this.seamScores.reduce((a,b) => a+b, 0) / this.seamScores.length;
+    const res = this.comm.rules.map(r => ({label:r.label, why:r.why, ok:r.test(this.st())}));
+    const briefF = res.filter(r => r.ok).length / res.length;
+    if(sewF >= .95) grant("tailor");
+    const f = .25*layoutF + .25*sewF + .5*briefF;
+    adapt("sewing", f);
+    const stars = f >= .9 ? 3 : f >= .68 ? 2 : 1;
+    endSession({title: stars === 3 ? "Runway ready" : stars === 2 ? "Wearable, with notes" : "Unpick and try again", stars, xp:25+15*stars,
+      body:`<div class="runway"><div class="runway-model">${this.model(190)}</div><p class="m-note"><b>${this.g.name}</b> in ${this.fabric.name}. ${this.mat.props}</p></div>
+        <div class="m-row"><span><b>${m(u)}</b>fabric used</span><span><b>${m(this.target)}</b>target</span><span><b>${Math.round(sewF*100)}%</b>stitch accuracy</span><span><b>${Math.round(briefF*100)}%</b>brief</span></div>
+        ${checklist(res)}
+        <ol class="order-review" style="text-align:left">${sd.seams.map(([t,why],i) => `<li><span class="eyebrow">${Math.round(this.seamScores[i]*100)}%</span><div><b>${t}</b><p>${why}</p></div></li>`).join("")}</ol>`,
+      actions:[["New garment", () => startRoom("sewing","studio"), true], ["Lobby", goHub]]});
+  }
+});
+{
+  const origStart = STUDIO.sewing.start;
+  STUDIO.sewing.start = function(){ origStart.call(this); stage.querySelectorAll(".envelope").forEach(b => { const c = COMM[b.dataset.g]; if(c) b.insertAdjacentHTML("beforeend", `<small class="env-comm">${c.length} client request${c.length === 1 ? "" : "s"}</small>`); }); };
+}
+ROOMS.sewing.blurb = "Take a client commission, design it (material, color, print, bodice, sleeves, skirt, layers), set up the machine, lay out and sew the pieces, then add trims for the runway.";
+HOWTO.sewing = ["Choose a pattern and read the client's request.","Design it: pick a material, color and print; for dresses choose the bodice, sleeves, skirt and layers. Then set the right needle and stitch.","Lay out and sew the pieces, add trims, and walk the runway."];
 
 renderHub();
 </script>

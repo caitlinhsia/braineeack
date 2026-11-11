@@ -13,7 +13,7 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Studios | **Atelier**: design a dress and accessorize it (shoes, bag, jewelry, layers) to a client brief | Color theory, proportion, dress codes |
 | Studios | **Hair Salon**: a full appointment: wash, blow-dry, products for the hair type, cut from behind with sections and layers, bleach, dye, toner, style, photo booth | Hair care, proportion, color theory |
 | Studios | **Makeup Studio**: paint 13 products onto a face for clients' occasions, or face the judges in theme challenges, then a photo-booth strip | Color theory, skin undertones, makeup history |
-| Studios | **Sewing Room**: pick from 11 patterns, lay out the pieces, then sew by tracing each seam | Spatial planning, fine motor control |
+| Studios | **Sewing Room**: take a commission, design it (12 materials, colors, prints, bodice, sleeves, skirt, layers), set up the machine, lay out and sew 19 garments, add trims, walk the runway | Materials, spatial planning, fine motor control |
 | Studios | **Floorplan Lab**: draw a home that meets a client's rules, then add doors, windows and furniture (reachability, daylight, kitchen work triangle) | Spatial reasoning, area, building basics |
 | Studios | **Peacemaker**: mediate a heated argument | Conflict resolution, psychology |
 | Brain gym | **Deep Dive**: name things in a category; the rarer your answer, the deeper your diver sinks through 5 ocean zones | Knowledge breadth, recall |
