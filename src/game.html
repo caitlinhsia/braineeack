@@ -4874,5 +4874,118 @@ function showHowto(room, force){
   $("helpBtn").addEventListener("click", () => G.room && showHowto(G.room, true));
 })();
 
+/* ---- more Peacemaker scenes ---- */
+SCEN.push(
+ {id:"project", tier:1, title:"The Group Project", setting:"The school library, 4:45 p.m. The presentation is due tomorrow morning.",
+  cast:[{n:"Leo",role:"Did most of the slides"},{n:"Ava",role:"Has missed three meetings"}], tension:70,
+  beats:[
+   {narr:"Leo slams the laptop shut. A few people look up.", lines:[[0,"I've done eighty percent of this. Ava's name shouldn't even be on it."],[1,"Wow. Tell the whole library, why don't you."]],
+    opts:[["You both sound really stressed about tomorrow. Can we sit down and each say what's going on, one at a time?","Affect labeling + structure",2,-15,10,10,[[0,"…Yeah. I'm stressed. Really stressed."],[1,"Okay. Fine."]],"Naming the emotion lowers the temperature, and taking turns makes each person feel they'll get to be heard."],
+          ["Leo, you can't just take her name off. That's not fair.","Taking sides",0,15,-20,10,[[0,"So I do all the work and I'm the bad guy?"]],"Siding early makes the mediator part of the fight. The other person stops listening."],
+          ["Let's just split the last slides and finish. Arguing won't help.","Jumping to solutions",1,5,-5,-5,[[1,"We tried splitting. That's how we got here."]],"A quick fix before anyone feels heard usually repeats the same problem."],
+          ["Ava, why didn't you do your part?","Accusing question",0,15,10,-20,[[1,"Because some of us have stuff going on, okay?"]],"“Why didn't you…” sounds like an accusation. “What got in the way?” invites an explanation."]]},
+   {narr:"Ava takes a breath.", lines:[[1,"I pick up my little brother from school every day now. My mom just started a new job."],[0,"You could have said something."]],
+    opts:[["Ava, that's a lot to carry. Leo, what was it like not knowing why she wasn't there?","Validation + perspective",2,-12,8,12,[[0,"Honestly? I thought she just didn't care."],[1,"I care. I just ran out of hours."]],"Missing information feeds the fundamental attribution error: we assume bad character when the real cause is circumstances."],
+          ["Leo's right. You should have told him.","Taking sides",0,10,5,-15,[[1,"Great. Now I'm wrong twice."]],"Even when it's partly true, piling on blocks repair."],
+          ["Everyone has problems. The deadline is still tomorrow.","Minimizing",0,12,0,-15,[[1,"Thanks for caring."]],"Dismissing someone's situation ends their willingness to cooperate."],
+          ["So it was all a misunderstanding. Problem solved!","Premature closure",1,5,-5,-5,[[0,"I still did all the work, though."]],"Naming the misunderstanding helps, but skipping Leo's frustration leaves it unresolved."]]},
+   {narr:"Leo crosses his arms.", lines:[[0,"I still did way more. The teacher should know that."]],
+    opts:[["What would feel fair to both of you, for the credit and for tonight's work?","Interests over positions",2,-12,10,10,[[0,"If she presents the conclusion, which I'm bad at, and we tell the teacher who did what."],[1,"I can practice on the bus. And I'll make the handout tonight."]],"Asking about interests turns a fight over blame into a shared plan."],
+          ["Ava, just do all the remaining work tonight.","Imposed solution",0,10,10,-15,[[1,"With my brother home? Sure."]],"One-sided solutions breed resentment and quietly fall apart."],
+          ["Credit doesn't matter; it's about learning.","Dismissing a need",1,5,-10,0,[[0,"Easy to say when you didn't do the work."]],"Recognition is a real need. Brushing it aside makes people dig in."],
+          ["Leo, it sounds like you want your effort to be noticed. Is that right?","Reflecting a need",1,-8,8,0,[[0,"…Yeah. I want someone to notice."]],"Naming the need behind a complaint is powerful. Now ask what Ava needs too."]]},
+   {narr:"The library lights flicker: closing in fifteen minutes.", lines:[[1,"So what's the plan?"]],
+    opts:[["Ava presents the conclusion and makes the handout, Leo finishes the slides, and you both send the teacher a short note about who did what. Check in at 8 tonight?","Specific agreement",2,-18,10,10,[[0,"That works. I'll text you the slide notes."],[1,"8 o'clock. Deal."]],"Good agreements say who does what by when, and include a check-in."],
+          ["Let's ask the teacher to give Leo a higher grade.","Escalating",0,10,10,-15,[[1,"So I fail."]],"Escalating before trying to agree takes control away from the people involved."],
+          ["You two figure it out.","Abandoning",0,10,-10,-10,[[0,"That's what we were doing. Badly."]],"Leaving at the crucial moment wastes the progress you made."],
+          ["Next time, use a shared task list so everyone can see who's doing what.","Future prevention",1,-6,5,5,[[1,"Good idea. But what about tomorrow?"]],"Preventing the next conflict is smart, but this one still needs a plan."]]}
+  ]},
+ {id:"curfew", tier:2, title:"Past Curfew", setting:"A family living room, 11:52 p.m. Dani's curfew was 10:30.",
+  cast:[{n:"Dani",role:"16, just got home"},{n:"Ngozi",role:"Dani's mom"}], tension:82,
+  beats:[
+   {narr:"The front door clicks. Ngozi is standing in the hallway in her robe.", lines:[[1,"Do you know what time it is? I called you nine times!"],[0,"My phone died! You always treat me like a little kid."]],
+    opts:[["You were both scared and upset tonight. Can we take a breath before we talk about what happened?","Naming emotions + a pause",2,-15,10,10,[[1,"Scared. Yes. I was terrified."],[0,"…Okay."]],"When people are flooded with emotion, a short pause lets their bodies calm down enough to listen."],
+          ["Dani, you broke the rule. You're grounded.","Handing down a verdict",0,15,-25,10,[[0,"Great. Can I go to my room now?"]],"Mediators don't punish. The moment you do, one side stops trusting you."],
+          ["Ngozi, nine calls is a lot. Maybe give Dani some space.","Taking sides",0,12,10,-20,[[1,"Space? She could have been in a ditch!"]],"Siding with the teen dismisses a parent's real fear."],
+          ["It's late. Let's talk tomorrow.","Avoidance",1,0,-5,-5,[[1,"I won't sleep tonight anyway."]],"Sometimes a break is wise, but acknowledge the fear before walking away."]]},
+   {narr:"Dani drops onto the sofa.", lines:[[0,"Everyone else gets to stay out till midnight. I'm the only one who has to leave early."],[1,"I don't care what everyone else does."]],
+    opts:[["Dani, what does leaving early feel like with your friends?","Curiosity",2,-10,12,5,[[0,"Embarrassing. They make jokes. I feel like a baby."],[1,"…I didn't know they joked about it."]],"Underneath “everyone else” is often a need to belong."],
+          ["Ngozi, what are you most worried could happen when Dani's out late?","Exploring interests",2,-10,5,12,[[1,"The bus stop is dark. Last month a girl from Dani's school was followed."],[0,"I didn't know that."]],"Fear is a legitimate interest. Once it's spoken, it can be solved."],
+          ["“Everyone else” is a classic exaggeration, Dani.","Correcting",0,10,-12,0,[[0,"Whatever."]],"Pointing out a thinking trap mid-argument feels like being graded, not heard."],
+          ["Rules are rules.","Positional bargaining",0,8,-10,5,[[0,"Then the rules are stupid."]],"Repeating a position shuts down the search for a better solution."]]},
+   {narr:"Ngozi sits down next to Dani.", lines:[[1,"When you don't answer, my mind goes to the worst things."],[0,"I hate that you worry. But I hate feeling trapped too."]],
+    opts:[["So Ngozi needs to know Dani is safe, and Dani needs some independence and not to feel embarrassed. Did I get that right?","Looping for understanding",2,-15,10,10,[[1,"Yes. Exactly."],[0,"Yeah. That's it."]],"Summarizing both needs, then checking, proves you heard them and turns two positions into one problem."],
+          ["Dani, you should feel lucky someone cares.","Guilt-tripping",0,10,-15,5,[[0,"I do. That's not the point."]],"Guilt can make someone go quiet, but it rarely changes their mind."],
+          ["Ngozi, you're catastrophizing.","Labeling",0,12,5,-15,[[1,"Don't psychoanalyze me at midnight."]],"Diagnosing someone's thinking, even accurately, feels like an attack."],
+          ["You both love each other. That's what matters.","Platitude",1,-5,0,0,[[0,"Sure. But what now?"]],"Kind, but it doesn't move toward a solution."]]},
+   {narr:"The clock ticks past midnight.", lines:[[0,"So what happens now?"]],
+    opts:[["What if weekend curfew moves to 11:30, Dani shares her location and texts when she leaves, and Ngozi picks her up from the dark bus stop? Try it for a month.","Trial agreement",2,-18,12,10,[[0,"I can do that. Seriously."],[1,"A month. Then we talk again."]],"Trial periods let trust be earned step by step, with a built-in review."],
+          ["Let Dani stay out as late as her friends.","Giving in",0,8,10,-15,[[1,"Absolutely not."]],"Capitulation ignores one side's core interest, safety, so it won't hold."],
+          ["No going out for a month.","Punishment",0,15,-20,10,[[0,"Then I'll just stop telling you where I go."]],"Harsh punishments can push teens toward secrecy, the opposite of the goal."],
+          ["Dani has to answer every call within five minutes.","One-sided rule",1,5,-10,8,[[0,"And when my phone dies?"]],"A rule for one person only, with no input from them, feels like control."]]}
+  ]},
+ {id:"screenshot", tier:3, title:"The Screenshot", setting:"A school cafeteria. Zara's phone shows the group chat, full of laughing reactions.",
+  cast:[{n:"Zara",role:"Her private message was shared"},{n:"Jules",role:"Shared it with the group"}], tension:80,
+  beats:[
+   {narr:"Zara slides her phone across the table.", lines:[[0,"You screenshotted my private message and sent it to everyone. They're all laughing at me."],[1,"It was a joke! You're overreacting."]],
+    opts:[["Zara, that sounds embarrassing and hurtful. Jules, it sounds like you didn't expect this reaction. Let's slow down.","Validating both sides",2,-14,12,6,[[0,"It is embarrassing."],[1,"I really didn't think it was a big deal."]],"Validation isn't agreement. Both people can feel understood at the same time."],
+          ["Jules, that's cyberbullying.","Labeling",0,14,10,-20,[[1,"Oh, so now I'm a bully?"]],"A loaded label makes people defend their identity instead of looking at their actions."],
+          ["It's just a group chat. It'll blow over.","Minimizing",0,12,-18,5,[[0,"It's never going away. People save these."]],"Online humiliation can feel huge because it's public and permanent."],
+          ["Jules, delete it right now.","Commanding",1,5,8,-10,[[1,"Fine. Happy?"]],"Deleting it is the right outcome, but an order invites resistance. Ask instead."]]},
+   {narr:"Jules looks down at the table.", lines:[[1,"Honestly? You've been ignoring me for weeks. I guess I wanted a reaction."],[0,"So you humiliated me on purpose?"]],
+    opts:[["Jules, what's been happening between you two these past weeks?","Exploring the hidden issue",2,-10,0,12,[[1,"Zara started sitting with the debate team. I felt replaced."],[0,"I didn't replace you. I just made new friends too."]],"The visible fight is often about a hidden one, here the fear of being left out."],
+          ["Jules, that's no excuse.","Judging",0,10,8,-12,[[1,"I didn't say it was."]],"Judgment closes the door just when someone opens up."],
+          ["Zara, maybe you have been ignoring Jules.","Taking sides",0,10,-15,8,[[0,"Wow. So it's my fault now."]],"Blaming the hurt person for the harm done to them damages trust."],
+          ["So this is really about jealousy.","Interpreting",1,5,-5,-5,[[1,"I'm not jealous."]],"It may be true, but labeling someone's feelings for them feels like an accusation."]]},
+   {narr:"Zara's voice gets quieter.", lines:[[0,"Things you post don't go away. People will have that screenshot forever."]],
+    opts:[["Jules, what do you understand now about how this affected Zara?","Perspective-taking",2,-15,12,8,[[1,"It's out there forever and everyone saw it. I wouldn't want that. I'm sorry, Zara."],[0,"…Thank you for saying that."]],"Putting the impact into your own words builds real empathy and a real apology."],
+          ["Zara, you can't control what other people save.","Fatalism",0,10,-12,0,[[0,"That's exactly the problem."]],"True, but it leaves the hurt person feeling helpless."],
+          ["Let's report it to the school.","Escalating",1,5,5,-10,[[1,"Seriously?"]],"For ongoing harassment, adults should get involved. Here, try repair first."],
+          ["Jules, say sorry.","Forced apology",0,5,0,-10,[[1,"Sorry."]],"Forced apologies sound hollow and rarely repair anything."]]},
+   {narr:"The bell for next period rings.", lines:[[0,"So now what?"]],
+    opts:[["What could help repair this, in the group chat and between the two of you?","Restorative question",2,-16,10,10,[[1,"I'll delete it, ask everyone to delete theirs, and post that it wasn't okay."],[0,"And maybe we get lunch, just us, on Friday?"]],"Restorative approaches ask the person who caused harm to help repair it, which builds responsibility."],
+          ["Jules leaves the group chat.","Exclusion",0,10,5,-15,[[1,"So I lose all my friends?"]],"Excluding someone punishes but doesn't repair, and often deepens the rift."],
+          ["Zara, post something embarrassing about Jules so you're even.","Retaliation",0,20,-10,-20,[[0,"I'm not doing that."]],"Retaliation escalates conflicts and makes everyone less safe online."],
+          ["Jules deletes the screenshot and you both move on.","Partial fix",1,-8,5,5,[[0,"Okay. I guess."]],"It removes the harm but leaves the friendship issue untouched."]]}
+  ]},
+ {id:"bench", tier:4, title:"Bench Time", setting:"A school football field after practice. A water bottle bounces off the fence.",
+  cast:[{n:"Mateo",role:"Top scorer, benched three games"},{n:"Coach Rivera",role:"The team's coach"}], tension:85,
+  beats:[
+   {narr:"Mateo is still breathing hard.", lines:[[0,"Three games on the bench. I'm the best scorer on this team!"],[1,"And you've missed two practices and you never pass. This isn't a one-man team."]],
+    opts:[["This team clearly matters to both of you. Can we talk it through without anything else getting thrown?","Common ground + a boundary",2,-14,8,8,[[0,"…Yeah. Sorry about the bottle."],[1,"Okay. Let's talk."]],"Naming a shared goal and a simple boundary sets up a safe conversation."],
+          ["Coach, he's your best scorer. Just play him.","Taking sides",0,12,12,-15,[[1,"So the rules don't apply to talented players?"]],"Siding with talent over fairness damages trust with everyone else."],
+          ["Mateo, throwing things isn't okay. Apologize.","Demanding",1,8,-12,5,[[0,"Whatever. Sorry."]],"The boundary is fair; demanding an apology triggers resistance."],
+          ["Sports are supposed to be fun, guys.","Minimizing",0,10,-5,-5,[[0,"It's not fun sitting on the bench."]],"Brushing off strong feelings makes people feel unheard."]]},
+   {narr:"Mateo stares at the grass.", lines:[[0,"I missed practice because I've been working at my uncle's shop. We need the money."],[1,"Then you should have told me."]],
+    opts:[["Mateo, that's a lot to carry. Coach, what does the team need from every player?","Validation + interests",2,-12,12,10,[[1,"Showing up, passing, trusting each other. And knowing what's going on."],[0,"I didn't want special treatment."]],"Validating a hard situation while naming the group's needs keeps both sides at the table."],
+          ["Coach, you should have asked him.","Blaming",0,8,5,-12,[[1,"I'm not a mind reader."]],"Blame shifts the fight instead of resolving it."],
+          ["Mateo, school sports should come first.","Judging",0,12,-15,0,[[0,"Easy for you to say."]],"Judging a family's money situation shuts the conversation down."],
+          ["That changes everything. Coach, play him.","Rushing",1,5,8,-10,[[1,"Hold on."]],"New information matters, but rushing skips the team's needs."]]},
+   {narr:"Coach Rivera picks up the bottle.", lines:[[1,"If I start him over kids who came to every practice, what does that tell the team?"],[0,"That talent matters?"]],
+    opts:[["Mateo, how do you think the players who came to every practice feel?","Perspective-taking",2,-12,8,10,[[0,"…Probably like I think I'm better than them."],[1,"That's what I'm worried about."]],"Seeing it from teammates' eyes turns a power struggle into a shared concern."],
+          ["Coach, talent should win.","Taking sides",0,10,10,-15,[[1,"Not on my team."]],"Taking sides at the crux of the conflict ends your neutrality."],
+          ["Fairness is complicated.","Vague",1,0,0,0,[[0,"Okay…?"]],"True, but too vague to help anyone move forward."],
+          ["Mateo, just pass more and you'll play.","Giving advice",1,0,-5,5,[[0,"It's not that simple."]],"Advice before understanding feels like a lecture."]]},
+   {narr:"The floodlights click on.", lines:[[0,"So what happens?"]],
+    opts:[["Could Mateo share his work schedule, practice on the days he can, and earn back starting time by passing more? Review it in two weeks?","Specific agreement + review",2,-18,12,10,[[0,"I can do that. I'll send you my shifts tonight."],[1,"Two weeks. Show me."]],"Specific actions, a clear path to a goal and a review date make agreements stick."],
+          ["Mateo should quit his job.","Imposed solution",0,15,-20,5,[[0,"Then my family can't pay rent."]],"Imposed solutions that ignore a core need guarantee failure."],
+          ["Coach starts Mateo every game.","Giving in",0,10,10,-15,[[1,"Then what do I tell the others?"]],"Capitulating to one side breaks fairness for the whole team."],
+          ["Mateo apologizes to the team.","Partial repair",1,-5,0,8,[[0,"I can do that, I guess."]],"A good part of repair, but there's still no plan for the real problem."]]}
+  ]}
+);
+Object.assign(CAST_LOOK, {
+  project:[{skin:SKINS[3][0], hair:"buzz", hairC:"darkbrown", top:"#3a8dff", eye:"brown", shape:"square", glasses:true}, {skin:SKINS[1][0], hair:"ponytail", hairC:"blonde", top:"#ff7db8", eye:"blue", shape:"heart"}],
+  curfew:[{skin:SKINS[6][0], hair:"braids", hairC:"black", top:"#6f62ff", eye:"darkbrown", shape:"oval"}, {skin:SKINS[6][0], hair:"bun", hairC:"black", top:"#ffbf2e", eye:"darkbrown", shape:"round", earring:"#ffd166"}],
+  screenshot:[{skin:SKINS[4][0], hair:"curls", hairC:"black", top:"#22b8a7", eye:"brown", shape:"heart", earring:"#ff7db8"}, {skin:SKINS[0][0], hair:"bob", hairC:"pink", top:"#2b1d14", eye:"grey", shape:"oval"}],
+  bench:[{skin:SKINS[3][0], hair:"pixie", hairC:"black", top:"#e63946", eye:"brown", shape:"long"}, {skin:SKINS[2][0], hair:"buzz", hairC:"grey", top:"#3a8dff", eye:"brown", shape:"square"}]
+});
+Object.assign(SCENE_ART, {
+  project:`<rect width="400" height="200" fill="#f3e9d8"/><rect x="0" y="150" width="400" height="50" fill="#d9c3a0"/>${[20,70,120].map((x,i) => `<rect x="${x}" y="20" width="44" height="118" fill="#c8915a" stroke="${INK}" stroke-width="3"/>${[30,62,94].map(y => `<path d="M${x} ${y+28} H${x+44}" stroke="${INK}" stroke-width="2"/>${[0,1,2,3].map(k => `<rect x="${x+4+k*10}" y="${y}" width="7" height="26" fill="${["#e63946","#3a8dff","#ffbf2e","#22b8a7"][(k+i)%4]}" stroke="${INK}" stroke-width="1.2"/>`).join("")}`).join("")}`).join("")}<rect x="200" y="118" width="190" height="12" rx="3" fill="#c8915a" stroke="${INK}" stroke-width="3"/><rect x="268" y="96" width="46" height="24" rx="3" fill="#3d3d3d" stroke="${INK}" stroke-width="2.5"/><circle cx="350" cy="40" r="20" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><path d="M350 40 V27 M350 40 L360 46" stroke="${INK}" stroke-width="2.5"/>`,
+  curfew:`<rect width="400" height="200" fill="#2f3a63"/><rect x="0" y="150" width="400" height="50" fill="#5a4a6a"/><rect x="280" y="24" width="80" height="60" rx="4" fill="#1b2140" stroke="${INK}" stroke-width="3"/><circle cx="330" cy="46" r="10" fill="#fff3c4"/><circle cx="335" cy="43" r="9" fill="#1b2140"/><rect x="30" y="104" width="180" height="46" rx="12" fill="#b97cf6" stroke="${INK}" stroke-width="3"/><rect x="40" y="88" width="160" height="26" rx="10" fill="#c99bff" stroke="${INK}" stroke-width="3"/><circle cx="240" cy="40" r="18" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><path d="M240 40 V27 M240 40 L249 36" stroke="${INK}" stroke-width="2.5"/><text x="240" y="76" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" fill="#fffdf8">11:52</text>`,
+  screenshot:`<rect width="400" height="200" fill="#e8f4ef"/><rect x="0" y="150" width="400" height="50" fill="#bcd9cc"/><rect x="40" y="120" width="320" height="12" rx="3" fill="#78c552" stroke="${INK}" stroke-width="3"/><g transform="translate(178 30)"><rect width="44" height="80" rx="8" fill="#2b1d14" stroke="${INK}" stroke-width="2.5"/><rect x="4" y="8" width="36" height="62" rx="3" fill="#fffdf8"/>${[0,1,2,3].map(k => `<rect x="${k%2 ? 16 : 7}" y="${12+k*14}" width="22" height="9" rx="4" fill="${k%2 ? "#3a8dff" : "#d9ccb4"}"/>`).join("")}</g>${[90,140,250,300].map(x => `<circle cx="${x}" cy="70" r="10" fill="#ffbf2e" stroke="${INK}" stroke-width="2"/><path d="M${x-5} 70 q5 6 10 0" stroke="${INK}" stroke-width="1.8" fill="none"/>`).join("")}`,
+  bench:`<rect width="400" height="200" fill="#a9dcef"/><rect x="0" y="120" width="400" height="80" fill="#78c552"/><path d="M0 140 H400" stroke="#fffdf8" stroke-width="3" opacity=".7"/>${Array.from({length:21},(_,i) => `<path d="M${i*20} 70 V120" stroke="#9aa5b1" stroke-width="2"/>`).join("")}<path d="M0 72 H400 M0 96 H400" stroke="#9aa5b1" stroke-width="2"/><rect x="290" y="70" width="90" height="50" fill="none" stroke="#fffdf8" stroke-width="5"/><rect x="40" y="128" width="120" height="10" rx="3" fill="#c8915a" stroke="${INK}" stroke-width="2.5"/><circle cx="200" cy="150" r="10" fill="#fffdf8" stroke="${INK}" stroke-width="2.5"/><path d="M196 145 l8 0 l-4 6z" fill="${INK}"/>`
+});
+
+
 renderHub();
 </script>
