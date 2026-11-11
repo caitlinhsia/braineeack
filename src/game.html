@@ -1033,6 +1033,7 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 #tpOpts .choice{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;gap:1px}#tpOpts .choice b{font-size:18px;line-height:1.15}#tpOpts .choice small{font-size:13px}.postcard .eyebrow,.postcard h3{padding-right:70px}#tpOpts .choice small{opacity:.7}
 .odo{display:flex;gap:8px;margin-top:10px}.odo span{flex:1;border:2px solid var(--ink);border-radius:10px;padding:6px 8px;background:var(--card,#fffdf8)}.odo small{display:block;font:11px "DM Mono",monospace;opacity:.7}.odo b{font-size:15px}
 .fly-leg{stroke-dashoffset:1;animation:flyLeg 1.2s ease forwards}@keyframes flyLeg{from{stroke-dasharray:0 1}to{stroke-dasharray:1 0}}
+.prod-card{position:relative}.pc-over{position:absolute;top:8px;right:8px;white-space:nowrap;font:600 10.5px "DM Mono",monospace;color:#c1121f;background:#ffe3e3;border:1.5px solid #c1121f;border-radius:6px;padding:1px 5px;transform:rotate(3deg)}
 </style>
 
 <div class="wrap">
@@ -8298,7 +8299,7 @@ STUDIO.gift = {
     const blog = g.posts.map(([title, date, body]) => `<article class="post"><header><b>${title}</b><small>${date}</small></header><p>${body.replace(/<<([nla]):(.*?)>>/g, (_, k, t) => `<span class="clue" data-k="${k}">${t}</span>`)}</p></article>`).join("");
     stage.innerHTML = `<div class="gift-grid">
       <section class="blog"><div class="blog-head"><div class="blog-av">${faceSVG({...g.look, ...randomFeatures(g.name), mood:"happy"}, 72)}</div><div><span class="eyebrow">${g.rel}'s blog</span><h3>${g.name}</h3><p>${g.bio}</p></div></div>${blog}</section>
-      <section class="shop"><div class="brief"><span class="eyebrow">Gift ${this.round+1} of ${this.people.length}</span><h3>Find ${g.name} the perfect gift</h3><p>Read the blog for what they need, love and must avoid. Budget <b>£${g.budget}</b>, including shipping (£${GIFT_SHIP}, free over £${GIFT_FREE}). Pick up to 2 items.</p></div>
+      <section class="shop"><div class="brief"><span class="eyebrow">Gift ${this.round+1} of ${this.people.length}</span><h3>Find ${g.name} the perfect gift</h3><p>Read the blog for what they need, love and must avoid. Budget <b>£${g.budget}</b>, including shipping (£${GIFT_SHIP}, free over £${GIFT_FREE}). Pick up to 2 items.${g.needAll ? " <b>They need more than one thing: cover them all.</b>" : ""}</p></div>
         <div class="shop-bar"><input id="gfQ" placeholder="Search the store…" aria-label="Search"><div class="chips" id="gfCats">${["All", ...new Set(GIFT_ITEMS.map(x => x.c))].map(c => `<button type="button" class="ch" data-cat="${c}">${c}</button>`).join("")}</div></div>
         <div class="shop-grid" id="gfGrid"></div>
         <div class="cart" id="gfCart"></div><div id="gfRes"></div></section></div>`;
@@ -8311,30 +8312,30 @@ STUDIO.gift = {
   totals(){ const sub = this.cart.reduce((a, x) => a + x.p, 0), ship = sub >= GIFT_FREE || !sub ? 0 : GIFT_SHIP; return {sub, ship, tot:sub + ship}; },
   renderShop(){
     const list = GIFT_ITEMS.map((x, i) => [x, i]).filter(([x]) => (this.cat === "All" || x.c === this.cat) && (!this.q || (x.n + " " + x.d + " " + x.t.join(" ")).toLowerCase().includes(this.q)));
-    $("gfGrid").innerHTML = list.map(([x, i]) => `<article class="prod-card${this.cart.includes(x) ? " in" : ""}"><div class="pc-ic">${icon(x.i, 46)}</div><b>${x.n}</b><small>${x.d}</small><div class="pc-row"><span class="price">£${x.p}</span><button type="button" class="btn-sm" data-add="${i}">${this.cart.includes(x) ? "Remove" : "Add"}</button></div></article>`).join("") || `<p class="msg">No products match.</p>`;
+    $("gfGrid").innerHTML = list.map(([x, i]) => `<article class="prod-card${this.cart.includes(x) ? " in" : ""}"><div class="pc-ic">${icon(x.i, 46)}</div><b>${x.n}</b><small>${x.d}</small><div class="pc-row"><span class="price">£${x.p}</span>${!this.cart.includes(x) && giftCost([...this.cart, x]) > this.g.budget ? `<span class="pc-over">Over budget</span>` : ""}<button type="button" class="btn-sm" data-add="${i}">${this.cart.includes(x) ? "Remove" : "Add"}</button></div></article>`).join("") || `<p class="msg">No products match.</p>`;
     stage.querySelectorAll("[data-cat]").forEach(b => b.classList.toggle("sel", b.dataset.cat === this.cat));
     const t = this.totals(), over = t.tot > this.g.budget;
     $("gfCart").innerHTML = `<div class="cart-in"><b>Basket</b>${this.cart.map(x => `<span class="cart-item">${icon(x.i, 22)} ${x.n} · £${x.p}</span>`).join("") || `<span class="cart-item muted">Empty</span>`}
       <div class="cart-sum"><span>Items £${t.sub}</span><span>Shipping ${t.ship ? "£" + t.ship : "free"}</span><span class="${over ? "over" : ""}">Total <b>£${t.tot}</b> / £${this.g.budget}</span></div>
-      <p class="msg" id="gfCartMsg">${over ? `Over budget by £${t.tot - this.g.budget}.` : ""}</p>
+      <p class="msg" id="gfCartMsg">${over ? `Over budget by £${t.tot - this.g.budget}. Remove something to send it.` : this.cart.length ? `£${this.g.budget - t.tot} left to spend.${t.ship && GIFT_FREE <= this.g.budget ? ` Spend £${GIFT_FREE - t.sub} more for free shipping.` : ""}` : `£${this.g.budget} to spend, shipping included.`}</p>
       <button class="btn btn-solid" type="button" id="gfGo" ${!this.cart.length || over || this.locked ? "disabled" : ""}>Wrap it & send</button></div>`;
     $("gfGo").onclick = () => this.send();
   },
   send(){
     if(this.locked) return; this.locked = true;
     const g = this.g, tags = new Set(this.cart.flatMap(x => x.t));
-    const needOk = g.need.some(n => tags.has(n)), likeOk = g.like.some(n => tags.has(n)), bad = g.avoid.filter(a => tags.has(a));
+    const needHit = g.need.filter(n => tags.has(n)), needOk = g.needAll ? needHit.length === g.need.length : needHit.length > 0, needPart = g.needAll && needHit.length > 0 && !needOk, likeOk = g.like.some(n => tags.has(n)), bad = g.avoid.filter(a => tags.has(a));
     const res = [
-      {label:"Something they actually need", ok:needOk, why:g.why.need},
+      {label:g.needAll ? `Everything they need (${g.need.length} things)` : "Something they actually need", ok:needOk, why:needPart ? `You covered 1 of the ${g.need.length} things they asked for. ${g.why.need}` : g.why.need},
       {label:"Matches what they love", ok:likeOk, why:`Clues: ${g.like.join(", ")}.`},
-      {label:"Avoids anything they'd hate", ok:!bad.length, why: bad.length ? `Oops: ${listAnd(bad.map(b => ({honey:"honey isn't vegan", leather:"leather isn't vegan", big:"it's too big for their space", tech:"gadgets confuse them", screen:"screens are off-limits", slow:"it takes hours they don't have", scented:"strong scents trigger migraines", umbrella:"they already have one", wool:"wool allergy", paperbook:"no shelf space for paper books"})[b] || b))}. ${g.why.avoid}` : g.why.avoid},
+      {label:"Avoids anything they'd hate", ok:!bad.length, why: bad.length ? `Oops: ${listAnd(bad.map(b => ({honey:"honey isn't vegan", leather:"leather isn't vegan", big:"it's too big for their space", tech:"gadgets confuse them", screen:"screens are off-limits", slow:"it takes hours they don't have", scented:"strong scents trigger migraines", sugar:"they're cutting out sweets", cozy:"they already have far too many", smallparts:"small parts are a choking risk", science:"its age rating is too old for them", dairy:"dairy upsets their stomach", cheese:"dairy upsets their stomach", umbrella:"they already have one", wool:"wool allergy", paperbook:"no shelf space for paper books"})[b] || b))}. ${g.why.avoid}` : g.why.avoid},
       {label:"Within budget, shipping included", ok:true, why:`£${this.totals().tot} of £${g.budget}.`}
     ];
-    const f = (needOk ? .5 : 0) + (likeOk ? .2 : 0) + (bad.length ? 0 : .2) + .1, pts = Math.round(1000*(bad.length ? Math.min(f, .4) : f));
+    const f = (needOk ? .5 : needPart ? .3 : 0) + (likeOk ? .2 : 0) + (bad.length ? 0 : .2) + .1, pts = Math.round(1000*(bad.length ? Math.min(f, .4) : f));
     this.total += pts; this.log.push({n:g.name, pts}); adapt("gift", pts/1000);
     pts >= 900 ? sfx.win() : pts >= 500 ? sfx.good() : sfx.bad();
     stage.querySelectorAll(".clue").forEach(s => s.classList.add("show"));
-    const reply = bad.length ? `Oh… thank you. ${bad.includes("scented") ? "I'll have to give this one away, the smell…" : bad.includes("wool") ? "Sadly I can't wear wool." : "I'm not sure I can use this."}` : needOk && likeOk ? "THIS IS PERFECT. How did you know?! 😍".replace(" 😍", "") : needOk ? "Oh, I really needed this. Thank you!" : likeOk ? "Aw, that's so me. Thanks!" : "Thank you, that's kind.";
+    const reply = bad.length ? `Oh… thank you. ${bad.includes("scented") ? "I'll have to give this one away, the smell…" : bad.includes("wool") ? "Sadly I can't wear wool." : "I'm not sure I can use this."}` : needOk && likeOk ? "THIS IS PERFECT. How did you know?! 😍".replace(" 😍", "") : needPart ? "Oh, this helps! I did mention a couple of things, though." : needOk ? "Oh, I really needed this. Thank you!" : likeOk ? "Aw, that's so me. Thanks!" : "Thank you, that's kind.";
     const last = this.round === this.people.length - 1;
     $("gfRes").innerHTML = `<div class="reveal"><span class="eyebrow">${pts >= 900 ? "Perfect gift" : pts >= 500 ? "Good gift" : "Missed the mark"}</span><span class="pts">+${fmt(pts)}</span>
       <div class="reply"><div class="reply-av">${faceSVG({...g.look, ...randomFeatures(g.name), mood: pts >= 900 ? "happy" : pts >= 500 ? "neutral" : "sad"}, 54)}</div><p>“${reply}”</p></div>
@@ -9116,7 +9117,7 @@ GIFT_PEOPLE.push(
   {name:"Mr. Okafor", rel:"your neighbour", bio:"Retired chef · chili grower · lactose intolerant", budget:25, look:{skin:SKINS[5][0], hair:"buzz", hairC:"grey", eye:"darkbrown", top:"#e76f51", shape:"square", glasses:true},
    need:["spicy"], like:["food","cooking"], avoid:["dairy","cheese"], why:{need:"He puts hot sauce on everything.", avoid:"Dairy upsets his stomach."},
    posts:[["Chili harvest","Monday","My scotch bonnets are ready! <<n:Nothing goes on my plate without hot sauce, the hotter the better.>>"],["Doctor's news","Last month","<<a:Turns out I'm lactose intolerant. Goodbye cheese, goodbye milk. So sad.>>"],["Cooking class","Thursday","<<l:Taught the community centre how to make jollof rice. Cooking for people is my joy.>>"]]},
-  {name:"Kenji", rel:"your coworker", bio:"First holiday in 3 years · flying hand-luggage only · learning to swim", budget:35, look:{skin:SKINS[1][0], hair:"pixie", hairC:"black", eye:"brown", top:"#3a8dff", shape:"long"},
+  {name:"Mateo", rel:"your coworker", bio:"First holiday in 3 years · flying hand-luggage only · learning to swim", budget:35, look:{skin:SKINS[1][0], hair:"pixie", hairC:"black", eye:"brown", top:"#3a8dff", shape:"long"},
    need:["swim"], like:["holiday","sport"], avoid:["big"], why:{need:"He's going snorkelling for the first time.", avoid:"Hand luggage only, so it has to pack small."},
    posts:[["Booked it!","Tuesday","Two weeks in the Philippines! <<n:I've never been snorkelling, but the coral reefs there are supposed to be incredible.>>"],["Packing challenge","Yesterday","<<a:Flying hand-luggage only, so everything has to fit in one small bag.>>"],["Swimming lessons","Saturday","<<l:Lesson 6 done. I can finally swim a whole length without stopping!>>"]]},
   {name:"Lily", rel:"your cousin (age 6)", bio:"Loves the aquarium · scared of the dark · still puts everything in her mouth", budget:25, look:{skin:SKINS[0][0], hair:"bun", hairC:"blonde", eye:"blue", top:"#ff7db8", shape:"round"},
@@ -9373,6 +9374,64 @@ Object.assign(SCENE_ART, {
   noise:`<rect width="400" height="200" fill="#ece4f2"/><rect x="0" y="150" width="400" height="50" fill="#9a8c98"/><rect x="40" y="30" width="90" height="120" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><circle cx="118" cy="92" r="4" fill="#ffd166" stroke="${INK}" stroke-width="2"/><rect x="270" y="30" width="90" height="120" fill="#fffdf8" stroke="${INK}" stroke-width="3"/><circle cx="282" cy="92" r="4" fill="#ffd166" stroke="${INK}" stroke-width="2"/><text x="315" y="22" font-size="22" text-anchor="middle" fill="${INK}">♪ ♫</text><circle cx="200" cy="40" r="14" fill="#fff3a8" stroke="${INK}" stroke-width="2.5"/>`,
   garden:`<rect width="400" height="200" fill="#d8f0ff"/><rect x="0" y="140" width="400" height="60" fill="#8fd16a"/>${Array.from({length:14}, (_, i) => `<rect x="${i*30}" y="80" width="24" height="70" rx="4" fill="#d9a35b" stroke="${INK}" stroke-width="2"/>`).join("")}<ellipse cx="200" cy="140" rx="22" ry="12" fill="#5a3b2c"/><rect x="40" y="160" width="110" height="26" rx="4" fill="#6b4226" stroke="${INK}" stroke-width="2.5"/><circle cx="70" cy="160" r="8" fill="#e63946" stroke="${INK}" stroke-width="2"/><circle cx="110" cy="158" r="8" fill="#e63946" stroke="${INK}" stroke-width="2"/><circle cx="330" cy="40" r="22" fill="#ffd166" stroke="${INK}" stroke-width="3"/>`
 });
+
+/* ---------- Gift Detective: 25 more products, 3 more people, budget guarantees ---------- */
+GIFT_ITEMS.push(
+  {n:"Instant camera", p:55, i:"📸", c:"Tech", t:["photo","tech"], d:"Prints a photo in 90 seconds."},
+  {n:"Scrapbook kit", p:15, i:"g:journal", c:"Art", t:["art","photo","crafts"], d:"Album, stickers and photo corners."},
+  {n:"Polarized sunglasses", p:20, i:"😎", c:"Fashion", t:["summer","holiday","small"], d:"Cut glare from water and snow."},
+  {n:"Hair ribbon set", p:6, i:"🎀", c:"Fashion", t:["kids","small","dressup"], d:"Ten satin ribbons in bright colors."},
+  {n:"Birthstone necklace", p:35, i:"💎", c:"Fashion", t:["jewelry","small"], d:"Sterling silver, choose any month."},
+  {n:"Dog toy bundle", p:12, i:"🐕", c:"Pets", t:["dog","pet","small"], d:"Rope, squeaky ball and a chew bone."},
+  {n:"Orthopedic dog bed", p:34, i:"g:blanket", c:"Pets", t:["dog","pet","big","oldpet"], d:"Memory foam, eases stiff joints."},
+  {n:"Fun-shape ice molds", p:7, i:"🧊", c:"Home", t:["kitchen","small"], d:"Stars, hearts and dinosaurs."},
+  {n:"Coin collector's album", p:14, i:"🪙", c:"Books", t:["collecting","history","paperbook"], d:"Holds 200 coins, with a world guide."},
+  {n:"Rock and mineral kit", p:20, i:"🪨", c:"Kids", t:["science","rocks","kids"], d:"15 specimens with a magnifier, ages 8+."},
+  {n:"Whittling kit", p:18, i:"🪵", c:"Outdoors", t:["crafts","outdoors","sharp"], d:"Carving knife, gloves and wood blocks, ages 12+."},
+  {n:"Theatre ticket voucher", p:40, i:"🎭", c:"Experiences", t:["theatre","experience"], d:"Two seats at any show in town."},
+  {n:"Planetarium tickets", p:24, i:"🪐", c:"Experiences", t:["space","experience","kids"], d:"A family pass to the star dome show."},
+  {n:"Aquarium day pass", p:22, i:"🐬", c:"Experiences", t:["ocean","experience","kids"], d:"Includes the sea-turtle feeding talk."},
+  {n:"Adopt-a-turtle certificate", p:15, i:"🐢", c:"Experiences", t:["ocean","animals","charity","small"], d:"Supports a sea turtle rescue; comes with updates."},
+  {n:"Castle building set", p:45, i:"🏰", c:"Kids", t:["build","kids","smallparts","big"], d:"1,200 bricks, ages 9+."},
+  {n:"Fresh fruit basket", p:25, i:"🍇", c:"Food", t:["food","healthy","vegan"], d:"Seasonal fruit, delivered the next day."},
+  {n:"Cookie decorating kit", p:16, i:"🍪", c:"Food", t:["baking","food","kids"], d:"Cookies, icing pens and sprinkles."},
+  {n:"Croissant baking class", p:35, i:"🥐", c:"Experiences", t:["baking","cooking","experience"], d:"A 3-hour class with a French pastry chef."},
+  {n:"Natural sponge and soap set", p:11, i:"🧽", c:"Self-care", t:["selfcare","scented","small"], d:"Rose-scented handmade soap."},
+  {n:"Keyring tracker", p:25, i:"🔑", c:"Tech", t:["tech","forgetful","small"], d:"Find your keys with a phone app."},
+  {n:"Campfire s'mores kit", p:18, i:"🔥", c:"Outdoors", t:["camping","food"], d:"Skewers, marshmallows and chocolate."},
+  {n:"Puzzle globe", p:28, i:"🌍", c:"Kids", t:["geography","puzzle","kids"], d:"A 3D jigsaw of the world, 540 pieces."},
+  {n:"Royal crown costume", p:10, i:"👑", c:"Kids", t:["dressup","kids","small"], d:"Soft, sparkly and adjustable."},
+  {n:"Shark plush", p:14, i:"🦈", c:"Kids", t:["ocean","kids","cozy","small"], d:"Huggable great white, 40 cm long."}
+);
+GIFT_PEOPLE.push(
+  {name:"Mrs. Ellis", rel:"your piano teacher", bio:"Retired actress · 14-year-old dog called Pickle · lives in a tiny flat", budget:80, look:{skin:SKINS[0][0], hair:"bun", hairC:"grey", eye:"blue", top:"#b5838d", shape:"oval", glasses:true},
+   need:["oldpet","theatre"], needAll:true, like:["dog"], avoid:["paperbook"], why:{need:"Old Pickle has stiff joints, and she misses going to the theatre.", avoid:"Her shelves are overflowing."},
+   posts:[["Poor old Pickle","Monday","<<n:Pickle is 14 now and his joints are so stiff. He groans getting out of his hard old basket.>>"],["Curtain call","Friday","<<n:I haven't been to the theatre since I retired from the stage. I do miss it terribly.>>"],["Book clear-out","Last week","<<a:My shelves are bursting. Please, nobody give me another book!>>"]]},
+  {name:"Hiro", rel:"your uncle", bio:"Loses his keys daily · weekend camper · trying to eat healthier", budget:40, look:{skin:SKINS[1][0], hair:"buzz", hairC:"black", eye:"darkbrown", top:"#264653", shape:"square"},
+   need:["forgetful"], like:["camping","healthy"], avoid:["sugar"], why:{need:"He loses his keys every single day.", avoid:"He's cutting out sweets."},
+   posts:[["Locked out. Again.","Tuesday","<<n:Third time this month I've spent an hour hunting for my keys. They were in the fridge.>>"],["New year, new me","Last month","<<a:No more sweets or chocolate for me: doctor's orders.>> <<l:Trying to eat more fruit instead.>>"],["Lake weekend","Sunday","<<l:Pitched the tent by the lake. Nothing beats camping.>>"]]},
+  {name:"Zoe", rel:"your cousin (age 8)", bio:"Wants to be a marine biologist · loves dressing up · already has every plush toy", budget:30, look:{skin:SKINS[5][0], hair:"curls", hairC:"black", eye:"darkbrown", top:"#2ec4b6", shape:"round"},
+   need:["experience","ocean"], needAll:true, like:["kids","dressup"], avoid:["cozy"], why:{need:"She wants to see real sea creatures up close.", avoid:"Her bed is buried in plush toys already."},
+   posts:[["Marine biologist in training","Saturday","(Posted by Zoe's mum) <<n:Zoe has watched every ocean documentary twice and keeps begging to see real sea turtles and dolphins.>>"],["Bedroom update","Wednesday","<<a:We have a strict no-more-plushies rule. There are 47 on her bed!>>"],["Dress-up day","Last week","<<l:She went to school as a jellyfish, with streamers and all.>>"]]}
+);
+Object.assign(GIFT_PEOPLE.find(g => g.name === "Sofia") || {}, {needAll:true});
+Object.assign(GIFT_PEOPLE.find(g => g.name === "Lily") || {}, {needAll:true});
+Object.assign(GIFT_PEOPLE.find(g => g.name === "Grandma Mei") || {}, {needAll:true});
+(GIFT_ITEMS.find(x => x.n === "Vegan chocolate box") || {t:[]}).t.push("sugar");
+(GIFT_ITEMS.find(x => x.n === "Campfire s'mores kit") || {t:[]}).t.push("sugar");
+(GIFT_ITEMS.find(x => x.n === "Cookie decorating kit") || {t:[]}).t.push("sugar");
+/* Budget guarantee: the cheapest basket (max 2 items) that covers everything a person asks for,
+   without anything they must avoid, always fits the budget. Raise any budget that's too low. */
+function giftCost(items){ const s = items.reduce((a, x) => a + x.p, 0); return s + (s >= GIFT_FREE || !s ? 0 : GIFT_SHIP); }
+function giftBestBasket(g){
+  const safe = GIFT_ITEMS.filter(x => !g.avoid.some(a => x.t.includes(a)));
+  const covers = items => { const tags = new Set(items.flatMap(x => x.t)); return g.needAll ? g.need.every(n => tags.has(n)) : g.need.some(n => tags.has(n)); };
+  let best = null;
+  safe.forEach((a, i) => { if(covers([a]) && (!best || giftCost([a]) < giftCost(best))) best = [a];
+    safe.slice(i + 1).forEach(b => { if(covers([a, b]) && (!best || giftCost([a, b]) < giftCost(best))) best = [a, b]; }); });
+  return best;
+}
+GIFT_PEOPLE.forEach(g => { const b = giftBestBasket(g); if(b && giftCost(b) > g.budget) g.budget = Math.ceil(giftCost(b)/5)*5; });
 
 renderHub();
 </script>
