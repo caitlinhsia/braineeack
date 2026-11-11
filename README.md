@@ -7,6 +7,8 @@ An adaptive brain-training game that runs in the browser. Seventeen rooms, each 
 | Explorers | **World Kitchen**: guess where a dish comes from on a world map (plus a 60-second Blitz) | Geography, food history |
 | Explorers | **Time & Thread**: guess where and when an outfit was worn | History, geography |
 | Explorers | **Landmark Hunt**: pin 32 illustrated world landmarks on the map | Geography, history |
+| Explorers | **Atlas Detective**: an unlabeled map: find countries, name highlighted ones by shape, pick capitals (64 countries) | Map reading, capitals |
+| Explorers | **Mystery Guest**: a silhouette from history; reveal clues and guess who it is (26 figures) | History |
 | Explorers | **Flag Maker**: rebuild 59 countries' flags across 10 layouts (stripes, crosses, saltires, triangles, discs) | Flags, symbolism |
 | Explorers | **Then & Now**: slot 80 events, from farming to the Webb telescope, into a growing timeline | History |
 | Studios | **Test Kitchen**: cook for customers who taste and react ("too salty!") until you get it right | Flavor balance, food science, food origins |
