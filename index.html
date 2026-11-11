@@ -5691,7 +5691,10 @@ function photoBooth(o){
   $("boothSave").addEventListener("click", () => {
     const svg = boothSVG({...st, face:o.face}), img = new Image(), scale = 2;
     img.onload = () => { try{ const cv = document.createElement("canvas"); cv.width = img.width*scale; cv.height = img.height*scale; const cx = cv.getContext("2d"); cx.scale(scale, scale); cx.drawImage(img, 0, 0);
-      const a = document.createElement("a"); a.download = `photo-strip-${o.name.toLowerCase()}.png`; a.href = cv.toDataURL("image/png"); document.body.appendChild(a); a.click(); a.remove(); $("boothMsg").textContent = "Saved! Check your downloads."; }catch(_){ $("boothMsg").textContent = "Your browser blocked saving. Try a screenshot instead!"; } };
+      const filename = `photo-strip-${o.name.toLowerCase()}.png`;
+      const dl = window.claude && window.claude.use ? window.claude.use("downloads").catch(() => null) : Promise.resolve(null);
+      dl.then(d => { if(d) return cv.toBlob(blob => d.save({filename, data:blob}).then(() => $("boothMsg").textContent = "Saved!", e => $("boothMsg").textContent = e && e.code === "declined" ? "Not saved." : "Saving isn't available here. Try a screenshot!"), "image/png");
+        const a = document.createElement("a"); a.download = filename; a.href = cv.toDataURL("image/png"); document.body.appendChild(a); a.click(); a.remove(); $("boothMsg").textContent = "Saved! Check your downloads."; }); }catch(_){ $("boothMsg").textContent = "Your browser blocked saving. Try a screenshot instead!"; } };
     img.onerror = () => { $("boothMsg").textContent = "Couldn't build the image. Try a screenshot instead!"; };
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
     sfx.win(); FX.sparkle(innerWidth/2, innerHeight/2, 30);
