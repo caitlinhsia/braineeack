@@ -697,6 +697,35 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
 .usage .warn{color:#c81d4a;font-family:var(--body);font-weight:600}.usage .okay{color:#14864d;font-family:var(--body);font-weight:600}
 .layout-compare{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
 .layout-compare figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700}
+
+/* ===== game feel ===== */
+#fxCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:95}
+.jolt{animation:jolt .32s}
+@keyframes jolt{20%{transform:translateX(-6px) rotate(-.4deg)}40%{transform:translateX(5px) rotate(.3deg)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.viewin{animation:viewin .32s ease-out}
+@keyframes viewin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.modal:not([hidden]) .sheet{animation:sheetpop .3s cubic-bezier(.2,1.4,.4,1)}
+@keyframes sheetpop{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:none}}
+.stars i{font-style:normal;display:inline-block;animation:starpop .5s calc(var(--d)*.2s + .25s) both cubic-bezier(.2,1.6,.4,1)}
+.stars i.off{color:var(--panel2)}
+@keyframes starpop{from{opacity:0;transform:scale(.2) rotate(-40deg)}to{opacity:1;transform:none}}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.choice.good{animation:goodpop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes goodpop{50%{transform:scale(1.06)}}
+.hud-help{width:44px;padding:10px 0;font-size:18px}
+.toast{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:96;display:flex;align-items:center;gap:12px;background:var(--panel);border:var(--bw) solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink);padding:10px 16px 10px 12px;max-width:min(340px,calc(100vw - 32px));animation:toastin .45s cubic-bezier(.2,1.5,.4,1)}
+.toast.out{animation:toastout .4s ease-in forwards}
+.toast small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.toast b{display:block;font-family:var(--display);font-size:18px}.toast span{font-size:12px;color:var(--muted)}
+@keyframes toastin{from{opacity:0;transform:translateY(30px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes toastout{to{opacity:0;transform:translateY(30px)}}
+.howto{display:flex;flex-direction:column;gap:10px;text-align:left}
+.howto li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;font-size:15px}
+.howto li span{width:32px;height:32px;border-radius:50%;background:var(--c);border:2.5px solid var(--ink);display:grid;place-items:center;font-family:var(--display);font-weight:700}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
+.badge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;opacity:.55}
+.badge.got{opacity:1}
+.badge b{font-size:12px}.badge small{font-size:10px;color:var(--muted);line-height:1.25}
 </style>
 
 <div class="wrap">
@@ -752,6 +781,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
             <li><b>Real conflict research.</b> Peacemaker draws on Gottman's marriage studies, Fisher &amp; Ury's <i>Getting to Yes</i>, Rosenberg's Nonviolent Communication and Lieberman's affect-labeling experiments.</li>
           </ul>
         </details>
+        <details class="science" open><summary>Badges · <span id="badgeCount"></span></summary><div class="badges" id="badgeList"></div></details>
         <details class="science"><summary>Glossary</summary><dl class="gloss" id="glossList"></dl></details>
       </div>
     </section>
@@ -760,6 +790,7 @@ h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
   <main id="play" class="wrap" style="gap:16px" hidden>
     <div class="hud">
       <button class="btn btn-ghost" id="quitBtn" type="button">← Lobby</button>
+      <button class="btn btn-ghost hud-help" id="helpBtn" type="button" aria-label="How to play">?</button>
       <div class="hud-title"><span class="eyebrow" id="hudSkill"></span><h2 id="hudName"></h2></div>
       <div class="stat"><small id="hudALabel">Time</small><b id="hudA">60</b></div>
       <div class="stat"><small id="hudBLabel">Score</small><b id="hudB">0</b></div>
@@ -874,7 +905,7 @@ const KEY = "synapse-arcade-v2";
 function blank(){
   const per = v => Object.fromEntries(ALL.map(k => [k, typeof v === "function" ? v() : v]));
   return {xp:0, played:0, streak:0, lastDay:"", mixDay:"", sound:true, mixStars:0,
-    skill:per(0), rating:per(2), hist:per(() => []), stars:per(0), best:{}, review:[], lastScen:"", daily:{}, seenQ:{}, seenItems:{}};
+    skill:per(0), rating:per(2), hist:per(() => []), stars:per(0), best:{}, review:[], lastScen:"", daily:{}, seenQ:{}, seenItems:{}, howto:{}, badges:{}};
 }
 function load(){
   const d = blank();
@@ -919,7 +950,7 @@ function adapt(room, outcome){
   S.rating[room] = clamp(S.rating[room] + 0.8*(outcome - 0.75), 1, 10);
   if(isMulti(G.room)) G.mixRooms.add(room);
 }
-function starsHtml(n){ return `<div class="stars" aria-label="${n} of 3 stars">${"★".repeat(n)}<span class="off">${"★".repeat(3-n)}</span></div>`; }
+function starsHtml(n){ return `<div class="stars" aria-label="${n} of 3 stars">${[0,1,2].map(i => `<i class="${i < n ? "" : "off"}" style="--d:${i}">★</i>`).join("")}</div>`; }
 function checklist(res){ return `<ul class="checks">${res.map(c=>`<li class="${c.ok?"ok":"no"}"><span class="mk">${c.ok?"✓":"✗"}</span><div><b>${c.label}</b><p>${c.why}</p></div></li>`).join("")}</ul>`; }
 
 /* =========================================================
@@ -1287,6 +1318,7 @@ const QUIZ = {
   },
   finish(){
     const f = this.right/this.total, stars = f >= .9 ? 3 : f >= .7 ? 2 : 1;
+    if(this.right === this.total && this.total >= 8) grant("quiz10");
     endSession({title: f >= .9 ? "Superb recall" : f >= .7 ? "Solid session" : "Good practice", stars, xp: 15 + 10*stars,
       body:`<div class="big">${this.right}/${this.total}</div><p class="m-note">${f >= .7 ? "Retrieving answers from memory, even when it's hard, is one of the most effective ways to learn." : "Every miss came with an explanation. Reading those right after a mistake is when memory updates the most."}</p>`});
   }
@@ -1783,6 +1815,7 @@ function Explorer(cfg){
     finishDaily(){
       const t = this.tour, first = !S.daily[t.key];
       if(first) S.daily[t.key] = {score:this.total, marks:this.log.map(l => l.pts)};
+      grant("tour"); if(this.total >= 20000) grant("tour20");
       const keys = Object.keys(S.daily).sort(); while(keys.length > 90) delete S.daily[keys.shift()];
       const rec = S.daily[t.key], streak = tourStreak();
       const stars = this.total >= 18000 ? 3 : this.total >= 10000 ? 2 : 1;
@@ -2483,7 +2516,7 @@ STUDIO.cook = {
     this.render();
   },
   success(){
-    this.done = true;
+    this.done = true; if(this.tastings === 1) grant("chef");
     const pts = this.tastings <= 3 ? 1000 : Math.max(300, 1000 - 100*(this.tastings - 3));
     this.finishRound(pts, `Mmm! That's perfect. ${this.tastings === 1 ? "First try?! You're a natural." : `Worth the ${this.tastings} tries!`}`, "happy");
   },
@@ -2630,6 +2663,7 @@ STUDIO.time = {
   finish(){
     const right = this.placed.filter(p => p.fresh !== "wrong").length;
     const stars = this.lives === 3 && this.turns >= this.max ? 3 : this.lives >= 1 && this.turns >= this.max ? 2 : 1;
+    if(stars === 3) grant("historian");
     endSession({title: stars === 3 ? "Flawless historian" : stars === 2 ? "Timeline complete" : "History is tricky", stars, xp:20+15*stars,
       body:`<div class="big">${fmt(this.score)}</div><p class="m-note">${this.turns} cards placed, ${3-this.lives} mistake${3-this.lives===1?"":"s"}. Your timeline spans ${yearLabel(this.placed[0].y)} to ${yearLabel(this.placed[this.placed.length-1].y)}.</p>`,
       actions:[["New timeline", () => startRoom("time","studio"), true], ["Lobby", goHub]]});
@@ -3210,6 +3244,7 @@ STUDIO.makeup = {
     const res = this.mode === "theme" ? this.theme.checks.map(([label, t]) => ({label, ok:t(m), why:""})) : this.c.rules.map(r => ({label:r.label, why:r.why, ok:r.test(m)}));
     res.push({label:"Neat work: stay on the lines", ok:!ni.length, why: ni.length ? `Careful: ${listAnd(ni)}. Pros use a lip liner and tape for crisp edges.` : "Clean edges make any look look professional."});
     const f = res.filter(r => r.ok).length / res.length; this.f = f; this.locked = true;
+    if(this.mode === "theme" && f === 1) grant("judges");
     const pts = Math.round(1000*f); this.total += pts; this.log.push({n: this.mode === "theme" ? this.theme.n : this.c.name, pts}); adapt("makeup", f);
     f >= .99 ? sfx.win() : f >= .6 ? sfx.good() : sfx.bad();
     this.mountFace(f >= .8 ? "happy" : f >= .5 ? "neutral" : "sad");
@@ -4156,7 +4191,7 @@ STUDIO.sewing = {
     const toSvg = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
     svg.addEventListener("pointerdown", e => { if(this.done) return; const q = toSvg(e), t = this.pts[this.prog]; if(Math.hypot(q.x-t.x, q.y-t.y) < 18){ this.drawing = true; try{ svg.setPointerCapture(e.pointerId); }catch(_){} this.move(q); } else this.status("Start from the green dot (or where you stopped)."); });
     svg.addEventListener("pointermove", e => { if(this.drawing) this.move(toSvg(e)); });
-    const up = () => { this.drawing = false; };
+    const up = () => { this.drawing = false; if(!this.done && this.pts && this.prog >= this.pts.length * .94){ this.prog = this.pts.length - 1; $("sewDone").setAttribute("points", this.pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")); this.seamDone(); } };
     svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
     setSide("Seam", `1/${SEW_STEPS[this.g.name].seams.length}`);
     this.loadSeam();
@@ -4204,6 +4239,8 @@ STUDIO.sewing = {
       if(this.prog % 4 === 0) tone(700 + (this.prog % 12)*15, .03, "square", .015);
     } else if(near > 16) this.status("Off the line. Ease back onto the dashes.");
     else this.status(`${Math.round(this.prog/(N-1)*100)}% sewn`);
+    const end = P[N-1];
+    if(this.prog >= N - 4 && Math.hypot(q.x - end.x, q.y - end.y) < 14) this.prog = N - 1;
     if(this.prog >= N-1) this.seamDone();
   },
   seamDone(){
@@ -4221,6 +4258,7 @@ STUDIO.sewing = {
     const sd = SEW_STEPS[this.g.name], m = v => (v*CELL_CM/100).toFixed(2)+" m";
     const u = this.layoutUsed, layoutF = u <= this.best ? 1 : u <= this.target ? .85 : Math.max(0, .85 - .15*(u - this.target));
     const sewF = this.seamScores.reduce((a,b) => a+b, 0) / this.seamScores.length;
+    if(sewF >= .95) grant("tailor");
     const f = .5*layoutF + .5*sewF;
     adapt("sewing", f);
     const stars = f >= .92 ? 3 : f >= .7 ? 2 : 1;
@@ -4543,7 +4581,7 @@ STUDIO.peace = {
     const minT = Math.min(...this.trust);
     const outcome = this.t <= 30 && minT >= 55 ? ["Resolved","They leave with an agreement, and with the relationship intact."] : this.t <= 55 ? ["Ceasefire","The shouting stopped, but something is still unresolved between them."] : ["Walkout","Someone leaves mid-conversation. The conflict is worse than before."];
     const f = this.log.reduce((s,l) => s + l.q, 0) / (2*this.log.length);
-    adapt("peace", f);
+    adapt("peace", f); if(outcome[0] === "Resolved") grant("peace");
     const stars = outcome[0] === "Resolved" ? (f >= .99 ? 3 : 2) : outcome[0] === "Ceasefire" ? (f >= .6 ? 2 : 1) : 1;
     endSession({title: outcome[0], stars, xp:30+15*stars,
       body:`<p class="m-note">${outcome[1]}</p><div class="m-row"><span><b>${this.t}</b>final tension</span><span><b>${this.trust[0]}</b>${this.sc.cast[0].n}'s trust</span><span><b>${this.trust[1]}</b>${this.sc.cast[1].n}'s trust</span></div>
@@ -4564,6 +4602,177 @@ document.addEventListener("keydown", e => {
     else if(e.key === "Escape") ENG.words.clear();
   }
 });
+
+/* =========================================================
+   GAME FEEL: particles, shake, haptics, count-ups, transitions,
+   onboarding cards and badges, layered on top of every room
+   ========================================================= */
+const REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const FX = (() => {
+  const cv = document.createElement("canvas"); cv.id = "fxCanvas"; cv.setAttribute("aria-hidden", "true"); document.body.appendChild(cv);
+  const ctx = cv.getContext("2d"); let parts = [], running = false, dpr = 1;
+  const size = () => { dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = innerWidth*dpr; cv.height = innerHeight*dpr; };
+  size(); addEventListener("resize", size);
+  const COLS = ["#ff6b57","#ffbf2e","#22b8a7","#6f62ff","#ff7db8","#78c552","#3a8dff"];
+  function loop(){
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    parts = parts.filter(p => p.life > 0);
+    for(const p of parts){
+      p.vy += p.g; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 1;
+      ctx.save(); ctx.globalAlpha = Math.min(1, p.life/25); ctx.translate(p.x*dpr, p.y*dpr); ctx.rotate(p.rot); ctx.fillStyle = p.c;
+      if(p.kind === "star"){ ctx.beginPath(); for(let i=0;i<5;i++){ const a = i*Math.PI*2/5 - Math.PI/2, b = a + Math.PI/5; ctx.lineTo(Math.cos(a)*p.s*dpr, Math.sin(a)*p.s*dpr); ctx.lineTo(Math.cos(b)*p.s*.45*dpr, Math.sin(b)*p.s*.45*dpr); } ctx.closePath(); ctx.fill(); }
+      else { ctx.fillRect(-p.s*dpr/2, -p.s*dpr/4, p.s*dpr, p.s*dpr/2); }
+      ctx.restore();
+    }
+    if(parts.length) requestAnimationFrame(loop); else { running = false; ctx.clearRect(0, 0, cv.width, cv.height); }
+  }
+  const go = () => { if(!running){ running = true; requestAnimationFrame(loop); } };
+  return {
+    confetti(x = innerWidth/2, y = innerHeight*.3, n = 90){
+      if(REDUCED) return;
+      for(let i=0;i<n;i++){ const a = Math.random()*Math.PI*2, v = 3 + Math.random()*7; parts.push({x, y, vx:Math.cos(a)*v, vy:Math.sin(a)*v - 5, g:.22, rot:Math.random()*6, vr:(Math.random()-.5)*.4, s:6 + Math.random()*6, c:pick(COLS), life:80 + Math.random()*50, kind:Math.random() < .25 ? "star" : "rect"}); }
+      go();
+    },
+    sparkle(x, y, n = 14){
+      if(REDUCED) return;
+      for(let i=0;i<n;i++){ const a = Math.random()*Math.PI*2, v = 1.5 + Math.random()*3.5; parts.push({x, y, vx:Math.cos(a)*v, vy:Math.sin(a)*v - 1, g:.08, rot:0, vr:.1, s:4 + Math.random()*5, c:pick(["#ffbf2e","#fffdf8","#ff7db8","#22b8a7"]), life:34 + Math.random()*20, kind:"star"}); }
+      go();
+    }
+  };
+})();
+let lastPt = {x: innerWidth/2, y: innerHeight/2};
+document.addEventListener("pointerdown", e => { lastPt = {x:e.clientX, y:e.clientY}; }, true);
+const buzz = ms => { try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} };
+function shakeStage(){ const el = $("stageWrap"); if(!el || REDUCED) return; el.classList.remove("jolt"); void el.offsetWidth; el.classList.add("jolt"); }
+/* richer sounds plus visual and haptic feedback on every room's existing calls */
+(() => {
+  const g = sfx.good, b = sfx.bad, w = sfx.win;
+  let streak = 0;
+  sfx.good = () => { streak++; g(); if(S.sound) setTimeout(() => tone(990 + Math.min(streak, 8)*60, .09, "sine", .04), 120); FX.sparkle(lastPt.x, lastPt.y); buzz(12); };
+  sfx.bad = () => { streak = 0; b(); shakeStage(); buzz([30, 40, 30]); };
+  sfx.win = () => { streak++; w(); FX.confetti(lastPt.x, lastPt.y, 70); buzz([20, 30, 40]); };
+})();
+/* count-up for big numbers and staggered stars in result sheets */
+function countUp(el){
+  const target = parseInt(el.textContent.replace(/[^\d]/g, ""), 10); if(!target || REDUCED) return;
+  const suffix = el.textContent.includes("/") ? el.textContent.slice(el.textContent.indexOf("/")) : "";
+  if(suffix) return;
+  const t0 = performance.now(), dur = Math.min(1100, 300 + target/20);
+  const step = t => { const k = Math.min(1, (t - t0)/dur), v = Math.round(target * (1 - Math.pow(1-k, 3))); el.textContent = fmt(v); if(k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+
+/* ---------- badges ---------- */
+const BADGES = [
+  ["first","First steps","Finish your first session","#78c552"],
+  ["five","Room hopper","Play 5 different rooms","#3a8dff"],
+  ["all","Grand tour","Play every room in the arcade","#6f62ff"],
+  ["perfect","Flawless","Earn 3 stars in a session","#ffbf2e"],
+  ["stars30","Star collector","Earn 30 stars in total","#ff9a1f"],
+  ["stars100","Constellation","Earn 100 stars in total","#e85d3a"],
+  ["streak3","On a roll","Play 3 days in a row","#ff6b57"],
+  ["streak7","Habit formed","Play 7 days in a row","#e63946"],
+  ["lvl5","Thinker","Reach player level 5","#22b8a7"],
+  ["lvl10","Strategist","Reach player level 10","#00b4d8"],
+  ["tour","Passport stamped","Finish a World Tour","#e8a463"],
+  ["tour20","Globetrotter","Score 20,000+ on a World Tour","#b97cf6"],
+  ["quiz10","Know-it-all","Score 10/10 on a quiz","#ff7db8"],
+  ["chef","Natural chef","Serve a dish perfectly on the first taste","#f4a259"],
+  ["historian","Flawless historian","Finish a timeline without a mistake","#577590"],
+  ["peace","Peacemaker","Fully resolve a conflict","#ffa04d"],
+  ["judges","Judges' favorite","Win every point in a makeup theme challenge","#ff5d8f"],
+  ["tailor","Master tailor","Sew a garment with 95%+ stitch accuracy","#9be15d"],
+  ["mixer","Interleaver","Finish the Daily Mix","#2b1d14"],
+  ["owl","Night owl","Play after 10 p.m.","#3d5a80"]
+];
+function medalSVG(color, letter, size = 44){
+  return `<svg viewBox="0 0 48 56" width="${size}" height="${size*56/48}" aria-hidden="true"><path d="M14 2 L22 22 M34 2 L26 22" stroke="${INK}" stroke-width="7" stroke-linecap="round"/><path d="M14 2 L22 22 M34 2 L26 22" stroke="${color}" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="36" r="17" fill="${color}" stroke="${INK}" stroke-width="3"/><circle cx="24" cy="36" r="11.5" fill="none" stroke="#fffdf8" stroke-width="2" stroke-dasharray="3 2.5" opacity=".7"/><text x="24" y="42" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="#fffdf8">${letter}</text></svg>`;
+}
+function grant(id){
+  S.badges = S.badges || {};
+  if(S.badges[id]) return;
+  const b = BADGES.find(x => x[0] === id); if(!b) return;
+  S.badges[id] = today(); save();
+  TOASTQ.push(b); if(TOASTQ.length === 1) showToast();
+}
+const TOASTQ = [];
+function showToast(){
+  const b = TOASTQ[0]; if(!b) return;
+  const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status");
+  t.innerHTML = `${medalSVG(b[3], b[1][0], 38)}<div><small>Badge unlocked</small><b>${b[1]}</b><span>${b[2]}</span></div>`;
+  document.body.appendChild(t);
+  setTimeout(() => { if(S.sound){ [784, 988, 1175, 1568].forEach((f,i) => setTimeout(() => tone(f, .16, "triangle", .05), i*80)); } FX.sparkle(innerWidth - 120, innerHeight - 60, 24); }, 150);
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => { t.remove(); TOASTQ.shift(); showToast(); }, 400); }, 3200);
+}
+function checkBadges(ctx){
+  const playedRooms = ALL.filter(k => S.hist[k].length).length, stars = ALL.reduce((s,k)=>s+S.stars[k],0) + S.mixStars, lv = levelInfo(S.xp).level;
+  grant("first");
+  if(playedRooms >= 5) grant("five");
+  if(playedRooms >= ALL.length) grant("all");
+  if(ctx.stars === 3) grant("perfect");
+  if(stars >= 30) grant("stars30");
+  if(stars >= 100) grant("stars100");
+  if(S.streak >= 3) grant("streak3");
+  if(S.streak >= 7) grant("streak7");
+  if(lv >= 5) grant("lvl5");
+  if(lv >= 10) grant("lvl10");
+  if(ctx.room === "mix") grant("mixer");
+  if(new Date().getHours() >= 22) grant("owl");
+}
+
+/* ---------- how to play (first visit per room) ---------- */
+const HOWTO = {
+  atelier:["Read the client brief: occasion, colors and style rules.","Pick a silhouette, neckline, sleeves, fabric, then tap a part and a swatch to color it.","Watch the color wheel: the shape between your colors shows the harmony."],
+  hair:["Check the client's face shape and their goals.","Choose a cut, bangs and, if needed, a toner to fix brassy color.","Spin the chair to see the after mirror and find out why each choice works."],
+  makeup:["Pick a product from the list, then a shade.","Draw on the face with your finger or mouse; the dotted guide shows where it goes.","Stay neat, match the brief or theme, then show the mirror or face the judges."],
+  sewing:["Choose a pattern envelope.","Tap a piece, then tap the fabric to place it. Fit everything above the goal line.","Then trace each dashed seam from the green dot to sew the garment."],
+  floor:["Read the client's rules for room sizes, neighbors and sunlight.","Pick a room, then drag across the plot to draw it.","Present the plan when every room is placed; compare with a sample solution."],
+  cook:["Tap ingredients in the pantry to add them to the pot.","Set the amounts with + and −, then serve it.","Listen to the customer (too salty? too sour?), adjust and serve again."],
+  peace:["Read the scene and watch both people's faces.","Choose what the mediator says. Some replies calm things down; others backfire.","Every choice comes with the psychology behind it."],
+  kitchen:["Look at the dish and read the clues.","Tap the map where you think it comes from; zoom in for precision.","Closer pins score more. Extra clues cost points."],
+  thread:["Study the outfit and its clues.","Drop a pin on the map and slide the year to when it was worn.","Half the points come from place, half from time."],
+  landmarks:["Study the postcard illustration.","Drop a pin where the landmark stands.","Lock in and learn its story."],
+  flags:["Read which country's flag to make.","Choose the layout (if asked), then tap each part and a color.","Raise the flag and learn what its colors mean."],
+  time:["A new event appears at the top.","Tap the gap on the timeline where it belongs.","Three mistakes and the round ends. Anchor on dates you know."],
+  lab:["Body rounds: tap where the organ or bone is. The person faces you.","Color rounds: slide the light or ink amounts to match the target.","Closer answers score more."],
+  memory:["Watch the tiles light up in order.","Tap them back in the same order.","Patterns get longer as you improve."],
+  math:["Pick the right answer from four choices (keys 1–4 work).","In Arcade, wrong answers cost 3 seconds.","Build a streak to raise your multiplier."],
+  words:["Read the definition.","Tap or type the letters to rebuild the word.","Hints help, but cost points. Missed words come back later."],
+  logic:["Tapping a light flips it and its four neighbors.","Turn every light off.","Try to match the target number of moves."],
+  mix:["Eight questions from different rooms.","Each one explains its answer after you pick.","Mixing topics makes learning stick."],
+  daily:["Five map rounds, the same for every player today.","Your first run is your official score.","Copy your result and compare with friends."]
+};
+function showHowto(room, force){
+  S.howto = S.howto || {};
+  if(!force && S.howto[room]) return;
+  S.howto[room] = 1; save();
+  const r = ROOMS[room], steps = HOWTO[room]; if(!steps) return;
+  $("modal").style.setProperty("--c", r.color);
+  openModal({eyebrow:"How to play", title:r.name,
+    body:`${ART[room] ? `<div class="sheet-art">${ART[room]}</div>` : ""}<ol class="howto">${steps.map((t,i) => `<li><span>${i+1}</span><p>${t}</p></li>`).join("")}</ol>`,
+    actions:[["Let's go", closeModal, true]]});
+}
+
+/* wire game feel into the engine */
+(() => {
+  const origEnd = endSession;
+  endSession = function(o){
+    const room = G.room, lv0 = levelInfo(S.xp).level;
+    origEnd(o);
+    const lv1 = levelInfo(S.xp).level, big = $("mBody").querySelector(".big");
+    if(big) countUp(big);
+    if((o.stars || 0) >= 2 || lv1 > lv0) setTimeout(() => FX.confetti(innerWidth/2, innerHeight*.3, lv1 > lv0 ? 170 : 90), 250);
+    if(lv1 > lv0 && S.sound) setTimeout(() => [523,659,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f, .2, "triangle", .06), i*90)), 300);
+    setTimeout(() => checkBadges({room, stars:o.stars}), 900);
+  };
+  const origStart = startRoom;
+  startRoom = function(room, mode){ origStart(room, mode); const pl = $("play"); pl.classList.remove("viewin"); void pl.offsetWidth; pl.classList.add("viewin"); setTimeout(() => showHowto(room), 120); };
+  const origHub = goHub;
+  goHub = function(){ origHub(); const h = $("hub"); h.classList.remove("viewin"); void h.offsetWidth; h.classList.add("viewin"); };
+  const origRender = renderHub;
+  renderHub = function(){ origRender(); const bl = $("badgeList"); if(bl){ S.badges = S.badges || {}; const got = BADGES.filter(b => S.badges[b[0]]).length; $("badgeCount").textContent = `${got} of ${BADGES.length}`; bl.innerHTML = BADGES.map(([id,n,d,c]) => `<div class="badge ${S.badges[id] ? "got" : ""}" title="${d}">${medalSVG(S.badges[id] ? c : "#d9ccb4", n[0], 40)}<b>${n}</b><small>${d}</small></div>`).join(""); } };
+  $("helpBtn").addEventListener("click", () => G.room && showHowto(G.room, true));
+})();
 
 renderHub();
 </script>
