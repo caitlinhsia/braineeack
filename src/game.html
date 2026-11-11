@@ -878,6 +878,23 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .dv-found{display:flex;flex-wrap:wrap;gap:6px}
 .dv-chip{display:flex;flex-direction:column;padding:5px 10px;border:2px solid var(--ink);border-radius:12px;background:color-mix(in srgb, var(--tc) 55%, white);animation:stampin .3s ease-out}
 .dv-chip b{font-size:13px}.dv-chip small{font:10px "DM Mono",monospace;opacity:.75}
+.stepper{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 14px;flex-wrap:wrap}
+.stepper li{display:flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;border:2px solid var(--ink);border-radius:99px;background:#fffdf8;font:600 13px Figtree,sans-serif;opacity:.55}
+.stepper li span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);font:700 11px "DM Mono",monospace;background:#fff}
+.stepper li.done{opacity:1;background:#dcf5e6;cursor:pointer}.stepper li.done span{background:var(--good,#2bb673);color:#fff}
+.stepper li.now{opacity:1;background:var(--c,#ffbf2e);box-shadow:0 3px 0 var(--ink)}
+.hs-type{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.hs-type span{display:flex;flex-direction:column;border:2px solid var(--ink);border-radius:10px;padding:4px 8px;background:#fffdf8}
+.hs-type small{font:10px "DM Mono",monospace;opacity:.65}.hs-type b{font-size:13px;text-transform:capitalize}
+.stage-tip{font-size:14px;margin:8px 0;background:#fff8ea;border-left:4px solid var(--c,#ffbf2e);padding:6px 10px;border-radius:6px}
+.prodshelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pbottle{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:8px 10px;border:2.5px solid var(--ink);border-radius:14px;background:#fffdf8;color:var(--ink);cursor:pointer;box-shadow:0 3px 0 var(--ink)}
+.pbottle .pe{font-size:24px}.pbottle b{font-size:13px}.pbottle small{font-size:11px;opacity:.7;line-height:1.25}
+.pbottle.sel{background:#dcf5e6;transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.hlmode{display:flex;align-items:center;gap:8px;font:600 13px Figtree,sans-serif;margin:8px 0}
+.dyechips .ch{text-transform:capitalize}
+.hs-read .warn{color:#c0392b;font-weight:700}
+.salon-bg{background:linear-gradient(180deg,#f7efe1 0 62%,#d9c3a5 62% 64%,#efe2cc 64%)}
 </style>
 
 <div class="wrap">
@@ -1012,7 +1029,7 @@ const ROOMS = {
     tip:"<b>Tip:</b> pick a product and a brush size, then paint anywhere. Use the eraser to fix mistakes. Opposites on the color wheel make each other glow: blue eyes love copper.",
     modes:[["studio","Client appointments"],["theme","Theme challenge"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]]},
   hair:{name:"Hair Salon", skill:"Face shape & color", color:"var(--hair)", wing:"studio",
-    blurb:"Cut hair by hand with scissors, clippers and a comb, curl or straighten it, mist on toner and style updos to flatter each client's face shape. Finish with a photo-booth strip.",
+    blurb:"A full appointment: consult, wash, blow-dry, pick products for their hair type, cut from behind with sections and layers, then bleach, dye, tone and style. Finish with a photo-booth strip.",
     tip:"<b>Tip:</b> work out the face shape first. Then remember toners cancel their opposite: violet fixes yellow, blue fixes orange.",
     modes:[["studio","Open the salon"],["sprint","Salon sprint · 60s"],["practice","Quiz"]]},
   cook:{name:"Test Kitchen", skill:"Food & culture", color:"var(--cook)", wing:"studio",
@@ -5722,7 +5739,7 @@ STUDIO.hair = {
     return `<g fill="none" stroke-linecap="round" stroke-linejoin="round">${ink}${col}${hi}</g>`;
   },
   hairParts(){
-    const hs = this.hs, L = this.look(), all = this.all(), hc = HAIRC[tonedColor(this.c.hairC, this.mainTone().tone)];
+    const hs = this.hs, L = this.look(), all = this.all(), hc = this.capColor ? this.capColor() : HAIRC[tonedColor(this.c.hairC, this.mainTone().tone)];
     const Lk = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
     const coily = L.tex === 2;
     const cap = coily ? curlCloud(100, 56, 48, 18, 10, 14, hc, "hscap") : `<path d="M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z" fill="${hc}" ${Lk}/><path d="M78 44 C86 40 96 40 104 42 M112 40 C124 42 134 48 140 58" fill="none" stroke="${shade(hc,.35)}" stroke-width="2" stroke-linecap="round" opacity=".8"/>`;
@@ -5739,7 +5756,7 @@ STUDIO.hair = {
   },
   faceParams(mood){
     const c = this.c, L = this.look(), parts = this.hairParts();
-    const p = {skin:SKINS[c.depth][0], shape:c.shape, eye:c.eye, top:c.top, mood, hairC:tonedColor(c.hairC, this.mainTone().tone)};
+    const p = {skin:SKINS[c.depth][0], shape:c.shape, eye:c.eye, top:c.top, mood, hairC:this.capColor ? this.capColor() : tonedColor(c.hairC, this.mainTone().tone)};
     if(parts) p.strands = parts; else { p.hair = this.hs.style; p.bangs = L.bangs; }
     return p;
   },
@@ -6445,6 +6462,332 @@ HOWTO.dive = ["You get a category, like “Fruits” or “Ocean animals”. Typ
 GEN.dive = d => { const c = pick(DIVE_CATS), n = c.n2, pickI = (lo, hi) => Math.floor(lo*n + Math.random()*(hi-lo)*n); const rare = c.items[pickI(.8, 1)][0], common = [pickI(0, .2), pickI(0, .25), pickI(.05, .35)].map(i => c.items[i][0]).filter((v, i, a) => a.indexOf(v) === i && v !== rare);
   while(common.length < 3) common.push(c.items[pickI(0, .3)][0]);
   return mk(`Deep dive · <b>${c.n}</b><br>Which answer is the rarest?`, rare, [...new Set(common)].slice(0, 3), `${rare} is one of the deep-sea answers. ${c.fact}`, {text:true}); };
+
+/* =========================================================
+   HAIR SALON v3: a full appointment.
+   Consult -> wash -> dry -> products -> cut (from behind, sectioned) -> color -> style.
+   Builds on the v2 strand model (front view) and adds a back view.
+   ========================================================= */
+const HS_V2 = STUDIO.hair;
+const HS_STAGES = [["consult","Consult"],["wash","Wash"],["dry","Dry"],["products","Products"],["cut","Cut"],["color","Color"],["style","Style"]];
+const HS_DYES = [["black","#1f1a17"],["darkbrown","#4a2c1d"],["brown","#7a4a2a"],["auburn","#a0451f"],["copper","#c8641e"],["blonde","#e8c77b"],["pink","#ff9ec7"],["lilac","#c8a2f0"],["blue","#5b8def"],["teal","#2ec4b6"],["green","#57cc99"],["red","#e5383b"],["silver","#d8dde3"]];
+const HS_NATURAL = ["black","darkbrown","brown","auburn","copper","blonde"];
+const HS_PRODUCTS = [["leavein","Leave-in conditioner","🧴","Light moisture that stays in. Great for dry, curly and coily hair."],["mousse","Volumizing mousse","🫧","Lifts fine, flat hair at the roots. Too drying for coils."],["curlcream","Curl cream","🍯","Defines curls and coils and fights frizz. Weighs fine straight hair down."],["serum","Anti-frizz serum","💧","Smooths thick or frizzy hair. A drop is enough."],["oil","Shine oil","🫒","Glossy finish for dry ends. Makes oily or fine hair greasy."],["texture","Texture spray","🌬️","Gritty, piecey texture and grip. Good for fine or oily hair."]];
+const LIGHT_TAKE = {platinum:.95, brassy:.85, blonde:.8, grey:.85, greenish:.8, ash:.6, brassyorange:.62, copper:.45, auburn:.35, brown:.3, darkbrown:.2, black:.12, pink:.7, blue:.4};
+Object.assign(GOALS, {
+  pastel:{label:"She wants pastel pink hair", why:"Dye is see-through, so it only shows on light hair. Dark hair has to be lifted with bleach first (twice for very dark hair), then the pink goes on top.", test:h => h.pastel},
+  highlights:{label:"Sun-kissed highlights, not all over", why:"Highlights lighten thin strands spread through the hair, about a quarter to half of it, so the natural color still shows between them.", test:h => h.hl, hl:true},
+  greys:{label:"Cover her greys with a natural shade", why:"Grey hair has lost its pigment. A natural-shade permanent dye over all of it gives even coverage; fantasy colors read as a fashion choice, not coverage.", test:h => h.covered, color:"grey"}
+});
+const HS_TYPE_NOTE = {straight:"straight", wavy:"wavy", coily:"coily"};
+function hsProductRule(c){
+  const t = c.type, need = [], ban = [];
+  if(t.tex === "coily"){ need.push("leavein","curlcream"); ban.push("mousse"); }
+  else if(t.thick === "fine"){ need.push(t.cond === "oily" ? "texture" : "mousse"); ban.push("oil","curlcream"); }
+  else { need.push(t.cond === "dry" ? "leavein" : "serum"); ban.push("curlcream"); }
+  if(t.cond === "oily"){ ban.push("oil","leavein"); }
+  if(t.cond === "dry" && t.tex !== "coily" && t.thick !== "fine") need.push("oil");
+  return {need:[...new Set(need)].filter(k => !ban.includes(k)), ban:[...new Set(ban)]};
+}
+STUDIO.hair = Object.assign(Object.create(HS_V2), {
+  start(){ this.round = 0; this.total = 0; this.log = []; this.n = 2; this.newRound(); },
+  solvable(rules){
+    for(const cut of HS_CUTS) for(const bangs of ["none","blunt","side","curtain"]) for(const toner of ["none","violet","blue","green"]) for(const tex of [0,1]){
+      if(cut === "buzz" && bangs !== "none") continue;
+      const h = {cut, bangs, toner, tex, pastel:true, hl:true, covered:true}; if(rules.every(r => r.test(h))) return true; }
+    return false;
+  },
+  newClient(){
+    const c = HS_V2.newClient.call(this);
+    const hasColor = c.goals.some(g => g.color || ["pastel","highlights"].includes(g.k));
+    if(!hasColor && S.rating.hair >= 3 && Math.random() < .55){
+      const k = pick(["pastel","highlights","greys","brassy"]), g = {k, ...GOALS[k]};
+      const trial = [FACE_RULE[c.shape], ...c.goals, g]; if(this.solvable(trial)){ c.goals.push(g); c.rules = trial; }
+    }
+    const cg = c.goals.find(g => g.color); if(cg) c.hairC = cg.color;
+    if(c.goals.some(g => g.k === "highlights") && !cg) c.hairC = pick(["brown","darkbrown","auburn"]);
+    c.type = {tex: c.textured ? "coily" : pick(["straight","straight","wavy"]), thick: pick(["fine","thick"]), cond: pick(["dry","oily","normal"])};
+    if(c.type.tex === "coily") c.type.cond = pick(["dry","normal"]);
+    c.prod = hsProductRule(c);
+    return c;
+  },
+  freshBack(len, tex){
+    const U = Array.from({length:13}, (_, i) => ({x:62 + i*6.33, end:len - Math.abs(i-6)*.8, tex}));
+    const T = Array.from({length:13}, (_, i) => ({rx:76 + i*4, fx:44 + i*9.33, end:len - Math.abs(i-6)*1.2 - 2, tex}));
+    return {U, T, top:"down"};
+  },
+  newRound(){
+    this.c = this.newClient(); this.locked = false; this.undo = []; this.mirror = true; this.guides = S.rating.hair < 6;
+    this.hs = this.freshHair(); this.before = JSON.parse(JSON.stringify(this.hs));
+    if(this.c.type.tex === "wavy") this.all().forEach(s => s.tex = 1);
+    this.bk = this.freshBack(this.hs.L[4].end, this.c.type.tex === "coily" ? 2 : this.c.type.tex === "wavy" ? 1 : 0);
+    this.w = {pts:this.washPts(), heat:0, order:[]};
+    this.prods = new Set(); this.stage = 0; this.view = "front"; this.dye = "pink"; this.hlMode = false; this.toner = "violet"; this.backCut = false; this.spray = false;
+    const c = this.c;
+    stage.innerHTML = `<ol class="stepper" id="hsSteps">${HS_STAGES.map(([k,l], i) => `<li data-i="${i}"><span>${i+1}</span>${l}</li>`).join("")}</ol>
+      <div class="studio-grid salon2"><div class="salon"><div class="chair-wrap"><div class="mirror-frame chair salon-bg" id="hsChair"><div id="hsFace"></div><svg id="hsOv" viewBox="0 -14 200 246" aria-label="Styling area"></svg></div>
+        <div class="row-btns" id="hsViewBtns"></div><p class="msg" id="hsMsg"></p><p class="hs-read" id="hsRead"></p></div></div>
+      <div class="ctl-col">${sessionHeader(`Client ${this.round+1} of ${this.n}`, `${c.name}'s appointment`, "")}
+        <div class="brief" style="padding-top:10px"><div class="hs-type">${[["Face", c.shape], ["Texture", HS_TYPE_NOTE[c.type.tex]], ["Thickness", c.type.thick], ["Scalp", c.type.cond]].map(([a,b]) => `<span><small>${a}</small><b>${b}</b></span>`).join("")}</div><ul id="hsRules">${c.rules.map(r=>`<li>${r.label}</li>`).join("")}</ul></div>
+        <div id="hsPanel"></div><div class="row-btns"><button class="btn-sm" type="button" id="hsUndo">Undo</button><button class="btn btn-solid" type="button" id="hsNextStage">Next step →</button></div><div id="hsRes"></div></div></div>`;
+    $("hsSteps").addEventListener("click", e => { const li = e.target.closest("[data-i]"); if(li && +li.dataset.i < this.stage && !this.locked){ this.stage = +li.dataset.i; this.enterStage(); } });
+    $("hsNextStage").addEventListener("click", () => this.nextStage());
+    $("hsUndo").addEventListener("click", () => { if(this.locked || !this.undo.length) return; const u = this.undo.pop(); this.hs = u.hs; this.bk = u.bk; this.w = u.w; this.render(); });
+    this.bindPointer(); this.bindCursor();
+    setSide("Score", fmt(this.total));
+    this.enterStage();
+  },
+  push(){ this.undo.push(JSON.parse(JSON.stringify({hs:this.hs, bk:this.bk, w:this.w}))); if(this.undo.length > 40) this.undo.shift(); },
+  washPts(){
+    const pts = [];
+    for(let y = 34; y <= 62; y += 7) for(let x = 58; x <= 142; x += 9){ if(((x-100)/48)**2 + ((y-66)/36)**2 <= 1) pts.push({x, y, z:"scalp", wet:0, foam:0, sham:0, cond:0, prot:0}); }
+    this.all().forEach(s => { const mid = s.yTurn + .4*(s.end - s.yTurn); pts.push({x:s.fx, y:mid, z:"mid", wet:0, foam:0, sham:0, cond:0, prot:0}); pts.push({x:s.fx, y:s.end - 6, z:"ends", wet:0, foam:0, sham:0, cond:0, prot:0}); });
+    return pts;
+  },
+  /* ---------- stages ---------- */
+  enterStage(){
+    const k = HS_STAGES[this.stage][0];
+    stage.querySelectorAll("#hsSteps li").forEach((li, i) => { li.classList.toggle("done", i < this.stage); li.classList.toggle("now", i === this.stage); });
+    this.view = "front"; this.bk.top = "down";
+    const tools = {wash:[["water","Water","🚿","Wet the hair all over first. Water also rinses out shampoo."],["shampoo","Shampoo","🧴","Massage it into the scalp, where the oil and dirt are."],["conditioner","Conditioner","🫙","Smooth it through the mid-lengths and ends, not the roots."]],
+      dry:[["towel","Towel","🧖","Blot and squeeze. Rubbing roughs up the cuticle and causes frizz."],["protect","Heat protectant","🛡️","Mist it on before any hot tool."],["dryer","Blow-dryer","💨","Sweep it over the hair until it's dry. Damp hair dries faster than soaking hair."]],
+      cut:[["scissors","Scissors","✂️","Swipe across strands to cut them."],["section","Section clip","📎","Tap the crown to clip the top section up, so you can cut the under-layer."],["lift","Lift section","🖐️","Tap the crown to lift the top section straight up. Cutting it short while lifted creates layers."],["comb","Comb","🪮","Front view: drag down over the forehead for bangs."],["clippers","Clippers","🪒","Buzz it right down."]],
+      color:[["bleach","Bleach","🧪","Lifts the natural pigment. Each pass makes hair lighter but more yellow-orange."],["dye","Dye brush","🖌️","Paints color on. It only shows strongly on light hair."],["spray","Toner","💧","Cancels brassiness: violet fixes yellow, blue fixes orange."]],
+      style:[["wand","Curling wand","🌀","Brush over strands: once for waves, twice for curls."],["iron","Flat iron","♨️","Brush over strands to straighten."],["comb","Comb","🪮","Drag down over the forehead for bangs; up to sweep them back."]]}[k];
+    this.tool = tools ? tools[0][0] : null;
+    const tip = {consult:`<p class="stage-tip">Read the brief: face shape, hair type and goals decide every step. When you're ready, seat ${this.c.name} in the chair.</p>`,
+      wash:`<p class="stage-tip">Wet → shampoo the scalp → rinse it all out → condition the ends. Drag on the hair.</p>`,
+      dry:`<p class="stage-tip">Towel-blot first, protect, then blow-dry until no damp spots are left.</p>`,
+      products:`<p class="stage-tip">Pick the products that suit ${this.c.name}'s hair type. Tap to add or remove.</p><div class="prodshelf" id="hsProds">${HS_PRODUCTS.map(([k,l,e,d]) => `<button type="button" class="pbottle" data-pk="${k}"><span class="pe">${e}</span><b>${l}</b><small>${d}</small></button>`).join("")}</div>`,
+      cut:`<p class="stage-tip">You're standing behind ${this.c.name}. Clip the top section up and cut the under-layer to set the length. Then lift the top section and cut it shorter for layers, or let it down and cut level for one length. Turn the chair to finish the face-framing and bangs.</p>`,
+      color:`<p class="stage-tip">Bleach first if the hair is dark, then dye. Use toner to cancel brassiness.</p><div class="chips dyechips" id="hsDyes">${HS_DYES.map(([k, col]) => `<button type="button" class="ch" data-dye="${k}"><i class="cdot" style="background:${col}"></i>${k}</button>`).join("")}</div><label class="hlmode"><input type="checkbox" id="hsHl"> Highlights (thin streaks)</label><div class="chips" id="hsToners" hidden>${TONERS.filter(t => t[0] !== "none").map(([v,l,col])=>`<button type="button" class="ch" data-toner="${v}"><i class="cdot" style="background:${col}"></i>${l}</button>`).join("")}</div>`,
+      style:`<p class="stage-tip">Finish the look, then spin the chair to show ${this.c.name}.</p><div class="opt-group"><h4>Style it</h4><div class="chips" id="hsStyles">${HS_STYLES.map(([v,l]) => `<button type="button" class="ch" data-style="${v}">${l}</button>`).join("")}</div></div><label class="hlmode"><input type="checkbox" id="hsSpray"> Finish with hairspray</label>`}[k];
+    $("hsPanel").innerHTML = `<div class="opt-group"><h4>${HS_STAGES[this.stage][1]}${tools ? " · tools" : ""}</h4>${tools ? `<div class="toolbar" id="hsTools">${tools.map(([t,l,ic,d]) => `<button type="button" class="tool" data-t="${t}" data-tip="${d}"><span class="ti">${ic}</span>${l}</button>`).join("")}</div><p class="tooltip-line" id="hsTip"></p>` : ""}${tip}</div>`;
+    if(tools) $("hsTools").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if(b && !this.locked){ this.tool = b.dataset.t; sfx.click(); this.renderTools(); } });
+    if(k === "products") $("hsProds").addEventListener("click", e => { const b = e.target.closest("[data-pk]"); if(!b) return; const p = b.dataset.pk; this.prods.has(p) ? this.prods.delete(p) : this.prods.add(p); sfx.click(); this.renderTools(); });
+    if(k === "color"){ $("hsDyes").addEventListener("click", e => { const b = e.target.closest("[data-dye]"); if(b){ this.dye = b.dataset.dye; this.tool = "dye"; sfx.click(); this.renderTools(); } });
+      $("hsHl").addEventListener("change", e => { this.hlMode = e.target.checked; });
+      $("hsToners").addEventListener("click", e => { const b = e.target.closest("[data-toner]"); if(b){ this.toner = b.dataset.toner; sfx.click(); this.renderTools(); } }); }
+    if(k === "style"){ $("hsStyles").addEventListener("click", e => { const b = e.target.closest("[data-style]"); if(b && !this.locked) this.setStyle(b.dataset.style); }); $("hsSpray").checked = this.spray; $("hsSpray").addEventListener("change", e => { this.spray = e.target.checked; if(this.spray){ sfx.good(); this.sprayMist(); } }); }
+    $("hsNextStage").textContent = k === "consult" ? `Seat ${this.c.name} in the chair →` : k === "style" ? "Spin the chair ✨" : "Next step →";
+    $("hsMsg").textContent = "";
+    this.renderTools(); this.render();
+  },
+  nextStage(){
+    if(this.locked) return;
+    const k = HS_STAGES[this.stage][0];
+    if(k === "wash" && this.w.pts.filter(p => p.foam).length > 2){ $("hsMsg").textContent = "There's still shampoo foam in the hair. Rinse it out with water first!"; sfx.bad(); return; }
+    if(k === "cut" && this.view === "back") this.syncFront();
+    if(k === "style") return this.submit();
+    this.stage++; sfx.click(); this.enterStage();
+  },
+  renderTools(){
+    stage.querySelectorAll("#hsTools .tool").forEach(b => b.classList.toggle("sel", b.dataset.t === this.tool));
+    const tb = stage.querySelector(`#hsTools [data-t="${this.tool}"]`); if($("hsTip")) $("hsTip").textContent = tb ? tb.dataset.tip : "";
+    stage.querySelectorAll("[data-pk]").forEach(b => b.classList.toggle("sel", this.prods.has(b.dataset.pk)));
+    stage.querySelectorAll("[data-dye]").forEach(b => b.classList.toggle("sel", this.dye === b.dataset.dye && this.tool === "dye"));
+    stage.querySelectorAll("[data-toner]").forEach(b => b.classList.toggle("sel", b.dataset.toner === this.toner));
+    if($("hsToners")) $("hsToners").hidden = this.tool !== "spray";
+    $("hsChair").dataset.tool = this.tool || "";
+    const vb = $("hsViewBtns"); const k = HS_STAGES[this.stage][0];
+    vb.innerHTML = (k === "cut" ? `<button class="btn-sm" type="button" id="hsTurn">${this.view === "back" ? "Turn the chair to the front" : "Turn the chair around (back)"}</button><button class="btn-sm" type="button" id="hsMirror">Mirror cut: ${this.mirror ? "on" : "off"}</button>` : "") + (["cut","style"].includes(k) ? `<button class="btn-sm" type="button" id="hsGuides">${this.guides ? "Hide" : "Show"} length guides</button>` : "");
+    if($("hsTurn")) $("hsTurn").onclick = () => { if(this.view === "back") this.syncFront(); this.view = this.view === "back" ? "front" : "back"; this.bk.top = "down"; sfx.click(); this.renderTools(); this.render(); };
+    if($("hsMirror")) $("hsMirror").onclick = () => { this.mirror = !this.mirror; this.renderTools(); };
+    if($("hsGuides")) $("hsGuides").onclick = () => { this.guides = !this.guides; this.renderTools(); this.renderOv(); };
+  },
+  /* ---------- color model ---------- */
+  keyOf(s){ const base = this.c.hairC, dark = (LIGHT_TAKE[base] || .3) < .5; if(!s.bleach) return base; return dark ? (s.bleach >= 2 ? "brassy" : "brassyorange") : (s.bleach >= 2 ? "platinum" : "brassy"); },
+  colorOf(s){
+    const key = this.keyOf(s); let c = HAIRC[tonedColor(key, s.tone || "none")] || HAIRC.brown;
+    if(s.dye){ const d = HS_DYES.find(x => x[0] === s.dye)[1], take = LIGHT_TAKE[tonedColor(key, s.tone || "none")] || .3; c = mixHex(c, d, Math.min(.92, take*1.02)); }
+    const wet = this.wetLevel(); if(wet > 0) c = shade(c, -.32*wet);
+    return c;
+  },
+  capColor(){ const cnt = {}; this.all().forEach(s => { const col = this.colorOf(s); cnt[col] = (cnt[col] || 0) + 1; }); return Object.keys(cnt).sort((a,b) => cnt[b]-cnt[a])[0]; },
+  wetLevel(){ const st = HS_STAGES[this.stage][0]; if(!["wash","dry"].includes(st) || !this.w) return 0; const p = this.w.pts; return p.reduce((a, q) => a + q.wet, 0) / (2*p.length); },
+  colorStats(){
+    const all = this.all(), n = all.length;
+    const pinkOk = all.filter(s => s.dye === "pink" && (LIGHT_TAKE[tonedColor(this.keyOf(s), s.tone || "none")] || 0) >= .8).length / n;
+    const light = all.filter(s => s.bleach || (s.dye && ["blonde"].includes(s.dye))).length / n;
+    const leftL = this.hs.L.filter(s => s.bleach || s.dye === "blonde").length, rightL = this.hs.Rt.filter(s => s.bleach || s.dye === "blonde").length;
+    const covered = all.filter(s => s.dye && HS_NATURAL.includes(s.dye)).length / n;
+    return {pastel: pinkOk >= .75, hl: light >= .15 && light <= .6 && leftL > 0 && rightL > 0 && !all.some(s => s.dye && !["blonde"].includes(s.dye) && !HS_NATURAL.includes(s.dye)), covered: covered >= .9, pinkOk, light, coveredF:covered};
+  },
+  look(raw){
+    const L = HS_V2.look.call(this, true), cs = this.colorStats();
+    if(this.backCut && !L.buzz && L.tex !== 2){
+      const med = a => { const b = a.slice().sort((x,y) => x-y); return b[Math.floor(b.length/2)]; };
+      const uE = med(this.bk.U.map(s => s.end)), tE = med(this.bk.T.map(s => s.end)), E = Math.min(uE, Math.max(L.E, uE - 4));
+      const layered = uE - tE >= 16 || L.cut === "layers";
+      L.E = E; L.cut = E <= 122 ? "pixie" : E <= 170 ? "bob" : E <= 198 ? (layered && E > 172 ? "layers" : "lob") : (layered ? "layers" : "long");
+      const sd = Math.sqrt(this.bk.U.reduce((a, s) => a + (s.end - uE)**2, 0) / this.bk.U.length);
+      if(sd > 12) L.issues.push("the back is uneven");
+    }
+    if(!raw && this.hs.style !== "down") L.cut = this.hs.style;
+    return Object.assign(L, cs);
+  },
+  /* ---------- back view ---------- */
+  backSVG(){
+    const c = this.c, skin = SKINS[c.depth][0], hc = this.capColor(), bk = this.bk, Lk = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
+    const sd = (x, y0, y1, tex) => { if(!tex) return `M${x} ${y0} L${x} ${y1}`; const amp = tex === 2 ? 3.4 : 2.4, per = tex === 2 ? 7 : 18; let d = `M${x} ${y0}`; for(let y = y0 + 2; y < y1; y += 2) d += ` L${(x + amp*Math.sin((y-y0)/per*Math.PI*2)).toFixed(1)} ${y}`; return d + ` L${x} ${y1}`; };
+    const layer = (ds, w, col) => `<g fill="none" stroke-linecap="round" stroke-linejoin="round">${ds.map(d => `<path d="${d}" stroke="${INK}" stroke-width="${w+3.2}"/>`).join("")}${ds.map(d => `<path d="${d}" stroke="${col}" stroke-width="${w}"/>`).join("")}${ds.filter((_, i) => i % 2).map(d => `<path d="${d}" stroke="${shade(col,.3)}" stroke-width="1" opacity=".5" transform="translate(-1.5 0)"/>`).join("")}</g>`;
+    let g = `<rect x="-40" y="-90" width="280" height="340" fill="#f6efe2"/>`;
+    g += `<path d="M22 232 C26 194 60 182 86 178 L114 178 C140 182 174 194 178 232Z" fill="#2b2f3a" ${Lk}/><path d="M86 182 q14 8 28 0" stroke="#596173" stroke-width="3" fill="none"/>`;
+    g += `<rect x="86" y="128" width="28" height="54" fill="${shade(skin,-.06)}" ${Lk}/>`;
+    g += `<ellipse cx="51" cy="106" rx="7" ry="12" fill="${skin}" ${Lk}/><ellipse cx="149" cy="106" rx="7" ry="12" fill="${skin}" ${Lk}/>`;
+    g += `<ellipse cx="100" cy="86" rx="50" ry="58" fill="${shade(hc,-.15)}" ${Lk}/>`;
+    g += layer(bk.U.map(s => sd(s.x, 124, s.end, s.tex)), 7.2, shade(hc,-.08));
+    if(bk.top === "down") g += layer(bk.T.map(s => `M${s.rx} 36 Q${s.fx} 40 ${s.fx} 96 ` + sd(s.fx, 96, s.end, s.tex).slice(String(`M${s.fx} 96`).length)), 7.6, hc);
+    else if(bk.top === "clip") g += `<path d="M52 90 Q50 30 100 26 Q150 30 148 90 Q130 70 100 72 Q70 70 52 90Z" fill="${hc}" ${Lk}/><path d="M100 28 V72" stroke="${shade(hc,-.3)}" stroke-width="1.5"/><path d="M78 30 q22 -26 44 0 q-8 16 -22 14 q-14 2 -22 -14z" fill="${hc}" ${Lk}/><path d="M86 30 q14 -14 28 0" stroke="${shade(hc,.3)}" stroke-width="2" fill="none"/><rect x="92" y="14" width="16" height="22" rx="4" fill="#ff7db8" ${Lk}/><path d="M96 18 v14 M104 18 v14" stroke="${INK}" stroke-width="1.4"/>`;
+    else { const tips = bk.T.map(s => [s.rx + (s.rx-100)*.6, 36 - (s.end - 40)*.45]); g += layer(bk.T.map((s, i) => `M${s.rx} 40 L${tips[i][0].toFixed(1)} ${tips[i][1].toFixed(1)}`), 7.4, hc); g += `<text x="100" y="${Math.min(...tips.map(t => t[1])) + 30}" font-size="22" text-anchor="middle">🖐️</text><path d="M60 ${Math.max(...tips.map(t => t[1])) + 6} H140" stroke="${INK}" stroke-width="1" stroke-dasharray="2 3" opacity=".5"/>`; }
+    if(bk.top !== "down") g += `<path d="M58 66 Q100 52 142 66" stroke="${shade(hc,-.3)}" stroke-width="1.6" fill="none" stroke-dasharray="3 2"/>`;
+    return `<svg viewBox="0 -90 200 336" width="300" class="face" role="img" aria-label="Back of the client's head">${g}</svg>`;
+  },
+  syncFront(){
+    if(!this.backCut) return;
+    const med = a => { const b = a.slice().sort((x,y) => x-y); return b[Math.floor(b.length/2)]; };
+    const uE = med(this.bk.U.map(s => s.end)), tE = med(this.bk.T.map(s => s.end));
+    [this.hs.L, this.hs.Rt].forEach(side => side.forEach((s, i) => { const t = i/(side.length-1), target = tE + (uE - tE)*t; s.end = Math.max(s.yTurn + 4, Math.min(s.end, target)); }));
+  },
+  /* ---------- render ---------- */
+  render(){
+    const st = HS_STAGES[this.stage][0];
+    const p = this.faceParams(this.locked ? (this.f >= .99 ? "happy" : this.f >= .5 ? "neutral" : "sad") : "neutral");
+    if(!this.locked && st !== "style") p.top = "#2b2f3a";
+    $("hsFace").innerHTML = this.view === "back" ? this.backSVG() : faceSVG(p, 300);
+    $("hsOv").setAttribute("viewBox", this.view === "back" ? "0 -90 200 336" : "0 -14 200 246");
+    stage.querySelectorAll("[data-style]").forEach(b => b.classList.toggle("sel", b.dataset.style === this.hs.style));
+    const L = this.look();
+    const wp = this.w.pts, frac = f => Math.round(100*wp.filter(f).length/wp.length);
+    const read = {consult:`Hair today: <b>${this.c.type.thick}, ${this.c.type.tex}</b>, ${this.c.type.cond} scalp`,
+      wash:`Wet <b>${frac(q => q.wet)}%</b> · Shampooed scalp <b>${Math.round(100*wp.filter(q => q.z === "scalp" && q.sham).length / wp.filter(q => q.z === "scalp").length)}%</b> · Foam left <b>${frac(q => q.foam)}%</b> · Conditioned ends <b>${Math.round(100*wp.filter(q => q.z === "ends" && q.cond).length / wp.filter(q => q.z === "ends").length)}%</b>`,
+      dry:`Damp or wet <b>${frac(q => q.wet)}%</b> · Protected <b>${frac(q => q.prot)}%</b>${this.w.heat ? ` · <span class="warn">Heat damage on ${this.w.heat} spot${this.w.heat === 1 ? "" : "s"}</span>` : ""}`,
+      products:`Products: <b>${this.prods.size ? [...this.prods].map(k => HS_PRODUCTS.find(x => x[0] === k)[1]).join(", ") : "none yet"}</b>`,
+      cut:`${this.view === "back" ? `Back view · top section: <b>${{down:"down", clip:"clipped up", lift:"lifted"}[this.bk.top]}</b> · ` : ""}Reads as: <b>${HS_NAMES[L.cut]}</b>${L.cut === "buzz" ? "" : ` · ${HS_BANG_NAMES[L.bangs]}`}`,
+      color:`Color: ${L.toner !== "none" ? `<b>${L.toner} toner</b> · ` : ""}bleached <b>${Math.round(100*this.all().filter(s => s.bleach).length/this.all().length)}%</b> · dyed <b>${Math.round(100*this.all().filter(s => s.dye).length/this.all().length)}%</b>`,
+      style:`Reads as: <b>${HS_NAMES[L.cut]}</b>${L.cut === "buzz" ? "" : ` · ${HS_BANG_NAMES[L.bangs]}`}${L.tex === 1 && L.cut !== "buzz" ? " · waves" : ""}`}[st];
+    $("hsRead").innerHTML = read;
+    if(!this.locked && S.rating.hair < 4){ const lis = [...$("hsRules").children]; this.c.rules.forEach((r,i) => lis[i] && lis[i].classList.toggle("ok", r.test(L))); }
+    this.renderOv();
+  },
+  renderOv(){
+    const ov = $("hsOv"); if(!ov) return; const st = HS_STAGES[this.stage][0];
+    let g = `<g id="hsFall"></g>`;
+    if(this.guides && !this.locked && ["cut","style"].includes(st)) g += [[88,"brows"],[122,"ears"],[166,"chin"],[196,"shoulders"]].filter(([y]) => this.view === "front" || y > 120).map(([y, l]) => `<path d="M22 ${y} H178" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 3" opacity=".9"/><path d="M22 ${y} H178" stroke="${INK}" stroke-width=".6" stroke-dasharray="3 3" opacity=".5"/><text x="176" y="${y-2.5}" text-anchor="end" font-size="6.5" paint-order="stroke" stroke="#fff" stroke-width="2" font-family="DM Mono, monospace" fill="${INK}" opacity=".75">${l}</text>`).join("");
+    if(["wash","dry"].includes(st) && this.view === "front") this.w.pts.forEach((q, i) => {
+      if(q.foam) g += [0,1,2].map(k => `<circle cx="${(q.x + (k-1)*3.2).toFixed(1)}" cy="${(q.y + (k % 2 ? -2.4 : 1.6)).toFixed(1)}" r="${3.2 - k*.4}" fill="#fff" stroke="#bcd" stroke-width=".6" opacity=".95"/>`).join("");
+      else if(q.wet === 2 && i % 2 === 0) g += `<path d="M${q.x} ${q.y - 2} q2 3 0 4.5 q-2 -1.5 0 -4.5z" fill="#7cc4f0" stroke="#2f6f9f" stroke-width=".5"/>`;
+      if(q.cond && i % 3 === 0) g += `<path d="M${q.x - 3} ${q.y} q3 -2 6 0" stroke="#fff" stroke-width="1.6" fill="none" opacity=".8" stroke-linecap="round"/>`;
+    });
+    g += `<text id="hsCur" x="-50" y="-50" font-size="18" text-anchor="middle" dominant-baseline="central" pointer-events="none"></text>`;
+    const keep = ov.querySelector("#hsFall"); ov.innerHTML = g; if(keep) ov.replaceChild(keep, ov.querySelector("#hsFall"));
+  },
+  bindCursor(){
+    const ov = $("hsOv"); const icon = {water:"🚿", shampoo:"🧴", conditioner:"🫙", towel:"🧖", protect:"🛡️", dryer:"💨", scissors:"✂️", section:"📎", lift:"🖐️", comb:"🪮", clippers:"🪒", bleach:"🧪", dye:"🖌️", spray:"💧", wand:"🌀", iron:"♨️"};
+    ov.addEventListener("pointermove", e => { const cur = $("hsCur"); if(!cur || !this.tool) return; const p = ov.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(ov.getScreenCTM().inverse()); cur.setAttribute("x", q.x + 9); cur.setAttribute("y", q.y - 9); cur.textContent = icon[this.tool] || ""; });
+    ov.addEventListener("pointerleave", () => { const cur = $("hsCur"); if(cur) cur.textContent = ""; });
+  },
+  sound(){ if(!S.sound) return; const f = {scissors:1400, clippers:120, spray:3000, wand:500, iron:420, water:2600, dryer:180, shampoo:900, towel:300, bleach:700, dye:760, protect:3200}[this.tool]; if(f) tone(f, .04, ["clippers","dryer"].includes(this.tool) ? "sawtooth" : "square", .022); },
+  /* ---------- input ---------- */
+  apply(a, b){
+    const t = this.tool, st = HS_STAGES[this.stage][0]; if(!t) return false; let hit = false;
+    const near = (q, r) => segDist(q.x, q.y, a[0], a[1], b[0], b[1]) < r;
+    if(st === "wash" || st === "dry"){
+      this.w.pts.forEach(q => { if(!near(q, t === "water" || t === "protect" ? 16 : 13)) return;
+        if(t === "water"){ if(q.wet !== 2 || q.foam){ q.wet = 2; if(q.foam){ q.foam = 0; q.rinsed = 1; } hit = true; } }
+        else if(t === "shampoo"){ if(q.wet === 2 && !q.foam){ q.foam = 1; q.sham = 1; hit = true; } else if(!q.wet) this.note = "Wet the hair first: shampoo won't lather on dry hair."; }
+        else if(t === "conditioner"){ if(!q.cond){ q.cond = 1; hit = true; if(q.z === "scalp") this.w.rootsCond = (this.w.rootsCond || 0) + 1; } }
+        else if(t === "towel"){ if(q.wet === 2){ q.wet = 1; hit = true; } }
+        else if(t === "protect"){ if(!q.prot){ q.prot = 1; hit = true; } }
+        else if(t === "dryer"){ if(q.wet){ if(!q.prot){ this.w.heat++; q.prot = -1; } q.dry2 = (q.dry2 || 0) + 1; if(q.wet === 1 || q.dry2 >= 3){ q.wet = Math.max(0, q.wet - 1); q.dry2 = 0; } hit = true; } }
+      });
+      if(t === "protect" || t === "water") this.mist(b);
+      if(this.note){ $("hsMsg").textContent = this.note; this.note = ""; }
+      if(hit) this.render();
+      return hit;
+    }
+    if(st === "cut" && this.view === "back"){
+      const bk = this.bk, pairs = [[a, b]]; if(this.mirror) pairs.push([[200-a[0], a[1]], [200-b[0], b[1]]]);
+      if(t === "section" || t === "lift") return false;
+      if(t === "scissors") pairs.forEach(([p, q]) => {
+        const x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]), yAt = x => x1 - x0 < .5 ? (p[1]+q[1])/2 : p[1] + (q[1]-p[1])*(clamp(x, x0, x1) - p[0])/(q[0]-p[0] || 1);
+        if(bk.top === "lift"){ bk.T.forEach(s => { const tx = s.rx + (s.rx-100)*.6; if(tx < x0 - 3 || tx > x1 + 3) return; const y = yAt(tx), tip = 36 - (s.end - 40)*.45; if(y > tip && y < 36){ const ne = Math.max(100, 40 + (36 - y)/.45); if(ne < s.end - 1){ this.fall(tx, y, this.capColor()); s.end = ne; hit = true; } } }); }
+        else { const cutArr = (arr, xOf, minE) => arr.forEach(s => { const x = xOf(s); if(x < x0 - 3 || x > x1 + 3) return; const y = yAt(x); if(y < s.end - 1 && y > minE - 6){ s.end = Math.max(minE, y); this.fall(x, y + 2, this.capColor()); hit = true; } });
+          cutArr(bk.U, s => s.x, 128); if(bk.top === "down") cutArr(bk.T, s => s.fx, 100); }
+      });
+      if(t === "clippers") pairs.forEach(([p, q]) => [...bk.U, ...bk.T].forEach(s => { const x = s.x || s.fx; if(segDist(x, 120, p[0], p[1], q[0], q[1]) < 30 && s.end > 130){ s.end = 130; hit = true; } }));
+      if(hit){ this.backCut = true; this.render(); }
+      return hit;
+    }
+    if(st === "color"){
+      const all = [...this.hs.L, ...this.hs.Rt, ...(this.hs.combed ? this.hs.B : [])];
+      const r = this.hlMode ? 3.2 : t === "spray" ? 11 : 9;
+      let list = all.filter(s => segDist(s.fx, clamp(b[1], s.yTurn, s.end), a[0], a[1], b[0], b[1]) < r && b[1] <= s.end + r || segDist(s.rx, s.ry, a[0], a[1], b[0], b[1]) < r);
+      if(this.hlMode && list.length > 1){ list.sort((x, y) => Math.abs(x.fx - b[0]) - Math.abs(y.fx - b[0])); list = [list[0]]; }
+      this.passes = this.passes || new Set();
+      list.forEach(s => { const id = all.indexOf(s);
+        if(t === "bleach"){ if(!this.passes.has(id) && (s.bleach || 0) < 2){ this.passes.add(id); s.bleach = (s.bleach || 0) + 1; s.dye = null; s.tone = "none"; hit = true; } }
+        else if(t === "dye"){ if(s.dye !== this.dye){ s.dye = this.dye; hit = true; } }
+        else if(t === "spray"){ if(s.tone !== this.toner){ s.tone = this.toner; hit = true; } } });
+      if(t === "spray") this.mist(b);
+      if(hit) this.render();
+      return hit;
+    }
+    return HS_V2.apply.call(this, a, b);
+  },
+  bindPointer(){
+    HS_V2.bindPointer.call(this);
+    const ov = $("hsOv");
+    ov.addEventListener("pointerdown", e => {
+      if(this.locked || this.view !== "back" || !["section","lift"].includes(this.tool)) return;
+      const p = ov.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(ov.getScreenCTM().inverse());
+      if(q[1] === undefined && q.y > 110) return;
+      const want = this.tool === "section" ? "clip" : "lift"; this.bk.top = this.bk.top === want ? "down" : want; sfx.click();
+      $("hsMsg").textContent = this.bk.top === "clip" ? "Top section clipped up. Now cut the under-layer to set the length." : this.bk.top === "lift" ? "Top section lifted straight up. A cut here makes it shorter than the under-layer: layers!" : "Section let down.";
+      this.render();
+    });
+    ov.addEventListener("pointerdown", () => { this.passes = new Set(); });
+  },
+  sprayMist(){ for(let i = 0; i < 6; i++) setTimeout(() => this.mist([60 + Math.random()*80, 40 + Math.random()*60]), i*60); },
+  /* ---------- scoring ---------- */
+  submit(){
+    if(this.locked) return;
+    const L = this.look(), wp = this.w.pts, share = (f, z) => { const s = wp.filter(q => !z || q.z === z); return s.filter(f).length / s.length; };
+    const res = this.c.rules.map(r => ({label:r.label, why:r.why, ok:r.test(L)}));
+    res.push({label:"Clean, even ends", ok:!L.issues.length, why: L.issues.length ? `Careful: ${listAnd(L.issues)}. Stylists check balance by pulling matching strands down on both sides.` : "Balanced, crisp ends are the mark of a pro cut."});
+    const scalpSham = share(q => q.sham, "scalp"), foamLeft = share(q => q.foam), endsCond = share(q => q.cond, "ends"), rootsCond = share(q => q.cond, "scalp");
+    res.push({label:"Wash: shampoo the scalp, rinse it all out", ok:scalpSham >= .6 && foamLeft < .05, why: scalpSham < .6 ? "Shampoo belongs on the scalp, where oil and dirt build up. The suds clean the lengths on the way out." : foamLeft >= .05 ? "Leftover shampoo dulls hair and itches the scalp. Rinse until the water runs clear." : "Scalp cleaned and rinsed: the foundation of every good cut."});
+    res.push({label:"Condition the ends, not the roots", ok:endsCond >= .5 && rootsCond <= .25, why: endsCond < .5 ? "The ends are the oldest, driest part of the hair. That's where conditioner does the most good." : rootsCond > .25 ? "Conditioner on the roots weighs hair down and makes it greasy faster." : "Ends nourished, roots left light."});
+    const dried = share(q => !q.wet);
+    res.push({label:"Protect from heat, then dry it fully", ok:this.w.heat <= 2 && dried >= .85, why: this.w.heat > 2 ? "Blow-drying without heat protectant boils the water inside the hair shaft and cracks the cuticle." : dried < .85 ? "Damp patches frizz and won't hold a style. Dry until no damp spots are left." : "Protected, blotted and dried: smooth and ready for cutting."});
+    const pr = this.c.prod, chose = [...this.prods], missing = pr.need.filter(k => !this.prods.has(k)), wrong = chose.filter(k => pr.ban.includes(k));
+    res.push({label:`Products for ${this.c.type.thick}, ${this.c.type.tex} hair with ${this.c.type.cond === "oily" ? "an" : "a"} ${this.c.type.cond} scalp`, ok:!missing.length && !wrong.length, why: wrong.length ? `Skip the ${listAnd(wrong.map(k => HS_PRODUCTS.find(x => x[0] === k)[1].toLowerCase()))}: ${HS_PRODUCTS.find(x => x[0] === wrong[0])[3]}` : missing.length ? `It needed ${listAnd(missing.map(k => HS_PRODUCTS.find(x => x[0] === k)[1].toLowerCase()))}. ${HS_PRODUCTS.find(x => x[0] === missing[0])[3]}` : "Products matched to the hair type, not just the style."});
+    const f = res.filter(r=>r.ok).length / res.length; this.f = f; this.locked = true;
+    const pts = Math.round(1000*f); this.total += pts; this.log.push({n:this.c.name, pts, look:HS_NAMES[L.cut]}); adapt("hair", f);
+    f >= .99 ? sfx.win() : f >= .5 ? sfx.good() : sfx.bad();
+    this.render();
+    const last = this.round === this.n - 1;
+    $("hsNextStage").hidden = true; $("hsUndo").hidden = true;
+    $("hsRes").innerHTML = `<div class="reveal"><span class="eyebrow">${f >= .9 ? `${this.c.name} is thrilled` : f >= .6 ? "Nearly perfect" : "Not quite what she asked for"}</span><span class="pts">+${fmt(pts)}</span>
+      <div class="salon-pair mini"><figure>${faceSVG({...this.faceParams("tense"), strands:undefined, hair:this.c.textured ? "afro" : "long", bangs:"none", hairC:HAIRC[this.c.hairC], top:this.c.top}, 96)}<figcaption>Before</figcaption></figure><figure>${faceSVG(this.faceParams(f >= .9 ? "happy" : f >= .6 ? "neutral" : "sad"), 96)}<figcaption>After</figcaption></figure></div>
+      ${checklist(res)}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="hsBooth">📸 Photo booth</button><button class="btn btn-solid" type="button" id="hsNext">${last ? "See results" : "Next client"}</button></div></div>`;
+    $("hsBooth").addEventListener("click", () => photoBooth({name:this.c.name, caption:`${HS_NAMES[L.cut]} by me`, face:mood => faceInner(this.faceParams(mood))}));
+    $("hsNext").addEventListener("click", () => { if(last) this.finish(); else { this.round++; this.newRound(); } });
+    setSide("Score", fmt(this.total));
+    $("hsRes").scrollIntoView({block:"nearest", behavior:"smooth"});
+  }
+});
+HOWTO.hair = ["Read the client's face shape, hair type and goals, then seat them in the chair.","Wash (wet, shampoo the scalp, rinse, condition the ends), dry with heat protectant, and pick products for their hair type.","Cut from behind: clip the top up, cut the under-layer, lift the top to cut layers. Then color, style and spin the chair."];
+HAIR_BANK.push(
+  [1,"Where should conditioner go?","Mid-lengths and ends",["Only the scalp","Roots first","Nowhere, just shampoo"],"Ends are the oldest, driest part of each hair; conditioner on the roots makes hair greasy."],
+  [2,"Why should you blot wet hair with a towel instead of rubbing it?","Rubbing roughs up the cuticle and causes frizz and breakage",["Rubbing makes hair grow slower","Blotting adds volume permanently","Towels can't dry hair"],"Wet hair is weaker and stretchier, so friction damages it easily."],
+  [2,"How are layers cut in a salon?","By lifting sections up and cutting them shorter than the hair underneath",["By cutting everything at the same length","By using a razor only","By bleaching sections"],"The higher a section is lifted (elevation), the more layering the cut creates."],
+  [3,"Why won't pastel pink dye show on dark brown hair?","Dye is translucent, so the dark pigment underneath overpowers it",["Pink dye only works on wet hair","Dark hair repels dye","It shows, but only in sunlight"],"Hair must be lightened (bleached) first so the pastel can show."],
+  [3,"Bleached dark hair often turns orange. Which toner neutralizes orange?","Blue",["Violet","Green","Red"],"Blue sits opposite orange on the color wheel."],
+  [3,"Why use a heat protectant before blow-drying?","It reduces damage from high heat to the hair's surface",["It dyes the hair","It makes hair grow","It washes the hair"],"Very hot tools can boil water inside the hair and crack the cuticle."],
+  [4,"What is the first section a stylist usually cuts to set the length?","The under-layer at the nape, as a guide",["The bangs","The crown","The sideburns"],"That first cut is called the guide; every other section is measured against it."]
+);
 
 renderHub();
 </script>
