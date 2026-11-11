@@ -967,6 +967,14 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 #hsNextStage.ready{animation:readyglow 1.4s ease-in-out infinite}
 @keyframes readyglow{50%{box-shadow:0 4px 0 var(--ink),0 0 0 6px rgb(87 204 153 / .55)}}
 .salon2 .chair-wrap{position:relative}
+.recline-box{display:flex;flex-direction:column;gap:8px}
+.recline-art{border:2.5px solid var(--ink);border-radius:14px;overflow:hidden;line-height:0}
+.sec-box{margin-top:6px}
+.sec-map{max-width:260px;border:2px solid var(--ink);border-radius:12px;background:#fffdf8;padding:4px}
+.seczone{cursor:pointer}.seczone:hover{filter:brightness(.94)}
+.sec-list{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.secbtn{display:flex;flex-direction:column;align-items:flex-start;padding:5px 8px;border:2px solid var(--ink);border-radius:10px;background:#dcf5e6;color:var(--ink);font:600 12px Figtree,sans-serif;cursor:pointer}
+.secbtn small{font:10px "DM Mono",monospace;opacity:.75}.secbtn.s-clip{background:#ff9ec7}.secbtn.s-lift{background:#ffd166}
 </style>
 
 <div class="wrap">
@@ -5841,12 +5849,12 @@ const HS_NAMES = {pixie:"Pixie", bob:"Chin bob", lob:"Lob", long:"Long", layers:
 const HS_BANG_NAMES = {none:"no bangs", blunt:"blunt bangs", side:"side-swept bangs", curtain:"curtain bangs"};
 const HS_TOOLS = [["scissors","Scissors","✂️","Swipe across the strands to cut them where you swipe."],["clippers","Clippers","🪒","Run over the hair to buzz it right down."],["comb","Comb","🪮","Drag down over the forehead to comb bangs forward; drag up to sweep them back."],["wand","Curling wand","🌀","Brush over strands: once for waves, twice for tight curls."],["iron","Flat iron","♨️","Brush over strands to straighten them."],["spray","Toner spray","💧","Pick a toner, then mist it over the hair. Cover it evenly."]];
 const HS_STYLES = [["down","Down"],["ponytail","Ponytail"],["bun","Top bun"],["braids","Box braids"],["spacebuns","Space buns"],["halfup","Half-up"]];
-const HS_N = 9, HS_B = 11;
+const HS_N = 12, HS_B = 13;
 function hsSideGeom(i, left){
   const t = i/(HS_N-1), fx = 57 - t*27, root = [54 + t*40, 76 - t*46], yTurn = 96 - t*6;
   return left ? {fx, rx:root[0], ry:root[1], yTurn} : {fx:200-fx, rx:200-root[0], ry:root[1], yTurn};
 }
-function hsBangGeom(j){ const x = 62 + j*7.6; return {fx:x, rx:100 + (x-100)*.5, ry:40, yTurn:58}; }
+function hsBangGeom(j){ const x = 62 + j*6.33; return {fx:x, rx:100 + (x-100)*.5, ry:40, yTurn:58}; }
 
 STUDIO.hair = {
   start(){ this.round = 0; this.total = 0; this.log = []; this.n = 4; this.newRound(); },
@@ -5876,7 +5884,7 @@ STUDIO.hair = {
   },
   freshHair(){
     const c = this.c, len = c.textured ? 196 : R(204, 214), tex = c.textured ? 2 : 0;
-    const mk = (g, end) => ({...g, end, tex, tone:"none", buzz:false});
+    let vi = 0; const mk = (g, end) => ({...g, end, tex, tone:"none", buzz:false, v:[.07,-.05,0,.03,-.08,.05][(vi++) % 6]});
     return {L:Array.from({length:HS_N}, (_, i) => mk(hsSideGeom(i, true), len - i*1.5)), Rt:Array.from({length:HS_N}, (_, i) => mk(hsSideGeom(i, false), len - i*1.5)),
       B:Array.from({length:HS_B}, (_, j) => mk(hsBangGeom(j), c.textured ? 120 : 150)), combed:false, style:"down"};
   },
@@ -5929,18 +5937,19 @@ STUDIO.hair = {
   look(raw){
     const hs = this.hs, all = this.all(), ends = all.map(s => s.end).sort((a,b) => a-b), E = ends[Math.floor(ends.length/2)];
     const buzz = all.filter(s => s.buzz).length >= all.length*.8;
-    const texCnt = [0,0,0]; all.forEach(s => texCnt[s.tex]++); const tex = texCnt.indexOf(Math.max(...texCnt));
+    const texCnt = [0,0,0,0]; all.forEach(s => texCnt[s.tex]++); const tex = texCnt.indexOf(Math.max(...texCnt));
     const issues = [];
     const sideStats = arr => { const e = arr.map(s => s.end); let sd = 0; for(let i=1;i<e.length-1;i++) sd += Math.abs(e[i-1] - 2*e[i] + e[i+1]); return {range:Math.max(...e) - Math.min(...e), chop:sd/(e.length-2)}; };
     const sl = sideStats(hs.L), sr = sideStats(hs.Rt);
     const asym = hs.L.reduce((a, s, i) => a + Math.abs(s.end - hs.Rt[i].end), 0)/HS_N;
     if(!buzz){
       if(asym > 10) issues.push("one side is longer than the other");
-      if(Math.max(sl.chop, sr.chop) > (tex === 2 ? 16 : 11)) issues.push("the ends look ragged");
+      if(Math.max(sl.chop, sr.chop) > (tex >= 2 ? 16 : 11)) issues.push("the ends look ragged");
     }
     let cut;
     if(buzz) cut = "buzz";
-    else if(tex === 2) cut = E > 150 ? "curls" : "afro";
+    else if(tex === 3) cut = E > 150 ? "curls" : "afro";
+    else if(tex === 2) cut = "curls";
     else if(E <= 122) cut = "pixie";
     else if(E <= 170) cut = "bob";
     else if(E <= 198) cut = (sl.range >= 16 && sr.range >= 16 && Math.max(sl.chop, sr.chop) <= 11 && E > 180) ? "layers" : "lob";
@@ -5965,7 +5974,7 @@ STUDIO.hair = {
   strandD(s){
     let d = `M${s.rx.toFixed(1)} ${s.ry.toFixed(1)} Q${s.fx.toFixed(1)} ${s.ry.toFixed(1)} ${s.fx.toFixed(1)} ${s.yTurn.toFixed(1)}`;
     if(s.tex === 0 || s.buzz) return d + ` L${s.fx.toFixed(1)} ${s.end.toFixed(1)}`;
-    const amp = s.tex === 2 ? 3.4 : 2.4, per = s.tex === 2 ? 7 : 18, step = s.tex === 2 ? 1.5 : 3;
+    const amp = [0, 2.4, 3.2, 3.7][s.tex] || 2.4, per = [0, 18, 10, 5.5][s.tex] || 18, step = [0, 3, 2, 1.2][s.tex] || 3;
     for(let y = s.yTurn + step; y < s.end; y += step) d += ` L${(s.fx + amp*Math.sin((y - s.yTurn)/per*Math.PI*2)).toFixed(1)} ${y.toFixed(1)}`;
     return d + ` L${(s.fx + amp*Math.sin((s.end - s.yTurn)/per*Math.PI*2)).toFixed(1)} ${s.end.toFixed(1)}`;
   },
@@ -5978,7 +5987,7 @@ STUDIO.hair = {
   hairParts(){
     const hs = this.hs, L = this.look(), all = this.all(), hc = this.capColor ? this.capColor() : HAIRC[tonedColor(this.c.hairC, this.mainTone().tone)];
     const Lk = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
-    const coily = L.tex === 2;
+    const coily = L.tex >= 2;
     const cap = coily ? curlCloud(100, 56, 48, 18, 10, 14, hc, "hscap") : `<path d="M50 100 C44 42 72 30 100 30 C128 30 156 42 150 100 C148 78 140 64 124 58 C110 54 90 54 76 58 C60 64 52 78 50 100Z" fill="${hc}" ${Lk}/><path d="M78 44 C86 40 96 40 104 42 M112 40 C124 42 134 48 140 58" fill="none" stroke="${shade(hc,.35)}" stroke-width="2" stroke-linecap="round" opacity=".8"/>`;
     const bangs = hs.combed && !L.buzz ? this.strandLayer(hs.B, 8.4) : "";
     if(L.buzz) return {back:"", drape:"", front:`<path d="M54 92 C52 50 74 40 100 40 C126 40 148 50 146 92 C142 66 124 58 100 58 C76 58 58 66 54 92Z" fill="${hc}" opacity=".9" ${Lk}/>`};
@@ -6716,10 +6725,10 @@ Object.assign(GOALS, {
   highlights:{label:"Sun-kissed highlights, not all over", why:"Highlights lighten thin strands spread through the hair, about a quarter to half of it, so the natural color still shows between them.", test:h => h.hl, hl:true},
   greys:{label:"Cover the greys with a natural shade", why:"Grey hair has lost its pigment. A natural-shade permanent dye over all of it gives even coverage; fantasy colors read as a fashion choice, not coverage.", test:h => h.covered, color:"grey"}
 });
-const HS_TYPE_NOTE = {straight:"straight", wavy:"wavy", coily:"coily"};
+const HS_TYPE_NOTE = {straight:"straight", wavy:"wavy", curly:"curly", coily:"coily"};
 function hsProductRule(c){
   const t = c.type, need = [], ban = [];
-  if(t.tex === "coily"){ need.push("leavein","curlcream"); ban.push("mousse"); }
+  if(t.tex === "coily" || t.tex === "curly"){ need.push("leavein","curlcream"); ban.push("mousse"); }
   else if(t.thick === "fine"){ need.push(t.cond === "oily" ? "texture" : "mousse"); ban.push("oil","curlcream"); }
   else { need.push(t.cond === "dry" ? "leavein" : "serum"); ban.push("curlcream"); }
   if(t.cond === "oily"){ ban.push("oil","leavein"); }
@@ -6796,7 +6805,7 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
       wash:`<p class="stage-tip">Wet → shampoo the scalp → rinse it all out → condition the ends. Drag on the hair.</p>`,
       dry:`<p class="stage-tip">Towel-blot first, protect, then blow-dry until no damp spots are left.</p>`,
       products:`<p class="stage-tip">Pick the products that suit ${this.c.name}'s hair type. Tap to add or remove.</p><div class="prodshelf" id="hsProds">${HS_PRODUCTS.map(([k,l,e,d]) => `<button type="button" class="pbottle" data-pk="${k}"><span class="pe">${icon(e, 30)}</span><b>${l}</b><small>${d}</small></button>`).join("")}</div>`,
-      cut:`<p class="stage-tip">You're standing behind ${this.c.name}. Clip the top section up and cut the under-layer to set the length. Then lift the top section and cut it shorter for layers, or let it down and cut level for one length. Turn the chair to finish the face-framing and bangs.</p>`,
+      cut:`<p class="stage-tip">Section like a pro: from behind, clip the crown and middle up and cut the nape to set your guide length. Let each section down and cut it to match (one length), or lift it and cut it shorter (layers). Clip the sides or bangs to protect them. Turn the chair to shape the face-framing and bangs.</p>`,
       color:`<p class="stage-tip">Bleach first if the hair is dark, then dye. Use toner to cancel brassiness.</p><div class="chips dyechips" id="hsDyes">${HS_DYES.map(([k, col]) => `<button type="button" class="ch" data-dye="${k}"><i class="cdot" style="background:${col}"></i>${k}</button>`).join("")}</div><label class="hlmode"><input type="checkbox" id="hsHl"> Highlights (thin streaks)</label><div class="chips" id="hsToners" hidden>${TONERS.filter(t => t[0] !== "none").map(([v,l,col])=>`<button type="button" class="ch" data-toner="${v}"><i class="cdot" style="background:${col}"></i>${l}</button>`).join("")}</div>`,
       style:`<p class="stage-tip">Finish the look, then spin the chair to show ${this.c.name}.</p><div class="opt-group"><h4>Style it</h4><div class="chips" id="hsStyles">${HS_STYLES.map(([v,l]) => `<button type="button" class="ch" data-style="${v}">${l}</button>`).join("")}</div></div><label class="hlmode"><input type="checkbox" id="hsSpray"> Finish with hairspray</label>`}[k];
     $("hsPanel").innerHTML = `<div class="opt-group"><h4>${HS_STAGES[this.stage][1]}${tools ? " · tools" : ""}</h4>${tools ? `<div class="toolbar" id="hsTools">${tools.map(([t,l,ic,d]) => `<button type="button" class="tool" data-t="${t}" data-tip="${d}"><span class="ti">${icon(ic, 30)}</span>${l}</button>`).join("")}</div><p class="tooltip-line" id="hsTip"></p>` : ""}${tip}</div>`;
@@ -6838,6 +6847,7 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
     const key = this.keyOf(s); let c = HAIRC[tonedColor(key, s.tone || "none")] || HAIRC.brown;
     if(s.dye){ const d = HS_DYES.find(x => x[0] === s.dye)[1], take = LIGHT_TAKE[tonedColor(key, s.tone || "none")] || .3; c = mixHex(c, d, Math.min(.92, take*1.02)); }
     const wet = this.wetLevel(); if(wet > 0) c = shade(c, -.32*wet);
+    if(s.v) c = shade(c, s.v);
     return c;
   },
   faceParams(mood){ const p = HS_V2.faceParams.call(this, mood); p.browC = shade(HAIRC[this.c.hairC] || HAIRC.brown, -.25); return p; },
@@ -6859,7 +6869,8 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
       const uE = med(this.bk.U.map(s => s.end)), tE = med(this.bk.T.map(s => s.end)), E = Math.min(uE, outer + 2);
       const layered = uE - tE >= 16 || L.cut === "layers";
       L.E = E;
-      if(L.tex === 2) L.cut = E > 150 ? "curls" : "afro";
+      if(L.tex === 3) L.cut = E > 150 ? "curls" : "afro";
+      else if(L.tex === 2) L.cut = "curls";
       else L.cut = E <= 122 ? "pixie" : E <= 170 ? "bob" : E <= 198 ? (layered && E > 172 ? "layers" : "lob") : (layered ? "layers" : "long");
       const sd = Math.sqrt(this.bk.U.reduce((a, s) => a + (s.end - uE)**2, 0) / this.bk.U.length);
       if(sd > 12) L.issues.push("the back is uneven");
@@ -7452,13 +7463,13 @@ function mkToolIcon(k){
 {
   const H = STUDIO.hair, V3 = Object.getPrototypeOf(H) === HS_V2 ? null : null;
   const v3 = {renderTools:H.renderTools, enterStage:H.enterStage, nextStage:H.nextStage, apply:H.apply, render:H.render, renderOv:H.renderOv, colorOf:H.colorOf, capColor:H.capColor, submit:H.submit, newRound:H.newRound, washPts:H.washPts};
-  const WASH_STEPS = [["temp","Set the water to lukewarm"],["wet","Wet all the hair"],["pump","Pump shampoo into your hand"],["lather","Massage the scalp into a rich lather"],["rinse","Rinse until the water runs clear"],["cond","Pump conditioner and smooth it onto the ends"],["wait","Let the conditioner work"],["rinse2","Rinse the conditioner out"],["wrap","Wrap the hair in a towel"]];
+  const WASH_STEPS = [["recline","Recline the client back into the shampoo bowl"],["neck","Tuck a towel around the neck"],["temp","Set the water to lukewarm"],["wet","Wet all the hair"],["pump","Pump shampoo into your hand"],["lather","Massage the scalp into a rich lather"],["rinse","Rinse until the water runs clear"],["cond","Pump conditioner and smooth it onto the ends"],["wait","Let the conditioner work"],["rinse2","Rinse the conditioner out"],["wrap","Wrap the hair in a towel"]];
   const DRY_STEPS = [["blot","Unwrap and squeeze the hair dry with the towel"],["protect","Mist heat protectant all over"],["blow","Blow-dry until no damp spots are left"],["cool","Finish with a cool shot (bonus)"]];
   const HEAT = {cool:[.4, 0, "Cool: gentle but slow"], warm:[.65, 0, "Warm: the everyday setting"], hot:[1, 1, "Hot: fast, but scorches unprotected or already-dry hair"]};
   Object.assign(H, {
     newRound(){
       v3.newRound.call(this);
-      Object.assign(this.w, {temp:22, tempOk:false, tempTries:0, pumps:0, lather:0, condPumps:0, condTimer:0, condRinsed:false, wrapped:false, heatSet:"warm", heatHits:0, coolShot:false, eyes:false});
+      Object.assign(this.w, {recline:0, reclineOk:false, reclineTries:0, neck:false, temp:22, tempOk:false, tempTries:0, pumps:0, lather:0, condPumps:0, condTimer:0, condRinsed:false, wrapped:false, heatSet:"warm", heatHits:0, coolShot:false, eyes:false});
       this.mood = 3; this.moodLog = []; this.warned = 0; this.cutWarned = false;
       this.renderMood();
     },
@@ -7473,7 +7484,7 @@ function mkToolIcon(k){
     renderMood(){ const el = $("hsMood"); if(!el) return; const m = this.mood; el.innerHTML = `<span>Comfort</span>${[1,2,3,4,5].map(i => icon("❤", 18, m >= i ? "on" : m >= i - .5 ? "half" : "off")).join("")}`; },
     stepState(){
       const w = this.w, p = w.pts, sh = (f, z) => { const s = p.filter(q => !z || q.z === z); return s.filter(f).length / s.length; };
-      return {temp:w.tempOk, wet:sh(q => q.wet === 2 || q.sham) >= .85, pump:w.pumps > 0, lather:w.lather >= 100, rinse:w.lather >= 100 && sh(q => q.foam) === 0, cond:w.condPumps > 0 && sh(q => q.cond, "ends") >= .6, wait:w.condTimer >= 1, rinse2:w.condRinsed, wrap:w.wrapped,
+      return {recline:w.reclineOk, neck:w.neck, temp:w.tempOk, wet:sh(q => q.wet === 2 || q.sham) >= .85, pump:w.pumps > 0, lather:w.lather >= 100, rinse:w.lather >= 100 && sh(q => q.foam) === 0, cond:w.condPumps > 0 && sh(q => q.cond, "ends") >= .6, wait:w.condTimer >= 1, rinse2:w.condRinsed, wrap:w.wrapped,
         blot:sh(q => q.wet <= 1) >= .8, protect:sh(q => q.prot > 0) >= .7, blow:sh(q => !q.wet) >= .9, cool:w.coolShot};
     },
     curStep(list){ const st = this.stepState(); return list.find(([k]) => k !== "cool" && !st[k]); },
@@ -7500,6 +7511,16 @@ function mkToolIcon(k){
       stage.querySelectorAll("#hsTools .tool").forEach(b => b.classList.toggle("sel", b.dataset.t === this.tool));
       $("hsChair").dataset.tool = this.tool || ""; $("hsViewBtns").innerHTML = "";
       const w = this.w, o = $("hsOpts"); if(!o) return;
+      if(k === "wash" && (!w.reclineOk || !w.neck)){
+        o.innerHTML = `<div class="recline-box"><div class="recline-art" id="hsRecArt">${reclineSVG(w.recline, w.reclineOk)}</div>
+          <label class="temp"><span>Recline</span><input type="range" id="hsRec" min="0" max="70" value="${w.recline}" ${w.reclineOk ? "disabled" : ""}><b id="hsRecV">${w.recline}°</b></label>
+          <div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="hsRecGo" ${w.reclineOk ? "disabled" : ""}>Lower the client into the bowl</button><button class="btn-sm" type="button" id="hsNeck" ${w.reclineOk && !w.neck ? "" : "disabled"}>Tuck a towel at the neck</button></div>
+          <p class="tooltip-line">The neck should rest in the bowl's curved notch: too upright and water runs down their back; too far and it strains the neck.</p></div>`;
+        $("hsRec").oninput = e => { w.recline = +e.target.value; $("hsRecV").textContent = w.recline + "°"; $("hsRecArt").innerHTML = reclineSVG(w.recline, false); };
+        $("hsRecGo").onclick = () => { w.reclineTries++; if(w.recline < 30){ this.say("Eek, water's dripping down my back!", "bad"); this.bump(-.25, "too upright at the basin"); sfx.bad(); } else if(w.recline > 50){ this.say("Ow, my neck! That's too far back.", "bad"); this.bump(-.25, "neck strain at the basin"); sfx.bad(); } else { w.reclineOk = true; this.say("Ahh, comfy. My neck fits perfectly.", "good"); sfx.good(); } this.renderTools(); this.render(); };
+        $("hsNeck").onclick = () => { w.neck = true; sfx.click(); this.say("Thanks, nice and snug."); this.renderTools(); this.render(); };
+        this.renderSub(); return;
+      }
       if(this.tool === "water") o.innerHTML = `<label class="temp"><span>Water temperature</span><input type="range" id="hsTemp" min="15" max="50" value="${w.temp}"><b id="hsTempV" class="${w.temp < 34 ? "cold" : w.temp > 40 ? "hot" : "ok"}">${w.temp}°C</b></label><button class="btn-sm" type="button" id="hsTest">Test it on the client</button><p class="tooltip-line">Spray over the hair. Water also rinses out foam and conditioner.</p>`;
       else if(this.tool === "shampoo") o.innerHTML = `<div class="pumprow"><button class="pump" type="button" id="hsPump">${icon("🧴", 34)}<span>Pump</span></button><div><b>${w.pumps} pump${w.pumps === 1 ? "" : "s"}</b><p class="tooltip-line">Then scrub back and forth over the scalp with your fingertips.</p></div></div><div class="meter"><i style="width:${Math.min(100, w.lather)}%"></i><span>Lather</span></div>`;
       else if(this.tool === "conditioner") o.innerHTML = `<div class="pumprow"><button class="pump" type="button" id="hsCPump">${icon("🫙", 34)}<span>Pump</span></button><div><b>${w.condPumps} pump${w.condPumps === 1 ? "" : "s"}</b><p class="tooltip-line">Smooth it through the mid-lengths and ends, not the roots.</p></div></div>
@@ -7556,7 +7577,7 @@ function mkToolIcon(k){
       const k = HS_STAGES[this.stage][0], ov = $("hsOv"); if(!ov || this.view !== "front" || !["wash","dry"].includes(k)) return;
       let g = "";
       const w = this.w, lath = Math.min(1, w.lather / 100);
-      g += `<path d="M78 176 Q100 186 122 176 L126 190 Q100 200 74 190Z" fill="#fffdf8" stroke="${INK}" stroke-width="1.6"/><path d="M80 184 Q100 192 120 184" stroke="#d9cfc0" stroke-width="1.2" fill="none"/>`;
+      if(w.neck || k === "dry") g += `<path d="M78 176 Q100 186 122 176 L126 190 Q100 200 74 190Z" fill="#fffdf8" stroke="${INK}" stroke-width="1.6"/><path d="M80 184 Q100 192 120 184" stroke="#d9cfc0" stroke-width="1.2" fill="none"/>`;
       if(w.wrapped && k === "wash" || (k === "dry" && w.wrapped && !w.unwrapped)) g += `<path d="M46 92 C40 44 70 22 100 22 C130 22 160 44 154 92 C140 74 120 66 100 66 C80 66 60 74 46 92Z" fill="#ffb3c7" stroke="${INK}" stroke-width="2.4"/><path d="M60 50 C80 36 120 36 140 50 M54 66 C80 50 120 50 146 66" stroke="#fffdf8" stroke-width="2.4" fill="none"/><path d="M128 30 C146 24 156 34 150 46 C144 40 136 38 128 40Z" fill="#ffb3c7" stroke="${INK}" stroke-width="2"/>`;
       else wp(this).forEach((q, i) => {
         if(q.foam){ const n = 2 + Math.round(lath*3), rr = 2.2 + lath*2.2; for(let j = 0; j < n; j++){ const R2 = rng("f" + i + "-" + j); g += `<circle cx="${(q.x + (R2()-.5)*10).toFixed(1)}" cy="${(q.y + (R2()-.5)*8).toFixed(1)}" r="${(rr*(.6 + R2()*.6)).toFixed(1)}" fill="#fff" stroke="#c8dbe8" stroke-width=".6" opacity=".95"/>`; } }
@@ -7574,6 +7595,7 @@ function mkToolIcon(k){
       if(st === "wash"){
         if(w.wrapped){ this.say("I'm already wrapped up!"); return false; }
         if(t === "water"){
+          if(!w.reclineOk || !w.neck){ this.say("Shouldn't I lean back into the bowl first?"); return false; }
           if(!w.tempOk){ if(!this.warned){ this.warned = 1; this.say("Test the water temperature on me first!", "bad"); } return false; }
           w.pts.forEach(q => { if(!near(q, 15)) return; if(q.wet !== 2){ q.wet = 2; hit = true; } if(q.foam){ q.foam = 0; q.rinsed = 1; hit = true; } if(q.cond && w.condTimer >= 1 && !q.condOff){ q.condOff = 1; hit = true; } });
           const ends = w.pts.filter(q => q.cond); if(ends.length && w.condTimer >= 1 && ends.filter(q => q.condOff).length >= ends.length*.8 && !w.condRinsed){ w.condRinsed = true; sfx.good(); this.say("Silky!", "good"); }
@@ -7621,6 +7643,7 @@ function mkToolIcon(k){
       const w = this.w, p = w.pts, sh = (f, z) => { const s = p.filter(q => !z || q.z === z); return s.filter(f).length / s.length; };
       const need = this.needPumps();
       const extra = [
+        {label:"Reclined comfortably into the bowl, towel at the neck", ok:w.reclineOk && w.reclineTries <= 2 && w.neck, why:"The neck rests in the bowl's notch so water drains into the basin, not down the client's back, without straining the neck."},
         {label:"Lukewarm water, tested first", ok:w.tempOk && w.tempTries <= 2, why:"Hot water strips natural oils and opens the cuticle; cold water won't dissolve oil. About 37°C is body temperature, comfortable and effective."},
         {label:`The right amount of shampoo (${need} pump${need === 1 ? "" : "s"})`, ok:Math.abs(w.pumps - need) <= 0, why:"Short hair needs about a coin-sized amount; long hair needs more. Too much is wasted and hard to rinse; too little won't lather."},
         {label:"Scalp massaged into a full lather, then rinsed clean", ok:w.lather >= 100 && sh(q => q.foam) === 0 && !w.eyes, why: w.eyes ? "Keep the suds away from the face: tilt the head back and shield the eyes." : "Fingertip massage lifts oil and boosts blood flow. Rinse until the water runs clear."},
@@ -7644,6 +7667,199 @@ function mkToolIcon(k){
   H.newRound = function(){ origRoundUI.call(this);
     this.detailedWash = true; $("hsChair").parentElement.insertAdjacentHTML("afterbegin", `<div class="hs-bubble" id="hsBubble"></div>`);
     $("hsViewBtns").insertAdjacentHTML("beforebegin", `<div class="hs-mood" id="hsMood"></div>`); this.renderMood(); };
+}
+
+function reclineSVG(a, ok){
+  const r = a*Math.PI/180, px = 92, py = 120, bx = px + Math.sin(r)*0 , L = 70;
+  const tx = px - Math.sin(r)*L*-.0, top = [px + Math.sin(r)*L, py - Math.cos(r)*L];
+  const head = [top[0] + Math.sin(r)*14, top[1] - Math.cos(r)*14], inNotch = a >= 30 && a <= 50;
+  return `<svg viewBox="0 0 240 150" width="100%" aria-label="Side view of the basin chair"><rect width="240" height="150" fill="#eef3f6"/><path d="M0 140 H240" stroke="${INK}" stroke-width="2"/>
+    <path d="M150 70 Q150 104 186 104 Q222 104 222 70 Z" fill="#2b2f3a" stroke="${INK}" stroke-width="2.5"/><rect x="180" y="104" width="12" height="36" fill="#596173" stroke="${INK}" stroke-width="2"/><path d="M150 70 h20 q4 -10 10 0" fill="none" stroke="${INK}" stroke-width="2.5"/>
+    <rect x="40" y="118" width="80" height="14" rx="5" fill="#3d405b" stroke="${INK}" stroke-width="2.5"/><path d="M80 132 V140" stroke="${INK}" stroke-width="5"/>
+    <path d="M${px} ${py} L${top[0].toFixed(1)} ${top[1].toFixed(1)}" stroke="#3d405b" stroke-width="12" stroke-linecap="round"/>
+    <path d="M44 112 L${px} ${py - 4} L${(px + Math.sin(r)*48).toFixed(1)} ${(py - 4 - Math.cos(r)*48).toFixed(1)}" stroke="#2b2f3a" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M30 116 L44 112" stroke="#2b2f3a" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="${head[0].toFixed(1)}" cy="${head[1].toFixed(1)}" r="13" fill="#e0ac7e" stroke="${INK}" stroke-width="2.5"/><path d="M${(head[0] + Math.sin(r)*6 - 8).toFixed(1)} ${(head[1] - 8).toFixed(1)} q8 -10 18 2" fill="#4a2c1d" stroke="${INK}" stroke-width="2"/>
+    <text x="12" y="20" font-family="DM Mono, monospace" font-size="12" fill="${INK}">${a}° ${ok ? "· resting in the bowl" : inNotch ? "· looks right" : a < 30 ? "· too upright" : "· too far back"}</text>
+    ${inNotch || ok ? `<circle cx="200" cy="22" r="10" fill="#2bb673" stroke="${INK}" stroke-width="2"/><path d="M195 22 l4 4 l7 -8" fill="none" stroke="#fff" stroke-width="2.4"/>` : ""}</svg>`;
+}
+/* =========================================================
+   HAIR SALON v5: real sectioning. Crown, middle, nape, left side,
+   right side and bangs can each be down, clipped or lifted.
+   Four hair textures: straight, wavy, curly, coily.
+   ========================================================= */
+const HS_SECTIONS = [["crown","Crown"],["mid","Middle"],["nape","Nape"],["left","Left side"],["right","Right side"],["bangs","Bangs"]];
+const HS_TEXNUM = {straight:0, wavy:1, curly:2, coily:3};
+{
+  const H = STUDIO.hair, prev = {apply:H.apply, renderTools:H.renderTools, render:H.render, newRound:H.newRound, faceParams:H.faceParams, newClient:H.newClient, submit:H.submit};
+  const med = a => { const b = a.slice().sort((x,y) => x-y); return b[Math.floor(b.length/2)]; };
+  Object.assign(H, {
+    newClient(){
+      const c = prev.newClient.call(this);
+      c.type.tex = c.textured ? pick(["coily","curly"]) : pick(["straight","straight","wavy","curly"]);
+      if(c.type.tex === "coily" || c.type.tex === "curly") c.type.cond = pick(["dry","normal"]);
+      c.prod = hsProductRule(c);
+      return c;
+    },
+    freshBack(len, tex){
+      const v = i => [.07,-.05,0,.03,-.08,.05][i % 6];
+      return {top:"down", st:{crown:"down", mid:"down", nape:"down", left:"down", right:"down", bangs:"down"},
+        crown:Array.from({length:13}, (_, i) => ({rx:76 + i*4, fx:46 + i*9, end:len - Math.abs(i-6)*1.2 - 2, tex, v:v(i)})),
+        mid:Array.from({length:13}, (_, i) => ({rx:60 + i*6.67, fx:54 + i*7.67, end:len - Math.abs(i-6)*.9, tex, v:v(i+2)})),
+        nape:Array.from({length:11}, (_, i) => ({rx:68 + i*6.4, fx:68 + i*6.4, end:len - Math.abs(i-5)*.8, tex, v:v(i+4)}))};
+    },
+    newRound(){
+      prev.newRound.call(this);
+      const t = HS_TEXNUM[this.c.type.tex] || 0;
+      [...this.all(), ...this.hs.B].forEach(s => s.tex = t); this.before = JSON.parse(JSON.stringify(this.hs));
+      this.bk = this.freshBack(this.hs.L[5].end, t); this.backCut = false;
+      this.render();
+    },
+    secMin:{crown:100, mid:104, nape:128},
+    secRoot:{crown:36, mid:92, nape:126},
+    liftTip(sec, s){ const r = this.secRoot[sec]; return [s.rx + (s.rx - 100)*(sec === "crown" ? .6 : .35), r - (s.end - r)*.45]; },
+    sideBack(){ // outer front strands seen from behind (client's left on the viewer's left)
+      const pick4 = side => side.slice(-4);
+      return {left:pick4(this.hs.L).map((s, i) => ({s, x:49 - i*3.2})), right:pick4(this.hs.Rt).map((s, i) => ({s, x:151 + i*3.2}))};
+    },
+    backSVG(){
+      const c = this.c, skin = SKINS[c.depth][0], hc = this.capColor(), bk = this.bk, st = bk.st, Lk = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"`;
+      const amp = t => [0, 2.4, 3.2, 3.7][t] || 0, per = t => [1, 18, 10, 5.5][t] || 1;
+      const sd = (x, y0, y1, tex) => { if(!tex) return ` L${x} ${y1}`; let d = ""; const step = tex >= 3 ? 1.2 : 2; for(let y = y0 + step; y < y1; y += step) d += ` L${(x + amp(tex)*Math.sin((y-y0)/per(tex)*Math.PI*2)).toFixed(1)} ${y.toFixed(1)}`; return d + ` L${x} ${y1}`; };
+      const col = s => s.v ? shade(hc, s.v) : hc;
+      const layer = (items, w) => `<g fill="none" stroke-linecap="round" stroke-linejoin="round">${items.map(([d]) => `<path d="${d}" stroke="${INK}" stroke-width="${w+3.2}"/>`).join("")}${items.map(([d, c2]) => `<path d="${d}" stroke="${c2}" stroke-width="${w}"/>`).join("")}${items.filter((_, i) => i % 2).map(([d, c2]) => `<path d="${d}" stroke="${shade(c2,.3)}" stroke-width="1" opacity=".5" transform="translate(-1.5 0)"/>`).join("")}</g>`;
+      const knot = (x, y, r) => `<path d="M${x-r} ${y} q${r} ${-r*1.6} ${r*2} 0 q${-r*.4} ${r*.9} ${-r} ${r*.8} q${-r*.6} ${.1*r} ${-r} ${-r*.8}z" fill="${hc}" ${Lk}/><path d="M${x-r*.6} ${y-r*.2} q${r*.6} ${-r*.8} ${r*1.2} 0" stroke="${shade(hc,.3)}" stroke-width="1.6" fill="none"/><rect x="${x-5}" y="${y-r*1.2}" width="10" height="${r*1.4}" rx="3" fill="#ff7db8" ${Lk} transform="rotate(-20 ${x} ${y})"/>`;
+      let g = `<rect x="-40" y="-90" width="280" height="340" fill="#f6efe2"/>`;
+      g += `<path d="M22 232 C26 194 60 182 86 178 L114 178 C140 182 174 194 178 232Z" fill="#2b2f3a" ${Lk}/><path d="M86 182 q14 8 28 0" stroke="#596173" stroke-width="3" fill="none"/>`;
+      g += `<rect x="86" y="128" width="28" height="54" fill="${shade(skin,-.06)}" ${Lk}/><ellipse cx="51" cy="106" rx="7" ry="12" fill="${skin}" ${Lk}/><ellipse cx="149" cy="106" rx="7" ry="12" fill="${skin}" ${Lk}/>`;
+      g += `<ellipse cx="100" cy="86" rx="50" ry="58" fill="${shade(hc,-.15)}" ${Lk}/>`;
+      const sb = this.sideBack();
+      ["left","right"].forEach(k => { if(st[k] === "down") g += layer(sb[k].map(o => [`M${o.x} 92` + sd(o.x, 92, o.s.end, o.s.tex), col(o.s)]), 6.4); });
+      if(st.nape === "down") g += layer(bk.nape.map(s => [`M${s.fx} 124` + sd(s.fx, 124, s.end, s.tex), col(s)]), 7);
+      if(st.mid === "down") g += layer(bk.mid.map(s => [`M${s.rx} 92 Q${s.fx} 94 ${s.fx} 104` + sd(s.fx, 104, s.end, s.tex), col(s)]), 7);
+      if(st.crown === "down") g += layer(bk.crown.map(s => [`M${s.rx} 36 Q${s.fx} 40 ${s.fx} 96` + sd(s.fx, 96, s.end, s.tex), col(s)]), 7.4);
+      // parting lines once anything is sectioned
+      if(Object.values(st).some(v => v !== "down")) g += `<g stroke="#fffdf8" stroke-width="1.6" stroke-dasharray="3 3" opacity=".9" fill="none"><path d="M54 70 Q100 58 146 70"/><path d="M62 112 Q100 104 138 112"/><path d="M58 70 L56 110 M142 70 L144 110"/></g>`;
+      // clipped sections as twists with clips
+      const kp = {crown:[100, 30, 14], mid:[100, 86, 12], nape:[100, 124, 10], left:[50, 96, 8], right:[150, 96, 8]};
+      Object.entries(kp).forEach(([k, [x, y, r]]) => { if(st[k] === "clip") g += knot(x, y, r); });
+      // lifted section held straight up
+      Object.keys(kp).filter(k => st[k] === "lift" && bk[k]).forEach(k => { const tips = bk[k].map(s => this.liftTip(k, s)); g += layer(bk[k].map((s, i) => [`M${s.rx} ${this.secRoot[k]} L${tips[i][0].toFixed(1)} ${tips[i][1].toFixed(1)}`, col(s)]), 7.2); g += iconG("🖐", 100, Math.min(...tips.map(t => t[1])) + 22, 26); g += `<path d="M50 ${Math.max(...tips.map(t => t[1])) + 4} H150" stroke="${INK}" stroke-width="1" stroke-dasharray="2 3" opacity=".5"/>`; });
+      return `<svg viewBox="0 -90 200 336" width="300" class="face" role="img" aria-label="Back of the client's head">${g}</svg>`;
+    },
+    sectionMap(){
+      const st = this.bk.st, fill = v => v === "clip" ? "#ff9ec7" : v === "lift" ? "#ffd166" : "#dcf5e6";
+      const zone = (k, d) => `<path d="${d}" fill="${fill(st[k])}" stroke="${INK}" stroke-width="2" data-sec="${k}" class="seczone"/>`;
+      return `<svg viewBox="0 0 160 120" width="100%" aria-label="Section map">
+        ${zone("crown", "M44 40 Q80 4 116 40 Q80 30 44 40Z")}${zone("mid", "M44 40 Q80 30 116 40 L114 70 Q80 62 46 70Z")}${zone("nape", "M46 70 Q80 62 114 70 L110 96 Q80 104 50 96Z")}
+        ${zone("left", "M44 40 L46 70 L50 96 L34 92 Q26 60 44 40Z")}${zone("right", "M116 40 L114 70 L110 96 L126 92 Q134 60 116 40Z")}
+        ${zone("bangs", "M58 106 H102 V118 H58Z")}
+        <g font-family="DM Mono, monospace" font-size="7.5" text-anchor="middle" pointer-events="none" fill="${INK}"><text x="80" y="29">crown</text><text x="80" y="56">middle</text><text x="80" y="86">nape</text><text x="37" y="72">L</text><text x="123" y="72">R</text><text x="80" y="115">bangs (front)</text></g></svg>`;
+    },
+    cycleSec(k, want){
+      const st = this.bk.st, liftable = ["crown","mid","nape"].includes(k);
+      const order = liftable ? ["down","clip","lift"] : ["down","clip"];
+      const next = want ? (st[k] === want ? "down" : want) : order[(order.indexOf(st[k]) + 1) % order.length];
+      if(next === "lift" && !liftable) return;
+      if(next === "lift") Object.keys(st).forEach(x => { if(st[x] === "lift") st[x] = "down"; });
+      st[k] = next; if(k === "bangs" && next === "clip") this.hs.combed = false;
+      sfx.click();
+      const nm = HS_SECTIONS.find(x => x[0] === k)[1];
+      $("hsMsg").textContent = next === "clip" ? `${nm} clipped out of the way.` : next === "lift" ? `${nm} lifted straight up: cutting it now makes it shorter than the hair below (layers).` : `${nm} let down.`;
+      this.renderTools(); this.render();
+    },
+    renderTools(){
+      prev.renderTools.call(this);
+      if(HS_STAGES[this.stage][0] !== "cut") return;
+      let box = $("hsSecBox");
+      if(!box){ $("hsPanel").insertAdjacentHTML("beforeend", `<div class="opt-group sec-box" id="hsSecBox"><h4>Sections · tap to clip, lift or let down</h4><div class="sec-map" id="hsSecMap"></div><div class="sec-list" id="hsSecList"></div></div>`); box = $("hsSecBox");
+        box.onclick = e => { const z = e.target.closest("[data-sec]"); if(z && !this.locked) this.cycleSec(z.dataset.sec); }; }
+      $("hsSecMap").innerHTML = this.sectionMap();
+      $("hsSecList").innerHTML = HS_SECTIONS.map(([k, l]) => `<button type="button" class="secbtn s-${this.bk.st[k]}" data-sec="${k}"><b>${l}</b><small>${{down:"down", clip:"clipped", lift:"lifted"}[this.bk.st[k]]}</small></button>`).join("");
+    },
+    render(){
+      prev.render.call(this);
+      if(HS_STAGES[this.stage][0] === "cut"){ const st = this.bk.st, L = this.look(); const secs = HS_SECTIONS.filter(([k]) => st[k] !== "down").map(([k, l]) => `${l.toLowerCase()} ${st[k] === "clip" ? "clipped" : "lifted"}`);
+        $("hsRead").innerHTML = `${this.view === "back" ? "Back view" : "Front view"}${secs.length ? ` · ${secs.join(", ")}` : ""} · Reads as: <b>${HS_NAMES[L.cut]}</b>${L.cut === "buzz" ? "" : ` · ${HS_BANG_NAMES[L.bangs]}`}`; }
+    },
+    faceParams(mood){
+      const st = this.bk && this.bk.st, hs = this.hs;
+      if(!st || this.locked || HS_STAGES[this.stage][0] !== "cut") return prev.faceParams.call(this, mood);
+      const save = {L:hs.L, Rt:hs.Rt, combed:hs.combed};
+      const tuck = side => side.map((s, i) => i >= side.length - 6 ? {...s, end:s.yTurn + 4} : s);
+      if(st.left === "clip") hs.L = tuck(hs.L); if(st.right === "clip") hs.Rt = tuck(hs.Rt); if(st.bangs === "clip") hs.combed = false;
+      try{ const p = prev.faceParams.call(this, mood);
+        if(st.bangs === "clip") p.strands && (p.strands.front += `<rect x="128" y="44" width="16" height="7" rx="3" fill="#ff7db8" stroke="${INK}" stroke-width="2" transform="rotate(-25 136 48)"/>`);
+        ["left","right"].forEach((k, i) => { if(st[k] === "clip" && p.strands) p.strands.front += `<rect x="${i ? 140 : 46}" y="78" width="14" height="6" rx="3" fill="#ff7db8" stroke="${INK}" stroke-width="2"/>`; });
+        return p; } finally { hs.L = save.L; hs.Rt = save.Rt; hs.combed = save.combed; }
+    },
+    look(raw){
+      const L = HS_V2.look.call(this, true), cs = this.colorStats ? this.colorStats() : {};
+      if(this.backCut && !L.buzz){
+        const bk = this.bk, back = med([...bk.mid, ...bk.nape].map(s => s.end)), crownE = med(bk.crown.map(s => s.end));
+        const sides = med([...this.hs.L.slice(-4), ...this.hs.Rt.slice(-4)].map(s => s.end));
+        const E = Math.min(back, sides + 2), layered = back - crownE >= 16 || L.cut === "layers";
+        L.E = E;
+        if(L.tex === 3) L.cut = E > 150 ? "curls" : "afro";
+        else if(L.tex === 2) L.cut = "curls";
+        else L.cut = E <= 122 ? "pixie" : E <= 170 ? "bob" : E <= 198 ? (layered && E > 172 ? "layers" : "lob") : (layered ? "layers" : "long");
+        const nape = bk.nape.map(s => s.end), nm = med(nape), sdv = Math.sqrt(nape.reduce((a, e) => a + (e - nm)**2, 0) / nape.length);
+        if(sdv > 12) L.issues.push("the nape is uneven");
+        const lr = Math.abs(med(this.hs.L.slice(-4).map(s => s.end)) - med(this.hs.Rt.slice(-4).map(s => s.end)));
+        if(lr > 10 && !L.issues.includes("one side is longer than the other")) L.issues.push("one side is longer than the other");
+      }
+      if(!raw && this.hs.style !== "down") L.cut = this.hs.style;
+      return Object.assign(L, cs);
+    },
+    syncFront(){
+      if(!this.backCut) return;
+      const crownE = med(this.bk.crown.map(s => s.end)), midE = med(this.bk.mid.map(s => s.end));
+      [this.hs.L, this.hs.Rt].forEach(side => side.forEach((s, i) => { if(i >= side.length - 4) return; const t = i/(side.length - 5), target = crownE + (midE - crownE)*t; s.end = Math.max(s.yTurn + 4, Math.min(s.end, target)); }));
+    },
+    apply(a, b){
+      const stg = HS_STAGES[this.stage][0], t = this.tool, st = this.bk.st;
+      if(stg === "cut" && this.view === "back"){
+        if(t === "section" || t === "lift") return false;
+        const bk = this.bk, pairs = [[a, b]]; if(this.mirror) pairs.push([[200-a[0], a[1]], [200-b[0], b[1]]]); let hit = false;
+        const sb = this.sideBack();
+        if(t === "scissors") pairs.forEach(([p, q]) => {
+          const x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]), yAt = x => x1 - x0 < .5 ? (p[1]+q[1])/2 : p[1] + (q[1]-p[1])*(clamp(x, x0, x1) - p[0])/(q[0]-p[0] || 1);
+          const cutDown = (arr, xOf, minE) => arr.forEach(s => { const x = xOf(s); if(x < x0 - 3 || x > x1 + 3) return; const y = yAt(x); if(y < s.end - 1 && y > minE - 6){ s.end = Math.max(minE, y); this.fall(x, y + 2, this.capColor()); hit = true; } });
+          ["crown","mid","nape"].forEach(k => {
+            if(st[k] === "down") cutDown(bk[k], s => s.fx, this.secMin[k]);
+            else if(st[k] === "lift") bk[k].forEach(s => { const [tx, ty] = this.liftTip(k, s), r = this.secRoot[k]; if(tx < x0 - 3 || tx > x1 + 3) return; const y = yAt(tx); if(y > ty && y < r){ const ne = Math.max(this.secMin[k], r + (r - y)/.45); if(ne < s.end - 1){ this.fall(tx, y, this.capColor()); s.end = ne; hit = true; } } });
+          });
+          ["left","right"].forEach(k => { if(st[k] !== "down") return; sb[k].forEach(o => { if(o.x < x0 - 3 || o.x > x1 + 3) return; const y = yAt(o.x); if(y < o.s.end - 1 && y > o.s.yTurn){ o.s.end = Math.max(o.s.yTurn + 4, y); this.fall(o.x, y + 2, this.capColor()); hit = true; } }); });
+        });
+        if(t === "clippers") pairs.forEach(([p, q]) => { ["crown","mid","nape"].forEach(k => { if(st[k] !== "down") return; bk[k].forEach(s => { if(segDist(s.fx, 120, p[0], p[1], q[0], q[1]) < 30 && s.end > 130){ s.end = 130; hit = true; } }); }); });
+        if(hit){ this.backCut = true; this.render(); }
+        return hit;
+      }
+      if(stg === "cut" && this.view === "front"){
+        const hs = this.hs, save = {L:hs.L, Rt:hs.Rt, combed:hs.combed};
+        if(st.left === "clip") hs.L = []; if(st.right === "clip") hs.Rt = []; if(st.bangs === "clip") hs.combed = false;
+        try{ return prev.apply.call(this, a, b); } finally { hs.L = save.L; hs.Rt = save.Rt; if(st.bangs === "clip") hs.combed = save.combed; else if(hs.combed !== save.combed){} }
+      }
+      return prev.apply.call(this, a, b);
+    },
+    bindPointer(){
+      HS_V2.bindPointer.call(this);
+      const ov = $("hsOv");
+      ov.addEventListener("pointerdown", e => {
+        if(this.locked || !["section","lift"].includes(this.tool) || HS_STAGES[this.stage][0] !== "cut") return;
+        const p = ov.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(ov.getScreenCTM().inverse());
+        let k;
+        if(this.view === "back") k = q.x < 56 ? "left" : q.x > 144 ? "right" : q.y < 70 ? "crown" : q.y < 110 ? "mid" : "nape";
+        else k = q.y < 92 && Math.abs(q.x - 100) < 40 ? "bangs" : q.x < 100 ? "left" : "right";
+        if(this.tool === "lift" && !["crown","mid","nape"].includes(k)){ $("hsMsg").textContent = "Lift works on the crown, middle and nape sections from behind."; return; }
+        this.cycleSec(k, this.tool === "section" ? "clip" : "lift");
+      });
+      ov.addEventListener("pointerdown", () => { this.passes = new Set(); });
+      ov.addEventListener("pointerup", () => { if(this.tool === "comb" && this.view === "front" && this.hs.combed && this.bk.st.bangs === "clip"){ this.bk.st.bangs = "down"; this.renderTools(); this.render(); } });
+    }
+  });
+  const prevRT = H.renderTools;
+  H.renderTools = function(){ prevRT.call(this); const tb = $("hsTurn"); if(tb && !tb.dataset.v5){ tb.dataset.v5 = 1; tb.addEventListener("click", () => { Object.keys(this.bk.st).forEach(k => { if(this.bk.st[k] === "lift") this.bk.st[k] = "down"; }); this.render(); }, true); } };
 }
 
 renderHub();
