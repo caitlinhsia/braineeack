@@ -5145,6 +5145,11 @@ const ROOM_COLOR = {Living:"var(--floor)",Garage:"var(--skin)",Bedroom:"var(--lo
 const ADJ_WHY = {"Dining|Kitchen":"Hot food travels a few steps, not across the house.","Kitchen|Living":"Open plan: whoever cooks can still talk to guests.","Bath|Bedroom":"A short walk at night.","Bath|Bedroom 2":"Guests shouldn't have to cross the house for the bathroom.","Garage|Kitchen":"Carry groceries straight in from the car.","Bath|Laundry":"Shared plumbing walls cut building costs.","Garage|Laundry":"Muddy clothes go straight into the wash.","Dining|Living":"Space flows for dinner parties.","Bedroom|Office":"A home office near the bedroom makes an easy parent's retreat."};
 const NOT_WHY = {"Bedroom|Garage":"Car noise and fumes stay away from sleep.","Bedroom 2|Garage":"Car noise and fumes stay away from sleep.","Bedroom|Kitchen":"Keep cooking noise and smells out of the bedroom.","Living|Office":"Focus means distance from the TV.","Bath|Kitchen":"Hygiene: no bathroom door beside food prep.","Bath|Dining":"Nobody wants to eat next to the bathroom.","Bedroom|Living":"Late-night TV shouldn't come through the bedroom wall."};
 const pairKey = (a,b) => [a,b].sort().join("|");
+const CLIENT_NEEDS = {"young family":["Bedroom 2"], "sharing a house":["Bedroom 2"], "remote worker":["Office"], "chef":["Dining"], "musicians":["Bedroom 2"], "dog trainer":["Laundry"]};
+function pickClient(types){
+  const ok = CLIENTS.filter(c => Object.entries(CLIENT_NEEDS).every(([k, need]) => !c.includes(k) || need.every(r => types.includes(r))));
+  return pick(ok.length ? ok : ["A client wants a bright, practical home."]);
+}
 const CLIENTS = ["A young family wants a compact first home.","A retired couple wants everything on one floor.","Two friends sharing a house want privacy and a good kitchen.","A remote worker wants a calm home with a proper office.","A chef wants a home built around the kitchen."];
 function touches(a,b){
   const vx = (a.x + a.w === b.x || b.x + b.w === a.x) && Math.min(a.y+a.h, b.y+b.h) - Math.max(a.y, b.y) > 0;
@@ -5180,7 +5185,7 @@ STUDIO.floor = {
     if(this.sol.Garage){ const g = this.sol.Garage; if(g.x === 0) C.push({type:"west", a:"Garage", text:"Garage on the west side, facing the street", why:"The driveway meets the street on the west."}); }
     if(d >= 2) types.filter(t => t.startsWith("Bedroom")).forEach(t => { const r = this.sol[t]; if(r.x===0 || r.y===0 || r.x+r.w===W || r.y+r.h===H) C.push({type:"edge", a:t, text:`${t} has an outside wall`, why:"Building codes require an emergency-escape window in every bedroom."}); });
     this.C = C; this.placed = {}; this.active = types[0]; this.drag = null; this.review = false; this.phase2 = false;
-    this.client = pick(CLIENTS);
+    this.client = pickClient(types);
     this.render();
   },
   area(c){ return `${c.a}: ${c.min}–${c.max} m²`; },
@@ -6840,7 +6845,7 @@ const HS_V2 = STUDIO.hair;
 const HS_STAGES = [["consult","Consult"],["wash","Wash"],["dry","Dry"],["products","Products"],["cut","Cut"],["color","Color"],["style","Style"]];
 const HS_DYES = [["black","#1f1a17"],["darkbrown","#4a2c1d"],["brown","#7a4a2a"],["auburn","#a0451f"],["copper","#c8641e"],["blonde","#e8c77b"],["pink","#ff9ec7"],["lilac","#c8a2f0"],["blue","#5b8def"],["teal","#2ec4b6"],["green","#57cc99"],["red","#e5383b"],["silver","#d8dde3"]];
 const HS_NATURAL = ["black","darkbrown","brown","auburn","copper","blonde"];
-const HS_PRODUCTS = [["leavein","Leave-in conditioner","🧴","Light moisture that stays in. Great for dry, curly and coily hair."],["mousse","Volumizing mousse","🫧","Lifts fine, flat hair at the roots. Too drying for coils."],["curlcream","Curl cream","🍯","Defines curls and coils and fights frizz. Weighs fine straight hair down."],["serum","Anti-frizz serum","💧","Smooths thick or frizzy hair. A drop is enough."],["oil","Shine oil","🫒","Glossy finish for dry ends. Makes oily or fine hair greasy."],["texture","Texture spray","🌬️","Gritty, piecey texture and grip. Good for fine or oily hair."]];
+const HS_PRODUCTS = [["leavein","Leave-in conditioner","🧴","Light moisture that stays in. Great for dry, curly, coily or high-porosity hair."],["mousse","Volumizing mousse","🫧","Lifts fine, flat hair at the roots. Too drying for coils."],["curlcream","Curl cream","🍯","Defines curls and coils and fights frizz. Weighs fine straight hair down."],["serum","Anti-frizz serum","💧","Smooths thick or frizzy hair. A drop is enough."],["oil","Shine oil","🫒","Glossy finish for dry ends. Makes oily, fine or low-porosity hair greasy."],["texture","Texture spray","🌬️","Gritty, piecey texture and grip. Good for fine or oily hair."]];
 const LIGHT_TAKE = {platinum:.95, brassy:.85, blonde:.8, grey:.85, greenish:.8, ash:.6, brassyorange:.62, copper:.45, auburn:.35, brown:.3, darkbrown:.2, black:.12, pink:.7, blue:.4};
 Object.assign(GOALS, {
   pastel:{label:"Wants pastel pink hair", why:"Dye is see-through, so it only shows on light hair. Dark hair has to be lifted with bleach first (twice for very dark hair), then the pink goes on top.", test:h => h.pastel},
@@ -7135,7 +7140,7 @@ STUDIO.hair = Object.assign(Object.create(HS_V2), {
     const dried = share(q => !q.wet);
     res.push({label:"Protect from heat, then dry it fully", ok:this.w.heat <= 2 && dried >= .85, why: this.w.heat > 2 ? "Blow-drying without heat protectant boils the water inside the hair shaft and cracks the cuticle." : dried < .85 ? "Damp patches frizz and won't hold a style. Dry until no damp spots are left." : "Protected, blotted and dried: smooth and ready for cutting."});
     const pr = this.c.prod, chose = [...this.prods], missing = pr.need.filter(k => !this.prods.has(k)), wrong = chose.filter(k => pr.ban.includes(k));
-    res.push({label:`Products for ${this.c.type.thick}, ${this.c.type.tex} hair with ${this.c.type.cond === "oily" ? "an" : "a"} ${this.c.type.cond} scalp`, ok:!missing.length && !wrong.length, why: wrong.length ? `Skip the ${listAnd(wrong.map(k => HS_PRODUCTS.find(x => x[0] === k)[1].toLowerCase()))}: ${HS_PRODUCTS.find(x => x[0] === wrong[0])[3]}` : missing.length ? `It needed ${listAnd(missing.map(k => HS_PRODUCTS.find(x => x[0] === k)[1].toLowerCase()))}. ${HS_PRODUCTS.find(x => x[0] === missing[0])[3]}` : "Products matched to the hair type, not just the style."});
+    res.push({label:`Products for ${this.c.type.thick}, ${this.c.type.tex} hair with ${this.c.type.cond === "oily" ? "an" : "a"} ${this.c.type.cond} scalp${this.c.type.por ? ` (${this.c.type.por} porosity)` : ""}`, ok:!missing.length && !wrong.length, why: wrong.length ? `Skip the ${listAnd(wrong.map(k => HS_PRODUCTS.find(x => x[0] === k)[1].toLowerCase()))}: ${wrong.includes("oil") && this.c.type.por === "low" ? HS_POR_NOTE.low : HS_PRODUCTS.find(x => x[0] === wrong[0])[3]}` : missing.includes("leavein") && this.c.type.por === "high" ? `It needed a leave-in conditioner. ${HS_POR_NOTE.high}` : missing.length ? `It needed ${listAnd(missing.map(k => HS_PRODUCTS.find(x => x[0] === k)[1].toLowerCase()))}. ${HS_PRODUCTS.find(x => x[0] === missing[0])[3]}` : "Products matched to the hair type, not just the style."});
     const f = res.filter(r=>r.ok).length / res.length; this.f = f; this.locked = true;
     const pts = Math.round(1000*f); this.total += pts; this.log.push({n:this.c.name, pts, look:HS_NAMES[L.cut]}); adapt("hair", f);
     f >= .99 ? sfx.win() : f >= .5 ? sfx.good() : sfx.bad();
@@ -7228,8 +7233,8 @@ const COMM = {
   "Tiered skirt":[["Rosa's festival weekend: twirly and fun", ["playful","breezy"]],["Bea's summer picnic: light and simple", ["breezy","minimal"]]],
   "Tutu":[["Lily's ballet recital: full and fluffy", ["full","sparkle"]],["A birthday party costume: as fun as possible", ["playful","full"]]],
   "Summer dress":[["Kai's beach wedding: cool and pretty", ["breezy","lace"]],["Zoe's graduation: simple and elegant", ["minimal"]]],
-  "Puff-sleeve blouse":[["Iris's first office job: crisp and polished", ["buttons","puff"]],["A vintage-style photo shoot", ["puff","lace"]]],
-  "Corset top":[["A concert outfit with sparkle", ["sparkle","lined"]],["A Renaissance fair costume", ["lined","lace"]]],
+  "Puff-sleeve blouse":[["Iris's first office job: crisp and polished", ["buttons","minimal"]],["A vintage-style photo shoot", ["buttons","playful"]]],
+  "Corset top":[["A concert outfit with sparkle", ["sparkle","lined"]],["A Renaissance fair costume", ["lined","playful"]]],
   "Raincoat":[["A rainy-city commute", ["lined"]],["A kids' raincoat that's fun to wear", ["playful"]]],
   "Overalls":[["A gardener who needs tough workwear", ["minimal"]],["A cute weekend look", ["playful"]]],
   "Lined jacket":[["A crisp autumn jacket", ["lined","warm"]]],
@@ -8676,7 +8681,7 @@ DIVE_CATS.push(...[
  {n:"Famous painters", e:"🎭", fact:"Vincent van Gogh sold very few paintings during his lifetime; now they're among the most expensive ever.", a:"Leonardo da Vinci,Leonardo,Da Vinci|Vincent van Gogh,Van Gogh|Pablo Picasso,Picasso|Claude Monet,Monet|Michelangelo|Frida Kahlo,Kahlo|Salvador Dalí,Dali,Dalí|Rembrandt|Andy Warhol,Warhol|Johannes Vermeer,Vermeer|Henri Matisse,Matisse|Georgia O'Keeffe,O'Keeffe|Raphael|Edvard Munch,Munch|Gustav Klimt,Klimt|Jackson Pollock,Pollock|Paul Cézanne,Cezanne|Edgar Degas,Degas|Pierre-Auguste Renoir,Renoir|Banksy|Katsushika Hokusai,Hokusai|Caravaggio|Sandro Botticelli,Botticelli|Francisco Goya,Goya|Wassily Kandinsky,Kandinsky|Mark Rothko,Rothko|Jean-Michel Basquiat,Basquiat|René Magritte,Magritte|Diego Rivera|J. M. W. Turner,Turner|Paul Gauguin,Gauguin|Yayoi Kusama,Kusama|Artemisia Gentileschi,Gentileschi|Hieronymus Bosch,Bosch|Titian|El Greco|Piet Mondrian,Mondrian|Kehinde Wiley|Hilma af Klint|Amrita Sher-Gil"},
  {n:"Countries in Asia", e:"🌍", fact:"Asia holds about 60% of the world's people.", a:"China|Japan|India|South Korea,Korea|Thailand|Vietnam|Indonesia|Philippines|Malaysia|Singapore|Pakistan|Russia|Saudi Arabia|Iran|Turkey|Israel|Nepal|Bangladesh|Sri Lanka|Afghanistan|Iraq|North Korea|Mongolia|Kazakhstan|Cambodia|Myanmar,Burma|Laos|Taiwan|United Arab Emirates,UAE|Qatar|Jordan|Lebanon|Syria|Uzbekistan|Kuwait|Oman|Yemen|Bhutan|Maldives|Brunei|Georgia|Armenia|Azerbaijan|Kyrgyzstan|Tajikistan|Turkmenistan|Bahrain|Timor-Leste,East Timor|Cyprus|Palestine"}
 ].map(c => { const items = c.a.split("|").map(x => x.split(",")); return {...c, items, n2:items.length}; }));
-CLIENTS.push("A family with a grandparent who uses a wheelchair needs step-free rooms.", "Two musicians want a home where practice won't wake the neighbors.", "A dog trainer wants easy access to the garden from the kitchen.");
+CLIENTS.push("A family with a grandparent who uses a wheelchair needs step-free rooms.", "Two musicians want a home where practice won't wake the neighbors.", "A dog trainer wants a laundry room for muddy towels and paws.");
 
 /* =========================================================
    SEWING ROOM v4: six more designs and four new techniques
@@ -9442,6 +9447,93 @@ function giftBestBasket(g){
   return best;
 }
 GIFT_PEOPLE.forEach(g => { const b = giftBestBasket(g); if(b && giftCost(b) > g.budget) g.budget = Math.ceil(giftCost(b)/5)*5; });
+
+/* =========================================================
+   RULE CHECKER: before a client brief is shown, search for a
+   finished design that passes every rule at once. If none
+   exists, the rules contradict each other, so the general
+   rule that clashes is dropped and the client's own special
+   requests are kept.
+   ========================================================= */
+function findSolution(tests, fields, build, iters = 700, restarts = 8){
+  const keys = Object.keys(fields); if(!tests.length) return {};
+  const score = st => { const o = build(st); let n = 0; for(const t of tests){ try{ if(t(o)) n++; }catch(_){} } return n; };
+  for(let r = 0; r < restarts; r++){
+    const st = {}; keys.forEach(k => st[k] = pick(fields[k]));
+    let cur = score(st);
+    for(let i = 0; i < iters && cur < tests.length; i++){
+      const k = pick(keys), old = st[k]; st[k] = pick(fields[k]); const s2 = score(st);
+      if(s2 >= cur) cur = s2; else st[k] = old;
+    }
+    if(cur === tests.length) return st;
+  }
+  return null;
+}
+/* resolve: keep `keep` rules, then add the other rules most-important first, skipping any that
+   would make the brief impossible. `droppable` is ordered least important first. */
+function resolveRules(rules, keep, droppable, fields, build){
+  const ok = list => !!findSolution(list.map(r => r.test), fields, build, 900, 12);
+  if(ok(rules)) return {rules, dropped:[]};
+  const fixed = rules.filter(r => !droppable.includes(r) || keep.includes(r));
+  let cur = fixed.slice(); const dropped = [];
+  for(const r of droppable.slice().reverse()){ if(keep.includes(r) || !rules.includes(r)) continue; if(ok([...cur, r])) cur.push(r); else dropped.push(r); }
+  return {rules:rules.filter(r => cur.includes(r)), dropped};
+}
+/* ---------- makeup ---------- */
+const MK_SPACE = () => {
+  const sh = MK_COLORS.shadow.map(x => x[0]);
+  return {fields:{face:[0, .7], fd:[0,1,2,3,4,5,6,7,8].slice(0, SKINS.length), fu:["cool","neutral","warm"], lids:[0, .5], sh, ex:[0, 1, 2], liner:["none","thin","winged"],
+      blush:["none", ...BLUSHES.map(b => b[0])], place:["apples","cheekbones"], lips:[0, .6], lip:MK_LIPS_ALL().map(l => l[0]), masc:[0, .5], brow:[0, .5], under:[0, .5], hlc:[0, .4],
+      hl:MK_COLORS.highlight.map(x => x[0]), glitter:[false, true], gems:[false, true], paint:[false, true], gloss:[false, true], lipliner:[false, true], contour:[false, true], freckles:[false, true], bronzer:[false, true], shimmer:[false, true]},
+    build:s => { const used = new Set(); [["glitter","glitter"],["gems","gems"],["paint","facepaint"],["gloss","gloss"],["lipliner","lipliner"],["contour","contour"],["freckles","freckles"],["bronzer","bronzer"]].forEach(([k, n]) => { if(s[k]) used.add(n); });
+      if(s.face) used.add("foundation"); if(s.lids) used.add("shadow"); if(s.blush !== "none") used.add("blush"); if(s.liner !== "none") used.add("liner"); if(s.masc) used.add("mascara"); if(s.hlc) used.add("highlight"); if(s.lips) used.add("lipstick"); if(s.brow) used.add("brow"); if(s.under) used.add("concealer");
+      const i = sh.indexOf(s.sh), shadows = s.lids >= .2 ? [s.sh, ...Array.from({length:s.ex}, (_, k) => sh[(i + 3 + k*5) % sh.length])] : [];
+      return {foundation: s.face >= .55 ? {depth:s.fd, u:s.fu, id:`${s.fd+1}${s.fu[0].toUpperCase()}`} : null, cov:{face:s.face, undereye:s.under, highlight:s.hlc, mascara:s.masc, brow:s.brow, lids:s.lids, lips:s.lips},
+        shadow: s.lids >= .3 ? s.sh : null, shadows, liner:s.liner, blush:s.blush, place:s.place, lip: s.lips >= .4 ? s.lip : "nude", used, hl: s.hlc ? s.hl : null, shimmer:s.shimmer, gems: s.gems ? 3 : 0, freckles: s.freckles ? 10 : 0}; }};
+};
+{
+  const MK = STUDIO.makeup, prevNC = MK.newClient;
+  MK.newClient = function(){
+    const c = prevNC.call(this), sp = MK_SPACE(), occ = MK_OCC[c.occ].rules;
+    const base = c.rules.filter(r => !occ.includes(r) && !/mature skin/.test(r.label));
+    const order = [...base.filter(r => /placement/i.test(r.label)), ...base.filter(r => /tones/.test(r.label)), ...base.filter(r => /pop/.test(r.label)), ...base.filter(r => /Foundation that matches/.test(r.label))];
+    const res = resolveRules(c.rules, occ, order, sp.fields, sp.build); c.rules = res.rules; c.dropped = res.dropped.map(r => r.label);
+    return c;
+  };
+}
+/* ---------- atelier ---------- */
+const AT_SPACE = () => {
+  const cols = [...TONES.flatMap(([t]) => HUES.map(([h]) => h + t)), "blk","chr","gry","ivo","cam"].filter(id => SW[id]);
+  const v = l => l.map(x => x[0]);
+  return {fields:{sil:v(SIL), len:v(LEN), neck:v(NECK), sleeve:v(SLV), main:cols, second:cols, accent:cols, pattern:v(PAT), fabric:v(FABRICS), shoes:v(ACCS.shoes), bag:v(ACCS.bag), jewel:v(ACCS.jewel), wrap:v(ACCS.wrap)}, build:s => s};
+};
+{
+  const prevBrief = makeBrief;
+  makeBrief = function(d){
+    const sp = AT_SPACE(); let b;
+    for(let k = 0; k < 25; k++){ b = prevBrief(d); if(findSolution(b.checks.map(c => c.test), sp.fields, sp.build)){ b.retries = k; return b; } }
+    const occRules = Object.values(OCC).find(o => o.rules.every(r => b.checks.includes(r)))?.rules || [];
+    const res = resolveRules(b.checks, occRules, b.checks.filter(c => !occRules.includes(c)).reverse(), sp.fields, sp.build);
+    b.checks = res.rules; b.retries = 25; b.dropped = res.dropped.map(c => c.label); return b;
+  };
+}
+/* ---------- sewing ---------- */
+const SEW_SPACE = g => {
+  const dressy = !!DRESSY[g.name], base = DRESSY[g.name] || {}, accK = SEW_ACC.map(a => a[0]);
+  const fields = {mat:MATERIALS.map(m => m.k), needle:NEEDLES.map(n => n[0]), stitch:STITCHES.map(s => s[0]), lining:[false, true], a1:["", ...accK], a2:["", ...accK], a3:["", ...accK]};
+  if(dressy) Object.assign(fields, {bodice:["fitted","corset","wrap","off"], sleeve:["none","cap","short","puff","long"], skirt:["aline","ballgown","sheath","mermaid"], len:["mini","knee","midi","floor"], petticoat:[false, true], overlay:[false, true], lace:[false, true]});
+  return {fields, build:s => ({mat:MATERIALS.find(m => m.k === s.mat), needle:s.needle, stitch:s.stitch, acc:[s.a1, s.a2, s.a3].filter(Boolean).map(k => ({k})),
+    d: dressy ? {...base, bodice:s.bodice, sleeve:s.sleeve, skirt:s.skirt, len:s.len, petticoat:s.petticoat, overlay:s.overlay, lace:s.lace, lining:s.lining} : {...base, lining:s.lining}})};
+};
+{
+  const SWG = STUDIO.sewing, prevCF = SWG.chooseFabric;
+  SWG.chooseFabric = function(g){
+    prevCF.call(this, g);
+    const sp = SEW_SPACE(g), keep = [this.comm.rules[0], this.comm.rules[1]];
+    const res = resolveRules(this.comm.rules, keep, this.comm.rules.slice(2).reverse(), sp.fields, sp.build);
+    this.comm.dropped = res.dropped.map(r => r.label); if(res.dropped.length){ this.comm.rules = res.rules; this.renderDesign(); }
+  };
+}
 
 renderHub();
 </script>
