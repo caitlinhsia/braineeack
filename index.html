@@ -1081,6 +1081,16 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .sal-tools{display:flex;flex-direction:column;gap:8px}
 .sal-station{display:flex;flex-direction:column;gap:6px;background:#eef6fb;border:2px solid var(--ink);border-radius:12px;padding:8px;color:#2b2118}
 .sal-condt{display:flex;align-items:center;gap:8px;font-size:12.5px}
+
+.sal-hud .sal-finish{margin-left:6px;padding:8px 16px}
+.sal-hud2{display:block}.sal-hud2 .sal-meters{display:flex;flex-wrap:wrap;gap:4px 10px}.sal-hud2 .sal-meter{width:118px;font-size:10.5px}
+.sal-toast{position:absolute;left:12px;right:12px;bottom:14px;margin:0;background:rgba(255,253,248,.95);border:2px solid var(--ink);border-radius:12px;padding:8px 10px;font-size:13.5px;color:#2b2118;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;max-width:none}
+.sal-toast.show{opacity:1;transform:none}
+.sal-overlay:empty{display:none}.sal-overlay{position:fixed;inset:0;z-index:60;background:rgba(20,14,10,.55);display:grid;place-items:center;padding:14px}
+.sal-overlay .reveal{max-width:680px;width:100%;max-height:92vh;overflow:auto;background:var(--card,#fffdf8);margin:0}
+@media(min-width:861px){.sal-side{position:sticky;top:8px;max-height:calc(100vh - 16px);display:flex;flex-direction:column;gap:8px}.sal-side .sal-tools{flex:1;min-height:140px;overflow:auto;padding-right:4px}.sal-side .sal-opts{max-height:34vh;overflow:auto;border-top:2px dashed rgba(43,33,24,.25);padding-top:6px}}
+.sal-req{grid-template-columns:84px 1fr;padding:8px}.sal-req canvas{width:84px}.sal-req h3{font-size:18px}.sal-say{font-size:13.5px}
+.sal-tags{display:flex;gap:4px;flex-wrap:wrap}.sal-tags span{font:600 11px "DM Mono",monospace;border:1.5px solid var(--ink);border-radius:999px;padding:1px 7px;background:#fff7d6}
 </style>
 </head>
 <body>
@@ -9598,6 +9608,8 @@ const SAL = (() => {
   const TEX = ["straight","wavy","curly","coily"], TEXC = ["1B","2B","3B","4B"];
   const NAT_CURL = [0, .38, .72, .92], NAT_VOL = [.04, .2, .5, .95], AMP = [0, 4.2, 6.2, 5.4], FREQ = [0, 1/62, 1/24, 1/9.5];
   const SEG = 9;
+  const SUBS = {"1A":[0,0,0,0,.02,0], "1B":[0,.06,3,1/80,.05,0], "1C":[0,.15,5,1/60,.08,.03], "2A":[1,.26,3.4,1/72,.12,.08], "2B":[1,.38,4.2,1/58,.2,.12], "2C":[1,.5,5.4,1/46,.3,.17], "3A":[2,.6,7.6,1/32,.42,.32], "3B":[2,.72,6.4,1/24,.52,.42], "3C":[2,.8,5.2,1/17,.64,.5], "4A":[3,.85,4.8,1/12.5,.8,.5], "4B":[3,.9,3.9,1/9,.92,.55], "4C":[3,.95,3.2,1/7,1,.6]};
+  const pickSub = (tex, want) => { const k = want && SUBS[want] ? want : pick(Object.keys(SUBS).filter(q => SUBS[q][0] === tex)); const [, natCurl, amp, freq, natVol, shrinkK] = SUBS[k]; return {sub:k, natCurl, amp, freq, natVol, shrinkK}; };
   const CLIP_AT = {frontL:[CX - 66, CY - 64], frontR:[CX + 66, CY - 64], backL:[CX - 30, CY - SRY - 4], backR:[CX + 30, CY - SRY - 4], bangs:[CX, CY - SRY + 22]};
   const lerp = (a, b, t) => a + (b - a)*t;
   const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
@@ -9635,13 +9647,13 @@ const SAL = (() => {
   /* ---------- requests ---------- */
   const REQ = [
     {k:"trim", t:"Just a trim", tex:[0,1,2], start:["chest","waist"], need:[], say:c => `Just a trim, please! About ${c.cm} cm off the ends, nice and even.`, tip:"Wet the hair, detangle from the ends up, then cut straight across using the guide lines. Blow-dry smooth.",
-      target:(c, sv) => ({endY:sv.endY - c.cm*10, curl:NAT_CURL[c.tex], frizzMax:.35})},
+      target:(c, sv) => ({endY:sv.endY - c.cm*10, curl:(c.natCurl ?? NAT_CURL[c.tex]), frizzMax:.35})},
     {k:"bob", t:"The big chop", tex:[0,1], start:["chest","waist"], need:[], say:() => "I want a chin-length bob. Sharp and sleek!", tip:"Cut everything to just below the chin. Brush and blow-dry it smooth for that sleek look.",
       target:() => ({endY:LV.chin + 14, curl:0, frizzMax:.25, shineMin:.4})},
     {k:"bangs", t:"Bangs, please", tex:[0,1], start:["shoulder","chest"], need:[], say:() => "I'm finally doing it: bangs that just brush my eyebrows!", tip:"Comb the bangs forward over the forehead, then cut them at the eyebrow line. Bangs shrink up a little as they dry.",
-      target:(c, sv) => ({endY:sv.endY, bangs:true, curl:NAT_CURL[c.tex], frizzMax:.35})},
+      target:(c, sv) => ({endY:sv.endY, bangs:true, curl:(c.natCurl ?? NAT_CURL[c.tex]), frizzMax:.35})},
     {k:"washgo", t:"Wash day", tex:[0,1,2,3], start:["shoulder","chest"], dirty:true, need:[], say:c => c.tex >= 2 ? "My curls feel dry and tangled. Can you wash and condition them properly?" : "My hair's a bit greasy. A good wash and blow-dry, please!", tip:"Wet → shampoo the scalp (scrub!) → rinse until no foam → conditioner on the ends → detangle → rinse → towel gently → dry.",
-      target:c => ({curl:NAT_CURL[c.tex], frizzMax:c.tex >= 2 ? .4 : .3, condNeed:true})},
+      target:c => ({curl:(c.natCurl ?? NAT_CURL[c.tex]), frizzMax:c.tex >= 2 ? .4 : .3, condNeed:true})},
     {k:"blowout", t:"Smooth blowout", tex:[1,2], start:["shoulder","chest"], need:[], say:() => "Can you blow-dry it straight and shiny? I have a party tonight!", tip:"Detangle while wet, then dry with the nozzle while dragging DOWN along the hair: tension while drying sets it straight. Heat protectant first if you have it.",
       target:() => ({curl:.12, frizzMax:.22, shineMin:.4})},
     {k:"defined", t:"Defined curls", tex:[2], start:["shoulder","chest"], need:["diffuser"], say:() => "My curls always end up a frizzy cloud. I want them bouncy and defined!", tip:"Never brush dry curls. Condition, detangle with the wide-tooth comb, rub in curl cream while wet, towel by squeezing, then dry with the diffuser.",
@@ -9653,7 +9665,7 @@ const SAL = (() => {
     {k:"press", t:"Silk press", tex:[2,3], start:["shoulder","chest"], need:["iron","protect"], say:() => "A silk press, please: bone straight and glossy, but don't fry my curls!", tip:"Wash, condition, detangle, blow-dry smooth, then protectant and flat iron on fully DRY hair. Wet hair + iron = steam damage.",
       target:() => ({curl:.08, frizzMax:.18, shineMin:.5, dmgMax:.25})},
     {k:"color", t:"New color", tex:[0,1,2], start:["shoulder","chest"], need:["dye"], say:c => `I want to go ${c.dyeName}! Can you do that?`, tip:"Dark hair has to be lifted with bleach first or bright dyes barely show. Paint every strand evenly.",
-      target:c => ({color:c.dyeHex, curl:NAT_CURL[c.tex]})},
+      target:c => ({color:c.dyeHex, curl:(c.natCurl ?? NAT_CURL[c.tex])})},
     {k:"pony", t:"Sleek ponytail", tex:[0,1,2], start:["shoulder","chest"], need:["ties"], say:() => "Sleek high ponytail for my match. No bumps or flyaways!", tip:"Detangle, dry, brush it smooth (gel helps on curls), then tie it at the styling station.",
       target:() => ({style:"pony", frizzMax:.2})},
     {k:"braid", t:"Side braid", tex:[0,1,2], start:["chest","waist"], need:["ties"], say:() => "Could I get a big side braid for the festival?", tip:"Hair must be dry and tangle-free before you braid it. Smooth it first for a neat plait.",
@@ -9672,15 +9684,16 @@ const SAL = (() => {
     let nx = Math.cos(a)/SRX, ny = Math.sin(a)/SRY; const nl = Math.hypot(nx, ny); nx /= nl; ny /= nl;
     /* hair leaves the scalp lying along it: mostly tangent (toward its own side and downward), only a little outward */
     let tx = -Math.sin(a)*SRX, ty = Math.cos(a)*SRY; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl; const side = Math.cos(a) < 0 ? -1 : 1; if(tx*side < 0){ tx = -tx; ty = -ty; }
-    if(ty < 0){ ty = Math.abs(ty)*.2; } const onx = nx, ony = ny; extra = Object.assign({tx, ty, onx, ony}, extra || {}); const out = [.3, .35, .55, .95][cl.tex]; nx = tx*(1 - out*.7) + nx*out; ny = ty*(1 - out*.7) + ny*out + .15*(1 - out); const dl2 = Math.hypot(nx, ny); nx /= dl2; ny /= dl2;
+    if(ty < 0){ ty = Math.abs(ty)*.2; } const onx = nx, ony = ny; extra = Object.assign({tx, ty, onx, ony}, extra || {}); const out = [.3, .35, .55, .95][cl.tex]*(g === "bang" ? .12 : 1); nx = tx*(1 - out*.7) + nx*out; ny = ty*(1 - out*.7) + ny*out + .15*(1 - out); const dl2 = Math.hypot(nx, ny); nx /= dl2; ny /= dl2;
     const n = Math.max(3, Math.round(len/SEG) + 1), L = Array(n - 1).fill(len/(n - 1)), pts = [];
     for(let i = 0; i < n; i++){ const d = i*len/(n - 1), x = rx + nx*Math.min(d, 30) + (Math.random() - .5)*2, y = ry + ny*Math.min(d, 30) + Math.max(0, d - 30); pts.push({x, y, px:x, py:y}); }
-    return Object.assign({g, a, rx, ry, nx, ny, L, pts, layer:Math.random(), wet:0, foam:0, dirt:0, cond:0, condOn:0, soft:0, knots:[], frizz:0, curl:NAT_CURL[cl.tex], curl0:NAT_CURL[cl.tex], phase:Math.random()*6.28, vol:0, prot:0, heat:0, cream:0, mousse:0, serum:0, gel:0, hold:0, color:cl.base, bleach:0, shine:.25, w:g === "back" ? 13 : 11}, extra || {});
+    return Object.assign({g, a, rx, ry, nx, ny, L, pts, layer:Math.random(), wet:0, foam:0, dirt:0, cond:0, condOn:0, soft:0, knots:[], frizz:0, curl:(cl.natCurl ?? NAT_CURL[cl.tex]), curl0:(cl.natCurl ?? NAT_CURL[cl.tex]), phase:Math.random()*6.28, vol:0, prot:0, heat:0, cream:0, mousse:0, serum:0, gel:0, hold:0, color:cl.base, bleach:0, shine:.25, w:(g === "back" ? 13 : 11)*(cl.dens || 1)}, extra || {});
   }
   function makeClient(req, opts = {}){
-    const tex = opts.tex ?? pick(req.tex), len = {shoulder:LV.shoulder + 20, chest:LV.chest + 10, waist:LV.waist - 6}[opts.start || pick(req.start)];
+    const tex = opts.tex ?? pick(req.tex), len = Math.max({shoulder:LV.shoulder + 20, chest:LV.chest + 10, waist:LV.waist - 6}[opts.start || pick(req.start)], tex === 3 ? LV.chest + 40 : 0);
     const baseKey = opts.baseKey || (tex === 3 ? pick(["black","darkbrown"]) : pick(["black","darkbrown","brown","auburn","copper","blonde","lightblonde"]));
     const cl = {name:opts.name || pick(NAMES2), tex, base:NATURAL[baseKey], baseKey, skin:opts.skin || pick(SKINS)[0], eye:opts.eye || pick(["#5a3a24","#3b2a1d","#4f7a3a","#3d6fb0","#7a5a2a"]), strands:[], style:"down", bangsFwd:false, mood:1, ouch:0, pains:0, burns:0, rubs:0, steam:0, blink:0, t0:performance.now()};
+    Object.assign(cl, pickSub(tex, opts.sub), {dens:opts.dens || pick([.82, 1, 1, 1.2])});
     const backLen = len - CY, frontLen = len - (CY - 6);
     for(let i = 0; i < 58; i++){ const a = Math.PI*(.93 + 1.14*i/57); cl.strands.push(makeStrand("back", a, backLen + (Math.random() - .5)*10, cl)); }
     for(let i = 0; i < 30; i++){ const left = i < 15, k = (i % 15)/14, a = Math.PI*(left ? 1.06 + .3*k : 1.94 - .3*k); cl.strands.push(makeStrand("front", a, frontLen - 20 + (Math.random() - .5)*8 - k*6, cl)); }
@@ -9695,10 +9708,10 @@ const SAL = (() => {
   /* ---------- derived values ---------- */
   function eff(s, cl){
     const wet = s.wet, curl = s.curl*(1 - wet*.35);
-    const shrink = 1 - [0, .12, .42, .66][cl.tex]*curl*(1 - wet*.7);
+    const shrink = 1 - (cl.shrinkK ?? [0, .12, .42, .66][cl.tex])*curl*(1 - wet*.7);
     const hold = Math.min(1, s.gel*.8 + s.hold*.5);
     const frizz = clamp(s.frizz*(1 - Math.min(.85, s.cream*.7 + s.serum*.6 + s.gel*.8 + s.soft*.25)) * (1 - wet*.8) + s.heat*.3, 0, 1);
-    const vol = clamp((NAT_VOL[cl.tex]*(curl/Math.max(.01, s.curl0 || .01) || 0) + s.mousse*.45 + s.vol + frizz*.25)*(1 - wet*.75)*(1 - hold*.65) - s.dirt*.15, 0, 1.3);
+    const vol = clamp(((cl.natVol ?? NAT_VOL[cl.tex])*(curl/Math.max(.01, s.curl0 || .01) || 0) + s.mousse*.45 + s.vol + frizz*.25)*(1 - wet*.75)*(1 - hold*.65) - s.dirt*.15, 0, 1.3);
     const shine = clamp(s.shine + s.soft*.25 + s.serum*.45 + s.gel*.15 - s.heat*.6 - s.dirt*.3 - frizz*.3 + wet*.25, 0, 1);
     return {wet, curl, shrink, frizz, vol, shine, hold};
   }
@@ -9723,7 +9736,7 @@ const SAL = (() => {
         if(wind){ const wx = p.x - wind.x, wy = p.y - wind.y, wd = Math.hypot(wx, wy); if(wd < wind.r){ const f = (1 - wd/wind.r)*wind.f; fx += (wx/wd || 0)*f + (Math.random() - .5)*f*1.6; fy += (wy/wd || 0)*f*.7 + (Math.random() - .5)*f; } }
         p.x += vx + fx; p.y += vy + fy;
         if(i >= 2){ const tx = 2*P[i-1].x - P[i-2].x, ty = 2*P[i-1].y - P[i-2].y; p.x += (tx - p.x)*kb; p.y += (ty - p.y)*kb; }
-        else { const out = (s.tx != null ? [.3, .35, .55, .95][cl.tex]*Math.min(1, e.curl/Math.max(.2, NAT_CURL[cl.tex])) : 0); let dx0 = s.nx, dy0 = s.ny; if(s.tx != null){ dx0 = s.tx*(1 - out*.7) + s.onx*out; dy0 = s.ty*(1 - out*.7) + s.ony*out + .15*(1 - out); const dl = Math.hypot(dx0, dy0) || 1; dx0 /= dl; dy0 /= dl; }
+        else { const out = (s.tx != null ? [.3, .35, .55, .95][cl.tex]*(s.g === "bang" ? .12 : 1)*Math.min(1, e.curl/Math.max(.2, (cl.natCurl ?? NAT_CURL[cl.tex]))) : 0); let dx0 = s.nx, dy0 = s.ny; if(s.tx != null){ dx0 = s.tx*(1 - out*.7) + s.onx*out; dy0 = s.ty*(1 - out*.7) + s.ony*out + .15*(1 - out); const dl = Math.hypot(dx0, dy0) || 1; dx0 /= dl; dy0 /= dl; }
           if(s.g === "bang" && cl.bangsFwd){ dx0 = (s.rx - CX)*.004; dy0 = 1; }
           const tx = s.rx + dx0*s.L[0]*2*e.shrink, ty = s.ry + dy0*s.L[0]*2*e.shrink + 4*(1 - e.vol); p.x += (tx - p.x)*(.25 + e.vol*.3); p.y += (ty - p.y)*(.25 + e.vol*.3); }
       }
@@ -9737,6 +9750,7 @@ const SAL = (() => {
           if(s.g === "front" || swept){ const fs = 1.05 + s.layer*.12; ex = (p.x - FCX)/(FRX*fs); ey = (p.y - FCY)/(FRY*(1.02 + s.layer*.05)); q = ex*ex + ey*ey; if(q < 1 && p.y > FCY - FRY*.75){ const r = Math.sqrt(q) || .01; p.x = FCX + (p.x - FCX)/r; p.y = FCY + (p.y - FCY)/r; } }
           if(s.g === "bang" && cl.bangsFwd && p.y > FCY - 20){ p.y = Math.min(p.y, FCY + 40); }
           p.x = clamp(p.x, 4, W - 4); p.y = Math.min(p.y, H + 60);
+          if(cl.tex >= 2 && !(s.g === "bang" && cl.bangsFwd)){ const bcx = CX, bcy = cl.tex === 3 ? CY + 6 : CY + 120, k2 = (cl.dens || 1)**.4, mrx = (cl.tex === 3 ? 108 + 52*(cl.natVol || .9) : 128 + 40*(cl.natVol || .5))*k2, mry = (cl.tex === 3 ? mrx/k2 : 270)*k2, ddx = (p.x - bcx)/mrx, ddy = (p.y - bcy)/mry, dd = Math.hypot(ddx, ddy); if(dd > 1){ p.x = bcx + (p.x - bcx)/dd; p.y = bcy + (p.y - bcy)/dd; } }
         }
       }
     });
@@ -9745,7 +9759,7 @@ const SAL = (() => {
   /* ---------- drawing ---------- */
   function stylePath(s, cl, e){
     const P = s.pts, out = []; if(P.length < 2) return out;
-    const A = AMP[cl.tex]*e.curl/Math.max(.01, NAT_CURL[cl.tex] || .5) * (cl.tex === 0 ? 0 : 1) + (cl.tex === 0 ? 7*e.curl : 0), F = cl.tex === 0 ? 1/34 : FREQ[cl.tex];
+    const A = (cl.amp ?? AMP[cl.tex])*e.curl/Math.max(.01, (cl.natCurl ?? NAT_CURL[cl.tex]) || .5) * (cl.tex === 0 ? 0 : 1) + (cl.tex === 0 ? 7*e.curl : 0), F = cl.tex === 0 ? 1/34 : (cl.freq ?? FREQ[cl.tex]);
     let acc = 0;
     for(let i = 0; i < P.length - 1; i++){
       const a = P[i], b = P[i+1], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .001, nx = -dy/d, ny = dx/d, steps = Math.max(1, Math.ceil(d/3));
@@ -9767,6 +9781,7 @@ const SAL = (() => {
     items.forEach((o, i) => { if(i % 3) return; ctx.strokeStyle = shade(o.col, .12); ctx.globalAlpha = .5; ctx.lineWidth = 1.2; strokePts(ctx, o.pts.map(([x, y]) => [x + 1.5, y])); ctx.globalAlpha = 1; });
     items.forEach((o, i) => { if(o.e.shine < .15) return; ctx.strokeStyle = mix(o.col, "#ffffff", .25 + o.e.shine*.35); ctx.globalAlpha = .25 + o.e.shine*.6; ctx.lineWidth = 1.2 + o.e.shine*1.6;
       const seg = o.pts.slice(Math.floor(o.pts.length*.12), Math.floor(o.pts.length*(.35 + o.e.shine*.4))).map(([x, y]) => [x - 1.6, y]); strokePts(ctx, seg); ctx.globalAlpha = 1; });
+    items.forEach(o => { if(!(o.s.coat > .04)) return; ctx.strokeStyle = o.s.coatCol || "#ffffff"; ctx.globalAlpha = Math.min(.9, o.s.coat); ctx.lineWidth = 3.4; ctx.setLineDash([6, 5]); strokePts(ctx, o.pts.slice(Math.floor(o.pts.length*.08)).map(([x, y]) => [x + 1.5, y])); ctx.setLineDash([]); ctx.globalAlpha = 1; });
     items.forEach(o => { if(o.e.frizz < .18) return; const R2 = rng(o.s.phase.toFixed(3)), n = Math.round(o.e.frizz*10); ctx.strokeStyle = mix(o.col, "#ffffff", .15); ctx.lineWidth = 1.1; ctx.globalAlpha = .8;
       for(let k = 0; k < n; k++){ const p = o.pts[Math.floor(R2()*o.pts.length)]; if(!p) continue; const ang = R2()*6.28, l = 5 + o.e.frizz*9; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.quadraticCurveTo(p[0] + Math.cos(ang)*l*.6 + Math.sin(time*.003 + k)*1.2, p[1] + Math.sin(ang)*l*.6, p[0] + Math.cos(ang + .6)*l, p[1] + Math.sin(ang + .6)*l); ctx.stroke(); } ctx.globalAlpha = 1; });
     items.forEach(o => o.s.knots.forEach((kn, j) => { const p = o.pts[Math.floor(kn.t*(o.pts.length - 1))]; if(!p) return; const r = 3 + kn.k*2.5;
@@ -9811,8 +9826,29 @@ const SAL = (() => {
       const z = pts[24]; ctx.fillStyle = "#ff7db8"; ctx.beginPath(); ctx.ellipse(z[0], z[1], 8, 4, 0, 0, 6.28); ctx.fill(); ctx.stroke(); return; }
     ctx.lineCap = "round";
     for(let pass = 0; pass < 2; pass++) for(let k = -3; k <= 3; k++){ const off = k*wpx/8; ctx.strokeStyle = pass ? col : INK; ctx.lineWidth = pass ? wpx/3.2 : wpx/3.2 + 3.4;
-      const path = pts.map(([x, y], i) => { const t = i/24, A = AMP[cl.tex]*e.curl*(cl.tex ? 1 : 0); return [x + off*(1 - t*.5) + A*Math.sin(cl.tex ? (y*FREQ[cl.tex]*6.28 + k) : 0), y]; }); strokePts(ctx, path); }
+      const path = pts.map(([x, y], i) => { const t = i/24, A = (cl.amp ?? AMP[cl.tex])*e.curl*(cl.tex ? 1 : 0); return [x + off*(1 - t*.5) + A*Math.sin(cl.tex ? (y*(cl.freq ?? FREQ[cl.tex])*6.28 + k) : 0), y]; }); strokePts(ctx, path); }
     ctx.fillStyle = "#ff7db8"; ctx.strokeStyle = INK; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.ellipse(x0, y0 + 6, 10, 7, .6, 0, 6.28); ctx.fill(); ctx.stroke();
+  }
+  function drawCloud(ctx, cl, time){
+    const list = cl.strands.filter(s => (s.g !== "bang" || !cl.bangsFwd) && !s.clip), ccx = CX, ccy = CY + 14, N = 48, R = Array(N).fill(0);
+    list.forEach(s => s.pts.forEach(p => { const a = Math.atan2(p.y - ccy, p.x - ccx), k = ((Math.round(a/(Math.PI*2)*N) % N) + N) % N, d = Math.hypot(p.x - ccx, p.y - ccy) + s.w*.7; if(d > R[k]) R[k] = d; }));
+    for(let k = 0; k < N; k++) if(!R[k]){ let a = 1, b = 1; while(!R[(k - a + N) % N] && a < N) a++; while(!R[(k + b) % N] && b < N) b++; R[k] = (R[(k - a + N) % N]*b + R[(k + b) % N]*a)/(a + b); }
+    const minR = SRX*1.02; for(let k = 0; k < N; k++) R[k] = Math.max(R[k], minR);
+    const Sm = R.map((r, k) => (R[(k - 1 + N) % N] + 2*r + R[(k + 1) % N])/4);
+    const E = list.map(s => eff(s, cl)), frizz = E.reduce((a, e) => a + e.frizz, 0)/Math.max(1, E.length), shine = E.reduce((a, e) => a + e.shine, 0)/Math.max(1, E.length);
+    const col = (() => { const c = list.map(x => hexRgb(strandColor(x))), n = Math.max(1, c.length); return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
+    const pt = (k, r) => { const a = k/N*Math.PI*2; return [ccx + Math.cos(a)*r, ccy + Math.sin(a)*r]; };
+    const path = () => { ctx.beginPath(); for(let k = 0; k <= N; k++){ const [x, y] = pt(k % N, Sm[k % N]); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.closePath(); };
+    const bumps = (pad, fill, stroke, lw) => { const R2 = rng("cl" + cl.name); for(let k = 0; k < N*2; k++){ const kk = k/2, r = Sm[Math.floor(kk) % N]*(1 - (kk % 1)) + Sm[Math.ceil(kk) % N]*(kk % 1), [x, y] = pt(kk, r - 6), br = 10 + R2()*6 + frizz*8; ctx.beginPath(); ctx.arc(x, y, br + pad, 0, 6.28); if(fill){ ctx.fillStyle = fill; ctx.fill(); } if(stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); } } };
+    bumps(1.7, null, INK, 3.4); ctx.fillStyle = col; path(); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 3.4; ctx.stroke(); bumps(0, col, null, 0);
+    ctx.save(); path(); ctx.clip(); const R3 = rng("tx" + cl.name), sp = cl.freq ? Math.max(3, 1/cl.freq*.5) : 4;
+    ctx.strokeStyle = shade(col, -.3); ctx.lineWidth = 1.3; ctx.globalAlpha = .7;
+    for(let k = 0; k < 170; k++){ const a = R3()*6.28, rr = minR*.6 + R3()*(Math.max(...Sm) - minR*.6), x = ccx + Math.cos(a)*rr, y = ccy + Math.sin(a)*rr; ctx.beginPath(); ctx.arc(x, y, sp*.6 + R3()*2, R3()*6, R3()*6 + 4); ctx.stroke(); }
+    ctx.strokeStyle = shade(col, .3); ctx.globalAlpha = .25 + shine*.6; for(let k = 0; k < 60; k++){ const a = R3()*6.28, rr = minR*.7 + R3()*(Math.max(...Sm) - minR*.7), x = ccx + Math.cos(a)*rr, y = ccy + Math.sin(a)*rr; ctx.beginPath(); ctx.arc(x, y, sp*.5, R3()*6, R3()*6 + 2.5); ctx.stroke(); }
+    const coat = list.reduce((a, s) => a + (s.coat || 0), 0)/Math.max(1, list.length);
+    if(coat > .04){ ctx.fillStyle = list.find(s => s.coat > .04)?.coatCol || "#fff"; ctx.globalAlpha = Math.min(.85, coat*1.2); for(let k = 0; k < 40; k++){ const a = R3()*6.28, rr = minR + R3()*(Math.max(...Sm) - minR), x = ccx + Math.cos(a)*rr, y = ccy + Math.sin(a)*rr; ctx.beginPath(); ctx.ellipse(x, y, 4, 2.5, a, 0, 6.28); ctx.fill(); } }
+    if(frizz > .25){ ctx.restore(); ctx.save(); ctx.strokeStyle = shade(col, .2); ctx.lineWidth = 1.1; ctx.globalAlpha = .7; const R4 = rng("fz" + cl.name); for(let k = 0; k < frizz*60; k++){ const kk = R4()*N, [x, y] = pt(kk, Sm[Math.floor(kk)] + 4), a = kk/N*6.28; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a + R4() - .5)*(6 + frizz*10), y + Math.sin(a + R4() - .5)*(6 + frizz*10)); ctx.stroke(); } }
+    ctx.restore(); ctx.globalAlpha = 1;
   }
   function drawClient(ctx, cl, opt = {}){
     const time = opt.time || 0, mood = opt.mood || "neutral";
@@ -9825,19 +9861,20 @@ const SAL = (() => {
     if(opt.basin){ ctx.fillStyle = "#e9eef3"; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(CX, 300, 200, 64, 0, Math.PI, 0); ctx.lineTo(CX + 200, 330); ctx.ellipse(CX, 330, 200, 90, 0, 0, Math.PI); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#cfd8e1"; ctx.beginPath(); ctx.ellipse(CX, 300, 176, 46, 0, 0, 6.28); ctx.fill(); ctx.stroke();
       ctx.fillStyle = "#b9c4cf"; ctx.beginPath(); ctx.rect(CX + 150, 214, 16, 70); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(CX + 158, 214); ctx.quadraticCurveTo(CX + 158, 196, CX + 132, 198); ctx.lineWidth = 9; ctx.strokeStyle = INK; ctx.stroke(); ctx.lineWidth = 5; ctx.strokeStyle = "#b9c4cf"; ctx.stroke(); }
     const back = cl.strands.filter(s => s.g === "back" && !s.clip), front = cl.strands.filter(s => s.g === "front" && !s.clip), bang = cl.strands.filter(s => s.g === "bang" && !s.clip), allBack = cl.strands.filter(s => s.g === "back");
-    if(!styled) drawLayer(ctx, cl, back, time);
+    if(!styled){ if(cl.tex === 3) drawCloud(ctx, cl, time); else drawLayer(ctx, cl, back, time); }
     else if(cl.style === "pony" || cl.style === "braid") drawTail(ctx, cl, time, cl.style);
     drawCape(ctx, opt.basin ? "#9ec9e8" : null);
     if(styled && (cl.style === "pony" || cl.style === "braid")){ /* tail over the shoulder sits in front of the cape */ drawTail(ctx, cl, time, cl.style); }
     drawFace(ctx, cl, time, mood);
     const s0 = allBack[Math.floor(allBack.length/2)], e0 = eff(s0, cl), capCol = (() => { const c = allBack.map(x => hexRgb(strandColor(x))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
-    ctx.fillStyle = capCol; ctx.strokeStyle = INK; ctx.lineWidth = 3; capPath(ctx); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = capCol; ctx.strokeStyle = INK; ctx.lineWidth = 3; capPath(ctx); ctx.fill(); if(!(cl.tex === 3 && !styled)) ctx.stroke(); else { ctx.save(); ctx.clip(); ctx.restore(); ctx.beginPath(); ctx.moveTo(FCX - FRX*.92, FCY - FRY*.62); ctx.bezierCurveTo(FCX - FRX*.92, FCY - FRY*.62, FCX - FRX*.55, FCY - FRY*.8, FCX - FRX*.55, FCY - FRY*.8); ctx.quadraticCurveTo(FCX, FCY - FRY*.93, FCX + FRX*.55, FCY - FRY*.8); ctx.bezierCurveTo(FCX + FRX*.92, FCY - FRY*.62, FCX + FRX*.92, FCY - FRY*.62, FCX + FRX*.92, FCY - FRY*.62); ctx.stroke(); }
     if(cl.tex >= 2 && !styled){ ctx.save(); capPath(ctx); ctx.clip(); ctx.strokeStyle = shade(capCol, .28); ctx.globalAlpha = .7; ctx.lineWidth = 2; const R2 = rng("cap" + cl.name); for(let k = 0; k < 40; k++){ const x = CX - 80 + R2()*160, y = CY - 100 + R2()*60; ctx.beginPath(); ctx.arc(x, y, 4 + R2()*3, R2()*6, R2()*6 + 3.5); ctx.stroke(); } ctx.globalAlpha = 1; ctx.restore(); }
     else { ctx.strokeStyle = mix(capCol, "#fff", .25 + e0.shine*.3); ctx.lineWidth = 2; ctx.globalAlpha = .5 + e0.shine*.4; ctx.beginPath(); ctx.moveTo(CX - 40, CY - 72); ctx.quadraticCurveTo(CX - 10, CY - 92, CX + 30, CY - 86); ctx.moveTo(CX + 20, CY - 64); ctx.quadraticCurveTo(CX + 50, CY - 76, CX + 70, CY - 52); ctx.stroke(); ctx.globalAlpha = 1; }
+    if(cl.edges > .2){ ctx.strokeStyle = shade(capCol, -.15); ctx.lineWidth = 2.2; [-1, 1].forEach(d => { for(let k = 0; k < 3; k++){ const x0 = FCX + d*(FRX*.78 - k*9), y0 = FCY - FRY*.62 + k*7; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.bezierCurveTo(x0 + d*12, y0 + 6, x0 + d*4, y0 + 16, x0 - d*6, y0 + 10); ctx.stroke(); } }); }
     if(styled){ ctx.strokeStyle = shade(capCol, -.3); ctx.lineWidth = 1.6; for(let k = -3; k <= 3; k++){ ctx.beginPath(); ctx.moveTo(CX + k*20, CY - 56 - Math.abs(k)*2); ctx.quadraticCurveTo(CX + k*14, CY - 90, CX + k*6 + 20, CY - SRY + 4); ctx.stroke(); } }
     if(cl.style === "bun") drawTail(ctx, cl, time, "bun");
-    if(!styled) drawLayer(ctx, cl, front, time);
-    if(!styled || cl.bangsFwd) drawLayer(ctx, cl, bang, time);
+    if(!styled && cl.tex !== 3) drawLayer(ctx, cl, front, time);
+    if((!styled && cl.tex !== 3) || cl.bangsFwd) drawLayer(ctx, cl, bang, time);
     const clipped = [...new Set(cl.strands.filter(s => s.clip).map(s => s.sec))];
     clipped.forEach(sec => { const [x, y] = CLIP_AT[sec], c = cl.strands.find(s => s.sec === sec), col = strandColor(c); ctx.fillStyle = col; ctx.strokeStyle = INK; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.ellipse(x, y, 20, 14, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.strokeStyle = shade(col, .3); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, 9, .3, 4.5); ctx.stroke();
       ctx.fillStyle = "#ff7db8"; ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.rect(x - 14, y - 4, 28, 8); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#fff"; ctx.fillRect(x - 10, y - 2, 6, 2); });
@@ -9906,7 +9943,7 @@ const SAL = (() => {
     const P = s.pts; for(let i = 1; i < P.length; i++){ if(P[i].y >= y && P[i-1].y < y){ const f = (y - P[i-1].y)/((P[i].y - P[i-1].y) || 1); s.L = s.L.slice(0, i - 1).concat([s.L[i-1]*clamp(f, .05, 1)]); s.pts = P.slice(0, i + 1); s.pts[i] = {x:lerp(P[i-1].x, P[i].x, f), y, px:lerp(P[i-1].x, P[i].x, f), py:y}; s.knots = s.knots.filter(k => k.t <= i/(P.length - 1)); return true; } }
     return false;
   }
-  return {CLIP_AT, W, H, CX, CY, SRX, SRY, FCX, FCY, FRX, FRY, LV, TEX, TEXC, TOOLS, REQ, DYES, NATURAL, tool, st, owns, makeClient, buildTarget, cutStrandAtY, drawClient, step, settle, eff, measure, score, mix, lum, hexRgb};
+  return {SUBS, CLIP_AT, W, H, CX, CY, SRX, SRY, FCX, FCY, FRX, FRY, LV, TEX, TEXC, TOOLS, REQ, DYES, NATURAL, tool, st, owns, makeClient, buildTarget, cutStrandAtY, drawClient, step, settle, eff, measure, score, mix, lum, hexRgb};
 })();
 
 /* ---------- Hair Salon v7: the game ---------- */
@@ -10344,6 +10381,139 @@ function salApplyMods(){
       prev.tick.call(this);
       if(this.frame % 15 === 0){ const bar = $("slCondT"); if(bar){ const on = this.cl.strands.filter(s => s.condOn > .05); bar.style.width = on.length ? Math.round(Math.min(1, on.reduce((a, s) => a + (s.condT || 0), 0)/on.length/150)*100) + "%" : "0%"; } }
     }
+  });
+}
+
+/* ---------- Hair Salon v7.2: more products, visible product flourishes, no-scroll layout ---------- */
+Object.assign(ICONS, {
+  "g:massager":`<circle cx="20" cy="15" r="11" fill="#ff7db8" ${IL}/>${[0,1,2,3,4,5,6].map(i => { const a = i/7*6.28; return `<path d="M${(20 + Math.cos(a)*7).toFixed(1)} ${(15 + Math.sin(a)*7).toFixed(1)} L${(20 + Math.cos(a)*13).toFixed(1)} ${(30 + Math.sin(a)*3).toFixed(1)}" stroke="#2b2118" stroke-width="2.2" stroke-linecap="round"/><circle cx="${(20 + Math.cos(a)*13).toFixed(1)}" cy="${(30 + Math.sin(a)*3).toFixed(1)}" r="2.2" fill="#ffd166" ${IL}/>`; }).join("")}`,
+  "g:leavein":`<rect x="12" y="13" width="16" height="24" rx="5" fill="#9be7ff" ${IL}/><path d="M16 13 V7 h8 v6" fill="#fffdf8" ${IL}/><path d="M24 8 h7" stroke="#2b2118" stroke-width="2.5" stroke-linecap="round"/><rect x="15" y="21" width="10" height="9" rx="2" fill="#fffdf8"/>`,
+  "g:oil":`<path d="M14 16 q6 -6 12 0 v17 q0 4 -4 4 h-4 q-4 0 -4 -4z" fill="#ffbf2e" ${IL}/><rect x="17" y="6" width="6" height="9" fill="#2b2118"/><path d="M30 18 q2 4 0 6 q-2 -2 0 -6z" fill="#ffbf2e" ${IL}/>`,
+  "g:mask":`<path d="M6 17 h28 v14 q0 6 -6 6 h-16 q-6 0 -6 -6z" fill="#c8a2f0" ${IL}/><rect x="4" y="11" width="32" height="7" rx="3" fill="#7b3fa0" ${IL}/><path d="M12 25 q8 5 16 0" stroke="#fffdf8" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  "g:dryshampoo":`<rect x="12" y="11" width="16" height="26" rx="4" fill="#f4d35e" ${IL}/><rect x="15" y="5" width="10" height="7" rx="2" fill="#d9dde3" ${IL}/><circle cx="31" cy="7" r="1.8" fill="#fff" ${IL}/><circle cx="35" cy="11" r="1.5" fill="#fff" ${IL}/><rect x="15" y="19" width="10" height="9" fill="#fffdf8"/>`,
+  "g:salt":`<rect x="12" y="12" width="16" height="25" rx="4" fill="#7cc4f0" ${IL}/><rect x="15" y="5" width="10" height="8" rx="2" fill="#2a9d8f" ${IL}/><path d="M15 26 q3 -4 5 0 q3 4 5 0" stroke="#fffdf8" stroke-width="2" fill="none"/>`,
+  "g:edge":`<rect x="5" y="20" width="18" height="14" rx="4" fill="#57cc99" ${IL}/><rect x="4" y="15" width="20" height="6" rx="2" fill="#2a9d8f" ${IL}/><path d="M26 34 L36 8" stroke="#2b2118" stroke-width="3" stroke-linecap="round"/><path d="M33 8 l5 2 M32 11 l5 2 M31 14 l5 2" stroke="#2b2118" stroke-width="1.5"/>`,
+  "g:detangle":`<rect x="12" y="12" width="16" height="25" rx="4" fill="#ffb4a2" ${IL}/><rect x="15" y="5" width="10" height="8" rx="2" fill="#2b2118"/><path d="M28 8 h6 M31 4 l4 -2 M31 12 l4 2" stroke="#2b2118" stroke-width="2" stroke-linecap="round"/><path d="M16 20 l8 8 M24 20 l-8 8" stroke="#fffdf8" stroke-width="2.4"/>`,
+  "g:thinning":`<circle cx="11" cy="31" r="5" fill="none" ${IL}/><circle cx="23" cy="33" r="5" fill="none" ${IL}/><path d="M14 27 L30 5 M20 29 L33 9" stroke="#2b2118" stroke-width="2.4"/>${[0,1,2,3,4].map(i => `<path d="M${30 - i*3} ${8 + i*4} l3 2" stroke="#2b2118" stroke-width="1.4"/>`).join("")}`,
+  "g:roundbrush":`<rect x="5" y="16" width="20" height="9" rx="4" fill="#c8915a" ${IL}/><rect x="22" y="13" width="14" height="15" rx="6" fill="#ff7db8" ${IL}/>${[24,28,32].map(x => `<path d="M${x} 10 v21" stroke="#2b2118" stroke-width="1.4"/>`).join("")}`
+});
+SAL.TOOLS.push(
+  ["massager","Scalp massager","g:massager","Rub it over the scalp: deep-cleans while shampooing and relaxes the client. Great for itchy, flaky scalps.",0],
+  ["detangler","Detangling spray","g:detangle","Mist it on knots so the comb glides through without pulling.",0],
+  ["thinning","Thinning shears","g:thinning","Notched blades remove bulk without changing the length. For thick, heavy hair.",0],
+  ["roundbrush","Round brush","g:roundbrush","Hold it under wet hair while drying to smooth it and add bounce.",0],
+  ["leavein","Leave-in conditioner","g:leavein","Light moisture you don't rinse out. Softens and calms frizz.",0],
+  ["oil","Hair oil","g:oil","Seals the ends with shine. Keep it off the roots or hair looks greasy.",0],
+  ["mask","Deep-conditioning mask","g:mask","A rich treatment: leave it on, then rinse. Repairs dry, damaged hair.",0],
+  ["dryshampoo","Dry shampoo","g:dryshampoo","Soaks up grease without water. Spray at the roots, then brush it in.",0],
+  ["salt","Sea-salt spray","g:salt","Scrunch into straight or wavy hair for beachy texture and grip.",0],
+  ["edge","Edge control","g:edge","Smooth and swirl the baby hairs at the hairline into a neat finish.",0]
+);
+SAL_GROUPS.length = 0;
+SAL_GROUPS.push(["Shampoo bowl",["rinse","shampoo","massager","cond","mask"]],["Prep",["spray","detangler","comb","brush","clip","towel"]],["Cut",["scissors","thinning"]],["Dry & heat",["dryer","roundbrush","protect","iron","wand"]],["Products",["leavein","cream","oil","serum","mousse","salt","gel","edge","dryshampoo","spray2","pick"]],["Color",["bleach","dye"]]);
+Object.assign(SAL_R, {massager:46, detangler:50, thinning:34, roundbrush:34, leavein:44, oil:36, mask:44, dryshampoo:46, salt:48, edge:40});
+const SAL_PROD = {cream:["Curl cream","#fff4e0","blob"], serum:["Shine serum","#ffd166","drop"], mousse:["Mousse","#ffffff","foam"], gel:["Gel","#9fd8ff","drop"], spray2:["Hairspray","#e9e9e9","mist"], leavein:["Leave-in","#e8fbff","mist"], oil:["Hair oil","#ffbf2e","drop"], mask:["Mask","#d9c2f5","blob"], dryshampoo:["Dry shampoo","#ffffff","powder"], salt:["Sea-salt spray","#bfe9ff","mist"], edge:["Edge control","#9be7c4","blob"], protect:["Heat protectant","#cfe8ff","mist"], cond:["Conditioner","#f6efe4","blob"], shampoo:["Shampoo","#ffffff","foam"], detangler:["Detangler","#ffd6cc","mist"]};
+const SAL_SHAMPOO = [["gentle","Gentle"],["moist","Moisturizing"],["clarify","Clarifying"],["purple","Purple"]];
+function salRightShampoo(cl){ if(["blonde","lightblonde","grey"].includes(cl.baseKey)) return ["purple", cl.tex >= 2 ? "moist" : "gentle"]; if(cl.tex >= 2) return ["moist"]; if(cl.dirty) return ["clarify","gentle"]; return ["gentle","moist"]; }
+SAL.REQ.push(
+  {k:"debulk", t:"Take out the bulk", tex:[2,3], start:["shoulder","chest"], need:[], say:() => "My hair is SO thick and heavy. Can you take some weight out without losing any length?", tip:"Thinning shears remove bulk without shortening the hair. Work through the mid-lengths, then check the shape. Don't use the regular scissors!",
+    target:(c, sv) => ({volMax:Math.max(.25, sv.vol - .25), keepY:sv.endY, curl:(c.natCurl ?? .7)})},
+  {k:"scalp", t:"Scalp rescue", tex:[0,1,2,3], start:["shoulder","chest"], dirty:true, need:[], say:() => "My scalp is so itchy and flaky. Can you give it some proper love?", tip:"At the bowl: wet, shampoo, then work the scalp massager all over the scalp before rinsing. A mask on the ends finishes it off.",
+    target:c => ({massage:true, condNeed:true, curl:(c.natCurl ?? 0)})},
+  {k:"freshen", t:"No time to wash", tex:[0,1], start:["shoulder","chest"], dirty:true, need:[], say:() => "I have a meeting in 10 minutes and my roots are greasy. No time to wash! Help?", tip:"Don't wet it! Spray dry shampoo at the roots, then brush it through so no white powder shows.",
+    target:c => ({noWash:true, curl:(c.natCurl ?? 0), frizzMax:.35})},
+  {k:"edges", t:"Sleek bun, laid edges", tex:[3], start:["shoulder"], need:[], say:() => "A sleek bun with my edges laid, please! It's for a wedding.", tip:"Detangle, smooth with gel, tie the bun at the styling station, then use edge control along the hairline for swirly baby hairs.",
+    target:() => ({style:"bun", edges:true, frizzMax:.3})}
+);
+Object.assign(SAL_PRICE, {debulk:35, scalp:30, freshen:20, edges:40});
+{
+  const origScore = SAL.score, origBuild = SAL.buildTarget;
+  SAL.score = function(cl, tg, final){
+    const r = origScore(cl, tg, final), add = (k, label, w, v, why) => r.parts.push({k, label, w, v:clamp(v, 0, 1), why}), m = r.m;
+    if(tg.volMax != null) add("bulk", "Bulk removed", 18, m.vol <= tg.volMax ? 1 : 1 - (m.vol - tg.volMax)/.4, m.vol > tg.volMax ? "Still heavy and puffy: use the thinning shears through the mid-lengths." : "Lighter, with lovely movement.");
+    if(tg.keepY != null) add("keep", "Length kept", 14, 1 - Math.max(0, tg.keepY - m.endY - 15)/60, m.endY < tg.keepY - 20 ? "They wanted to keep their length! Thinning shears take out weight without cutting it shorter." : "All the length kept.");
+    if(tg.massage) add("massage", "Scalp massage", 14, Math.min(1, (cl.massaged || 0)/180), (cl.massaged || 0) < 120 ? "Spend longer with the scalp massager to lift the flakes and soothe the itch." : "Their scalp feels amazing.");
+    if(tg.noWash) add("nowash", "Kept dry (no time!)", 16, cl.washed || m.wet > .15 ? 0 : 1, cl.washed ? "They had no time to wash and dry! Dry shampoo freshens roots without water." : "Fresh in minutes, without water.");
+    if(tg.edges) add("edges", "Edges laid", 12, Math.min(1, (cl.edges || 0)/.5), (cl.edges || 0) < .3 ? "Brush edge control along the hairline for neat baby-hair swirls." : "Edges laid to perfection.");
+    const powder = cl.strands.filter(s => s.coatCol === "#ffffff" && s.coatKind === "dryshampoo" && s.coat > .25).length;
+    if(powder > 3) add("powder", "No white residue", 10, Math.max(0, 1 - powder/20), "White dry-shampoo powder still shows. Brush it in.");
+    if(cl.washed && cl.shampoo) add("shampoo", "The right shampoo", 8, salRightShampoo(cl).includes(cl.shampoo) ? 1 : 0, salRightShampoo(cl).includes(cl.shampoo) ? "Matched the shampoo to the hair." : `${SAL_SHAMPOO.find(x => x[0] === salRightShampoo(cl)[0])[1]} shampoo was the best choice for this hair.`);
+    if(tg.noWash){ const c = r.parts.find(q => q.k === "clean"); if(c) c.why = c.v > .7 ? "Roots refreshed." : "Roots still greasy: spray dry shampoo at the roots."; }
+    const tw = r.parts.reduce((a, q) => a + q.w, 0); r.pct = Math.round(r.parts.reduce((a, q) => a + q.w*q.v, 0)/tw*100);
+    return r;
+  };
+  SAL.buildTarget = function(cl, tg){ const t = origBuild(cl, tg); if(tg.volMax != null){ t.strands.forEach(s => s.vol = -.35); SAL.settle(t, 120); } if(tg.edges) t.edges = 1; return t; };
+}
+{
+  const H = STUDIO.hair, prev = {render:H.render, toolUI:H.toolUI, apply:H.apply, tick:H.tick, note:H.note, newClient:H.newClient, finish:H.finish};
+  Object.assign(H, {
+    newClient(daily){ this.fx = []; this.shampooType = "gentle"; prev.newClient.call(this, daily); this.cl.massaged = 0; this.cl.edges = 0; },
+    render(){
+      prev.render.call(this);
+      /* compact, no-scroll layout: meters + finish move to the HUD, notes float over the mirror, results open as an overlay */
+      const hud = stage.querySelector(".sal-hud"), done = $("slDone"), met = $("slMeters"), msg = $("slMsg"), mir = stage.querySelector(".sal-mirror");
+      hud.appendChild(done.parentElement === hud ? done : done); done.classList.add("sal-finish"); const row = stage.querySelector(".sal-side > .row-btns"); if(row && !row.children.length) row.remove();
+      const mrow = document.createElement("div"); mrow.className = "sal-hud2"; mrow.appendChild(met); hud.after(mrow);
+      mir.appendChild(msg); msg.classList.add("sal-toast");
+      stage.querySelector(".sal").appendChild($("slRes")); $("slRes").classList.add("sal-overlay");
+      const req = stage.querySelector(".sal-req h3"); if(req) req.insertAdjacentHTML("afterend", `<div class="sal-tags"><span>${this.cl.sub}</span><span>${this.cl.dens < .9 ? "fine" : this.cl.dens > 1.1 ? "thick" : "medium"} density</span><span>${SAL.TEX[this.cl.tex]}</span></div>`);
+      this.toolUI();
+    },
+    note(t){ const m = $("slMsg"); if(!m) return; m.textContent = t; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); clearTimeout(this.noteT); this.noteT = setTimeout(() => m && m.classList.remove("show"), 4200); },
+    toolUI(){
+      prev.toolUI.call(this);
+      const o = $("slOpts"); if(!o) return;
+      if(this.tool === "shampoo") o.insertAdjacentHTML("afterbegin", `<div class="chips">${SAL_SHAMPOO.map(([k, l]) => `<button type="button" class="ch${this.shampooType === k ? " sel" : ""}" data-shp="${k}">${l}</button>`).join("")}</div>`);
+      if(SAL_PROD[this.tool] && !["shampoo","cond"].includes(this.tool)) o.insertAdjacentHTML("beforeend", `<div class="sal-condt"><span>Coverage</span><span class="sal-hand"><i id="slCov" style="width:0%"></i></span><b id="slCovT">0%</b></div>`);
+      const prevClick = o.onclick; o.onclick = e => { const b = e.target.closest("[data-shp]"); if(b){ this.shampooType = b.dataset.shp; sfx.click(); this.toolUI(); return; } prevClick && prevClick(e); };
+    },
+    fxPush(q){ (this.fx = this.fx || []).push(q); if(this.fx.length > 260) this.fx.shift(); },
+    hitsNear(r){ const p = this.ptr, out = []; this.cl.strands.forEach(s => { if(s.clip) return; let best = 0, bi = 0; s.pts.forEach((q, i) => { const d = Math.hypot(q.x - p.x, q.y - p.y); if(d < r && 1 - d/r > best){ best = 1 - d/r; bi = i; } }); if(best > 0) out.push([s, best, bi/(s.pts.length - 1 || 1)]); }); return out; },
+    apply(){
+      const p = this.ptr, cl = this.cl, k = this.tool; if(!p || !p.down || this.locked) return;
+      const prod = SAL_PROD[k], onScalp = ((p.x - SAL.CX)/(SAL.SRX*1.15))**2 + ((p.y - SAL.CY)/(SAL.SRY*1.15))**2 < 1 && p.y < SAL.CY + 40;
+      /* flourish: product squirts out of the bottle in its own color and coats the strands */
+      if(prod && p.sp > .5 && this.frame % 2 === 0){ const [, col, kind] = prod; for(let i = 0; i < (kind === "mist" || kind === "powder" ? 3 : 1); i++) this.fxPush({type:kind, x:p.x + (Math.random() - .5)*18, y:p.y - 22, vx:(Math.random() - .5)*2.2, vy:kind === "mist" || kind === "powder" ? 1.5 + Math.random()*2 : 2 + Math.random()*2, life:26 + Math.random()*14, col}); }
+      if(prod && this.frame - (this.lastPop || -99) > 50 && p.sp > 1){ this.lastPop = this.frame; this.fxPush({type:"text", x:p.x, y:p.y - 30, vx:0, vy:-.6, life:60, text:"+" + prod[0]}); tone(620 + Math.random()*80, .05, "sine", .02); }
+      const coatOn = (r, col, amt, kind) => this.hitsNear(r).forEach(([s, w]) => { s.coat = Math.min(1, (s.coat || 0) + amt*w); s.coatCol = col; s.coatKind = kind; });
+      const custom = {
+        massager: () => { if(!onScalp) return this.tipOnce("massScalp", "The massager works on the scalp: rub it over the top of the head."); cl.massaged = (cl.massaged || 0) + Math.min(1, p.sp/3); cl.mood = Math.min(1, cl.mood + .0015*(SAL_MOD.massage ? 2 : 1));
+          this.hitsNear(46).forEach(([s, w, t]) => { if(t > .35) return; if(s.wet > .3 && s.foam > .05){ s.foam = Math.min(1, s.foam + .02*w); s.dirt = Math.max(0, s.dirt - .025*w); } });
+          if(this.frame % 7 === 0) this.fxPush({type:"ring", x:p.x, y:p.y, vx:0, vy:0, life:24, col:"#ff7db8"}); if(this.frame % 70 === 0) this.say(pick(["Ohhh, that's heavenly.","My scalp is tingling!","I could fall asleep…"]), "good"); },
+        detangler: () => { coatOn(50, "#ffd6cc", .02, "detangler"); this.hitsNear(50).forEach(([s, w]) => { s.wet = Math.min(1, s.wet + .01*w); s.knots.forEach(q => q.k = Math.max(.15, q.k - .02*w)); s.slip = Math.min(1, (s.slip || 0) + .05*w); }); },
+        thinning: () => { if(cl.station === "basin") return this.tipOnce("basinTool", "Bring them back to the styling chair for that."); if(p.sp < 1) return; this.hitsNear(34).forEach(([s, w, t]) => { if(t < .25 || t > .9) return; s.vol = Math.max(-.45, s.vol - .012*w); if(Math.random() < .08*w) this.parts.push({type:"clip", pts:[{x:s.pts[Math.floor(t*(s.pts.length - 1))].x, y:s.pts[Math.floor(t*(s.pts.length - 1))].y}, {x:s.pts[Math.floor(t*(s.pts.length - 1))].x + 3, y:s.pts[Math.floor(t*(s.pts.length - 1))].y + 9}], vx:(Math.random() - .5), vy:-.5, life:50, col:s.color}); }); if(this.frame % 6 === 0) tone(2600, .02, "square", .015); },
+        roundbrush: () => { if(cl.station === "basin") return this.tipOnce("basinTool", "Bring them back to the styling chair for that."); if(p.dy <= .8) return; this.hitsNear(34).forEach(([s, w]) => { if(s.wet > .05){ s.wet = Math.max(0, s.wet - .004*w); s.curl = Math.max(0, s.curl - .02*w); s.frizz = Math.max(0, s.frizz - .012*w); s.shine = Math.min(.85, s.shine + .005*w); s.vol = Math.min(.4, s.vol + .004*w); } }); if(this.tool === "roundbrush") this.tipOnce("round", "Round brush works best with heat: pair it with the blow-dryer passes, dragging down."); },
+        leavein: () => { coatOn(44, "#e8fbff", .025, "leavein"); this.hitsNear(44).forEach(([s, w]) => { s.soft = Math.min(1, s.soft + .01*w); s.frizz = Math.max(0, s.frizz - .005*w); s.wet = Math.min(1, s.wet + .004*w); }); },
+        oil: () => { coatOn(36, "#ffbf2e", .025, "oil"); this.hitsNear(36).forEach(([s, w, t]) => { if(t < .2){ s.dirt = Math.min(1, s.dirt + .008*w); this.tipOnce("oilRoots", "Oil on the roots makes hair look greasy. Keep it on the ends."); } else { s.serum = Math.min(2, s.serum + .02*w); } }); },
+        mask: () => { if(cl.station !== "basin") return this.tipOnce("maskBasin", "Masks are rinsed out, so apply them at the shampoo bowl."); coatOn(44, "#d9c2f5", .03, "mask"); this.hitsNear(44).forEach(([s, w, t]) => { if(t > .3){ s.condOn = Math.min(1, s.condOn + .04*w); s.maskOn = Math.min(1, (s.maskOn || 0) + .05*w); } }); },
+        dryshampoo: () => { if(!onScalp && p.y > SAL.CY + 40) return this.tipOnce("dsRoots", "Spray dry shampoo at the roots, where the grease is."); this.hitsNear(46).forEach(([s, w, t]) => { if(t > .4) return; if(s.wet > .2) return this.tipOnce("dsWet", "Dry shampoo only works on dry hair."); s.dirt = Math.max(0, s.dirt - .02*w); s.coat = Math.min(1, (s.coat || 0) + .04*w); s.coatCol = "#ffffff"; s.coatKind = "dryshampoo"; s.vol = Math.min(.3, s.vol + .003*w); }); },
+        salt: () => { coatOn(48, "#bfe9ff", .015, "salt"); this.hitsNear(48).forEach(([s, w]) => { if(cl.tex <= 1) s.curl = Math.min(.4, s.curl + .006*w); s.frizz = Math.min(.5, s.frizz + .002*w); s.shine = Math.max(0, s.shine - .004*w); s.vol = Math.min(.35, s.vol + .004*w); }); },
+        edge: () => { const near = Math.abs(Math.abs(p.x - SAL.FCX) - SAL.FRX*.75) < 26 && p.y > SAL.FCY - SAL.FRY*.8 && p.y < SAL.FCY - SAL.FRY*.35; if(!near) return this.tipOnce("edgeWhere", "Edge control goes along the hairline at the temples, just above the ears."); cl.edges = Math.min(1, (cl.edges || 0) + .012); if(this.frame % 5 === 0) this.fxPush({type:"spark", x:p.x, y:p.y, vx:0, vy:-.5, life:20, col:"#9be7c4"}); }
+      };
+      if(custom[k]){ custom[k](); return; }
+      if(["cream","serum","mousse","gel","spray2","protect"].includes(k)){ const [, col] = prod; coatOn(SAL_R[k] || 40, col, k === "spray2" || k === "protect" ? .012 : .022, k); }
+      if(k === "shampoo" && cl.station === "basin"){ cl.shampoo = this.shampooType; }
+      if(k === "rinse"){ this.hitsNear(70).forEach(([s, w]) => { s.coat = Math.max(0, (s.coat || 0) - .05*w); if(s.maskOn > 0){ const age = Math.min(1, (s.condT || 0)/240); s.heat = Math.max(0, s.heat - .02*w*age); s.shine = Math.min(.85, s.shine + .008*w*age); s.soft = Math.min(1, s.soft + .01*w*age); s.maskOn = Math.max(0, s.maskOn - .05*w); } }); }
+      if(["comb","brush","towel","roundbrush"].includes(k)) this.hitsNear(SAL_R[k] || 30).forEach(([s, w]) => { if(s.coat > 0){ s.coat = Math.max(0, s.coat - .03*w); if(s.coatKind === "cream") s.cream = Math.min(2, s.cream + .01*w); } if(s.slip > .3) s.knots.forEach(q => q.k -= .01*w); });
+      if(k === "comb" || k === "brush"){ const before = cl.pains; prev.apply.call(this); return; }
+      prev.apply.call(this);
+    },
+    tick(){
+      prev.tick.call(this);
+      const ctx = this.ctx, cl = this.cl; if(!ctx) return;
+      cl.strands.forEach(s => { if(s.coat > 0) s.coat *= s.coatKind === "dryshampoo" ? .9995 : .998; });
+      this.fx = (this.fx || []).filter(q => q.life-- > 0);
+      this.fx.forEach(q => { q.x += q.vx; q.y += q.vy; if(q.type === "blob" || q.type === "drop") q.vy += .15; ctx.globalAlpha = Math.min(1, q.life/14);
+        if(q.type === "text"){ ctx.font = "600 15px Fredoka, sans-serif"; ctx.lineWidth = 4; ctx.strokeStyle = "#fffdf8"; ctx.strokeText(q.text, q.x - 30, q.y); ctx.fillStyle = INK; ctx.fillText(q.text, q.x - 30, q.y); }
+        else if(q.type === "ring"){ ctx.strokeStyle = q.col; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(q.x, q.y, 6 + (24 - q.life)*1.4, 0, 6.28); ctx.stroke(); }
+        else { ctx.fillStyle = q.col; ctx.strokeStyle = "rgba(43,33,24,.55)"; ctx.lineWidth = 1; ctx.beginPath(); const r = q.type === "blob" ? 4.5 : q.type === "foam" ? 5 : q.type === "powder" ? 1.8 : q.type === "mist" ? 2 : 3; if(q.type === "drop") ctx.ellipse(q.x, q.y, 2.6, 3.8, 0, 0, 6.28); else ctx.arc(q.x, q.y, r, 0, 6.28); ctx.fill(); if(q.type !== "mist" && q.type !== "powder") ctx.stroke(); }
+        ctx.globalAlpha = 1; });
+      const p = this.ptr, prod = SAL_PROD[this.tool];
+      if(p && p.hover && !this.locked && (prod || this.tool === "massager")){ ctx.save(); ctx.translate(p.x + 16, p.y - 34); ctx.rotate(p.down ? -.5 : -.2); ctx.fillStyle = prod ? prod[1] : "#ff7db8"; ctx.strokeStyle = INK; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-9, -14, 18, 28, 5) : ctx.rect(-9, -14, 18, 28); ctx.fill(); ctx.stroke(); ctx.fillStyle = INK; ctx.fillRect(-4, -21, 8, 7); ctx.fillStyle = "#fffdf8"; ctx.fillRect(-6, -4, 12, 9); ctx.restore(); }
+      if(this.frame % 15 === 0 && prod){ const list = cl.strands.filter(s => s.g !== "bang"), key = {cream:"cream", serum:"serum", mousse:"mousse", gel:"gel", spray2:"hold", protect:"prot", leavein:"soft", oil:"serum", mask:"maskOn", salt:"coat", edge:null, dryshampoo:"coat", detangler:"slip"}[this.tool];
+        if(key){ const f = list.filter(s => (s[key] || 0) > .2).length/Math.max(1, list.length), b = $("slCov"), t = $("slCovT"); if(b){ b.style.width = Math.round(f*100) + "%"; t.textContent = Math.round(f*100) + "%"; } } }
+    },
+    finish(){ prev.finish.call(this); const r = $("slRes"); if(r && !r.querySelector(".sal-x")) r.querySelector(".reveal")?.insertAdjacentHTML("afterbegin", ""); }
   });
 }
 
