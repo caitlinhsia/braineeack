@@ -1062,6 +1062,16 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .sal-pct{font:700 44px "Fredoka",sans-serif;line-height:1;margin:6px 0}
 .sal-compare{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}.sal-compare figure{margin:0;text-align:center;font-size:12px}.sal-compare canvas{width:100%;height:auto;border:2px solid var(--ink);border-radius:10px;background:#fff}
 .sal-pay{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}.sal-pay span{border:2px solid var(--ink);border-radius:10px;padding:4px 10px;background:#fff7d6}
+
+.sal-speech{display:flex;align-items:center;gap:8px;margin:0 auto 8px;max-width:460px;min-height:46px}
+.sal-speech>b{font:600 13px "DM Mono",monospace;flex-shrink:0}
+.sal-speech .sal-bubble{position:relative;top:auto;right:auto;max-width:none;flex:1;opacity:1;transform:none;border-radius:16px 16px 16px 4px;min-height:22px}
+.sal-speech .sal-bubble.pop{animation:salPop .35s ease}@keyframes salPop{0%{transform:scale(.92)}60%{transform:scale(1.03)}100%{transform:none}}
+.sal-msg{min-height:1.3em;max-width:460px;margin:4px auto 0}
+.sal-group{display:flex;flex-direction:column;gap:3px}.sal-group .eyebrow{font-size:10px}.sal-grow{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
+.sal-tools{display:flex;flex-direction:column;gap:8px}
+.sal-station{display:flex;flex-direction:column;gap:6px;background:#eef6fb;border:2px solid var(--ink);border-radius:12px;padding:8px;color:#2b2118}
+.sal-condt{display:flex;align-items:center;gap:8px;font-size:12.5px}
 </style>
 
 <div class="wrap">
@@ -9578,6 +9588,7 @@ const SAL = (() => {
   const TEX = ["straight","wavy","curly","coily"], TEXC = ["1B","2B","3B","4B"];
   const NAT_CURL = [0, .38, .72, .92], NAT_VOL = [.04, .2, .5, .95], AMP = [0, 4.2, 6.2, 5.4], FREQ = [0, 1/62, 1/24, 1/9.5];
   const SEG = 9;
+  const CLIP_AT = {frontL:[CX - 66, CY - 64], frontR:[CX + 66, CY - 64], backL:[CX - 30, CY - SRY - 4], backR:[CX + 30, CY - SRY - 4], bangs:[CX, CY - SRY + 22]};
   const lerp = (a, b, t) => a + (b - a)*t;
   const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
   const rgbHex = (r, g, b) => "#" + [r, g, b].map(v => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, "0")).join("");
@@ -9691,7 +9702,7 @@ const SAL = (() => {
   /* ---------- physics ---------- */
   function step(cl, wind){
     const g = .32;
-    cl.strands.forEach(s => {
+    cl.strands.forEach(s => { if(s.clip) return;
       const e = eff(s, cl), P = s.pts, n = P.length, kb = .022 + e.curl*.1 + e.hold*.1, radial = e.vol*.42;
       const swept = s.g === "bang" && !cl.bangsFwd;
       for(let i = 1; i < n; i++){
@@ -9772,8 +9783,8 @@ const SAL = (() => {
     else if(mood === "sad"){ ctx.moveTo(FCX - 15, FCY + 56); ctx.quadraticCurveTo(FCX, FCY + 46, FCX + 15, FCY + 56); ctx.stroke(); }
     else { ctx.moveTo(FCX - 15, FCY + 50); ctx.quadraticCurveTo(FCX, FCY + 58, FCX + 15, FCY + 50); ctx.stroke(); }
   }
-  function drawCape(ctx){
-    ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.fillStyle = "#2b2f3a";
+  function drawCape(ctx, col){
+    ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.fillStyle = col || "#2b2f3a";
     ctx.beginPath(); ctx.moveTo(40, H + 10); ctx.bezierCurveTo(44, 430, 120, 392, 190, 384); ctx.lineTo(250, 384); ctx.bezierCurveTo(320, 392, 396, 430, 400, H + 10); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = "#fffdf8"; ctx.beginPath(); ctx.moveTo(186, 384); ctx.quadraticCurveTo(220, 406, 254, 384); ctx.lineTo(250, 376); ctx.quadraticCurveTo(220, 396, 190, 376); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.strokeStyle = "rgba(255,255,255,.12)"; ctx.lineWidth = 2; [120, 170, 270, 320].forEach(x => { ctx.beginPath(); ctx.moveTo(x, 420); ctx.lineTo(x + (x - 220)*.25, H); ctx.stroke(); });
@@ -9796,16 +9807,20 @@ const SAL = (() => {
   function drawClient(ctx, cl, opt = {}){
     const time = opt.time || 0, mood = opt.mood || "neutral";
     ctx.save();
-    if(!opt.noBg){ const g2 = ctx.createLinearGradient(0, 0, 0, H); g2.addColorStop(0, "#f7efe4"); g2.addColorStop(1, "#ead9c3"); ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
+    if(!opt.noBg){ const dc = opt.decor === "neon" ? ["#2a1b3d", "#4a2a5e"] : opt.decor === "plants" ? ["#eef7e8", "#d7ead0"] : ["#f7efe4", "#ead9c3"]; const g2 = ctx.createLinearGradient(0, 0, 0, H); g2.addColorStop(0, dc[0]); g2.addColorStop(1, dc[1]); ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
       ctx.fillStyle = "rgba(255,255,255,.35)"; for(let x = 0; x < W; x += 44) for(let y = 0; y < H; y += 44) if((x + y)/44 % 2 === 0) ctx.fillRect(x, y, 44, 44); }
     const styled = cl.style !== "down";
-    const back = cl.strands.filter(s => s.g === "back"), front = cl.strands.filter(s => s.g === "front"), bang = cl.strands.filter(s => s.g === "bang");
+    if(!opt.noBg && opt.decor === "neon"){ ctx.strokeStyle = "#ff5fd2"; ctx.lineWidth = 6; ctx.shadowColor = "#ff5fd2"; ctx.shadowBlur = 16; ctx.beginPath(); ctx.arc(70, 90, 34, 0, 6.28); ctx.stroke(); ctx.beginPath(); ctx.moveTo(340, 60); ctx.lineTo(400, 60); ctx.stroke(); ctx.shadowBlur = 0; }
+    if(!opt.noBg && opt.decor === "plants"){ [[34, 300], [406, 260]].forEach(([x, y]) => { ctx.fillStyle = "#c8915a"; ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.rect(x - 18, y, 36, 34); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#57cc99"; for(let k = 0; k < 5; k++){ ctx.beginPath(); ctx.ellipse(x + (k - 2)*8, y - 18 - Math.abs(k - 2)*-4, 7, 20, (k - 2)*.35, 0, 6.28); ctx.fill(); ctx.stroke(); } }); }
+    if(opt.basin){ ctx.fillStyle = "#e9eef3"; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(CX, 300, 200, 64, 0, Math.PI, 0); ctx.lineTo(CX + 200, 330); ctx.ellipse(CX, 330, 200, 90, 0, 0, Math.PI); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#cfd8e1"; ctx.beginPath(); ctx.ellipse(CX, 300, 176, 46, 0, 0, 6.28); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#b9c4cf"; ctx.beginPath(); ctx.rect(CX + 150, 214, 16, 70); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(CX + 158, 214); ctx.quadraticCurveTo(CX + 158, 196, CX + 132, 198); ctx.lineWidth = 9; ctx.strokeStyle = INK; ctx.stroke(); ctx.lineWidth = 5; ctx.strokeStyle = "#b9c4cf"; ctx.stroke(); }
+    const back = cl.strands.filter(s => s.g === "back" && !s.clip), front = cl.strands.filter(s => s.g === "front" && !s.clip), bang = cl.strands.filter(s => s.g === "bang" && !s.clip), allBack = cl.strands.filter(s => s.g === "back");
     if(!styled) drawLayer(ctx, cl, back, time);
     else if(cl.style === "pony" || cl.style === "braid") drawTail(ctx, cl, time, cl.style);
-    drawCape(ctx);
+    drawCape(ctx, opt.basin ? "#9ec9e8" : null);
     if(styled && (cl.style === "pony" || cl.style === "braid")){ /* tail over the shoulder sits in front of the cape */ drawTail(ctx, cl, time, cl.style); }
     drawFace(ctx, cl, time, mood);
-    const s0 = back[Math.floor(back.length/2)], e0 = eff(s0, cl), capCol = (() => { const c = back.map(x => hexRgb(strandColor(x))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
+    const s0 = allBack[Math.floor(allBack.length/2)], e0 = eff(s0, cl), capCol = (() => { const c = allBack.map(x => hexRgb(strandColor(x))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
     ctx.fillStyle = capCol; ctx.strokeStyle = INK; ctx.lineWidth = 3; capPath(ctx); ctx.fill(); ctx.stroke();
     if(cl.tex >= 2 && !styled){ ctx.save(); capPath(ctx); ctx.clip(); ctx.strokeStyle = shade(capCol, .28); ctx.globalAlpha = .7; ctx.lineWidth = 2; const R2 = rng("cap" + cl.name); for(let k = 0; k < 40; k++){ const x = CX - 80 + R2()*160, y = CY - 100 + R2()*60; ctx.beginPath(); ctx.arc(x, y, 4 + R2()*3, R2()*6, R2()*6 + 3.5); ctx.stroke(); } ctx.globalAlpha = 1; ctx.restore(); }
     else { ctx.strokeStyle = mix(capCol, "#fff", .25 + e0.shine*.3); ctx.lineWidth = 2; ctx.globalAlpha = .5 + e0.shine*.4; ctx.beginPath(); ctx.moveTo(CX - 40, CY - 72); ctx.quadraticCurveTo(CX - 10, CY - 92, CX + 30, CY - 86); ctx.moveTo(CX + 20, CY - 64); ctx.quadraticCurveTo(CX + 50, CY - 76, CX + 70, CY - 52); ctx.stroke(); ctx.globalAlpha = 1; }
@@ -9813,6 +9828,10 @@ const SAL = (() => {
     if(cl.style === "bun") drawTail(ctx, cl, time, "bun");
     if(!styled) drawLayer(ctx, cl, front, time);
     if(!styled || cl.bangsFwd) drawLayer(ctx, cl, bang, time);
+    const clipped = [...new Set(cl.strands.filter(s => s.clip).map(s => s.sec))];
+    clipped.forEach(sec => { const [x, y] = CLIP_AT[sec], c = cl.strands.find(s => s.sec === sec), col = strandColor(c); ctx.fillStyle = col; ctx.strokeStyle = INK; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.ellipse(x, y, 20, 14, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.strokeStyle = shade(col, .3); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, 9, .3, 4.5); ctx.stroke();
+      ctx.fillStyle = "#ff7db8"; ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.rect(x - 14, y - 4, 28, 8); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#fff"; ctx.fillRect(x - 10, y - 2, 6, 2); });
+    if(opt.water){ ctx.strokeStyle = "rgba(124,196,240,.75)"; ctx.lineWidth = 3; for(let k = -3; k <= 3; k++){ ctx.beginPath(); ctx.moveTo(opt.water.x + k*3, opt.water.y - 60); ctx.lineTo(opt.water.x + k*7, opt.water.y + 10); ctx.stroke(); } ctx.fillStyle = "#b9c4cf"; ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(opt.water.x, opt.water.y - 64, 18, 8, 0, 0, 6.28); ctx.fill(); ctx.stroke(); }
     const foam = cl.strands.reduce((a, s) => a + s.foam, 0)/cl.strands.length;
     if(foam > .03){ const R2 = rng("foam"); ctx.fillStyle = "rgba(255,255,255,.92)"; ctx.strokeStyle = "rgba(140,170,200,.9)"; ctx.lineWidth = 1.4; const n = Math.round(foam*90);
       for(let k = 0; k < n; k++){ const a = Math.PI*(1.02 + R2()*.96), rr = .85 + R2()*.3, x = CX + Math.cos(a)*SRX*rr, y = CY + Math.sin(a)*SRY*rr + 6, r = 4 + R2()*7 + Math.sin(time*.004 + k)*.8; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.28); ctx.fill(); ctx.stroke(); } }
@@ -9834,7 +9853,7 @@ const SAL = (() => {
     const m = measure(cl), parts = [];
     const add = (k, label, w, v, why) => parts.push({k, label, w, v:clamp(v, 0, 1), why});
     if(tg.endY) add("len", "Length", 22, 1 - Math.abs(m.endY - tg.endY)/70, m.endY > tg.endY + 18 ? `About ${Math.round((m.endY - tg.endY)/10)} cm too long.` : m.endY < tg.endY - 18 ? `About ${Math.round((tg.endY - m.endY)/10)} cm too short. Remember: curls spring up as they dry.` : "Spot on.");
-    if(tg.endY || tg.even) add("even", "Even ends", 10, 1 - Math.max(0, m.even - 10)/40, m.even > 22 ? "The ends are choppy. Cut in one smooth line." : "Clean, even line.");
+    if(tg.endY || tg.even) add("even", "Even ends", 10, 1 - Math.max(0, m.even - (SAL_MOD.shears ? 16 : 10))/40, m.even > 22 ? "The ends are choppy. Cut in one smooth line." : "Clean, even line.");
     if(tg.bangs) add("bangs", "Bangs", 16, cl.bangsFwd ? 1 - Math.abs(m.bangY - LV.brow)/45 : 0, !cl.bangsFwd ? "Comb the bangs forward first, then cut." : m.bangY > LV.brow + 18 ? "They cover the eyes: cut a little higher." : m.bangY < LV.brow - 18 ? "Too short! Bangs should brush the brows." : "Perfect fringe.");
     if(!tg.bangs && cl.bangsFwd && m.bangY < LV.chin - 20) add("nobangs", "No surprise bangs", 12, 0, "They didn't ask for bangs!");
     if(tg.curl != null) add("curl", "Curl pattern", 16, 1 - Math.abs(m.curl - tg.curl)/.45, m.curl > tg.curl + .15 ? "Too curly for this look." : m.curl < tg.curl - .15 ? (tg.curl > .5 ? "The curls were stretched or brushed out." : "Not enough wave or curl.") : "Pattern matches.");
@@ -9846,6 +9865,10 @@ const SAL = (() => {
     if(tg.hold) add("hold", "Long-lasting hold", 6, m.hold > .3 ? 1 : 0, m.hold > .3 ? "Hairspray will keep it all day." : "Without hairspray it will fall out by dinner.");
     if(cl.dirty || tg.condNeed){ add("clean", "Clean hair", 10, m.foam > .05 ? 0 : 1 - Math.max(0, m.dirt - .08)*2.2, m.foam > .05 ? "Shampoo is still in the hair! Rinse until no foam is left." : m.dirt > .18 ? "Still greasy at the roots. Scrub the scalp while shampooing." : "Squeaky clean."); }
     if(tg.condNeed || cl.tex >= 2) add("cond", "Conditioned", 8, m.condLeft > .25 ? .3 : Math.min(1, m.cond*1.8), m.condLeft > .25 ? "Conditioner left in: rinse it out, or it weighs hair down." : m.cond < .3 ? "Curly and coily hair needs conditioner on the ends." : "Soft and moisturized.");
+    if(tg.frameY) add("frame", "Face-framing pieces", 20, 1 - Math.abs(m.frontY - tg.frameY)/60, m.frontY > tg.frameY + 18 ? "The front pieces are too long: they should hit the chin." : m.frontY < tg.frameY - 18 ? "The front pieces are too short." : "They frame the face perfectly.");
+    if(tg.backY) add("back", "Back length kept", 16, 1 - Math.max(0, tg.backY - m.backY - 14)/60, m.backY < tg.backY - 22 ? "You cut the back too! Clip the back sections out of the way before cutting the front." : "All the length kept at the back.");
+    if(cl.washed){ const b = cl.basin; add("bowl", "Comfortable at the bowl", 8, (b.ok ? .35 : 0) + (b.neck ? .3 : 0) + (b.tested && b.temp >= 34 && b.temp <= 40 ? .35 : 0) - Math.min(.4, Math.max(0, b.tries - 1)*.15), !b.ok ? "Recline them into the bowl first." : !b.neck ? "Tuck a towel at the neck so water doesn't run down their back." : !(b.temp >= 34 && b.temp <= 40) ? "Water should be lukewarm, about 37°C." : b.tries > 1 ? "Took a few tries to recline them comfortably." : "A relaxing, comfortable wash."); }
+    if(cl.strands.some(s => s.clip)) add("clips", "Clips taken out", 10, 0, "You left section clips in their hair!");
     add("knots", "Tangle-free", 7, 1 - m.knots/8, m.knots ? `${m.knots} knot${m.knots === 1 ? "" : "s"} left. Detangle from the ends up.` : "Silky and tangle-free.");
     add("dry", "Dried properly", 8, 1 - m.wet*2.2, m.wet > .15 ? "They're leaving with damp hair!" : "Fully dry.");
     add("health", "Healthy hair", 8, 1 - m.dmg*2.2 - (m.product > 2.6 ? .4 : 0), m.dmg > .15 ? `Heat damage${cl.steam ? ", including ironing wet hair (steam bursts the strand)" : ""}. Use heat protectant and lower heat.` : m.product > 2.6 ? "Too much product: it looks greasy." : "Healthy and strong.");
@@ -9863,6 +9886,7 @@ const SAL = (() => {
     if(tg.endY) cutAt(t.strands.filter(s => s.g !== "bang"), tg.endY);
     if(tg.endY && !tg.bangs) cutAt(t.strands.filter(s => s.g === "bang"), Math.max(tg.endY, LV.chin));
     if(tg.bangs) cutAt(t.strands.filter(s => s.g === "bang"), LV.brow);
+    if(tg.frameY) cutAt(t.strands.filter(s => s.g === "front"), tg.frameY);
     if(tg.volMin){ settle(t, 60); const ys = t.strands.filter(s => s.g !== "bang").map(s => s.pts[s.pts.length - 1].y).sort((a, b) => a - b); cutAt(t.strands, ys[Math.floor(ys.length*.35)]); }
     if(tg.style) t.style = tg.style;
     settle(t, 140);
@@ -9872,7 +9896,7 @@ const SAL = (() => {
     const P = s.pts; for(let i = 1; i < P.length; i++){ if(P[i].y >= y && P[i-1].y < y){ const f = (y - P[i-1].y)/((P[i].y - P[i-1].y) || 1); s.L = s.L.slice(0, i - 1).concat([s.L[i-1]*clamp(f, .05, 1)]); s.pts = P.slice(0, i + 1); s.pts[i] = {x:lerp(P[i-1].x, P[i].x, f), y, px:lerp(P[i-1].x, P[i].x, f), py:y}; s.knots = s.knots.filter(k => k.t <= i/(P.length - 1)); return true; } }
     return false;
   }
-  return {W, H, CX, CY, SRX, SRY, FCX, FCY, FRX, FRY, LV, TEX, TEXC, TOOLS, REQ, DYES, NATURAL, tool, st, owns, makeClient, buildTarget, cutStrandAtY, drawClient, step, settle, eff, measure, score, mix, lum, hexRgb};
+  return {CLIP_AT, W, H, CX, CY, SRX, SRY, FCX, FCY, FRX, FRY, LV, TEX, TEXC, TOOLS, REQ, DYES, NATURAL, tool, st, owns, makeClient, buildTarget, cutStrandAtY, drawClient, step, settle, eff, measure, score, mix, lum, hexRgb};
 })();
 
 /* ---------- Hair Salon v7: the game ---------- */
@@ -9984,7 +10008,7 @@ STUDIO.hair = {
   },
   snip(a, b){
     const cl = this.cl; let any = 0;
-    cl.strands.forEach(s => { const P = s.pts; if(cl.style !== "down" && s.g !== "bang") return; if(cl.style !== "down" && s.g === "bang" && !cl.bangsFwd) return;
+    cl.strands.forEach(s => { const P = s.pts; if(s.clip) return; if(cl.style !== "down" && s.g !== "bang") return; if(cl.style !== "down" && s.g === "bang" && !cl.bangsFwd) return;
       for(let i = 1; i < P.length; i++){ const p1 = P[i-1], p2 = P[i]; const d = (b[0] - a[0])*(p2.y - p1.y) - (b[1] - a[1])*(p2.x - p1.x); if(Math.abs(d) < 1e-6) continue;
         const ua = ((p1.x - a[0])*(p2.y - p1.y) - (p1.y - a[1])*(p2.x - p1.x))/d, ub = ((p1.x - a[0])*(b[1] - a[1]) - (p1.y - a[1])*(b[0] - a[0]))/d;
         if(ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1 && i > 2){ const piece = P.slice(i).map(p => ({x:p.x, y:p.y})); const f = ub;
@@ -10000,14 +10024,14 @@ STUDIO.hair = {
     const p = this.ptr, cl = this.cl, k = this.tool; if(!p || !p.down || this.locked) return;
     const r = SAL_R[k] || 30, sp = p.sp, down = p.dy > 1.2;
     const hits = [];
-    cl.strands.forEach(s => { if(cl.style !== "down" && s.g !== "bang"){ /* tied up: products and heat still reach it */ if(!["spray","rinse","dryer","protect","serum","gel","spray2","dye","bleach"].includes(k)) return; }
+    cl.strands.forEach(s => { if(s.clip) return; if(cl.style !== "down" && s.g !== "bang"){ /* tied up: products and heat still reach it */ if(!["spray","rinse","dryer","protect","serum","gel","spray2","dye","bleach"].includes(k)) return; }
       let best = 0, bi = 0; for(let i = 0; i < s.pts.length; i++){ const q = s.pts[i], d = Math.hypot(q.x - p.x, q.y - p.y); if(d < r){ const w = 1 - d/r; if(w > best){ best = w; bi = i; } } }
       if(best > 0) hits.push([s, best, bi/(s.pts.length - 1 || 1)]); });
     const onScalp = ((p.x - SAL.CX)/(SAL.SRX*1.15))**2 + ((p.y - SAL.CY)/(SAL.SRY*1.15))**2 < 1 && p.y < SAL.CY + 40;
     const P = this.parts, puff = (type, n, col) => { for(let i = 0; i < n; i++) P.push({type, x:p.x + (Math.random() - .5)*r, y:p.y + (Math.random() - .5)*r*.6, vx:(Math.random() - .5)*2, vy:type === "steam" ? -1.2 - Math.random() : (Math.random() - .3)*2, life:30 + Math.random()*20, col}); };
     switch(k){
       case "spray": hits.forEach(([s, w]) => s.wet = Math.min(1, s.wet + .05*w)); if(this.frame % 2 === 0) puff("drop", 2, "#7cc4f0"); if(this.frame % 6 === 0) tone(4000 + Math.random()*800, .04, "triangle", .01); break;
-      case "rinse": hits.forEach(([s, w]) => { s.wet = Math.min(1, s.wet + .09*w); const f0 = s.foam; s.foam = Math.max(0, s.foam - .05*w); s.dirt = Math.max(0, s.dirt - (f0 - s.foam)*.5); const c0 = s.condOn; s.condOn = Math.max(0, s.condOn - .04*w); s.soft = Math.min(1, s.soft + (c0 - s.condOn)*1.4); });
+      case "rinse": hits.forEach(([s, w]) => { s.wet = Math.min(1, s.wet + .09*w); const f0 = s.foam; s.foam = Math.max(0, s.foam - .05*w); s.dirt = Math.max(0, s.dirt - (f0 - s.foam)*.5); const c0 = s.condOn; s.condOn = Math.max(0, s.condOn - .04*w); s.soft = Math.min(1, s.soft + (c0 - s.condOn)*1.6*Math.min(1, .25 + (s.condT || 0)/150)); });
         puff("drop", 3, "#7cc4f0"); if(this.frame % 5 === 0) tone(300 + Math.random()*200, .05, "sine", .008); break;
       case "shampoo":
         if(!onScalp){ this.tipOnce("scalp", "Shampoo goes on the scalp: that's where the oil and dirt are. Scrub the top of the head."); break; }
@@ -10032,12 +10056,12 @@ STUDIO.hair = {
           else { if(dry && cl.tex >= 2){ s.frizz = Math.min(1, s.frizz + .012*w); } else s.frizz = Math.max(0, s.frizz - .012*w); }
         });
         break; }
-      case "towel": hits.forEach(([s, w]) => { s.wet = Math.max(.3, s.wet - .03*w); s.foam = Math.max(0, s.foam - .01*w); if(sp > 15){ s.frizz = Math.min(1, s.frizz + .012*w); } });
-        if(sp > 15 && hits.length){ cl.rubs++; this.tipOnce("rub", "Rubbing with a towel roughs up the cuticle and causes frizz. Squeeze and blot slowly instead."); } break;
+      case "towel": hits.forEach(([s, w]) => { s.wet = Math.max(.3, s.wet - .03*w); s.foam = Math.max(0, s.foam - .01*w); if(sp > 15 && !SAL_MOD.silk){ s.frizz = Math.min(1, s.frizz + .012*w); } });
+        if(sp > 15 && hits.length && !SAL_MOD.silk){ cl.rubs++; this.tipOnce("rub", "Rubbing with a towel roughs up the cuticle and causes frizz. Squeeze and blot slowly instead."); } break;
       case "dryer": {
         const h = this.heat, diff = this.att === "diffuser", rootsNear = ((p.x - SAL.CX)/(SAL.SRX*1.2))**2 + ((p.y - SAL.CY)/(SAL.SRY*1.2))**2 < 1;
-        hits.forEach(([s, w]) => { const was = s.wet; s.wet = Math.max(0, s.wet - .0055*h*w*(diff ? .8 : 1)); const prot = s.prot > .3;
-          s.heat = Math.min(1, s.heat + (prot ? .00006 : .0003)*h*w*(was < .03 ? 2 : 1)*(h === 1 ? .2 : 1));
+        hits.forEach(([s, w]) => { const was = s.wet; s.wet = Math.max(0, s.wet - .0055*h*w*(diff ? .8 : 1)*SAL_MOD.dry); const prot = s.prot > .3;
+          s.heat = Math.min(1, s.heat + (prot ? .00006 : .0003)*h*w*(was < .03 ? 2 : 1)*(h === 1 ? .2 : 1)*SAL_MOD.heat);
           if(was > .02){ if(diff){ s.frizz = Math.max(0, s.frizz - (.003 + s.cream*.006)*w); s.curl += (s.curl0 - s.curl)*.02*w; s.vol = Math.min(.5, s.vol + .002*w); }
             else if(down){ s.curl = Math.max(0, s.curl - .022*w); s.frizz = Math.max(0, s.frizz - .01*w); s.shine = Math.min(.8, s.shine + .003*w); }
             else if(cl.tex >= 2){ s.frizz = Math.min(1, s.frizz + .004*w*h); } } });
@@ -10067,12 +10091,12 @@ STUDIO.hair = {
   tick(){
     this.frame++; const cl = this.cl, ctx = this.ctx, now = performance.now();
     this.wind = null; this.apply();
-    cl.strands.forEach(s => { if(s.wet > 0) s.wet = Math.max(0, s.wet - .00035); if(s.wet > .3) s.curl += (s.curl0 - s.curl)*.004; if(cl.ouch) cl.ouch--; });
+    cl.strands.forEach(s => { if(s.condOn > .05) s.condT = (s.condT || 0) + 1; else s.condT = 0; if(s.wet > 0) s.wet = Math.max(0, s.wet - .00035); if(s.wet > .3) s.curl += (s.curl0 - s.curl)*.004; if(cl.ouch) cl.ouch--; });
     SAL.step(cl, this.wind);
     if(this.shake > 0) this.shake--;
     ctx.save(); if(this.shake) ctx.translate((Math.random() - .5)*this.shake, (Math.random() - .5)*this.shake*.5);
     const mood = cl.ouch > 0 ? "ouch" : cl.mood < .45 ? "sad" : this.locked && this.result ? (this.result.pct >= 85 ? "wow" : this.result.pct >= 60 ? "happy" : "sad") : "neutral";
-    SAL.drawClient(ctx, cl, {time:now, mood});
+    SAL.drawClient(ctx, cl, {time:now, mood, basin:cl.station === "basin", decor:SAL_MOD.decor, water:this.tool === "rinse" && this.ptr && this.ptr.down && cl.station === "basin" ? this.ptr : null});
     if($("slGuides") && $("slGuides").checked && !this.locked){ ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5; ctx.font = "11px DM Mono, monospace"; Object.entries(SAL.LV).forEach(([k, y]) => { ctx.strokeStyle = "rgba(43,33,24,.35)"; ctx.beginPath(); ctx.moveTo(8, y); ctx.lineTo(SAL.W - 8, y); ctx.stroke(); ctx.fillStyle = "rgba(43,33,24,.6)"; ctx.fillText(k, SAL.W - 64, y - 4); }); ctx.setLineDash([]);
       if(this.tg.endY){ ctx.strokeStyle = "#2a9d8f"; ctx.lineWidth = 2; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(8, this.tg.endY); ctx.lineTo(SAL.W - 8, this.tg.endY); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = "#2a9d8f"; ctx.fillText("goal", 10, this.tg.endY - 4); } }
     /* particles */
@@ -10139,6 +10163,179 @@ ROOMS.hair.tip = "<b>Tip:</b> every texture behaves differently. Never brush dry
 ROOMS.hair.modes = [["studio","Open the salon"],["classic","Classic appointment"],["sprint","Salon sprint · 60s"],["practice","Quiz"]];
 MODE_NAMES.classic = "Classic appointment";
 HOWTO.hair = ["Pick a tool on the right, then drag on the hair. Watch the Match meter at the top: it compares your work to the client's photo.","Wash: spray water, pump shampoo and scrub the scalp, rinse, condition the ends, detangle from the ends up. Then cut, dry and style.","Finish to see before, after and their photo side by side. Earn coins and tips, then unlock new tools in the supply shop."];
+
+/* ---------- Hair Salon v7.1: shampoo bowl, section clips, free salon tools, upgrade shop ---------- */
+const SAL_MOD = {dry:1, heat:1, silk:false, shears:false, massage:false, decor:null};
+SAL.TOOLS.forEach(t => t[4] = 0);
+SAL.TOOLS.push(["clip","Section clips","📎","Tap a section to clip it up out of the way. Clipped hair can't be cut, so you can cut one section at a time.",0]);
+const SAL_GROUPS = [["Shampoo bowl",["rinse","shampoo","cond"]],["Prep",["spray","comb","brush","clip","towel"]],["Cut",["scissors"]],["Dry & heat",["dryer","protect","iron","wand"]],["Products",["cream","serum","mousse","gel","spray2","pick"]],["Color",["bleach","dye"]]];
+const SAL_SHOP = [
+  ["proDryer","Pro ionic dryer","💨","Dries 40% faster and halves heat damage.",80],
+  ["silkTowel","Microfiber towels","🧖","Blot water without frizz, even if you rub.",40],
+  ["shears","Japanese steel shears","✂","Razor-sharp shears give cleaner, more even ends.",70],
+  ["massage","Massage basin chair","🫧","Clients relax faster at the shampoo bowl.",50],
+  ["dyePack","Fashion dye pack","🧪","Six more dye shades: mint, peach, violet, silver, gold and navy.",60],
+  ["plants","Plant-filled salon","🌿","A bright salon full of plants.",40],
+  ["neon","Neon salon","⚡","Pink neon glow on the walls.",40]
+];
+const SAL_DYE_PACK = [["mint","#9be7c4"],["peach","#ffb38a"],["violet","#7b3fd0"],["silver","#cfd6dd"],["gold","#e8b84a"],["navy","#2b3f8f"]];
+const SAL_SECT = {frontL:"left front", frontR:"right front", backL:"left back", backR:"right back", bangs:"bangs"};
+SAL.REQ.push({k:"frame", t:"Face-framing layers", tex:[0,1], start:["chest","waist"], need:[], say:() => "Keep all my length at the back, but give me face-framing pieces that hit my chin.", tip:"Clip both back sections up with the section clips, cut the front pieces at the chin, then unclip. If you cut straight across without clipping, you'll chop the back too!",
+  target:(c, sv) => ({frameY:SAL.LV.chin + 8, backY:sv.backY, curl:[0, .38, .72, .92][c.tex], frizzMax:.35})});
+SAL_PRICE.frame = 35;
+Object.assign(SAL_R, {clip:34});
+function salApplyMods(){
+  const o = SAL.st().owned || [];
+  SAL_MOD.dry = o.includes("proDryer") ? 1.4 : 1; SAL_MOD.heat = o.includes("proDryer") ? .5 : 1; SAL_MOD.silk = o.includes("silkTowel"); SAL_MOD.shears = o.includes("shears"); SAL_MOD.massage = o.includes("massage");
+  SAL_MOD.decor = o.includes("neon") ? "neon" : o.includes("plants") ? "plants" : null;
+  if(o.includes("dyePack")) SAL_DYE_PACK.forEach(d => { if(!SAL.DYES.some(x => x[0] === d[0])) SAL.DYES.push(d); });
+}
+{
+  const H = STUDIO.hair, prev = {newClient:H.newClient, apply:H.apply, tick:H.tick, finish:H.finish, bindPointer:H.bindPointer, snip:H.snip, setStyle:H.setStyle};
+  Object.assign(H, {
+    lobby(){
+      const s = SAL.st(); s.owned = s.owned || []; cancelAnimationFrame(this.raf); salApplyMods();
+      const avg = s.served ? Math.round(s.totalMatch/s.served) : 0;
+      stage.innerHTML = `<div class="sal-lobby">
+        <div class="sal-sign"><span class="eyebrow">Your salon</span><h3>Day ${s.days + 1}</h3>
+          <div class="sal-stats"><span><small>Coins</small><b class="coin">${fmt(s.coins)}</b></span><span><small>Clients served</small><b>${s.served}</b></span><span><small>Average match</small><b>${s.served ? avg + "%" : "–"}</b></span><span><small>Best match</small><b>${s.best ? s.best + "%" : "–"}</b></span><span><small>Best day</small><b>${s.bestDay ? fmt(s.bestDay) : "–"}</b></span></div>
+          <p class="stage-tip">Your salon has everything a real salon has: a shampoo bowl, scissors, section clips, dryers, irons, products and color. Three clients a day each bring a photo of the look they want. Match it, be gentle, keep their hair healthy, and earn coins and tips.</p>
+          <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="slOpen">Open the salon →</button><button class="btn" type="button" id="slDaily">Daily challenge client</button></div>
+          <p class="tooltip-line">Daily challenge: everyone gets the same client today. Retry as often as you like; your best match is saved.${(s.daily || {})[today()] ? ` Today's best: <b>${s.daily[today()]}%</b>.` : ""}</p></div>
+        <div class="sal-shop"><span class="eyebrow">Upgrades</span><div class="sal-shopgrid">${SAL_SHOP.map(([k, n, ic, d, p]) => { const own = s.owned.includes(k); return `<div class="sal-item${own ? " own" : ""}"><span class="ti">${icon(ic, 34)}</span><b>${n}</b><small>${d}</small>${own ? `<span class="owned">Owned</span>` : `<button class="btn-sm" type="button" data-buy="${k}" ${s.coins < p ? "disabled" : ""}><span class="coin">${p}</span></button>`}</div>`; }).join("")}</div>
+          <p class="tooltip-line">Every basic tool is already in your salon. Spend your tips on pro upgrades and decor.</p></div></div>`;
+      stage.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => { const t = SAL_SHOP.find(x => x[0] === b.dataset.buy); if(s.coins < t[4]) return; s.coins -= t[4]; s.owned.push(t[0]); save(); sfx.win(); this.lobby(); });
+      $("slOpen").onclick = () => { this.day = {n:0, earned:0, results:[]}; this.newClient(); };
+      $("slDaily").onclick = () => { this.day = {n:0, earned:0, results:[], daily:true}; const r0 = Math.random, R2 = rng("salon" + today()); Math.random = R2; try{ this.newClient(true); } finally { Math.random = r0; } };
+      setSide("Coins", fmt(s.coins));
+    },
+    pickReq(){
+      const d = S.rating.hair, fresh = SAL.REQ.filter(r => !(this.lastReq || []).includes(r.k));
+      const easy = ["trim","bob","bangs","washgo","blowout","frame"], pool = fresh.filter(r => d >= 2.5 || easy.includes(r.k));
+      const r = pick(pool.length ? pool : SAL.REQ); this.lastReq = [...(this.lastReq || []).slice(-4), r.k]; return r;
+    },
+    newClient(daily){
+      salApplyMods();
+      const req = daily ? pick(SAL.REQ.filter(r => ["trim","bob","bangs","washgo","blowout","frame","defined"].includes(r.k))) : this.pickReq(), opts = {};
+      if(req.k === "color"){ const dy = pick(SAL.DYES); opts.dyeName = dy[0]; opts.dyeHex = dy[1]; }
+      const cl = SAL.makeClient(req, opts); cl.cm = R(3, 6); Object.assign(cl, opts);
+      cl.strands.forEach(s => s.sec = s.g === "bang" ? "bangs" : (s.g === "front" ? (Math.cos(s.a) < 0 ? "frontL" : "frontR") : (Math.cos(s.a) < 0 ? "backL" : "backR")));
+      cl.station = "chair"; cl.basin = {recline:0, ok:false, tries:0, neck:false, temp:24, tested:false, tests:0}; cl.washed = false;
+      const sv = SAL.measure(cl), tg = req.target(cl, sv);
+      if(tg.endY) tg.endY = clamp(tg.endY, SAL.LV.chin, SAL.LV.waist);
+      this.req = req; this.cl = cl; this.tg = tg; this.target = SAL.buildTarget(cl, tg); this.before = null;
+      this.tool = "spray"; this.heat = 2; this.att = "nozzle"; this.dye = "pink"; this.hand = 0; this.locked = false; this.parts = []; this.cut = null; this.tips = new Set(); this.frame = 0; this.live = null; this.shake = 0;
+      this.render();
+    },
+    render(){
+      const cl = this.cl, s = SAL.st(), req = this.req;
+      stage.innerHTML = `<div class="sal">
+        <div class="sal-hud"><span class="coin" id="slCoins">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily challenge" : `Client ${this.day.n + 1} of 3`}</span><span id="slTime">0:00</span><span class="sal-moodbar" title="Client comfort"><i id="slMood"></i></span><span class="sal-match"><small>Match</small><b id="slMatch">–</b></span></div>
+        <div class="sal-main">
+          <div class="sal-chair"><div class="sal-speech"><b>${cl.name}</b><div class="sal-bubble" id="slBubble"></div></div><div class="sal-mirror"><canvas id="slCv" aria-label="${cl.name} in the salon chair"></canvas></div>
+            <div class="row-btns"><label class="hlmode"><input type="checkbox" id="slGuides" ${S.rating.hair < 6 ? "checked" : ""}> Length guides</label></div><p class="msg sal-msg" id="slMsg"></p></div>
+          <div class="sal-side">
+            <div class="sal-req"><canvas id="slGoal" width="300" height="382"></canvas><div><span class="eyebrow">${req.t} · ${SAL.TEX[cl.tex]} (${SAL.TEXC[cl.tex]}) hair</span><h3>${cl.name}</h3><p class="sal-say">“${req.say(cl)}”</p>
+              <details><summary>Stylist's notes</summary><p class="tooltip-line">${req.tip}</p></details></div></div>
+            <div class="sal-station" id="slStation"></div>
+            <div class="sal-tools" id="slTools">${SAL_GROUPS.map(([g, ks]) => `<div class="sal-group"><span class="eyebrow">${g}</span><div class="sal-grow">${ks.map(k => { const [, n, ic] = SAL.tool(k); return `<button type="button" class="sal-tool" data-t="${k}" title="${n}"><span class="ti">${icon(ic, 28)}</span><small>${n}</small></button>`; }).join("")}</div></div>`).join("")}</div>
+            <div class="sal-opts" id="slOpts"></div>
+            <div class="sal-meters" id="slMeters"></div>
+            <div class="row-btns"><button class="btn btn-solid" type="button" id="slDone">Finish & spin the chair</button></div>
+            <div id="slRes"></div>
+          </div></div></div>`;
+      const cv = $("slCv"), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = SAL.W*dpr; cv.height = SAL.H*dpr; this.ctx = cv.getContext("2d"); this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.cv = cv;
+      const gc = $("slGoal").getContext("2d"); gc.scale(300/SAL.W, 382/SAL.H); SAL.drawClient(gc, this.target, {time:0, mood:"happy"});
+      $("slTools").onclick = e => { const b = e.target.closest("[data-t]"); if(!b || this.locked) return; this.tool = b.dataset.t; sfx.click(); this.toolUI(); };
+      $("slDone").onclick = () => { if(this.cl.station === "basin") return this.note("Bring them back to the chair before you finish."); this.finish(); };
+      this.bindPointer(); this.toolUI(); this.stationUI();
+      this.before = document.createElement("canvas"); this.before.width = 300; this.before.height = 382; const bc = this.before.getContext("2d"); bc.scale(300/SAL.W, 382/SAL.H); SAL.drawClient(bc, cl, {time:0});
+      this.say(pick(["Hi! Thanks for fitting me in.","Hello! I brought a photo.","I've been looking forward to this!"]));
+      const tok = G.token; cancelAnimationFrame(this.raf);
+      const loop = () => { if(G.token !== tok || !document.body.contains(cv)) return; this.tick(); this.raf = requestAnimationFrame(loop); };
+      this.raf = requestAnimationFrame(loop);
+    },
+    say(t, kind){ const b = $("slBubble"); if(!b) return; b.textContent = t; b.className = "sal-bubble" + (kind ? " " + kind : ""); void b.offsetWidth; b.classList.add("pop"); },
+    stationUI(){
+      const cl = this.cl, b = cl.basin, el = $("slStation"); if(!el) return;
+      let h = `<div class="chips"><button type="button" class="ch${cl.station === "chair" ? " sel" : ""}" data-st="chair">Styling chair</button><button type="button" class="ch${cl.station === "basin" ? " sel" : ""}" data-st="basin">Shampoo bowl</button></div>`;
+      if(cl.station === "basin"){
+        if(!b.ok || !b.neck) h += `<div class="recline-box"><div class="recline-art">${reclineSVG(b.recline, b.ok)}</div>
+          <label class="temp"><span>Recline</span><input type="range" id="slRec" min="0" max="70" value="${b.recline}" ${b.ok ? "disabled" : ""}><b id="slRecV">${b.recline}°</b></label>
+          <div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="slRecGo" ${b.ok ? "disabled" : ""}>Lower into the bowl</button><button class="btn-sm" type="button" id="slNeck" ${b.ok && !b.neck ? "" : "disabled"}>Tuck a towel at the neck</button></div>
+          <p class="tooltip-line">The neck should rest in the bowl's notch: too upright and water runs down their back; too far back strains the neck.</p></div>`;
+        else h += `<label class="temp"><span>Water</span><input type="range" id="slTemp" min="18" max="50" value="${b.temp}"><b id="slTempV" class="${b.temp < 34 ? "cold" : b.temp > 40 ? "hot" : "ok"}">${b.temp}°C</b></label><div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="slTest">Test it on your wrist</button></div><p class="tooltip-line">Lukewarm, about 37°C, is comfortable and still dissolves oil. Then shower, shampoo the scalp, rinse, condition the ends, wait, rinse again.</p>`;
+      }
+      el.innerHTML = h;
+      el.onclick = e => { const t = e.target.closest("[data-st]"); if(!t || this.locked) return; this.moveTo(t.dataset.st); };
+      const on = (id, f) => { const x = $(id); if(x) x.onclick = f; };
+      if($("slRec")) $("slRec").oninput = e => { b.recline = +e.target.value; $("slRecV").textContent = b.recline + "°"; stage.querySelector(".recline-art").innerHTML = reclineSVG(b.recline, false); };
+      on("slRecGo", () => { b.tries++; if(b.recline < 30){ this.say("Eek, water's dripping down my back!", "bad"); cl.mood = Math.max(0, cl.mood - .05); sfx.bad(); } else if(b.recline > 50){ this.say("Ow, my neck! That's too far back.", "bad"); cl.mood = Math.max(0, cl.mood - .05); sfx.bad(); } else { b.ok = true; this.say("Ahh, comfy. My neck fits perfectly.", "good"); sfx.good(); } this.stationUI(); });
+      on("slNeck", () => { b.neck = true; sfx.click(); this.say("Nice and snug, thanks."); this.stationUI(); });
+      if($("slTemp")) $("slTemp").oninput = e => { b.temp = +e.target.value; b.tested = false; const v = $("slTempV"); v.textContent = b.temp + "°C"; v.className = b.temp < 34 ? "cold" : b.temp > 40 ? "hot" : "ok"; };
+      on("slTest", () => { b.tests++; b.tested = true; const ok = b.temp >= 34 && b.temp <= 40; this.note(ok ? "Lovely and lukewarm. Grab the shower." : b.temp > 40 ? "Too hot on your wrist! Turn it down before it touches their scalp." : "Brr, that's cold. Warm it up a little."); ok ? sfx.good() : sfx.bad(); });
+    },
+    moveTo(st){
+      const cl = this.cl; if(cl.station === st) return;
+      if(st === "chair" && cl.station === "basin"){ const m = SAL.measure(cl); if(m.wet > .8 && !cl.toweled){ cl.mood = Math.max(0, cl.mood - .05); this.say("Drip, drip… it's running down my neck!", "bad"); this.tipOnce("drip", "Squeeze the hair with a towel before walking back from the bowl."); } }
+      if(st === "basin" && cl.style !== "down") return this.note("Take the hair down before washing it.");
+      cl.station = st; if(st === "basin"){ cl.toweled = false; if(this.tool === "scissors" || this.tool === "dryer") this.tool = "rinse"; } else if(["rinse","shampoo","cond"].includes(this.tool)) this.tool = "towel";
+      sfx.click(); this.say(st === "basin" ? "Shampoo time!" : "Back to the chair."); this.stationUI(); this.toolUI();
+    },
+    toolUI(){
+      stage.querySelectorAll(".sal-tool").forEach(b => b.classList.toggle("sel", b.dataset.t === this.tool));
+      const t = SAL.tool(this.tool), o = $("slOpts"); let h = `<p class="tooltip-line"><b>${t[1]}:</b> ${t[3]}</p>`;
+      if(this.tool === "shampoo") h += `<div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="slPump">${icon("🧴", 18)} Pump shampoo</button><span class="sal-hand"><i style="width:${Math.min(100, this.hand*100)}%"></i></span></div>`;
+      if(this.tool === "cond" || this.tool === "rinse") h += `<div class="sal-condt"><span>Conditioner soaking in</span><span class="sal-hand"><i id="slCondT" style="width:0%"></i></span></div>`;
+      if(this.tool === "dryer") h += `<div class="chips">${[[1,"Cool"],[2,"Warm"],[3,"Hot"]].map(([v, l]) => `<button type="button" class="ch${this.heat === v ? " sel" : ""}" data-heat="${v}">${l}</button>`).join("")}</div><div class="chips"><button type="button" class="ch${this.att === "nozzle" ? " sel" : ""}" data-att="nozzle">Nozzle</button><button type="button" class="ch${this.att === "diffuser" ? " sel" : ""}" data-att="diffuser">Diffuser</button></div>`;
+      if(this.tool === "dye") h += `<div class="swatches">${SAL.DYES.map(([n, c]) => `<button type="button" class="sw${this.dye === n ? " sel" : ""}" data-dye="${n}" style="background:${c}" title="${n}" aria-label="${n}"></button>`).join("")}</div>`;
+      if(this.tool === "clip"){ const cs = [...new Set(this.cl.strands.filter(s => s.clip).map(s => s.sec))]; h += `<p class="tooltip-line">${cs.length ? `Clipped up: <b>${cs.map(k => SAL_SECT[k]).join(", ")}</b>. Tap a clip to let that section down.` : "Nothing clipped yet. Tap the hair on the left front, right front, left back, right back or the bangs."}</p><div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="slUnclip" ${cs.length ? "" : "disabled"}>Unclip everything</button></div>`; }
+      h += `<div class="opt-group"><h4>Styling station</h4><div class="chips">${[["down","Down"],["pony","Ponytail"],["braid","Side braid"],["bun","Bun"]].map(([v, l]) => `<button type="button" class="ch${this.cl.style === v ? " sel" : ""}" data-style="${v}">${l}</button>`).join("")}</div></div>`;
+      o.innerHTML = h;
+      o.onclick = e => { const b = e.target.closest("[data-heat],[data-att],[data-dye],[data-style],#slPump,#slUnclip"); if(!b || this.locked) return;
+        if(b.id === "slPump"){ this.hand = Math.min(1.6, this.hand + .55); sfx.click(); this.toolUI(); return; }
+        if(b.id === "slUnclip"){ this.cl.strands.forEach(s => s.clip = false); sfx.click(); this.toolUI(); return; }
+        if(b.dataset.heat) this.heat = +b.dataset.heat; if(b.dataset.att) this.att = b.dataset.att; if(b.dataset.dye) this.dye = b.dataset.dye;
+        if(b.dataset.style) this.setStyle(b.dataset.style);
+        sfx.click(); this.toolUI(); };
+    },
+    setStyle(v){ if(v !== "down" && this.cl.strands.some(s => s.clip)) return this.note("Take the section clips out first."); return prev.setStyle.call(this, v); },
+    bindPointer(){
+      prev.bindPointer.call(this);
+      const cv = this.cv, pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left)/r.width*SAL.W, (e.clientY - r.top)/r.height*SAL.H]; };
+      cv.addEventListener("pointerdown", e => { if(this.locked || this.tool !== "clip") return; const [x, y] = pos(e); this.clipAt(x, y); });
+    },
+    clipAt(x, y){
+      const cl = this.cl;
+      for(const [sec, [cx, cy]] of Object.entries(SAL.CLIP_AT)) if(Math.hypot(x - cx, y - cy) < 22 && cl.strands.some(s => s.sec === sec && s.clip)){ cl.strands.forEach(s => { if(s.sec === sec) s.clip = false; }); sfx.click(); this.note(`Let down the ${SAL_SECT[sec]} section.`); this.toolUI(); return; }
+      let best = null, bd = 34; cl.strands.forEach(s => { if(s.clip) return; s.pts.forEach(p => { const d = Math.hypot(p.x - x, p.y - y); if(d < bd){ bd = d; best = s; } }); });
+      if(!best) return this.note("Tap on a section of hair to clip it.");
+      if(cl.style !== "down") return this.note("Take the hair down before sectioning.");
+      cl.strands.forEach(s => { if(s.sec === best.sec) s.clip = true; }); tone(700, .04, "square", .03); this.note(`Clipped up the ${SAL_SECT[best.sec]} section.`); this.toolUI();
+    },
+    snip(a, b){ if(this.cl.station === "basin") return this.tipOnce("basinCut", "Bring them back to the styling chair to cut."); return prev.snip.call(this, a, b); },
+    apply(){
+      const p = this.ptr, cl = this.cl, k = this.tool; if(!p || !p.down || this.locked || k === "clip") return;
+      const b = cl.basin;
+      if(["rinse","shampoo","cond"].includes(k)){
+        if(cl.station !== "basin") return this.tipOnce("toBasin" + k, `Washing happens at the shampoo bowl. Choose "Shampoo bowl" above the tools to move ${cl.name} there.`);
+        if(!b.ok || !b.neck) return this.tipOnce("recline", "Recline them into the bowl and tuck a towel at the neck first.");
+        if(k === "rinse" && !b.tested) return this.tipOnce("test", "Test the water temperature on your wrist before it touches their scalp.");
+        cl.washed = true;
+        if(k === "rinse" && this.frame % 45 === 0){ if(b.temp > 41){ cl.burns++; cl.mood = Math.max(0, cl.mood - .06); cl.ouch = 18; this.say("Ouch, that's scalding!", "bad"); sfx.bad(); } else if(b.temp < 33){ cl.mood = Math.max(0, cl.mood - .03); this.say("Brrr, it's freezing!", "bad"); } else if(Math.random() < .3) this.say(pick(["Ahh, perfect temperature.","So relaxing.","Mmm."]), "good"); }
+        if(SAL_MOD.massage && this.frame % 30 === 0) cl.mood = Math.min(1, cl.mood + .01);
+      }
+      if(cl.station === "basin" && ["dryer","iron","wand","scissors"].includes(k)) return this.tipOnce("basinTool", "Bring them back to the styling chair for that.");
+      if(k === "towel") cl.toweled = true;
+      if(k === "rinse") cl.strands.forEach(s => { if(s.condOn > .05 && (s.condT || 0) < 150) this.tipOnce("condWait", "Leave the conditioner on for a moment before rinsing (watch the soaking bar), so it can smooth the hair."); });
+      prev.apply.call(this);
+    },
+    tick(){
+      prev.tick.call(this);
+      if(this.frame % 15 === 0){ const bar = $("slCondT"); if(bar){ const on = this.cl.strands.filter(s => s.condOn > .05); bar.style.width = on.length ? Math.round(Math.min(1, on.reduce((a, s) => a + (s.condT || 0), 0)/on.length/150)*100) + "%" : "0%"; } }
+    }
+  });
+}
 
 renderHub();
 </script>
