@@ -1034,6 +1034,34 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .odo{display:flex;gap:8px;margin-top:10px}.odo span{flex:1;border:2px solid var(--ink);border-radius:10px;padding:6px 8px;background:var(--card,#fffdf8)}.odo small{display:block;font:11px "DM Mono",monospace;opacity:.7}.odo b{font-size:15px}
 .fly-leg{stroke-dashoffset:1;animation:flyLeg 1.2s ease forwards}@keyframes flyLeg{from{stroke-dasharray:0 1}to{stroke-dasharray:1 0}}
 .prod-card{position:relative}.pc-over{position:absolute;top:8px;right:8px;white-space:nowrap;font:600 10.5px "DM Mono",monospace;color:#c1121f;background:#ffe3e3;border:1.5px solid #c1121f;border-radius:6px;padding:1px 5px;transform:rotate(3deg)}
+
+.sal-lobby{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}@media(max-width:820px){.sal-lobby{grid-template-columns:1fr}}
+.sal-sign{background:linear-gradient(160deg,#fff7ec,#ffe8d6);border:2.5px solid var(--ink);border-radius:18px;padding:18px;box-shadow:5px 5px 0 var(--ink);color:#2b2118}
+.sal-sign h3{font-size:30px;margin:2px 0 10px}
+.sal-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:10px}.sal-stats span{background:#fffdf8;border:2px solid var(--ink);border-radius:12px;padding:8px 10px}.sal-stats small{display:block;font:11px "DM Mono",monospace;opacity:.7}.sal-stats b{font-size:20px}
+.coin::before{content:"";display:inline-block;width:.9em;height:.9em;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3b0,#ffbf2e 55%,#c98a00);border:1.5px solid var(--ink);margin-right:5px;vertical-align:-.1em}
+.sal-shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px}
+.sal-item{border:2px solid var(--ink);border-radius:12px;padding:8px;background:var(--card,#fffdf8);display:flex;flex-direction:column;gap:3px;align-items:flex-start}.sal-item small{font-size:11px;line-height:1.25;opacity:.75;flex:1}.sal-item.own{opacity:.7}.sal-item .owned{font:600 11px "DM Mono",monospace;color:#2a9d8f}
+.sal{display:flex;flex-direction:column;gap:10px}
+.sal-hud{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-weight:600}.sal-hud>span{border:2px solid var(--ink);border-radius:999px;padding:4px 12px;background:var(--card,#fffdf8)}
+.sal-moodbar{width:110px;height:14px;padding:0!important;overflow:hidden;position:relative}.sal-moodbar i{display:block;height:100%;background:linear-gradient(90deg,#ff7db8,#ffd166,#57cc99);transition:width .3s}
+.sal-match{margin-left:auto;display:flex;gap:6px;align-items:baseline}.sal-match small{font:11px "DM Mono",monospace;opacity:.7}.sal-match b{font-size:22px}.sal-match b.hi{color:#2a9d8f}.sal-match b.mid{color:#d48a00}.sal-match b.lo{color:#d7263d}
+.sal-main{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;align-items:start}@media(max-width:860px){.sal-main{grid-template-columns:1fr}}
+.sal-mirror{position:relative;border:10px solid #c8915a;border-radius:220px 220px 26px 26px;box-shadow:0 0 0 3px var(--ink),6px 8px 0 3px var(--ink);overflow:hidden;background:#f7efe4;max-width:460px;margin:0 auto}
+.sal-mirror canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+.sal-mirror.spin canvas{animation:salSpin 1s ease}@keyframes salSpin{0%{transform:scaleX(1)}25%{transform:scaleX(0)}50%{transform:scaleX(-1)}75%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+.sal-bubble{position:absolute;top:14px;right:14px;max-width:60%;background:#fffdf8;border:2.5px solid var(--ink);border-radius:16px 16px 4px 16px;padding:8px 12px;font-weight:600;color:#2b2118;opacity:0;transform:translateY(-6px) scale(.95);transition:.18s;pointer-events:none}
+.sal-bubble.show{opacity:1;transform:none}.sal-bubble.bad{background:#ffe3e3}.sal-bubble.good{background:#e3fbe9}
+.sal-req{display:grid;grid-template-columns:110px 1fr;gap:12px;background:#fffdf8;border:2.5px solid var(--ink);border-radius:14px;padding:10px;box-shadow:3px 3px 0 var(--ink);color:#2b2118}
+.sal-req canvas{width:110px;height:auto;border:2px solid var(--ink);border-radius:10px;transform:rotate(-2deg);background:#fff}.sal-req h3{margin:2px 0}.sal-say{margin:4px 0;font-style:italic}
+.sal-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
+.sal-tool{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:2px solid var(--ink);border-radius:12px;background:var(--card,#fffdf8);cursor:pointer;font:inherit;color:inherit;transition:transform .1s}
+.sal-tool small{font-size:10.5px;line-height:1.1;text-align:center}.sal-tool:hover{transform:translateY(-2px)}.sal-tool.sel{background:#ffe08a;box-shadow:inset 0 0 0 2px var(--ink)}.sal-tool.locked{opacity:.35;cursor:not-allowed}
+.sal-opts{display:flex;flex-direction:column;gap:6px}.sal-hand{display:inline-block;width:120px;height:12px;border:2px solid var(--ink);border-radius:8px;overflow:hidden}.sal-hand i{display:block;height:100%;background:#9be7ff}
+.sal-meters{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}.sal-meter{display:flex;flex-direction:column;font-size:11.5px}.sal-meter i{display:block;height:8px;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:#fff}.sal-meter b{display:block;height:100%;transition:width .3s}.sal-meter b.hi{background:#57cc99}.sal-meter b.mid{background:#ffd166}.sal-meter b.lo{background:#ff8a8a}
+.sal-pct{font:700 44px "Fredoka",sans-serif;line-height:1;margin:6px 0}
+.sal-compare{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}.sal-compare figure{margin:0;text-align:center;font-size:12px}.sal-compare canvas{width:100%;height:auto;border:2px solid var(--ink);border-radius:10px;background:#fff}
+.sal-pay{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}.sal-pay span{border:2px solid var(--ink);border-radius:10px;padding:4px 10px;background:#fff7d6}
 </style>
 
 <div class="wrap">
@@ -1635,11 +1663,11 @@ function startRoom(room, mode){
   $("timebar").hidden = !G.timed; $("multBox").hidden = !G.timed;
   $("hudALabel").textContent = G.timed ? "Time" : room === "daily" ? "Tour" : "Difficulty";
   setSide(G.timed ? "Score" : "Progress", G.timed ? "0" : "–");
-  $("stageWrap").classList.toggle("studio", mode === "studio");
+  $("stageWrap").classList.toggle("studio", mode === "studio" || mode === "classic");
   $("hub").hidden = true; $("play").hidden = false; closeModal();
   window.scrollTo(0,0);
   stage.innerHTML = "";
-  if(mode === "studio" || mode === "theme" || mode === "blitz") STUDIO[room].start(mode);
+  if(mode === "studio" || mode === "theme" || mode === "blitz" || mode === "classic") STUDIO[room].start(mode);
   else if(mode === "sprint" || mode === "practice") QUIZ.start(room, mode);
   else ENG[room].start(mode);
   if(G.timed) G.timer = setInterval(tick, 100);
@@ -9524,6 +9552,592 @@ const SEW_SPACE = g => {
     this.comm.dropped = res.dropped.map(r => r.label); if(res.dropped.length){ this.comm.rules = res.rules; this.renderDesign(); }
   };
 }
+
+Object.assign(ICONS, {
+  "g:brush":`<rect x="17" y="20" width="6" height="17" rx="3" fill="#c8915a" ${IL}/><rect x="9" y="3" width="22" height="19" rx="8" fill="#ff7db8" ${IL}/><g fill="#2b2118">${[13,17,21,25].map(x => [7,11,15].map(y => `<circle cx="${x+1}" cy="${y+1}" r="1.2"/>`).join("")).join("")}</g>`,
+  "g:pick":`<rect x="8" y="22" width="24" height="15" rx="4" fill="#ffbf2e" ${IL}/><path d="M11 22 V4 M16 22 V4 M20 22 V4 M24 22 V4 M29 22 V4" stroke="#2b2118" stroke-width="3" stroke-linecap="round"/><circle cx="20" cy="29" r="3" fill="#fffdf8" ${IL}/>`,
+  "g:dye":`<path d="M5 22 h22 l-3 13 h-16z" fill="#d9dde3" ${IL}/><path d="M7 22 q9 -6 18 0" fill="#ff7db8" ${IL}/><path d="M24 24 L35 5" stroke="#2b2118" stroke-width="3.5" stroke-linecap="round"/><path d="M33 4 l4 2 l-2 4 l-4 -2z" fill="#ff7db8" ${IL}/>`,
+  "g:hairspray":`<rect x="11" y="12" width="18" height="25" rx="4" fill="#b388eb" ${IL}/><rect x="15" y="5" width="10" height="8" rx="2" fill="#d9dde3" ${IL}/><path d="M26 7 h6 M30 3 l4 -2 M30 11 l4 2" stroke="#2b2118" stroke-width="2" stroke-linecap="round"/><rect x="14" y="20" width="12" height="8" rx="2" fill="#fffdf8"/>`,
+  "g:serum":`<path d="M13 16 h14 v18 q0 3 -3 3 h-8 q-3 0 -3 -3z" fill="#ffd166" ${IL}/><rect x="16" y="9" width="8" height="7" fill="#2b2118"/><ellipse cx="20" cy="7" rx="5" ry="4" fill="#ff7db8" ${IL}/><path d="M17 23 q3 -3 6 0" stroke="#fffdf8" stroke-width="2" fill="none"/>`,
+  "g:mousse":`<rect x="10" y="14" width="20" height="23" rx="5" fill="#57cc99" ${IL}/><rect x="15" y="8" width="10" height="7" rx="2" fill="#2b2118"/><circle cx="27" cy="6" r="4" fill="#fffdf8" ${IL}/><circle cx="33" cy="9" r="3" fill="#fffdf8" ${IL}/><rect x="13" y="21" width="14" height="8" rx="2" fill="#fffdf8"/>`,
+  "g:gel":`<path d="M6 16 h28 v16 q0 5 -5 5 h-18 q-5 0 -5 -5z" fill="#7cc4f0" ${IL}/><rect x="4" y="10" width="32" height="7" rx="3" fill="#3a86ff" ${IL}/><path d="M12 24 q8 6 16 0" stroke="#fffdf8" stroke-width="2.5" fill="none" stroke-linecap="round"/>`
+});
+/* =========================================================
+   HAIR SALON (v7): a live hair simulation.
+   Every strand is a chain of points with physics and its own
+   state: wet, foam, dirt, conditioner, knots, frizz, curl,
+   shine, heat damage, products and color. Tools change that
+   state directly. Clients bring a reference photo; you are
+   scored on how closely you match it, how gently you worked
+   and how healthy the hair is. Coins and tips unlock tools.
+   ========================================================= */
+const HS_CLASSIC = STUDIO.hair;
+const SAL = (() => {
+  const W = 440, H = 560, CX = 220, CY = 206, SRX = 88, SRY = 100, FCX = 220, FCY = 252, FRX = 72, FRY = 92;
+  const LV = {brow:230, chin:344, shoulder:402, chest:468, waist:540};
+  const TEX = ["straight","wavy","curly","coily"], TEXC = ["1B","2B","3B","4B"];
+  const NAT_CURL = [0, .38, .72, .92], NAT_VOL = [.04, .2, .5, .95], AMP = [0, 4.2, 6.2, 5.4], FREQ = [0, 1/62, 1/24, 1/9.5];
+  const SEG = 9;
+  const lerp = (a, b, t) => a + (b - a)*t;
+  const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const rgbHex = (r, g, b) => "#" + [r, g, b].map(v => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, "0")).join("");
+  const mix = (a, b, t) => { const A = hexRgb(a), B = hexRgb(b); return rgbHex(lerp(A[0], B[0], t), lerp(A[1], B[1], t), lerp(A[2], B[2], t)); };
+  const lum = h => { const [r, g, b] = hexRgb(h); return (r*.3 + g*.59 + b*.11)/255; };
+  const NATURAL = {black:"#1d1714", darkbrown:"#3d2618", brown:"#6b4128", auburn:"#8f3c1d", copper:"#b9561f", blonde:"#d9b26a", lightblonde:"#ecd59a", grey:"#bdbab4"};
+  const DYES = [["pink","#ff8fc4"],["lilac","#b993f0"],["blue","#4f8df2"],["teal","#2ec4b6"],["copper","#c8641e"],["red","#d7263d"],["platinum","#f1ead8"],["chocolate","#4a2c1d"]];
+  /* ---------- tools and shop ---------- */
+  const TOOLS = [
+    ["spray","Spray bottle","💧","Mist water on. Most cuts and all washing start with wet hair.",0],
+    ["shampoo","Shampoo","🧴","Pump, then scrub the scalp with your fingertips. Needs wet hair to lather.",0],
+    ["rinse","Shower","🚿","Rinses out foam and conditioner, and soaks the hair.",0],
+    ["cond","Conditioner","🫙","Smooth it on the mid-lengths and ends. It makes knots slide out.",0],
+    ["comb","Wide-tooth comb","🪮","Drag down to detangle. Always start near the ends and work up.",0],
+    ["brush","Paddle brush","g:brush","Smooths straight hair. On dry curls it breaks them into frizz!",0],
+    ["towel","Towel","🧖","Squeeze slowly to blot water. Fast rubbing causes frizz.",0],
+    ["dryer","Blow-dryer","💨","Dries the hair. Drag downward with the nozzle to blow it smooth.",0],
+    ["scissors","Scissors","✂","Swipe across strands to cut. Wet curls spring up shorter when dry!",0],
+    ["protect","Heat protectant","🛡","Mist before hot tools. Without it, heat cracks the cuticle.",0],
+    ["diffuser","Diffuser","🌬","A dryer attachment that dries curls gently without blowing them apart.",60],
+    ["cream","Curl cream","🍯","Defines curls and coils and fights frizz. Rub it through damp hair.",40],
+    ["serum","Shine serum","g:serum","A few drops make hair glossy and smooth. Too much looks greasy.",40],
+    ["mousse","Mousse","g:mousse","Adds volume and lift at the roots.",40],
+    ["gel","Gel","g:gel","Strong hold for sleek styles. It tames flyaways.",40],
+    ["iron","Flat iron","♨","Glide it down dry hair to straighten. Never use it on wet hair!",80],
+    ["wand","Curling wand","🌀","Glide it down dry hair to add curls or waves.",80],
+    ["pick","Afro pick","g:pick","Lifts coils at the roots for a big, even shape.",30],
+    ["dye","Dye brush","g:dye","Paint on color. Dye only shows strongly on light hair.",120],
+    ["bleach","Bleach","🧪","Lightens hair so pastel dyes show. Each pass causes some damage.",60],
+    ["ties","Hair ties","🎀","Unlocks ponytails, braids and buns at the styling station.",50],
+    ["spray2","Hairspray","g:hairspray","Locks the finished style in place.",30]
+  ];
+  const tool = k => TOOLS.find(t => t[0] === k);
+  /* ---------- requests ---------- */
+  const REQ = [
+    {k:"trim", t:"Just a trim", tex:[0,1,2], start:["chest","waist"], need:[], say:c => `Just a trim, please! About ${c.cm} cm off the ends, nice and even.`, tip:"Wet the hair, detangle from the ends up, then cut straight across using the guide lines. Blow-dry smooth.",
+      target:(c, sv) => ({endY:sv.endY - c.cm*10, curl:NAT_CURL[c.tex], frizzMax:.35})},
+    {k:"bob", t:"The big chop", tex:[0,1], start:["chest","waist"], need:[], say:() => "I want a chin-length bob. Sharp and sleek!", tip:"Cut everything to just below the chin. Brush and blow-dry it smooth for that sleek look.",
+      target:() => ({endY:LV.chin + 14, curl:0, frizzMax:.25, shineMin:.4})},
+    {k:"bangs", t:"Bangs, please", tex:[0,1], start:["shoulder","chest"], need:[], say:() => "I'm finally doing it: bangs that just brush my eyebrows!", tip:"Comb the bangs forward over the forehead, then cut them at the eyebrow line. Bangs shrink up a little as they dry.",
+      target:(c, sv) => ({endY:sv.endY, bangs:true, curl:NAT_CURL[c.tex], frizzMax:.35})},
+    {k:"washgo", t:"Wash day", tex:[0,1,2,3], start:["shoulder","chest"], dirty:true, need:[], say:c => c.tex >= 2 ? "My curls feel dry and tangled. Can you wash and condition them properly?" : "My hair's a bit greasy. A good wash and blow-dry, please!", tip:"Wet → shampoo the scalp (scrub!) → rinse until no foam → conditioner on the ends → detangle → rinse → towel gently → dry.",
+      target:c => ({curl:NAT_CURL[c.tex], frizzMax:c.tex >= 2 ? .4 : .3, condNeed:true})},
+    {k:"blowout", t:"Smooth blowout", tex:[1,2], start:["shoulder","chest"], need:[], say:() => "Can you blow-dry it straight and shiny? I have a party tonight!", tip:"Detangle while wet, then dry with the nozzle while dragging DOWN along the hair: tension while drying sets it straight. Heat protectant first if you have it.",
+      target:() => ({curl:.12, frizzMax:.22, shineMin:.4})},
+    {k:"defined", t:"Defined curls", tex:[2], start:["shoulder","chest"], need:["diffuser"], say:() => "My curls always end up a frizzy cloud. I want them bouncy and defined!", tip:"Never brush dry curls. Condition, detangle with the wide-tooth comb, rub in curl cream while wet, towel by squeezing, then dry with the diffuser.",
+      target:() => ({curl:.7, frizzMax:.2, condNeed:true})},
+    {k:"afro", t:"Big round afro", tex:[3], start:["shoulder"], need:["pick"], say:() => "I want my afro BIG and perfectly round!", tip:"Moisturize, dry with the diffuser, then lift at the roots with the pick. Trim any long bits so the shape is even.",
+      target:() => ({curl:.85, volMin:.9, even:true})},
+    {k:"waves", t:"Beach waves", tex:[0], start:["chest","waist"], need:["wand"], say:() => "Give me soft beach waves, like I just got back from holiday!", tip:"Dry the hair fully, mist heat protectant, then glide the curling wand down sections all around.",
+      target:() => ({curl:.45, frizzMax:.35})},
+    {k:"press", t:"Silk press", tex:[2,3], start:["shoulder","chest"], need:["iron","protect"], say:() => "A silk press, please: bone straight and glossy, but don't fry my curls!", tip:"Wash, condition, detangle, blow-dry smooth, then protectant and flat iron on fully DRY hair. Wet hair + iron = steam damage.",
+      target:() => ({curl:.08, frizzMax:.18, shineMin:.5, dmgMax:.25})},
+    {k:"color", t:"New color", tex:[0,1,2], start:["shoulder","chest"], need:["dye"], say:c => `I want to go ${c.dyeName}! Can you do that?`, tip:"Dark hair has to be lifted with bleach first or bright dyes barely show. Paint every strand evenly.",
+      target:c => ({color:c.dyeHex, curl:NAT_CURL[c.tex]})},
+    {k:"pony", t:"Sleek ponytail", tex:[0,1,2], start:["shoulder","chest"], need:["ties"], say:() => "Sleek high ponytail for my match. No bumps or flyaways!", tip:"Detangle, dry, brush it smooth (gel helps on curls), then tie it at the styling station.",
+      target:() => ({style:"pony", frizzMax:.2})},
+    {k:"braid", t:"Side braid", tex:[0,1,2], start:["chest","waist"], need:["ties"], say:() => "Could I get a big side braid for the festival?", tip:"Hair must be dry and tangle-free before you braid it. Smooth it first for a neat plait.",
+      target:() => ({style:"braid", frizzMax:.35})},
+    {k:"bun", t:"Wedding bun", tex:[0,1,2,3], start:["chest","waist"], need:["ties","spray2"], say:() => "I'm a bridesmaid! An elegant bun that will last all day, please.", tip:"Dry, detangle and smooth, tie the bun, then finish with hairspray so it lasts.",
+      target:() => ({style:"bun", frizzMax:.25, hold:true})}
+  ];
+  const NAMES2 = ["Ava","Kofi","Mei","Zara","Leo","Priya","Noah","Amara","Sofia","Kenji","Layla","Mateo","Imani","Freya","Omar","Yuki","Ines","Tariq","Rosa","Elif"];
+  /* ---------- state ---------- */
+  const st = () => { S.salon = S.salon || {coins:150, owned:[], best:0, days:0, served:0, totalMatch:0, bestDay:0}; return S.salon; };
+  const owns = k => tool(k)[4] === 0 || st().owned.includes(k);
+  /* ---------- client + strands ---------- */
+  function rootOf(a){ return [CX + SRX*Math.cos(a), CY + SRY*Math.sin(a)]; }
+  function makeStrand(g, a, len, cl, extra){
+    const [rx, ry] = g === "front" ? [CX + SRX*.97*Math.cos(a), CY + SRY*.86*Math.sin(a) + 8] : rootOf(a);
+    let nx = Math.cos(a)/SRX, ny = Math.sin(a)/SRY; const nl = Math.hypot(nx, ny); nx /= nl; ny /= nl;
+    /* hair leaves the scalp lying along it: mostly tangent (toward its own side and downward), only a little outward */
+    let tx = -Math.sin(a)*SRX, ty = Math.cos(a)*SRY; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl; const side = Math.cos(a) < 0 ? -1 : 1; if(tx*side < 0){ tx = -tx; ty = -ty; }
+    if(ty < 0){ ty = Math.abs(ty)*.2; } const onx = nx, ony = ny; extra = Object.assign({tx, ty, onx, ony}, extra || {}); const out = [.3, .35, .55, .95][cl.tex]; nx = tx*(1 - out*.7) + nx*out; ny = ty*(1 - out*.7) + ny*out + .15*(1 - out); const dl2 = Math.hypot(nx, ny); nx /= dl2; ny /= dl2;
+    const n = Math.max(3, Math.round(len/SEG) + 1), L = Array(n - 1).fill(len/(n - 1)), pts = [];
+    for(let i = 0; i < n; i++){ const d = i*len/(n - 1), x = rx + nx*Math.min(d, 30) + (Math.random() - .5)*2, y = ry + ny*Math.min(d, 30) + Math.max(0, d - 30); pts.push({x, y, px:x, py:y}); }
+    return Object.assign({g, a, rx, ry, nx, ny, L, pts, layer:Math.random(), wet:0, foam:0, dirt:0, cond:0, condOn:0, soft:0, knots:[], frizz:0, curl:NAT_CURL[cl.tex], curl0:NAT_CURL[cl.tex], phase:Math.random()*6.28, vol:0, prot:0, heat:0, cream:0, mousse:0, serum:0, gel:0, hold:0, color:cl.base, bleach:0, shine:.25, w:g === "back" ? 13 : 11}, extra || {});
+  }
+  function makeClient(req, opts = {}){
+    const tex = opts.tex ?? pick(req.tex), len = {shoulder:LV.shoulder + 20, chest:LV.chest + 10, waist:LV.waist - 6}[opts.start || pick(req.start)];
+    const baseKey = opts.baseKey || (tex === 3 ? pick(["black","darkbrown"]) : pick(["black","darkbrown","brown","auburn","copper","blonde","lightblonde"]));
+    const cl = {name:opts.name || pick(NAMES2), tex, base:NATURAL[baseKey], baseKey, skin:opts.skin || pick(SKINS)[0], eye:opts.eye || pick(["#5a3a24","#3b2a1d","#4f7a3a","#3d6fb0","#7a5a2a"]), strands:[], style:"down", bangsFwd:false, mood:1, ouch:0, pains:0, burns:0, rubs:0, steam:0, blink:0, t0:performance.now()};
+    const backLen = len - CY, frontLen = len - (CY - 6);
+    for(let i = 0; i < 58; i++){ const a = Math.PI*(.93 + 1.14*i/57); cl.strands.push(makeStrand("back", a, backLen + (Math.random() - .5)*10, cl)); }
+    for(let i = 0; i < 30; i++){ const left = i < 15, k = (i % 15)/14, a = Math.PI*(left ? 1.06 + .3*k : 1.94 - .3*k); cl.strands.push(makeStrand("front", a, frontLen - 20 + (Math.random() - .5)*8 - k*6, cl)); }
+    for(let i = 0; i < 9; i++){ const a = Math.PI*(1.4 + .2*i/8); cl.strands.push(makeStrand("bang", a, frontLen + 20, cl)); }
+    const dirty = req.dirty || Math.random() < .35, knotty = tex >= 2 ? .7 : .35;
+    cl.strands.forEach(s => { if(dirty) s.dirt = .6 + Math.random()*.2; if((s.g === "front" || s.g === "back" && Math.abs(Math.cos(s.a)) > .62) && Math.random() < knotty) s.knots = Array.from({length:R(1, tex >= 2 ? 3 : 2)}, () => ({t:.35 + Math.random()*.6, k:1})); s.frizz = [.08, .18, .45, .4][tex] + Math.random()*.1; });
+    cl.dirty = dirty;
+    settle(cl, 220);
+    return cl;
+  }
+  function cloneClient(cl){ const c = JSON.parse(JSON.stringify(cl)); return c; }
+  /* ---------- derived values ---------- */
+  function eff(s, cl){
+    const wet = s.wet, curl = s.curl*(1 - wet*.35);
+    const shrink = 1 - [0, .12, .42, .66][cl.tex]*curl*(1 - wet*.7);
+    const hold = Math.min(1, s.gel*.8 + s.hold*.5);
+    const frizz = clamp(s.frizz*(1 - Math.min(.85, s.cream*.7 + s.serum*.6 + s.gel*.8 + s.soft*.25)) * (1 - wet*.8) + s.heat*.3, 0, 1);
+    const vol = clamp((NAT_VOL[cl.tex]*(curl/Math.max(.01, s.curl0 || .01) || 0) + s.mousse*.45 + s.vol + frizz*.25)*(1 - wet*.75)*(1 - hold*.65) - s.dirt*.15, 0, 1.3);
+    const shine = clamp(s.shine + s.soft*.25 + s.serum*.45 + s.gel*.15 - s.heat*.6 - s.dirt*.3 - frizz*.3 + wet*.25, 0, 1);
+    return {wet, curl, shrink, frizz, vol, shine, hold};
+  }
+  function strandColor(s){
+    let c = s.color;
+    if(s.dirt > .2) c = mix(c, "#5b4a32", s.dirt*.25);
+    if(s.wet > .05) c = mix(c, "#000000", s.wet*.3);
+    if(s.heat > .2) c = mix(c, "#9b8f7a", (s.heat - .2)*.5);
+    return c;
+  }
+  /* ---------- physics ---------- */
+  function step(cl, wind){
+    const g = .32;
+    cl.strands.forEach(s => {
+      const e = eff(s, cl), P = s.pts, n = P.length, kb = .022 + e.curl*.1 + e.hold*.1, radial = e.vol*.42;
+      const swept = s.g === "bang" && !cl.bangsFwd;
+      for(let i = 1; i < n; i++){
+        const p = P[i]; let vx = (p.x - p.px)*.96, vy = (p.y - p.py)*.96; p.px = p.x; p.py = p.y;
+        let fx = 0, fy = g*(1 - Math.min(.75, e.vol*.7));
+        const dx = p.x - CX, dy = p.y - (CY + 20), dl = Math.hypot(dx, dy) || 1; fx += dx/dl*radial*(i < 3 ? .3 : 1); fy += dy/dl*radial*.8;
+        
+        if(wind){ const wx = p.x - wind.x, wy = p.y - wind.y, wd = Math.hypot(wx, wy); if(wd < wind.r){ const f = (1 - wd/wind.r)*wind.f; fx += (wx/wd || 0)*f + (Math.random() - .5)*f*1.6; fy += (wy/wd || 0)*f*.7 + (Math.random() - .5)*f; } }
+        p.x += vx + fx; p.y += vy + fy;
+        if(i >= 2){ const tx = 2*P[i-1].x - P[i-2].x, ty = 2*P[i-1].y - P[i-2].y; p.x += (tx - p.x)*kb; p.y += (ty - p.y)*kb; }
+        else { const out = (s.tx != null ? [.3, .35, .55, .95][cl.tex]*Math.min(1, e.curl/Math.max(.2, NAT_CURL[cl.tex])) : 0); let dx0 = s.nx, dy0 = s.ny; if(s.tx != null){ dx0 = s.tx*(1 - out*.7) + s.onx*out; dy0 = s.ty*(1 - out*.7) + s.ony*out + .15*(1 - out); const dl = Math.hypot(dx0, dy0) || 1; dx0 /= dl; dy0 /= dl; }
+          if(s.g === "bang" && cl.bangsFwd){ dx0 = (s.rx - CX)*.004; dy0 = 1; }
+          const tx = s.rx + dx0*s.L[0]*2*e.shrink, ty = s.ry + dy0*s.L[0]*2*e.shrink + 4*(1 - e.vol); p.x += (tx - p.x)*(.25 + e.vol*.3); p.y += (ty - p.y)*(.25 + e.vol*.3); }
+      }
+      for(let it = 0; it < 4; it++){
+        P[0].x = s.rx; P[0].y = s.ry;
+        for(let i = 1; i < n; i++){ const a = P[i-1], b = P[i], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .001, rest = s.L[i-1]*e.shrink, k = (d - rest)/d;
+          if(i === 1){ b.x -= dx*k; b.y -= dy*k; } else { a.x += dx*k*.5; a.y += dy*k*.5; b.x -= dx*k*.5; b.y -= dy*k*.5; } }
+        for(let i = 1; i < n; i++){ const p = P[i];
+          const back = s.g === "back", sx = back ? SRX*(.32 + .78*Math.pow(Math.abs(Math.cos(s.a)), .6))*(1 + s.layer*.08) : SRX*(1.03 + s.layer*.13), sy = SRY*(back ? 1.0 : 1.03 + s.layer*.08);
+          let ex = (p.x - CX)/sx, ey = (p.y - CY)/sy, q = ex*ex + ey*ey; if(q < 1 && i > 1 && !(s.g === "bang" && cl.bangsFwd)){ const r = Math.sqrt(q) || .01; p.x = CX + (p.x - CX)/r; p.y = CY + (p.y - CY)/r; }
+          if(s.g === "front" || swept){ const fs = 1.05 + s.layer*.12; ex = (p.x - FCX)/(FRX*fs); ey = (p.y - FCY)/(FRY*(1.02 + s.layer*.05)); q = ex*ex + ey*ey; if(q < 1 && p.y > FCY - FRY*.75){ const r = Math.sqrt(q) || .01; p.x = FCX + (p.x - FCX)/r; p.y = FCY + (p.y - FCY)/r; } }
+          if(s.g === "bang" && cl.bangsFwd && p.y > FCY - 20){ p.y = Math.min(p.y, FCY + 40); }
+          p.x = clamp(p.x, 4, W - 4); p.y = Math.min(p.y, H + 60);
+        }
+      }
+    });
+  }
+  function settle(cl, n){ for(let i = 0; i < n; i++) step(cl, null); cl.strands.forEach(s => s.pts.forEach(p => { p.px = p.x; p.py = p.y; })); }
+  /* ---------- drawing ---------- */
+  function stylePath(s, cl, e){
+    const P = s.pts, out = []; if(P.length < 2) return out;
+    const A = AMP[cl.tex]*e.curl/Math.max(.01, NAT_CURL[cl.tex] || .5) * (cl.tex === 0 ? 0 : 1) + (cl.tex === 0 ? 7*e.curl : 0), F = cl.tex === 0 ? 1/34 : FREQ[cl.tex];
+    let acc = 0;
+    for(let i = 0; i < P.length - 1; i++){
+      const a = P[i], b = P[i+1], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .001, nx = -dy/d, ny = dx/d, steps = Math.max(1, Math.ceil(d/3));
+      for(let k = 0; k < steps; k++){ const t = k/steps, x = a.x + dx*t, y = a.y + dy*t, along = acc + d*t, taper = Math.min(1, along/26);
+        const off = A*taper*Math.sin(s.phase + along*F*6.283); out.push([x + nx*off, y + ny*off]); }
+      acc += d;
+    }
+    const z = P[P.length - 1]; out.push([z.x, z.y]); return out;
+  }
+  function strokePts(ctx, pts){ if(pts.length < 2) return; ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for(let i = 1; i < pts.length - 1; i++){ const mx = (pts[i][0] + pts[i+1][0])/2, my = (pts[i][1] + pts[i+1][1])/2; ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my); } const z = pts[pts.length - 1]; ctx.lineTo(z[0], z[1]); ctx.stroke(); }
+  function drawLayer(ctx, cl, list, time){
+    const items = list.map(s => { const e = eff(s, cl); return {s, e, pts:stylePath(s, cl, e), col:strandColor(s)}; });
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    /* one shaped mass: a thick ink silhouette, then the color fill on top, then fine strand texture inside */
+    const mw = o => o.s.w*(1.75 + o.e.vol*.35 + o.e.frizz*.3);
+    items.forEach(o => { ctx.strokeStyle = INK; ctx.lineWidth = mw(o) + 3.4; strokePts(ctx, o.pts); });
+    items.forEach(o => { ctx.strokeStyle = o.col; ctx.lineWidth = mw(o); strokePts(ctx, o.pts); });
+    items.forEach((o, i) => { ctx.strokeStyle = shade(o.col, -.28); ctx.globalAlpha = .6; ctx.lineWidth = 1.4; for(const off of [-o.s.w*.45, o.s.w*.35]){ strokePts(ctx, o.pts.map(([x, y]) => [x + off*((i % 2) ? 1 : -.7), y])); } ctx.globalAlpha = 1; });
+    items.forEach((o, i) => { if(i % 3) return; ctx.strokeStyle = shade(o.col, .12); ctx.globalAlpha = .5; ctx.lineWidth = 1.2; strokePts(ctx, o.pts.map(([x, y]) => [x + 1.5, y])); ctx.globalAlpha = 1; });
+    items.forEach((o, i) => { if(o.e.shine < .15) return; ctx.strokeStyle = mix(o.col, "#ffffff", .25 + o.e.shine*.35); ctx.globalAlpha = .25 + o.e.shine*.6; ctx.lineWidth = 1.2 + o.e.shine*1.6;
+      const seg = o.pts.slice(Math.floor(o.pts.length*.12), Math.floor(o.pts.length*(.35 + o.e.shine*.4))).map(([x, y]) => [x - 1.6, y]); strokePts(ctx, seg); ctx.globalAlpha = 1; });
+    items.forEach(o => { if(o.e.frizz < .18) return; const R2 = rng(o.s.phase.toFixed(3)), n = Math.round(o.e.frizz*10); ctx.strokeStyle = mix(o.col, "#ffffff", .15); ctx.lineWidth = 1.1; ctx.globalAlpha = .8;
+      for(let k = 0; k < n; k++){ const p = o.pts[Math.floor(R2()*o.pts.length)]; if(!p) continue; const ang = R2()*6.28, l = 5 + o.e.frizz*9; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.quadraticCurveTo(p[0] + Math.cos(ang)*l*.6 + Math.sin(time*.003 + k)*1.2, p[1] + Math.sin(ang)*l*.6, p[0] + Math.cos(ang + .6)*l, p[1] + Math.sin(ang + .6)*l); ctx.stroke(); } ctx.globalAlpha = 1; });
+    items.forEach(o => o.s.knots.forEach((kn, j) => { const p = o.pts[Math.floor(kn.t*(o.pts.length - 1))]; if(!p) return; const r = 3 + kn.k*2.5;
+      ctx.strokeStyle = shade(o.col, -.45); ctx.lineWidth = 1.5; ctx.beginPath(); for(let a = 0; a < 12.6; a += .5){ const rr = r*(.5 + .5*Math.sin(a*1.7 + j)); const x = p[0] + Math.cos(a)*rr, y = p[1] + Math.sin(a)*rr*.8; a ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); }));
+    return items;
+  }
+  function capPath(ctx){ ctx.beginPath(); ctx.ellipse(CX, CY, SRX*1.03, SRY*1.03, 0, Math.PI*.95, Math.PI*2.05); ctx.bezierCurveTo(CX + SRX*.98, CY - 10, FCX + FRX*.92, FCY - FRY*.62, FCX + FRX*.55, FCY - FRY*.8); ctx.quadraticCurveTo(FCX, FCY - FRY*.93, FCX - FRX*.55, FCY - FRY*.8); ctx.bezierCurveTo(FCX - FRX*.92, FCY - FRY*.62, CX - SRX*.98, CY - 10, CX + SRX*1.03*Math.cos(Math.PI*.95), CY + SRY*1.03*Math.sin(Math.PI*.95)); ctx.closePath(); }
+  function drawFace(ctx, cl, time, mood){
+    const sk = cl.skin;
+    ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.lineJoin = "round";
+    ctx.fillStyle = shade(sk, -.08); ctx.beginPath(); ctx.rect(FCX - 26, FCY + 60, 52, 70); ctx.fill(); ctx.stroke();
+    [-1, 1].forEach(d => { ctx.fillStyle = sk; ctx.beginPath(); ctx.ellipse(FCX + d*FRX*.98, FCY + 4, 11, 17, 0, 0, 6.28); ctx.fill(); ctx.stroke(); });
+    ctx.fillStyle = sk; ctx.beginPath(); ctx.moveTo(FCX, FCY - FRY); ctx.bezierCurveTo(FCX + FRX*1.05, FCY - FRY, FCX + FRX*1.05, FCY + FRY*.35, FCX + FRX*.55, FCY + FRY*.8); ctx.quadraticCurveTo(FCX, FCY + FRY*1.12, FCX - FRX*.55, FCY + FRY*.8); ctx.bezierCurveTo(FCX - FRX*1.05, FCY + FRY*.35, FCX - FRX*1.05, FCY - FRY, FCX, FCY - FRY); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "rgba(255,120,120,.22)"; [-1, 1].forEach(d => { ctx.beginPath(); ctx.ellipse(FCX + d*40, FCY + 30, 13, 8, 0, 0, 6.28); ctx.fill(); });
+    const blink = (time % 4200) < 120 || mood === "ouch", ey = FCY - 2;
+    [-1, 1].forEach(d => { const x = FCX + d*28;
+      if(blink){ ctx.beginPath(); ctx.moveTo(x - 10, ey); ctx.quadraticCurveTo(x, ey + (mood === "ouch" ? -5 : 4), x + 10, ey); ctx.stroke(); }
+      else { ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.ellipse(x, ey, 11, mood === "wow" ? 10 : 8.5, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.fillStyle = cl.eye; ctx.beginPath(); ctx.arc(x + d*.5, ey + .5, 5.4, 0, 6.28); ctx.fill(); ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x + d*.5, ey + .5, 2.6, 0, 6.28); ctx.fill(); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x + d*.5 - 1.8, ey - 1.6, 1.4, 0, 6.28); ctx.fill(); }
+      ctx.lineWidth = 3.2; ctx.strokeStyle = shade(cl.base, -.25); ctx.beginPath(); const by = ey - 16 - (mood === "wow" ? 4 : 0) + (mood === "ouch" || mood === "sad" ? 2 : 0); ctx.moveTo(x - 11*d, by + (mood === "ouch" ? -3*1 : 2)); ctx.quadraticCurveTo(x, by - 4, x + 11*d, by + (mood === "sad" ? -2 : 3)); ctx.stroke(); ctx.lineWidth = 3; ctx.strokeStyle = INK; });
+    ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(FCX + 2, FCY + 6); ctx.quadraticCurveTo(FCX - 7, FCY + 24, FCX + 4, FCY + 28); ctx.stroke();
+    ctx.lineWidth = 2.6; ctx.beginPath();
+    if(mood === "ouch"){ ctx.fillStyle = "#7a2b2b"; ctx.ellipse(FCX, FCY + 52, 9, 11, 0, 0, 6.28); ctx.fill(); ctx.stroke(); }
+    else if(mood === "happy" || mood === "wow"){ ctx.fillStyle = "#7a2b2b"; ctx.moveTo(FCX - 20, FCY + 46); ctx.quadraticCurveTo(FCX, FCY + 70, FCX + 20, FCY + 46); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+    else if(mood === "sad"){ ctx.moveTo(FCX - 15, FCY + 56); ctx.quadraticCurveTo(FCX, FCY + 46, FCX + 15, FCY + 56); ctx.stroke(); }
+    else { ctx.moveTo(FCX - 15, FCY + 50); ctx.quadraticCurveTo(FCX, FCY + 58, FCX + 15, FCY + 50); ctx.stroke(); }
+  }
+  function drawCape(ctx){
+    ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.fillStyle = "#2b2f3a";
+    ctx.beginPath(); ctx.moveTo(40, H + 10); ctx.bezierCurveTo(44, 430, 120, 392, 190, 384); ctx.lineTo(250, 384); ctx.bezierCurveTo(320, 392, 396, 430, 400, H + 10); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#fffdf8"; ctx.beginPath(); ctx.moveTo(186, 384); ctx.quadraticCurveTo(220, 406, 254, 384); ctx.lineTo(250, 376); ctx.quadraticCurveTo(220, 396, 190, 376); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = "rgba(255,255,255,.12)"; ctx.lineWidth = 2; [120, 170, 270, 320].forEach(x => { ctx.beginPath(); ctx.moveTo(x, 420); ctx.lineTo(x + (x - 220)*.25, H); ctx.stroke(); });
+  }
+  function drawTail(ctx, cl, time, kind){
+    const sumLen = cl.strands.filter(s => s.g !== "bang").reduce((a, s) => a + s.L.reduce((x, y) => x + y, 0), 0)/cl.strands.filter(s => s.g !== "bang").length;
+    const bs = cl.strands.filter(s => s.g !== "bang"), s0 = bs[Math.floor(bs.length/2)], e = eff(s0, cl), shrink = e.shrink, col = (() => { const c = bs.map(x => hexRgb(strandColor(x))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
+    if(kind === "bun"){ const r = clamp(sumLen*.17, 32, 58); ctx.fillStyle = col; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(CX, CY - SRY - r*.55, r, 0, 6.28); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = mix(col, "#fff", .3); ctx.lineWidth = 2; for(let k = 0; k < 4; k++){ ctx.beginPath(); ctx.arc(CX, CY - SRY - r*.55, r*(.35 + k*.15), .6 + k, 2.4 + k); ctx.stroke(); } ctx.fillStyle = "#ff7db8"; ctx.strokeStyle = INK; ctx.beginPath(); ctx.ellipse(CX, CY - SRY + r*.35, 16, 6, 0, 0, 6.28); ctx.fill(); ctx.stroke(); return; }
+    const len = Math.max(70, (sumLen*.85 - 30)*shrink), sway = Math.sin(time*.002)*5, x0 = CX + 70, y0 = CY - 18;
+    const pts = []; for(let i = 0; i <= 24; i++){ const t = i/24; pts.push([x0 + 46*Math.sin(t*1.6) - 34*t*t + sway*t*t, y0 + len*t]); }
+    const wpx = kind === "braid" ? 46 : clamp(58 + e.vol*34, 58, 96);
+    if(kind === "braid"){ for(let i = 0; i < 22; i++){ const t = i/22, p = pts[Math.round(t*24)], w2 = wpx*(1 - t*.4); ctx.fillStyle = col; ctx.strokeStyle = INK; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.ellipse(p[0] + (i % 2 ? w2*.18 : -w2*.18), p[1], w2*.42, len/22*1.05, (i % 2 ? .55 : -.55), 0, 6.28); ctx.fill(); ctx.stroke(); ctx.strokeStyle = shade(col, -.25); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p[0] - w2*.15, p[1] - len/50); ctx.lineTo(p[0] + w2*.15, p[1] + len/50); ctx.stroke(); }
+      const z = pts[24]; ctx.fillStyle = "#ff7db8"; ctx.beginPath(); ctx.ellipse(z[0], z[1], 8, 4, 0, 0, 6.28); ctx.fill(); ctx.stroke(); return; }
+    ctx.lineCap = "round";
+    for(let pass = 0; pass < 2; pass++) for(let k = -3; k <= 3; k++){ const off = k*wpx/8; ctx.strokeStyle = pass ? col : INK; ctx.lineWidth = pass ? wpx/3.2 : wpx/3.2 + 3.4;
+      const path = pts.map(([x, y], i) => { const t = i/24, A = AMP[cl.tex]*e.curl*(cl.tex ? 1 : 0); return [x + off*(1 - t*.5) + A*Math.sin(cl.tex ? (y*FREQ[cl.tex]*6.28 + k) : 0), y]; }); strokePts(ctx, path); }
+    ctx.fillStyle = "#ff7db8"; ctx.strokeStyle = INK; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.ellipse(x0, y0 + 6, 10, 7, .6, 0, 6.28); ctx.fill(); ctx.stroke();
+  }
+  function drawClient(ctx, cl, opt = {}){
+    const time = opt.time || 0, mood = opt.mood || "neutral";
+    ctx.save();
+    if(!opt.noBg){ const g2 = ctx.createLinearGradient(0, 0, 0, H); g2.addColorStop(0, "#f7efe4"); g2.addColorStop(1, "#ead9c3"); ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "rgba(255,255,255,.35)"; for(let x = 0; x < W; x += 44) for(let y = 0; y < H; y += 44) if((x + y)/44 % 2 === 0) ctx.fillRect(x, y, 44, 44); }
+    const styled = cl.style !== "down";
+    const back = cl.strands.filter(s => s.g === "back"), front = cl.strands.filter(s => s.g === "front"), bang = cl.strands.filter(s => s.g === "bang");
+    if(!styled) drawLayer(ctx, cl, back, time);
+    else if(cl.style === "pony" || cl.style === "braid") drawTail(ctx, cl, time, cl.style);
+    drawCape(ctx);
+    if(styled && (cl.style === "pony" || cl.style === "braid")){ /* tail over the shoulder sits in front of the cape */ drawTail(ctx, cl, time, cl.style); }
+    drawFace(ctx, cl, time, mood);
+    const s0 = back[Math.floor(back.length/2)], e0 = eff(s0, cl), capCol = (() => { const c = back.map(x => hexRgb(strandColor(x))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
+    ctx.fillStyle = capCol; ctx.strokeStyle = INK; ctx.lineWidth = 3; capPath(ctx); ctx.fill(); ctx.stroke();
+    if(cl.tex >= 2 && !styled){ ctx.save(); capPath(ctx); ctx.clip(); ctx.strokeStyle = shade(capCol, .28); ctx.globalAlpha = .7; ctx.lineWidth = 2; const R2 = rng("cap" + cl.name); for(let k = 0; k < 40; k++){ const x = CX - 80 + R2()*160, y = CY - 100 + R2()*60; ctx.beginPath(); ctx.arc(x, y, 4 + R2()*3, R2()*6, R2()*6 + 3.5); ctx.stroke(); } ctx.globalAlpha = 1; ctx.restore(); }
+    else { ctx.strokeStyle = mix(capCol, "#fff", .25 + e0.shine*.3); ctx.lineWidth = 2; ctx.globalAlpha = .5 + e0.shine*.4; ctx.beginPath(); ctx.moveTo(CX - 40, CY - 72); ctx.quadraticCurveTo(CX - 10, CY - 92, CX + 30, CY - 86); ctx.moveTo(CX + 20, CY - 64); ctx.quadraticCurveTo(CX + 50, CY - 76, CX + 70, CY - 52); ctx.stroke(); ctx.globalAlpha = 1; }
+    if(styled){ ctx.strokeStyle = shade(capCol, -.3); ctx.lineWidth = 1.6; for(let k = -3; k <= 3; k++){ ctx.beginPath(); ctx.moveTo(CX + k*20, CY - 56 - Math.abs(k)*2); ctx.quadraticCurveTo(CX + k*14, CY - 90, CX + k*6 + 20, CY - SRY + 4); ctx.stroke(); } }
+    if(cl.style === "bun") drawTail(ctx, cl, time, "bun");
+    if(!styled) drawLayer(ctx, cl, front, time);
+    if(!styled || cl.bangsFwd) drawLayer(ctx, cl, bang, time);
+    const foam = cl.strands.reduce((a, s) => a + s.foam, 0)/cl.strands.length;
+    if(foam > .03){ const R2 = rng("foam"); ctx.fillStyle = "rgba(255,255,255,.92)"; ctx.strokeStyle = "rgba(140,170,200,.9)"; ctx.lineWidth = 1.4; const n = Math.round(foam*90);
+      for(let k = 0; k < n; k++){ const a = Math.PI*(1.02 + R2()*.96), rr = .85 + R2()*.3, x = CX + Math.cos(a)*SRX*rr, y = CY + Math.sin(a)*SRY*rr + 6, r = 4 + R2()*7 + Math.sin(time*.004 + k)*.8; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.28); ctx.fill(); ctx.stroke(); } }
+    ctx.restore();
+  }
+  /* ---------- measurement + scoring ---------- */
+  function measure(cl){
+    const ends = g => cl.strands.filter(s => s.g === g).map(s => s.pts[s.pts.length - 1].y);
+    const avg = a => a.reduce((x, y) => x + y, 0)/Math.max(1, a.length), sd = a => { const m = avg(a); return Math.sqrt(avg(a.map(v => (v - m)**2))); };
+    const all = cl.strands.filter(s => s.g !== "bang"), E = all.map(s => eff(s, cl));
+    const front = ends("front"), back = ends("back"), bang = ends("bang");
+    const colAvg = (() => { const c = all.map(s => hexRgb(s.color)); return rgbHex(avg(c.map(x => x[0])), avg(c.map(x => x[1])), avg(c.map(x => x[2]))); })();
+    return {endY:avg(front)*.7 + avg(back)*.3, frontY:avg(front), backY:avg(back), bangY:avg(bang), even:sd(front) + sd(back)*.5,
+      curl:avg(E.map(e => e.curl)), frizz:avg(E.map(e => e.frizz)), shine:avg(E.map(e => e.shine)), vol:avg(E.map(e => e.vol)), wet:avg(cl.strands.map(s => s.wet)),
+      foam:avg(cl.strands.map(s => s.foam)), dirt:avg(cl.strands.map(s => s.dirt)), knots:cl.strands.reduce((a, s) => a + s.knots.length, 0), dmg:avg(cl.strands.map(s => s.heat)),
+      cond:avg(cl.strands.map(s => s.soft)), condLeft:avg(cl.strands.map(s => s.condOn)), hold:avg(cl.strands.map(s => s.hold)), product:avg(all.map(s => s.cream + s.serum + s.gel)), color:colAvg, colorSpread:sd(all.map(s => lum(s.color)))*3};
+  }
+  function score(cl, tg, final){
+    const m = measure(cl), parts = [];
+    const add = (k, label, w, v, why) => parts.push({k, label, w, v:clamp(v, 0, 1), why});
+    if(tg.endY) add("len", "Length", 22, 1 - Math.abs(m.endY - tg.endY)/70, m.endY > tg.endY + 18 ? `About ${Math.round((m.endY - tg.endY)/10)} cm too long.` : m.endY < tg.endY - 18 ? `About ${Math.round((tg.endY - m.endY)/10)} cm too short. Remember: curls spring up as they dry.` : "Spot on.");
+    if(tg.endY || tg.even) add("even", "Even ends", 10, 1 - Math.max(0, m.even - 10)/40, m.even > 22 ? "The ends are choppy. Cut in one smooth line." : "Clean, even line.");
+    if(tg.bangs) add("bangs", "Bangs", 16, cl.bangsFwd ? 1 - Math.abs(m.bangY - LV.brow)/45 : 0, !cl.bangsFwd ? "Comb the bangs forward first, then cut." : m.bangY > LV.brow + 18 ? "They cover the eyes: cut a little higher." : m.bangY < LV.brow - 18 ? "Too short! Bangs should brush the brows." : "Perfect fringe.");
+    if(!tg.bangs && cl.bangsFwd && m.bangY < LV.chin - 20) add("nobangs", "No surprise bangs", 12, 0, "They didn't ask for bangs!");
+    if(tg.curl != null) add("curl", "Curl pattern", 16, 1 - Math.abs(m.curl - tg.curl)/.45, m.curl > tg.curl + .15 ? "Too curly for this look." : m.curl < tg.curl - .15 ? (tg.curl > .5 ? "The curls were stretched or brushed out." : "Not enough wave or curl.") : "Pattern matches.");
+    if(tg.frizzMax != null) add("frizz", "Smooth, not frizzy", 12, m.frizz <= tg.frizzMax ? 1 : 1 - (m.frizz - tg.frizzMax)/.35, m.frizz > tg.frizzMax ? (cl.tex >= 2 ? "Frizz! Avoid brushing dry curls and rough towel rubbing; curl cream and a diffuser help." : "Flyaways. Brush smooth, and serum or gel tames frizz.") : "Smooth and polished.");
+    if(tg.shineMin != null) add("shine", "Shine", 8, m.shine >= tg.shineMin ? 1 : m.shine/tg.shineMin, m.shine < tg.shineMin ? "Dull. Conditioner, smoothing and a little serum add shine." : "Glossy!");
+    if(tg.volMin != null) add("vol", "Volume", 14, m.vol >= tg.volMin ? 1 : m.vol/tg.volMin, m.vol < tg.volMin ? "Not big enough yet. Dry fully and lift at the roots." : "Huge and round!");
+    if(tg.color){ const [a, b] = [hexRgb(m.color), hexRgb(tg.color)], d = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])/255; add("color", "Color", 20, 1 - d*1.6 - m.colorSpread, d > .25 ? (lum(cl.base) < .35 ? "Too dark: lift dark hair with bleach before a bright dye." : "Not the shade they asked for.") : m.colorSpread > .15 ? "Patchy. Paint every strand evenly." : "Gorgeous color."); }
+    if(tg.style) add("style", "Style", 18, cl.style === tg.style ? 1 : 0, cl.style === tg.style ? "Exactly the style they wanted." : "Wrong style: use the styling station.");
+    if(tg.hold) add("hold", "Long-lasting hold", 6, m.hold > .3 ? 1 : 0, m.hold > .3 ? "Hairspray will keep it all day." : "Without hairspray it will fall out by dinner.");
+    if(cl.dirty || tg.condNeed){ add("clean", "Clean hair", 10, m.foam > .05 ? 0 : 1 - Math.max(0, m.dirt - .08)*2.2, m.foam > .05 ? "Shampoo is still in the hair! Rinse until no foam is left." : m.dirt > .18 ? "Still greasy at the roots. Scrub the scalp while shampooing." : "Squeaky clean."); }
+    if(tg.condNeed || cl.tex >= 2) add("cond", "Conditioned", 8, m.condLeft > .25 ? .3 : Math.min(1, m.cond*1.8), m.condLeft > .25 ? "Conditioner left in: rinse it out, or it weighs hair down." : m.cond < .3 ? "Curly and coily hair needs conditioner on the ends." : "Soft and moisturized.");
+    add("knots", "Tangle-free", 7, 1 - m.knots/8, m.knots ? `${m.knots} knot${m.knots === 1 ? "" : "s"} left. Detangle from the ends up.` : "Silky and tangle-free.");
+    add("dry", "Dried properly", 8, 1 - m.wet*2.2, m.wet > .15 ? "They're leaving with damp hair!" : "Fully dry.");
+    add("health", "Healthy hair", 8, 1 - m.dmg*2.2 - (m.product > 2.6 ? .4 : 0), m.dmg > .15 ? `Heat damage${cl.steam ? ", including ironing wet hair (steam bursts the strand)" : ""}. Use heat protectant and lower heat.` : m.product > 2.6 ? "Too much product: it looks greasy." : "Healthy and strong.");
+    add("comfort", "Happy client", 8, cl.mood, cl.pains ? `${cl.pains} painful tug${cl.pains === 1 ? "" : "s"}${cl.burns ? ` and ${cl.burns} burn${cl.burns === 1 ? "" : "s"}` : ""}. Be gentle!` : cl.burns ? "Too hot on the scalp!" : "Relaxed and happy.");
+    const tw = parts.reduce((a, p) => a + p.w, 0), total = parts.reduce((a, p) => a + p.w*p.v, 0)/tw;
+    return {pct:Math.round(total*100), parts, m};
+  }
+  /* ---------- target picture ---------- */
+  function buildTarget(cl, tg){
+    const t = cloneClient(cl); t.mood = 1;
+    t.strands.forEach(s => { s.wet = 0; s.foam = 0; s.dirt = 0; s.knots = []; s.condOn = 0; s.soft = .6; s.heat = 0; s.frizz = tg.frizzMax != null ? tg.frizzMax*.4 : s.frizz*.6; if(tg.curl != null) s.curl = tg.curl; if(tg.shineMin) s.shine = tg.shineMin + .1; if(tg.color) s.color = tg.color; if(tg.volMin) s.vol = .6; });
+    if(tg.bangs) t.bangsFwd = true;
+    settle(t, 160);
+    const cutAt = (list, y) => list.forEach(s => cutStrandAtY(s, y));
+    if(tg.endY) cutAt(t.strands.filter(s => s.g !== "bang"), tg.endY);
+    if(tg.endY && !tg.bangs) cutAt(t.strands.filter(s => s.g === "bang"), Math.max(tg.endY, LV.chin));
+    if(tg.bangs) cutAt(t.strands.filter(s => s.g === "bang"), LV.brow);
+    if(tg.volMin){ settle(t, 60); const ys = t.strands.filter(s => s.g !== "bang").map(s => s.pts[s.pts.length - 1].y).sort((a, b) => a - b); cutAt(t.strands, ys[Math.floor(ys.length*.35)]); }
+    if(tg.style) t.style = tg.style;
+    settle(t, 140);
+    return t;
+  }
+  function cutStrandAtY(s, y){
+    const P = s.pts; for(let i = 1; i < P.length; i++){ if(P[i].y >= y && P[i-1].y < y){ const f = (y - P[i-1].y)/((P[i].y - P[i-1].y) || 1); s.L = s.L.slice(0, i - 1).concat([s.L[i-1]*clamp(f, .05, 1)]); s.pts = P.slice(0, i + 1); s.pts[i] = {x:lerp(P[i-1].x, P[i].x, f), y, px:lerp(P[i-1].x, P[i].x, f), py:y}; s.knots = s.knots.filter(k => k.t <= i/(P.length - 1)); return true; } }
+    return false;
+  }
+  return {W, H, CX, CY, SRX, SRY, FCX, FCY, FRX, FRY, LV, TEX, TEXC, TOOLS, REQ, DYES, NATURAL, tool, st, owns, makeClient, buildTarget, cutStrandAtY, drawClient, step, settle, eff, measure, score, mix, lum, hexRgb};
+})();
+
+/* ---------- Hair Salon v7: the game ---------- */
+const SAL_PRICE = {trim:25, bob:35, bangs:20, washgo:20, blowout:30, defined:40, afro:40, waves:40, press:55, color:60, pony:25, braid:30, bun:35};
+const SAL_R = {spray:48, shampoo:44, rinse:70, cond:40, comb:30, brush:34, towel:52, dryer:80, protect:56, diffuser:80, cream:40, serum:40, mousse:40, gel:40, iron:28, wand:26, pick:34, dye:28, bleach:30, spray2:60};
+STUDIO.hair = {
+  start(mode){
+    if(mode === "classic") return HS_CLASSIC.start.call(HS_CLASSIC, mode);
+    this.lobby();
+  },
+  /* ---------- salon lobby + shop ---------- */
+  lobby(){
+    const s = SAL.st(); cancelAnimationFrame(this.raf);
+    const avg = s.served ? Math.round(s.totalMatch/s.served) : 0, locked = SAL.TOOLS.filter(t => t[4] > 0);
+    stage.innerHTML = `<div class="sal-lobby">
+      <div class="sal-sign"><span class="eyebrow">Your salon</span><h3>Day ${s.days + 1}</h3>
+        <div class="sal-stats"><span><small>Coins</small><b class="coin">${fmt(s.coins)}</b></span><span><small>Clients served</small><b>${s.served}</b></span><span><small>Average match</small><b>${s.served ? avg + "%" : "–"}</b></span><span><small>Best match</small><b>${s.best ? s.best + "%" : "–"}</b></span><span><small>Best day</small><b>${s.bestDay ? fmt(s.bestDay) : "–"}</b></span></div>
+        <p class="stage-tip">Three clients a day. Each brings a photo of the look they want. Match it, be gentle, keep their hair healthy, and earn coins and tips to unlock pro tools, products and new kinds of clients.</p>
+        <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="slOpen">Open the salon →</button><button class="btn" type="button" id="slDaily">Daily challenge client</button></div>
+        <p class="tooltip-line">Daily challenge: everyone gets the same client today. Retry as often as you like; your best match is saved.${(s.daily || {})[today()] ? ` Today's best: <b>${s.daily[today()]}%</b>.` : ""}</p></div>
+      <div class="sal-shop"><span class="eyebrow">Supply shop</span><div class="sal-shopgrid">${locked.map(([k, n, ic, d, p]) => { const own = SAL.owns(k); return `<div class="sal-item${own ? " own" : ""}"><span class="ti">${icon(ic, 34)}</span><b>${n}</b><small>${d}</small>${own ? `<span class="owned">Owned</span>` : `<button class="btn-sm" type="button" data-buy="${k}" ${s.coins < p ? "disabled" : ""}><span class="coin">${p}</span></button>`}</div>`; }).join("")}</div>
+        <p class="tooltip-line">New tools unlock new requests: a diffuser brings curl clients, a flat iron brings silk presses, dye brings color jobs.</p></div></div>`;
+    stage.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => { const t = SAL.tool(b.dataset.buy); if(s.coins < t[4]) return; s.coins -= t[4]; s.owned.push(t[0]); save(); sfx.win(); this.lobby(); });
+    $("slOpen").onclick = () => { this.day = {n:0, earned:0, results:[]}; this.newClient(); };
+    $("slDaily").onclick = () => { this.day = {n:0, earned:0, results:[], daily:true}; const r0 = Math.random, R2 = rng("salon" + today()); Math.random = R2; try{ this.newClient(true); } finally { Math.random = r0; } };
+    setSide("Coins", fmt(s.coins));
+  },
+  pickReq(){
+    const d = S.rating.hair, ok = SAL.REQ.filter(r => r.need.every(SAL.owns));
+    const fresh = ok.filter(r => !(this.lastReq || []).includes(r.k));
+    const pool = (fresh.length ? fresh : ok).filter(r => d >= 3 || ["trim","bob","bangs","washgo","blowout"].includes(r.k) || r.need.length);
+    const r = pick(pool.length ? pool : ok); this.lastReq = [...(this.lastReq || []).slice(-3), r.k]; return r;
+  },
+  newClient(daily){
+    const req = daily ? pick(SAL.REQ.filter(r => !r.need.length)) : this.pickReq(), opts = {};
+    if(req.k === "color"){ const dy = pick(SAL.DYES); opts.dyeName = dy[0]; opts.dyeHex = dy[1]; }
+    const cl = SAL.makeClient(req, opts); cl.cm = R(3, 6); Object.assign(cl, opts);
+    const sv = SAL.measure(cl), tg = req.target(cl, sv);
+    if(tg.endY) tg.endY = clamp(tg.endY, SAL.LV.chin, SAL.LV.waist);
+    this.req = req; this.cl = cl; this.tg = tg; this.target = SAL.buildTarget(cl, tg); this.before = null;
+    this.tool = "spray"; this.heat = 2; this.att = "nozzle"; this.dye = "pink"; this.hand = 0; this.locked = false; this.parts = []; this.cut = null; this.tips = new Set(); this.frame = 0; this.live = null; this.shake = 0;
+    this.render();
+  },
+  render(){
+    const cl = this.cl, s = SAL.st(), req = this.req;
+    stage.innerHTML = `<div class="sal">
+      <div class="sal-hud"><span class="coin" id="slCoins">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily challenge" : `Client ${this.day.n + 1} of 3`}</span><span id="slTime">0:00</span><span class="sal-moodbar" title="Client comfort"><i id="slMood"></i></span><span class="sal-match"><small>Match</small><b id="slMatch">–</b></span></div>
+      <div class="sal-main">
+        <div class="sal-chair"><div class="sal-mirror"><canvas id="slCv" aria-label="${cl.name} in the salon chair"></canvas><div class="sal-bubble" id="slBubble"></div></div>
+          <div class="row-btns"><label class="hlmode"><input type="checkbox" id="slGuides" ${S.rating.hair < 6 ? "checked" : ""}> Length guides</label><span class="msg" id="slMsg"></span></div></div>
+        <div class="sal-side">
+          <div class="sal-req"><canvas id="slGoal" width="300" height="382"></canvas><div><span class="eyebrow">${req.t} · ${SAL.TEX[cl.tex]} (${SAL.TEXC[cl.tex]}) hair</span><h3>${cl.name}</h3><p class="sal-say">“${req.say(cl)}”</p>
+            <details><summary>Stylist's notes</summary><p class="tooltip-line">${req.tip}</p></details></div></div>
+          <div class="sal-tools" id="slTools">${SAL.TOOLS.filter(t => !["diffuser","ties"].includes(t[0])).map(([k, n, ic, d, p]) => { const own = SAL.owns(k); return `<button type="button" class="sal-tool${own ? "" : " locked"}" data-t="${k}" ${own ? "" : "disabled"} title="${n}${own ? "" : ` (unlock for ${p} coins)`}"><span class="ti">${icon(ic, 28)}</span><small>${n}</small></button>`; }).join("")}</div>
+          <div class="sal-opts" id="slOpts"></div>
+          <div class="sal-meters" id="slMeters"></div>
+          <div class="row-btns"><button class="btn btn-solid" type="button" id="slDone">Finish & spin the chair</button></div>
+          <div id="slRes"></div>
+        </div></div></div>`;
+    const cv = $("slCv"), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = SAL.W*dpr; cv.height = SAL.H*dpr; this.ctx = cv.getContext("2d"); this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.cv = cv;
+    const gc = $("slGoal").getContext("2d"); gc.scale(300/SAL.W, 382/SAL.H); SAL.drawClient(gc, this.target, {time:0, mood:"happy"});
+    $("slTools").onclick = e => { const b = e.target.closest("[data-t]"); if(!b || this.locked) return; this.tool = b.dataset.t; sfx.click(); this.toolUI(); };
+    $("slDone").onclick = () => this.finish();
+    this.bindPointer(); this.toolUI();
+    this.before = document.createElement("canvas"); this.before.width = 300; this.before.height = 382; const bc = this.before.getContext("2d"); bc.scale(300/SAL.W, 382/SAL.H); SAL.drawClient(bc, cl, {time:0});
+    this.say(pick(["Hi! Thanks for fitting me in.","Hello! I brought a photo.","I've been looking forward to this!"]));
+    const tok = G.token; cancelAnimationFrame(this.raf);
+    const loop = () => { if(G.token !== tok || !document.body.contains(cv)) return; this.tick(); this.raf = requestAnimationFrame(loop); };
+    this.raf = requestAnimationFrame(loop);
+  },
+  toolUI(){
+    stage.querySelectorAll(".sal-tool").forEach(b => b.classList.toggle("sel", b.dataset.t === this.tool));
+    const t = SAL.tool(this.tool), o = $("slOpts"); let h = `<p class="tooltip-line"><b>${t[1]}:</b> ${t[3]}</p>`;
+    if(this.tool === "shampoo") h += `<div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="slPump">${icon("🧴", 18)} Pump shampoo</button><span class="sal-hand"><i style="width:${Math.min(100, this.hand*100)}%"></i></span></div>`;
+    if(this.tool === "dryer") h += `<div class="chips">${[[1,"Cool"],[2,"Warm"],[3,"Hot"]].map(([v, l]) => `<button type="button" class="ch${this.heat === v ? " sel" : ""}" data-heat="${v}">${l}</button>`).join("")}</div><div class="chips"><button type="button" class="ch${this.att === "nozzle" ? " sel" : ""}" data-att="nozzle">Nozzle</button><button type="button" class="ch${this.att === "diffuser" ? " sel" : ""}" data-att="diffuser" ${SAL.owns("diffuser") ? "" : "disabled"}>Diffuser${SAL.owns("diffuser") ? "" : " (locked)"}</button></div>`;
+    if(this.tool === "dye") h += `<div class="swatches">${SAL.DYES.map(([n, c]) => `<button type="button" class="sw${this.dye === n ? " sel" : ""}" data-dye="${n}" style="background:${c}" title="${n}" aria-label="${n}"></button>`).join("")}</div>`;
+    h += `<div class="opt-group"><h4>Styling station</h4><div class="chips">${[["down","Down"],["pony","Ponytail"],["braid","Side braid"],["bun","Bun"]].map(([v, l]) => `<button type="button" class="ch${this.cl.style === v ? " sel" : ""}" data-style="${v}" ${v === "down" || SAL.owns("ties") ? "" : "disabled"}>${l}${v !== "down" && !SAL.owns("ties") ? " 🔒".replace(" 🔒", " (locked)") : ""}</button>`).join("")}</div></div>`;
+    o.innerHTML = h;
+    o.onclick = e => { const b = e.target.closest("[data-heat],[data-att],[data-dye],[data-style],#slPump"); if(!b || this.locked) return;
+      if(b.id === "slPump"){ this.hand = Math.min(1.6, this.hand + .55); sfx.click(); this.toolUI(); return; }
+      if(b.dataset.heat) this.heat = +b.dataset.heat; if(b.dataset.att) this.att = b.dataset.att; if(b.dataset.dye) this.dye = b.dataset.dye;
+      if(b.dataset.style) this.setStyle(b.dataset.style);
+      sfx.click(); this.toolUI(); };
+  },
+  setStyle(v){
+    const cl = this.cl, m = SAL.measure(cl);
+    if(v !== "down"){
+      if(m.wet > .2) return this.note("Dry the hair before you tie it up: wet hair dries lumpy in a tie.");
+      if(m.knots > 2) return this.note("Detangle first! Tying knotty hair hurts and looks bumpy.");
+      if(v !== "bun" && m.endY < SAL.LV.chin + 20) return this.note("Too short to tie back: it needs to reach past the chin.");
+      if(v === "bun" && m.endY < SAL.LV.shoulder) return this.note("A bun needs hair at least to the shoulders.");
+    }
+    cl.style = v; sfx.good(); if(v !== "down") this.say(v === "bun" ? "Ooh, elegant!" : v === "braid" ? "I love a braid!" : "Sporty!");
+  },
+  say(t, kind){ const b = $("slBubble"); if(!b) return; b.textContent = t; b.className = "sal-bubble show" + (kind ? " " + kind : ""); clearTimeout(this.sayT); this.sayT = setTimeout(() => b && b.classList.remove("show"), 2200); },
+  note(t){ const m = $("slMsg"); if(m){ m.textContent = t; } },
+  tipOnce(k, t){ if(this.tips.has(k)) return; this.tips.add(k); this.note(t); },
+  pain(why){ const cl = this.cl; if(this.frame - (this.lastPain || -99) < 28) return; this.lastPain = this.frame; cl.pains++; cl.mood = Math.max(0, cl.mood - .07); cl.ouch = 22; this.shake = 8; sfx.bad(); this.say(pick(["OW!","Ouch!","Yikes, that pulled!"]), "bad"); this.tipOnce("pain" + why, why); },
+  /* ---------- pointer ---------- */
+  bindPointer(){
+    const cv = this.cv;
+    const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left)/r.width*SAL.W, (e.clientY - r.top)/r.height*SAL.H]; };
+    cv.onpointerdown = e => { if(this.locked) return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){} const p = pos(e); this.ptr = {x:p[0], y:p[1], sx:p[0], sy:p[1], dx:0, dy:0, down:true, sp:0}; if(this.tool === "scissors") this.cut = [p]; };
+    cv.onpointermove = e => { const p = pos(e); const q = this.ptr || {x:p[0], y:p[1]}; const dx = p[0] - q.x, dy = p[1] - q.y;
+      this.ptr = {...q, x:p[0], y:p[1], dx:(q.dx || 0)*.5 + dx, dy:(q.dy || 0)*.5 + dy, sp:Math.hypot(dx, dy), down:q.down && e.buttons > 0, hover:true};
+      if(this.ptr.down && this.tool === "scissors" && this.cut){ this.snip(this.cut[this.cut.length - 1], p); this.cut.push(p); if(this.cut.length > 14) this.cut.shift(); } };
+    cv.onpointerup = cv.onpointercancel = () => { if(this.ptr) this.ptr.down = false; this.cut = null; };
+    cv.onpointerleave = () => { if(this.ptr){ this.ptr.hover = false; this.ptr.down = false; } };
+  },
+  snip(a, b){
+    const cl = this.cl; let any = 0;
+    cl.strands.forEach(s => { const P = s.pts; if(cl.style !== "down" && s.g !== "bang") return; if(cl.style !== "down" && s.g === "bang" && !cl.bangsFwd) return;
+      for(let i = 1; i < P.length; i++){ const p1 = P[i-1], p2 = P[i]; const d = (b[0] - a[0])*(p2.y - p1.y) - (b[1] - a[1])*(p2.x - p1.x); if(Math.abs(d) < 1e-6) continue;
+        const ua = ((p1.x - a[0])*(p2.y - p1.y) - (p1.y - a[1])*(p2.x - p1.x))/d, ub = ((p1.x - a[0])*(b[1] - a[1]) - (p1.y - a[1])*(b[0] - a[0]))/d;
+        if(ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1 && i > 2){ const piece = P.slice(i).map(p => ({x:p.x, y:p.y})); const f = ub;
+          s.L = s.L.slice(0, i - 1).concat([s.L[i-1]*clamp(f, .05, 1)]); s.pts = P.slice(0, i + 1); s.pts[i] = {x:p1.x + (p2.x - p1.x)*f, y:p1.y + (p2.y - p1.y)*f, px:p1.x + (p2.x - p1.x)*f, py:p1.y + (p2.y - p1.y)*f};
+          s.knots = s.knots.filter(k => k.t*(P.length - 1) < i);
+          if(piece.length > 1) this.parts.push({type:"clip", pts:piece, vx:(Math.random() - .5)*1.5, vy:-1, life:70, col:s.color});
+          any++; break; } } });
+    if(any){ if(this.frame - (this.lastSnip || -9) > 4){ tone(2400, .03, "square", .025); setTimeout(() => tone(1600, .03, "square", .02), 30); } this.lastSnip = this.frame;
+      const m = SAL.measure(cl); if(cl.tex >= 1 && m.wet > .4) this.tipOnce("shrink", "Careful: curly hair shrinks as it dries, so wet curls end up shorter than where you cut."); }
+  },
+  /* ---------- tool effects (every frame while held) ---------- */
+  apply(){
+    const p = this.ptr, cl = this.cl, k = this.tool; if(!p || !p.down || this.locked) return;
+    const r = SAL_R[k] || 30, sp = p.sp, down = p.dy > 1.2;
+    const hits = [];
+    cl.strands.forEach(s => { if(cl.style !== "down" && s.g !== "bang"){ /* tied up: products and heat still reach it */ if(!["spray","rinse","dryer","protect","serum","gel","spray2","dye","bleach"].includes(k)) return; }
+      let best = 0, bi = 0; for(let i = 0; i < s.pts.length; i++){ const q = s.pts[i], d = Math.hypot(q.x - p.x, q.y - p.y); if(d < r){ const w = 1 - d/r; if(w > best){ best = w; bi = i; } } }
+      if(best > 0) hits.push([s, best, bi/(s.pts.length - 1 || 1)]); });
+    const onScalp = ((p.x - SAL.CX)/(SAL.SRX*1.15))**2 + ((p.y - SAL.CY)/(SAL.SRY*1.15))**2 < 1 && p.y < SAL.CY + 40;
+    const P = this.parts, puff = (type, n, col) => { for(let i = 0; i < n; i++) P.push({type, x:p.x + (Math.random() - .5)*r, y:p.y + (Math.random() - .5)*r*.6, vx:(Math.random() - .5)*2, vy:type === "steam" ? -1.2 - Math.random() : (Math.random() - .3)*2, life:30 + Math.random()*20, col}); };
+    switch(k){
+      case "spray": hits.forEach(([s, w]) => s.wet = Math.min(1, s.wet + .05*w)); if(this.frame % 2 === 0) puff("drop", 2, "#7cc4f0"); if(this.frame % 6 === 0) tone(4000 + Math.random()*800, .04, "triangle", .01); break;
+      case "rinse": hits.forEach(([s, w]) => { s.wet = Math.min(1, s.wet + .09*w); const f0 = s.foam; s.foam = Math.max(0, s.foam - .05*w); s.dirt = Math.max(0, s.dirt - (f0 - s.foam)*.5); const c0 = s.condOn; s.condOn = Math.max(0, s.condOn - .04*w); s.soft = Math.min(1, s.soft + (c0 - s.condOn)*1.4); });
+        puff("drop", 3, "#7cc4f0"); if(this.frame % 5 === 0) tone(300 + Math.random()*200, .05, "sine", .008); break;
+      case "shampoo":
+        if(!onScalp){ this.tipOnce("scalp", "Shampoo goes on the scalp: that's where the oil and dirt are. Scrub the top of the head."); break; }
+        if(this.hand <= 0){ this.tipOnce("pump", "Pump some shampoo into your hand first."); break; }
+        hits.forEach(([s, w, t]) => { if(t > .35) return; if(s.wet < .3){ this.tipOnce("dryLather", "Shampoo won't lather on dry hair. Wet it first!"); return; } const scrub = Math.min(1, sp/5); s.foam = Math.min(1, s.foam + .035*w*scrub); s.dirt = Math.max(0, s.dirt - .035*w*scrub*Math.max(.4, s.foam)); });
+        this.hand = Math.max(0, this.hand - .004*Math.min(1, sp/4)); if(sp > 3 && this.frame % 40 === 0){ cl.mood = Math.min(1, cl.mood + .03); this.say(pick(["Mmm, that's relaxing.","Ooh, scalp massage!","Ahh, lovely."]), "good"); }
+        if(sp > 3 && this.frame % 3 === 0) puff("bubble", 1, "#fff"); break;
+      case "cond": hits.forEach(([s, w, t]) => { if(t < .25){ s.dirt = Math.min(1, s.dirt + .004*w); this.tipOnce("condRoots", "Conditioner belongs on the mid-lengths and ends. On the roots it makes hair greasy and flat."); } else s.condOn = Math.min(1, s.condOn + .05*w); }); break;
+      case "comb": case "brush": {
+        const fore = Math.abs(p.sx - SAL.CX) < 55 && p.sy > SAL.CY - 90 && p.sy < SAL.FCY - 40 && Math.abs(p.y - p.sy) < 90;
+        if(k === "comb" && fore && Math.abs(p.dy) > 3){ const fwd = p.dy > 0; if(fwd !== cl.bangsFwd){ cl.bangsFwd = fwd; sfx.click(); this.note(fwd ? "Bangs combed forward over the forehead." : "Bangs swept back to the side."); } break; }
+        if(!down && k === "comb"){ break; }
+        hits.forEach(([s, w, t]) => {
+          const below = s.knots.filter(q => q.t >= t - .02).sort((a, b) => a.t - b.t);
+          if(below.length){ const kn = below[0];
+            if(kn.t - t < .22 || k === "comb" && s.knots.length === 1 && kn.t - t < .3){ kn.k -= (s.condOn > .3 || s.soft > .45 ? .5 : s.wet > .5 && cl.tex < 2 ? .3 : .14)*(k === "brush" ? .7 : 1)*w; if(kn.k <= 0){ s.knots = s.knots.filter(q => q !== kn); P.push({type:"spark", x:p.x, y:p.y, vx:0, vy:-1, life:24}); tone(880, .05, "triangle", .03); } else if(cl.tex >= 2 && s.condOn < .2 && Math.random() < .15) this.pain("Coily and curly hair tangles easily. Use plenty of conditioner so knots slide out."); }
+            else this.pain("Start detangling near the ends and work up toward the roots. Combing from the top drags every knot tighter.");
+            return; }
+          const dry = s.wet < .15;
+          if(k === "brush"){ if(dry && cl.tex >= 2){ s.frizz = Math.min(1, s.frizz + .04*w); s.curl = Math.max(.15, s.curl - .012*w); s.vol = Math.min(.6, s.vol + .01*w); this.tipOnce("brushCurls", "Brushing dry curls separates every curl clump into frizz. Detangle curls wet, with conditioner and a wide-tooth comb."); }
+            else { s.frizz = Math.max(0, s.frizz - .025*w); if(dry) s.shine = Math.min(.8, s.shine + .006*w); } }
+          else { if(dry && cl.tex >= 2){ s.frizz = Math.min(1, s.frizz + .012*w); } else s.frizz = Math.max(0, s.frizz - .012*w); }
+        });
+        break; }
+      case "towel": hits.forEach(([s, w]) => { s.wet = Math.max(.3, s.wet - .03*w); s.foam = Math.max(0, s.foam - .01*w); if(sp > 15){ s.frizz = Math.min(1, s.frizz + .012*w); } });
+        if(sp > 15 && hits.length){ cl.rubs++; this.tipOnce("rub", "Rubbing with a towel roughs up the cuticle and causes frizz. Squeeze and blot slowly instead."); } break;
+      case "dryer": {
+        const h = this.heat, diff = this.att === "diffuser", rootsNear = ((p.x - SAL.CX)/(SAL.SRX*1.2))**2 + ((p.y - SAL.CY)/(SAL.SRY*1.2))**2 < 1;
+        hits.forEach(([s, w]) => { const was = s.wet; s.wet = Math.max(0, s.wet - .0055*h*w*(diff ? .8 : 1)); const prot = s.prot > .3;
+          s.heat = Math.min(1, s.heat + (prot ? .00006 : .0003)*h*w*(was < .03 ? 2 : 1)*(h === 1 ? .2 : 1));
+          if(was > .02){ if(diff){ s.frizz = Math.max(0, s.frizz - (.003 + s.cream*.006)*w); s.curl += (s.curl0 - s.curl)*.02*w; s.vol = Math.min(.5, s.vol + .002*w); }
+            else if(down){ s.curl = Math.max(0, s.curl - .022*w); s.frizz = Math.max(0, s.frizz - .01*w); s.shine = Math.min(.8, s.shine + .003*w); }
+            else if(cl.tex >= 2){ s.frizz = Math.min(1, s.frizz + .004*w*h); } } });
+        if(!diff && !down && cl.tex >= 2 && hits.some(([s]) => s.wet > .05)) this.tipOnce("diffuse", "Blasting curls with the nozzle blows them apart into frizz. Drag down to stretch them straight, or use a diffuser to keep the curls.");
+        if(rootsNear && h === 3){ this.hot = (this.hot || 0) + 1; if(this.hot > 70){ this.hot = 0; cl.burns++; cl.mood = Math.max(0, cl.mood - .06); this.say("Too hot! That burns!", "bad"); sfx.bad(); this.tipOnce("burn", "Keep the dryer moving and a hand's width from the scalp, or use the warm setting."); } } else this.hot = Math.max(0, (this.hot || 0) - 1);
+        this.wind = {x:p.x, y:p.y - 20, r:diff ? 90 : 140, f:diff ? .25 : .35*h};
+        if(this.frame % 4 === 0) tone(90 + h*30 + Math.random()*10, .07, "sawtooth", .012); if(this.frame % 3 === 0 && hits.some(([s]) => s.wet > .1)) puff("steam", 1, "#ffffff"); break; }
+      case "protect": hits.forEach(([s, w]) => s.prot = Math.min(1, s.prot + .07*w)); puff("mist", 2, "#cfe8ff"); break;
+      case "iron": case "wand": hits.forEach(([s, w]) => { if(w < .35) return;
+          if(s.wet > .2){ s.heat = Math.min(1, s.heat + .04*w); cl.steam++; if(this.frame % 3 === 0){ puff("steam", 3, "#fff"); tone(5000, .05, "sawtooth", .015); } this.tipOnce("wetIron", "Hissss! Ironing wet hair boils the water inside the strand and damages it badly. Dry it completely first."); return; }
+          const prot = s.prot > .3; s.heat = Math.min(1, s.heat + (prot ? .0015 : .012)*w);
+          if(k === "iron"){ s.curl = Math.max(0, s.curl - .1*w); s.frizz = Math.max(0, s.frizz - .03*w); s.shine = Math.min(.9, s.shine + .01*w); }
+          else { s.curl = Math.min(.82, s.curl + .035*w); s.frizz = Math.max(0, s.frizz - .01*w); }
+          if(!prot) this.tipOnce("prot", "No heat protectant! Hot tools crack the hair's outer layer. Mist protectant on first."); });
+        if(this.frame % 6 === 0 && hits.length) puff("steam", 1, "#ffffff"); break;
+      case "cream": hits.forEach(([s, w]) => { s.cream = Math.min(2, s.cream + .03*w); if(s.wet < .1 && cl.tex >= 2) this.tipOnce("creamDry", "Curl cream works best rubbed into damp hair, before drying."); }); break;
+      case "serum": hits.forEach(([s, w]) => s.serum = Math.min(2, s.serum + .02*w)); break;
+      case "mousse": hits.forEach(([s, w]) => s.mousse = Math.min(2, s.mousse + .03*w)); break;
+      case "gel": hits.forEach(([s, w]) => s.gel = Math.min(2, s.gel + .03*w)); break;
+      case "spray2": hits.forEach(([s, w]) => s.hold = Math.min(1.5, s.hold + .03*w)); puff("mist", 2, "#eeeeee"); break;
+      case "pick": hits.forEach(([s, w]) => { if(cl.tex < 2){ this.tipOnce("pickStraight", "A pick is for curls and coils. On straight hair it does nothing."); return; } s.vol = Math.min(.9, s.vol + .02*w); s.frizz = Math.min(.7, s.frizz + .002*w); }); break;
+      case "dye": { const dy = SAL.DYES.find(d => d[0] === this.dye)[1]; hits.forEach(([s, w]) => { const L = SAL.lum(s.color), mask = clamp((.55 - L)*1.7, 0, .85), show = SAL.mix(dy, s.color, mask*.9); s.color = SAL.mix(s.color, show, .06*w); });
+        if(hits.length && SAL.lum(cl.base) < .35) this.tipOnce("dark", "Dye is see-through: on dark hair it barely shows. Lighten it with bleach first for bright or pastel colors."); break; }
+      case "bleach": hits.forEach(([s, w]) => { s.color = SAL.mix(s.color, "#f0dfae", .05*w); s.heat = Math.min(1, s.heat + .002*w); }); break;
+    }
+  },
+  tick(){
+    this.frame++; const cl = this.cl, ctx = this.ctx, now = performance.now();
+    this.wind = null; this.apply();
+    cl.strands.forEach(s => { if(s.wet > 0) s.wet = Math.max(0, s.wet - .00035); if(s.wet > .3) s.curl += (s.curl0 - s.curl)*.004; if(cl.ouch) cl.ouch--; });
+    SAL.step(cl, this.wind);
+    if(this.shake > 0) this.shake--;
+    ctx.save(); if(this.shake) ctx.translate((Math.random() - .5)*this.shake, (Math.random() - .5)*this.shake*.5);
+    const mood = cl.ouch > 0 ? "ouch" : cl.mood < .45 ? "sad" : this.locked && this.result ? (this.result.pct >= 85 ? "wow" : this.result.pct >= 60 ? "happy" : "sad") : "neutral";
+    SAL.drawClient(ctx, cl, {time:now, mood});
+    if($("slGuides") && $("slGuides").checked && !this.locked){ ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5; ctx.font = "11px DM Mono, monospace"; Object.entries(SAL.LV).forEach(([k, y]) => { ctx.strokeStyle = "rgba(43,33,24,.35)"; ctx.beginPath(); ctx.moveTo(8, y); ctx.lineTo(SAL.W - 8, y); ctx.stroke(); ctx.fillStyle = "rgba(43,33,24,.6)"; ctx.fillText(k, SAL.W - 64, y - 4); }); ctx.setLineDash([]);
+      if(this.tg.endY){ ctx.strokeStyle = "#2a9d8f"; ctx.lineWidth = 2; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(8, this.tg.endY); ctx.lineTo(SAL.W - 8, this.tg.endY); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = "#2a9d8f"; ctx.fillText("goal", 10, this.tg.endY - 4); } }
+    /* particles */
+    this.parts = this.parts.filter(q => q.life-- > 0);
+    this.parts.forEach(q => { ctx.globalAlpha = Math.min(1, q.life/20);
+      if(q.type === "clip"){ q.vy += .25; q.pts.forEach(pt => { pt.x += q.vx; pt.y += q.vy; }); ctx.strokeStyle = INK; ctx.lineWidth = 6; ctx.lineCap = "round"; ctx.beginPath(); q.pts.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y)); ctx.stroke(); ctx.strokeStyle = q.col; ctx.lineWidth = 3.4; ctx.stroke(); }
+      else { q.x += q.vx; q.y += q.vy; if(q.type === "drop") q.vy += .2;
+        ctx.beginPath(); ctx.arc(q.x, q.y, q.type === "steam" ? 6 + (40 - q.life)*.25 : q.type === "bubble" ? 4 : q.type === "mist" ? 2.5 : 2.4, 0, 6.28);
+        ctx.fillStyle = q.type === "steam" ? "rgba(255,255,255,.55)" : q.type === "bubble" ? "rgba(255,255,255,.9)" : q.type === "spark" ? "#ffd166" : q.col || "#7cc4f0"; ctx.fill(); if(q.type === "bubble"){ ctx.strokeStyle = "#9ec9e8"; ctx.lineWidth = 1; ctx.stroke(); } }
+      ctx.globalAlpha = 1; });
+    /* cursor */
+    const p = this.ptr; if(p && p.hover && !this.locked){ ctx.strokeStyle = this.tool === "scissors" ? "#e63946" : "rgba(43,33,24,.55)"; ctx.lineWidth = 2; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(p.x, p.y, this.tool === "scissors" ? 6 : (SAL_R[this.tool] || 30)*.7, 0, 6.28); ctx.stroke(); ctx.setLineDash([]);
+      if(this.cut && this.cut.length > 1){ ctx.strokeStyle = "#e63946"; ctx.lineWidth = 2.5; ctx.beginPath(); this.cut.forEach((c, i) => i ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1])); ctx.stroke(); } }
+    ctx.restore();
+    /* HUD */
+    if(this.frame % 15 === 0 && !this.locked){
+      const sec = Math.floor((now - cl.t0)/1000); $("slTime").textContent = `${Math.floor(sec/60)}:${String(sec % 60).padStart(2, "0")}`;
+      $("slMood").style.width = Math.round(cl.mood*100) + "%";
+      const sc = SAL.score(cl, this.tg); this.live = sc; const mt = $("slMatch"); mt.textContent = sc.pct + "%"; mt.className = sc.pct >= 85 ? "hi" : sc.pct >= 60 ? "mid" : "lo";
+      $("slMeters").innerHTML = sc.parts.filter(q => q.w >= 8).map(q => `<div class="sal-meter"><span>${q.label}</span><i><b style="width:${Math.round(q.v*100)}%" class="${q.v >= .85 ? "hi" : q.v >= .55 ? "mid" : "lo"}"></b></i></div>`).join("");
+      if(this.tool === "shampoo"){ const hb = stage.querySelector(".sal-hand i"); if(hb) hb.style.width = Math.min(100, this.hand*100) + "%"; }
+    }
+  },
+  /* ---------- finish ---------- */
+  finish(){
+    if(this.locked) return; this.locked = true; const cl = this.cl, req = this.req;
+    SAL.settle(cl, 90);
+    const res = SAL.score(cl, this.tg, true); this.result = res;
+    const sec = Math.round((performance.now() - cl.t0)/1000), price = SAL_PRICE[req.k] || 25;
+    const earn = Math.round(price*res.pct/100), tip = res.pct >= 92 ? Math.round(price*.35) : res.pct >= 80 ? Math.round(price*.18) : res.pct >= 65 ? Math.round(price*.06) : 0, fast = res.pct >= 75 && sec < 150 ? 5 : 0;
+    const s = SAL.st(); s.coins += earn + tip + fast; s.served++; s.totalMatch += res.pct; const pb = res.pct > s.best; s.best = Math.max(s.best, res.pct); save();
+    this.day.n++; this.day.earned += earn + tip + fast; this.day.results.push({name:cl.name, t:req.t, pct:res.pct});
+    if(this.day.daily){ s.daily = s.daily || {}; const prevD = s.daily[today()] || 0; s.daily[today()] = Math.max(prevD, res.pct); save(); this.dailyNew = res.pct > prevD; }
+    adapt("hair", res.pct/100); res.pct >= 85 ? sfx.win() : res.pct >= 60 ? sfx.good() : sfx.bad();
+    $("slCv").parentElement.classList.add("spin");
+    this.say(res.pct >= 92 ? "I LOVE it! You're a genius!" : res.pct >= 80 ? "It's gorgeous, thank you!" : res.pct >= 60 ? "It's nice. Not quite the photo, but nice." : "Hmm… this isn't what I asked for.", res.pct >= 60 ? "good" : "bad");
+    const after = document.createElement("canvas"); after.width = 300; after.height = 382; const ac = after.getContext("2d"); ac.scale(300/SAL.W, 382/SAL.H); SAL.drawClient(ac, cl, {time:0, mood:res.pct >= 85 ? "wow" : res.pct >= 60 ? "happy" : "sad"});
+    const goal = document.createElement("canvas"); goal.width = 300; goal.height = 382; const gc = goal.getContext("2d"); gc.scale(300/SAL.W, 382/SAL.H); SAL.drawClient(gc, this.target, {time:0, mood:"happy"});
+    const last = this.day.daily || this.day.n >= 3;
+    $("slRes").innerHTML = `<div class="reveal sal-result"><span class="eyebrow">${res.pct >= 92 ? "Salon superstar" : res.pct >= 80 ? "Great match" : res.pct >= 60 ? "Close enough" : "Missed the brief"}${pb ? " · New personal best!" : ""}</span>
+      <div class="sal-pct"><b data-count="${res.pct}">0</b>% match</div>
+      <div class="sal-compare"><figure><div id="slB"></div><figcaption>Before</figcaption></figure><figure><div id="slA"></div><figcaption>Yours</figcaption></figure><figure><div id="slG"></div><figcaption>Their photo</figcaption></figure></div>
+      <div class="sal-pay"><span>Service <b class="coin">${earn}</b></span><span>Tip <b class="coin">${tip}</b></span>${fast ? `<span>Speedy bonus <b class="coin">${fast}</b></span>` : ""}</div>
+      ${checklist(res.parts.map(q => ({label:`${q.label} · ${Math.round(q.v*100)}%`, ok:q.v >= .75, why:q.why})))}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="slNext">${last ? "Close up for the day" : "Next client →"}</button></div></div>`;
+    $("slB").appendChild(this.before); $("slA").appendChild(after); $("slG").appendChild(goal);
+    const el = stage.querySelector("[data-count]"); let v = 0; const tgt = res.pct, iv = setInterval(() => { v = Math.min(tgt, v + 3); if(el) el.textContent = v; if(v >= tgt) clearInterval(iv); }, 22);
+    $("slCoins").textContent = fmt(s.coins); setSide("Coins", fmt(s.coins));
+    if(this.day.daily){ $("slNext").textContent = "Back to the salon"; stage.querySelector(".sal-result .eyebrow").textContent += this.dailyNew ? " · Today's best!" : ` · Today's best: ${s.daily[today()]}%`; }
+    $("slNext").onclick = () => this.day.daily ? this.lobby() : last ? this.endDay() : this.newClient();
+    $("slRes").scrollIntoView({block:"nearest", behavior:"smooth"});
+  },
+  endDay(){
+    const s = SAL.st(), r = this.day.results, avg = Math.round(r.reduce((a, x) => a + x.pct, 0)/r.length), stars = avg >= 85 ? 3 : avg >= 65 ? 2 : 1;
+    s.days++; const best = this.day.earned > s.bestDay; s.bestDay = Math.max(s.bestDay, this.day.earned); save();
+    endSession({title: stars === 3 ? "Five-star salon" : stars === 2 ? "Busy, happy salon" : "Room to grow", stars, xp:20 + 15*stars,
+      body:`<div class="big">${fmt(this.day.earned)}</div><p class="m-note">coins earned today${best ? " (a new record!)" : ""} · average match ${avg}%. You now have <b>${fmt(s.coins)}</b> coins to spend in the supply shop.</p><ul class="roundlog">${r.map(x => `<li><span>${x.name} · ${x.t}</span><span>${x.pct}%</span></li>`).join("")}</ul>`,
+      actions:[["Shop & next day", () => startRoom("hair", "studio"), true], ["Lobby", goHub]]});
+  }
+};
+ROOMS.hair.blurb = "Run your own salon. Clients bring a photo of the look they want: wash, condition, detangle, cut, blow-dry, curl, straighten, color and style real, moving hair to match it. Earn coins and tips, unlock pro tools, and chase a perfect match.";
+ROOMS.hair.tip = "<b>Tip:</b> every texture behaves differently. Never brush dry curls, detangle from the ends up, and remember curly hair springs up shorter as it dries.";
+ROOMS.hair.modes = [["studio","Open the salon"],["classic","Classic appointment"],["sprint","Salon sprint · 60s"],["practice","Quiz"]];
+MODE_NAMES.classic = "Classic appointment";
+HOWTO.hair = ["Pick a tool on the right, then drag on the hair. Watch the Match meter at the top: it compares your work to the client's photo.","Wash: spray water, pump shampoo and scrub the scalp, rinse, condition the ends, detangle from the ends up. Then cut, dry and style.","Finish to see before, after and their photo side by side. Earn coins and tips, then unlock new tools in the supply shop."];
 
 renderHub();
 </script>
