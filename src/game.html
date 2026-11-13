@@ -9681,7 +9681,7 @@ const SAL = (() => {
     return Object.assign({g, a, rx, ry, nx, ny, L, pts, layer:Math.random(), wet:0, foam:0, dirt:0, cond:0, condOn:0, soft:0, knots:[], frizz:0, curl:(cl.natCurl ?? NAT_CURL[cl.tex]), curl0:(cl.natCurl ?? NAT_CURL[cl.tex]), phase:Math.random()*6.28, vol:0, prot:0, heat:0, cream:0, mousse:0, serum:0, gel:0, hold:0, color:cl.base, bleach:0, shine:.25, w:(g === "back" ? 13 : 11)*(cl.dens || 1)}, extra || {});
   }
   function makeClient(req, opts = {}){
-    const tex = opts.tex ?? pick(req.tex), len = Math.max({shoulder:LV.shoulder + 20, chest:LV.chest + 10, waist:LV.waist - 6}[opts.start || pick(req.start)], tex === 3 ? LV.chest + 40 : 0);
+    const tex = opts.tex ?? pick(req.tex), len = Math.max({ear:FCY + 34, chin:LV.chin + 8, shoulder:LV.shoulder + 20, chest:LV.chest + 10, waist:LV.waist - 6}[opts.start || pick(req.start)], tex === 3 ? LV.chest + 40 : 0);
     const baseKey = opts.baseKey || (tex === 3 ? pick(["black","darkbrown"]) : pick(["black","darkbrown","brown","auburn","copper","blonde","lightblonde"]));
     const cl = {name:opts.name || pick(NAMES2), tex, base:NATURAL[baseKey], baseKey, skin:opts.skin || pick(SKINS)[0], eye:opts.eye || pick(["#5a3a24","#3b2a1d","#4f7a3a","#3d6fb0","#7a5a2a"]), strands:[], style:"down", bangsFwd:false, mood:1, ouch:0, pains:0, burns:0, rubs:0, steam:0, blink:0, t0:performance.now()};
     Object.assign(cl, pickSub(tex, opts.sub), {dens:opts.dens || pick([.82, 1, 1, 1.2])});
@@ -9706,8 +9706,8 @@ const SAL = (() => {
     const shine = clamp(s.shine + s.soft*.25 + s.serum*.45 + s.gel*.15 - s.heat*.6 - s.dirt*.3 - frizz*.3 + wet*.25, 0, 1);
     return {wet, curl, shrink, frizz, vol, shine, hold};
   }
-  function strandColor(s){
-    let c = s.color;
+  function strandColor(s, base){
+    let c = base || s.color;
     if(s.dirt > .2) c = mix(c, "#5b4a32", s.dirt*.25);
     if(s.wet > .05) c = mix(c, "#000000", s.wet*.3);
     if(s.heat > .2) c = mix(c, "#9b8f7a", (s.heat - .2)*.5);
@@ -9769,10 +9769,14 @@ const SAL = (() => {
     const mw = o => o.s.w*(1.75 + o.e.vol*.35 + o.e.frizz*.3);
     items.forEach(o => { ctx.strokeStyle = INK; ctx.lineWidth = mw(o) + 3.4; strokePts(ctx, o.pts); });
     items.forEach(o => { ctx.strokeStyle = o.col; ctx.lineWidth = mw(o); strokePts(ctx, o.pts); });
+    items.forEach(o => { const s = o.s, n = o.pts.length; if(n < 3) return;
+      if(s.rootCol && s.rootCol !== s.color){ ctx.strokeStyle = strandColor(s, s.rootCol); ctx.lineWidth = mw(o); strokePts(ctx, o.pts.slice(0, Math.max(2, Math.floor(n*.26)))); ctx.strokeStyle = strandColor(s, mix(s.rootCol, s.color, .5)); strokePts(ctx, o.pts.slice(Math.floor(n*.22), Math.floor(n*.32))); }
+      if(s.tipCol && s.tipCol !== s.color){ ctx.strokeStyle = strandColor(s, mix(s.color, s.tipCol, .5)); ctx.lineWidth = mw(o); strokePts(ctx, o.pts.slice(Math.floor(n*.48), Math.floor(n*.62))); ctx.strokeStyle = strandColor(s, s.tipCol); strokePts(ctx, o.pts.slice(Math.floor(n*.58))); } });
     items.forEach((o, i) => { ctx.strokeStyle = shade(o.col, -.28); ctx.globalAlpha = .6; ctx.lineWidth = 1.4; for(const off of [-o.s.w*.45, o.s.w*.35]){ strokePts(ctx, o.pts.map(([x, y]) => [x + off*((i % 2) ? 1 : -.7), y])); } ctx.globalAlpha = 1; });
     items.forEach((o, i) => { if(i % 3) return; ctx.strokeStyle = shade(o.col, .12); ctx.globalAlpha = .5; ctx.lineWidth = 1.2; strokePts(ctx, o.pts.map(([x, y]) => [x + 1.5, y])); ctx.globalAlpha = 1; });
     items.forEach((o, i) => { if(o.e.shine < .15) return; ctx.strokeStyle = mix(o.col, "#ffffff", .25 + o.e.shine*.35); ctx.globalAlpha = .25 + o.e.shine*.6; ctx.lineWidth = 1.2 + o.e.shine*1.6;
       const seg = o.pts.slice(Math.floor(o.pts.length*.12), Math.floor(o.pts.length*(.35 + o.e.shine*.4))).map(([x, y]) => [x - 1.6, y]); strokePts(ctx, seg); ctx.globalAlpha = 1; });
+    items.forEach(o => { if(!o.s.split || o.pts.length < 3) return; const z = o.pts[o.pts.length - 1], y = o.pts[o.pts.length - 3], ang = Math.atan2(z[1] - y[1], z[0] - y[0]); ctx.strokeStyle = mix(o.col, "#e8dcc0", .45); ctx.lineWidth = 1.4; for(const da of [-.6, -.2, .3, .7]){ ctx.beginPath(); ctx.moveTo(z[0], z[1]); ctx.lineTo(z[0] + Math.cos(ang + da)*7, z[1] + Math.sin(ang + da)*7); ctx.stroke(); } });
     items.forEach(o => { if(!(o.s.coat > .04)) return; ctx.strokeStyle = o.s.coatCol || "#ffffff"; ctx.globalAlpha = Math.min(.9, o.s.coat); ctx.lineWidth = 3.4; ctx.setLineDash([6, 5]); strokePts(ctx, o.pts.slice(Math.floor(o.pts.length*.08)).map(([x, y]) => [x + 1.5, y])); ctx.setLineDash([]); ctx.globalAlpha = 1; });
     items.forEach(o => { if(o.e.frizz < .18) return; const R2 = rng(o.s.phase.toFixed(3)), n = Math.round(o.e.frizz*10); ctx.strokeStyle = mix(o.col, "#ffffff", .15); ctx.lineWidth = 1.1; ctx.globalAlpha = .8;
       for(let k = 0; k < n; k++){ const p = o.pts[Math.floor(R2()*o.pts.length)]; if(!p) continue; const ang = R2()*6.28, l = 5 + o.e.frizz*9; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.quadraticCurveTo(p[0] + Math.cos(ang)*l*.6 + Math.sin(time*.003 + k)*1.2, p[1] + Math.sin(ang)*l*.6, p[0] + Math.cos(ang + .6)*l, p[1] + Math.sin(ang + .6)*l); ctx.stroke(); } ctx.globalAlpha = 1; });
@@ -9781,24 +9785,50 @@ const SAL = (() => {
     return items;
   }
   function capPath(ctx){ ctx.beginPath(); ctx.ellipse(CX, CY, SRX*1.03, SRY*1.03, 0, Math.PI*.95, Math.PI*2.05); ctx.bezierCurveTo(CX + SRX*.98, CY - 10, FCX + FRX*.92, FCY - FRY*.62, FCX + FRX*.55, FCY - FRY*.8); ctx.quadraticCurveTo(FCX, FCY - FRY*.93, FCX - FRX*.55, FCY - FRY*.8); ctx.bezierCurveTo(FCX - FRX*.92, FCY - FRY*.62, CX - SRX*.98, CY - 10, CX + SRX*1.03*Math.cos(Math.PI*.95), CY + SRY*1.03*Math.sin(Math.PI*.95)); ctx.closePath(); }
+  function faceFx(cl){ if(cl.fx) return cl.fx; const R2 = rng("fx" + cl.name + cl.skin + (cl.base || ""));
+    const pk = a => a[Math.floor(R2()*a.length)];
+    cl.fx = {jaw:pk(["oval","round","square","heart","long"]), eye:pk(["almond","round","hooded","monolid","upturned"]), eyeS:.88 + R2()*.26, brow:pk(["soft","thick","arched","straight","thin"]), nose:pk(["button","long","wide","round","pointed"]), lips:pk(["soft","full","thin","wide","bow"]),
+      lipCol:R2() < .3 ? pk(["#c2185b","#d0545b","#a3121f","#e07a7a","#8e3b5a"]) : null, freckles:R2() < .22, mole:R2() < .2 ? [FCX + (R2() < .5 ? -1 : 1)*(20 + R2()*20), FCY + 20 + R2()*30] : null, glasses:R2() < .14 ? pk(["round","square","cat"]) : null,
+      ear:R2() < .4 ? pk(["stud","hoop","drop"]) : null, earCol:pk(["#ffd166","#d9dde3","#ff7db8"]), age:R2() < .16 ? "senior" : "adult", beard:R2() < .12 ? pk(["stubble","beard"]) : null, lashes:R2() < .55, blush:.12 + R2()*.18};
+    return cl.fx; }
+  function facePath(ctx, f){
+    const J = {oval:[1.05, .35, .55, .8, 1.12], round:[1.12, .5, .66, .76, 1.06], square:[1.06, .62, .74, .86, 1.04], heart:[1.1, .2, .42, .82, 1.14], long:[.98, .4, .5, .88, 1.16]}[f.jaw];
+    ctx.beginPath(); ctx.moveTo(FCX, FCY - FRY); ctx.bezierCurveTo(FCX + FRX*J[0], FCY - FRY, FCX + FRX*J[0], FCY + FRY*J[1], FCX + FRX*J[2], FCY + FRY*J[3]); ctx.quadraticCurveTo(FCX, FCY + FRY*J[4], FCX - FRX*J[2], FCY + FRY*J[3]); ctx.bezierCurveTo(FCX - FRX*J[0], FCY + FRY*J[1], FCX - FRX*J[0], FCY - FRY, FCX, FCY - FRY); }
   function drawFace(ctx, cl, time, mood){
-    const sk = cl.skin;
+    const sk = cl.skin, f = faceFx(cl);
     ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.lineJoin = "round";
     ctx.fillStyle = shade(sk, -.08); ctx.beginPath(); ctx.rect(FCX - 26, FCY + 60, 52, 70); ctx.fill(); ctx.stroke();
-    [-1, 1].forEach(d => { ctx.fillStyle = sk; ctx.beginPath(); ctx.ellipse(FCX + d*FRX*.98, FCY + 4, 11, 17, 0, 0, 6.28); ctx.fill(); ctx.stroke(); });
-    ctx.fillStyle = sk; ctx.beginPath(); ctx.moveTo(FCX, FCY - FRY); ctx.bezierCurveTo(FCX + FRX*1.05, FCY - FRY, FCX + FRX*1.05, FCY + FRY*.35, FCX + FRX*.55, FCY + FRY*.8); ctx.quadraticCurveTo(FCX, FCY + FRY*1.12, FCX - FRX*.55, FCY + FRY*.8); ctx.bezierCurveTo(FCX - FRX*1.05, FCY + FRY*.35, FCX - FRX*1.05, FCY - FRY, FCX, FCY - FRY); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = "rgba(255,120,120,.22)"; [-1, 1].forEach(d => { ctx.beginPath(); ctx.ellipse(FCX + d*40, FCY + 30, 13, 8, 0, 0, 6.28); ctx.fill(); });
-    const blink = (time % 4200) < 120 || mood === "ouch", ey = FCY - 2;
-    [-1, 1].forEach(d => { const x = FCX + d*28;
-      if(blink){ ctx.beginPath(); ctx.moveTo(x - 10, ey); ctx.quadraticCurveTo(x, ey + (mood === "ouch" ? -5 : 4), x + 10, ey); ctx.stroke(); }
-      else { ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.ellipse(x, ey, 11, mood === "wow" ? 10 : 8.5, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.fillStyle = cl.eye; ctx.beginPath(); ctx.arc(x + d*.5, ey + .5, 5.4, 0, 6.28); ctx.fill(); ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x + d*.5, ey + .5, 2.6, 0, 6.28); ctx.fill(); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x + d*.5 - 1.8, ey - 1.6, 1.4, 0, 6.28); ctx.fill(); }
-      ctx.lineWidth = 3.2; ctx.strokeStyle = shade(cl.base, -.25); ctx.beginPath(); const by = ey - 16 - (mood === "wow" ? 4 : 0) + (mood === "ouch" || mood === "sad" ? 2 : 0); ctx.moveTo(x - 11*d, by + (mood === "ouch" ? -3*1 : 2)); ctx.quadraticCurveTo(x, by - 4, x + 11*d, by + (mood === "sad" ? -2 : 3)); ctx.stroke(); ctx.lineWidth = 3; ctx.strokeStyle = INK; });
-    ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(FCX + 2, FCY + 6); ctx.quadraticCurveTo(FCX - 7, FCY + 24, FCX + 4, FCY + 28); ctx.stroke();
+    ctx.fillStyle = "rgba(0,0,0,.14)"; ctx.beginPath(); ctx.ellipse(FCX, FCY + 70, 26, 12, 0, 0, Math.PI); ctx.fill();
+    [-1, 1].forEach(d => { ctx.fillStyle = sk; ctx.beginPath(); ctx.ellipse(FCX + d*FRX*.98, FCY + 4, 11, 17, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.strokeStyle = shade(sk, -.3); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(FCX + d*FRX*.98, FCY + 4, 6, d < 0 ? 1.2 : -1.9, d < 0 ? 4.4 : 1.2); ctx.stroke(); ctx.strokeStyle = INK; ctx.lineWidth = 3; });
+    ctx.fillStyle = sk; facePath(ctx, f); ctx.fill();
+    const sg = ctx.createRadialGradient(FCX - 18, FCY - 20, 10, FCX, FCY, FRX*1.3); sg.addColorStop(0, "rgba(255,255,255,.12)"); sg.addColorStop(.6, "rgba(0,0,0,0)"); sg.addColorStop(1, "rgba(0,0,0,.18)"); ctx.fillStyle = sg; facePath(ctx, f); ctx.fill();
+    ctx.strokeStyle = INK; facePath(ctx, f); ctx.stroke();
+    ctx.fillStyle = `rgba(255,110,110,${f.blush})`; [-1, 1].forEach(d => { ctx.beginPath(); ctx.ellipse(FCX + d*40, FCY + 30, 13, 8, 0, 0, 6.28); ctx.fill(); });
+    if(f.freckles){ const R3 = rng("fr" + cl.name); ctx.fillStyle = shade(sk, -.38); for(let k = 0; k < 22; k++){ const d = R3() < .5 ? -1 : 1; ctx.beginPath(); ctx.arc(FCX + d*(8 + R3()*30), FCY + 12 + R3()*22, .9 + R3()*.9, 0, 6.28); ctx.fill(); } }
+    if(f.mole){ ctx.fillStyle = shade(sk, -.55); ctx.beginPath(); ctx.arc(f.mole[0], f.mole[1], 1.8, 0, 6.28); ctx.fill(); }
+    if(f.beard){ ctx.save(); facePath(ctx, f); ctx.clip(); ctx.fillStyle = mix(shade(cl.base || "#3b2a1d", -.25), "#2b1d14", lum(cl.base || "#3b2a1d") > .5 ? .35 : 0); if(f.beard === "beard"){ ctx.beginPath(); ctx.moveTo(FCX - FRX, FCY + 26); ctx.quadraticCurveTo(FCX - FRX*.6, FCY + 66, FCX - 20, FCY + 62); ctx.quadraticCurveTo(FCX, FCY + 60, FCX + 20, FCY + 62); ctx.quadraticCurveTo(FCX + FRX*.6, FCY + 66, FCX + FRX, FCY + 26); ctx.lineTo(FCX + FRX, FCY + FRY*1.2); ctx.lineTo(FCX - FRX, FCY + FRY*1.2); ctx.closePath(); ctx.fill(); ctx.fillRect(FCX - 14, FCY + 40, 28, 4); } else { const R5 = rng("st" + cl.name); ctx.fillStyle = shade(cl.base || "#3b2a1d", -.1); for(let k = 0; k < 160; k++){ const a = R5()*Math.PI, r = FRX*(.55 + R5()*.45); ctx.fillRect(FCX + Math.cos(a)*r*.95, FCY + 28 + Math.sin(a)*FRY*.62*(.6 + R5()*.4), 1.2, 1.2); } } ctx.restore(); }
+    const blink = (time % 4200) < 120 || mood === "ouch", ey = FCY - 2, es = f.eyeS, eh = {almond:8.5, round:10, hooded:7, monolid:6, upturned:8}[f.eye]*es, ew = 11*es;
+    [-1, 1].forEach(d => { const x = FCX + d*28, tilt = f.eye === "upturned" ? -.12*d : 0;
+      if(blink){ ctx.beginPath(); ctx.moveTo(x - ew, ey); ctx.quadraticCurveTo(x, ey + (mood === "ouch" ? -5 : 4), x + ew, ey); ctx.stroke(); }
+      else { ctx.save(); ctx.translate(x, ey); ctx.rotate(tilt); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.ellipse(0, 0, ew, mood === "wow" ? eh*1.2 : eh, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.save(); ctx.clip(); ctx.fillStyle = cl.eye; ctx.beginPath(); ctx.arc(d*.5, .5, 5.6*es, 0, 6.28); ctx.fill(); ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(d*.5, .5, 2.7*es, 0, 6.28); ctx.fill(); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(d*.5 - 1.8, -1.6, 1.4, 0, 6.28); ctx.fill(); ctx.restore();
+        if(f.eye === "hooded" || f.eye === "monolid"){ ctx.strokeStyle = shade(sk, -.35); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(-ew, -eh*.4); ctx.quadraticCurveTo(0, -eh*1.5, ew, -eh*.4); ctx.stroke(); ctx.strokeStyle = INK; }
+        if(f.lashes){ ctx.lineWidth = 1.6; for(let k = 0; k < 3; k++){ const lx = d*(ew*.4 + k*3); ctx.beginPath(); ctx.moveTo(lx, -eh*.9); ctx.lineTo(lx + d*3, -eh*1.3); ctx.stroke(); } }
+        ctx.restore(); ctx.lineWidth = 3; }
+      const bw = {soft:3.2, thick:4.6, arched:3.2, straight:3.6, thin:2}[f.brow], arch = {soft:4, thick:3, arched:8, straight:1, thin:5}[f.brow];
+      ctx.lineWidth = bw; ctx.strokeStyle = f.age === "senior" ? "#9a9590" : shade(cl.base || "#3b2a1d", -.25); ctx.beginPath(); const by = ey - 16*es - (mood === "wow" ? 4 : 0) + (mood === "ouch" || mood === "sad" ? 2 : 0); ctx.moveTo(x - 11*d, by + (mood === "ouch" ? -3 : 2)); ctx.quadraticCurveTo(x, by - arch, x + 11*d, by + (mood === "sad" ? -2 : 3)); ctx.stroke(); ctx.lineWidth = 3; ctx.strokeStyle = INK; });
+    ctx.lineWidth = 2.2; ctx.beginPath();
+    ({button:() => { ctx.moveTo(FCX + 1, FCY + 12); ctx.quadraticCurveTo(FCX - 6, FCY + 24, FCX + 3, FCY + 26); }, long:() => { ctx.moveTo(FCX + 2, FCY + 2); ctx.quadraticCurveTo(FCX - 8, FCY + 28, FCX + 4, FCY + 31); }, wide:() => { ctx.moveTo(FCX - 9, FCY + 26); ctx.quadraticCurveTo(FCX, FCY + 32, FCX + 9, FCY + 26); ctx.moveTo(FCX + 1, FCY + 8); ctx.lineTo(FCX - 2, FCY + 22); }, round:() => { ctx.arc(FCX, FCY + 24, 6, .3, 2.8); }, pointed:() => { ctx.moveTo(FCX + 2, FCY + 4); ctx.lineTo(FCX - 7, FCY + 26); ctx.lineTo(FCX + 4, FCY + 27); }})[f.nose]();
+    ctx.stroke();
+    if(f.age === "senior"){ ctx.strokeStyle = shade(sk, -.3); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(FCX - 24, FCY + 34); ctx.quadraticCurveTo(FCX - 28, FCY + 46, FCX - 22, FCY + 56); ctx.moveTo(FCX + 24, FCY + 34); ctx.quadraticCurveTo(FCX + 28, FCY + 46, FCX + 22, FCY + 56); ctx.moveTo(FCX - 46, FCY - 4); ctx.lineTo(FCX - 52, FCY - 6); ctx.moveTo(FCX + 46, FCY - 4); ctx.lineTo(FCX + 52, FCY - 6); ctx.stroke(); ctx.strokeStyle = INK; }
+    const lw = {soft:15, full:16, thin:14, wide:19, bow:14}[f.lips], lc = f.lipCol || shade(sk, -.25);
     ctx.lineWidth = 2.6; ctx.beginPath();
     if(mood === "ouch"){ ctx.fillStyle = "#7a2b2b"; ctx.ellipse(FCX, FCY + 52, 9, 11, 0, 0, 6.28); ctx.fill(); ctx.stroke(); }
-    else if(mood === "happy" || mood === "wow"){ ctx.fillStyle = "#7a2b2b"; ctx.moveTo(FCX - 20, FCY + 46); ctx.quadraticCurveTo(FCX, FCY + 70, FCX + 20, FCY + 46); ctx.closePath(); ctx.fill(); ctx.stroke(); }
-    else if(mood === "sad"){ ctx.moveTo(FCX - 15, FCY + 56); ctx.quadraticCurveTo(FCX, FCY + 46, FCX + 15, FCY + 56); ctx.stroke(); }
-    else { ctx.moveTo(FCX - 15, FCY + 50); ctx.quadraticCurveTo(FCX, FCY + 58, FCX + 15, FCY + 50); ctx.stroke(); }
+    else if(mood === "happy" || mood === "wow"){ ctx.fillStyle = "#7a2b2b"; ctx.moveTo(FCX - lw - 5, FCY + 46); ctx.quadraticCurveTo(FCX, FCY + 70, FCX + lw + 5, FCY + 46); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.moveTo(FCX - lw, FCY + 48); ctx.quadraticCurveTo(FCX, FCY + 55, FCX + lw, FCY + 48); ctx.closePath(); ctx.fill(); }
+    else { const sad = mood === "sad", full = f.lips === "full" ? 1.5 : f.lips === "thin" ? .5 : 1;
+      ctx.fillStyle = lc; ctx.beginPath(); ctx.moveTo(FCX - lw, FCY + 50 + (sad ? 4 : 0)); ctx.quadraticCurveTo(FCX - lw*.4, FCY + 44 - full*2, FCX, FCY + 47 - (f.lips === "bow" ? 2 : 0)); ctx.quadraticCurveTo(FCX + lw*.4, FCY + 44 - full*2, FCX + lw, FCY + 50 + (sad ? 4 : 0)); ctx.quadraticCurveTo(FCX, FCY + 56 + full*3 - (sad ? 6 : 0), FCX - lw, FCY + 50 + (sad ? 4 : 0)); ctx.fill(); ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(FCX - lw, FCY + 50 + (sad ? 4 : 0)); ctx.quadraticCurveTo(FCX, FCY + 52 + (sad ? -3 : 2), FCX + lw, FCY + 50 + (sad ? 4 : 0)); ctx.stroke(); }
+    if(f.ear){ [-1, 1].forEach(d => { const x = FCX + d*FRX*.98, y = FCY + 20; ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.fillStyle = f.earCol; if(f.ear === "hoop"){ ctx.beginPath(); ctx.arc(x, y + 8, 7, 0, 6.28); ctx.lineWidth = 4.5; ctx.stroke(); ctx.lineWidth = 2.4; ctx.strokeStyle = f.earCol; ctx.stroke(); } else if(f.ear === "drop"){ ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 8); ctx.stroke(); ctx.beginPath(); ctx.ellipse(x, y + 13, 3.5, 5, 0, 0, 6.28); ctx.fill(); ctx.stroke(); } else { ctx.beginPath(); ctx.arc(x, y + 2, 3, 0, 6.28); ctx.fill(); ctx.stroke(); } }); ctx.strokeStyle = INK; }
+    if(f.glasses){ ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.fillStyle = "rgba(200,230,255,.18)"; [-1, 1].forEach(d => { const x = FCX + d*28; ctx.beginPath(); if(f.glasses === "round") ctx.arc(x, ey, 15, 0, 6.28); else if(f.glasses === "square"){ ctx.rect(x - 16, ey - 11, 32, 22); } else { ctx.moveTo(x - 16*d*-1, ey - 10); ctx.quadraticCurveTo(x + 18*d, ey - 16, x + 16*d, ey + 2); ctx.quadraticCurveTo(x, ey + 14, x - 15*d, ey + 4); ctx.closePath(); } ctx.fill(); ctx.stroke(); }); ctx.beginPath(); ctx.moveTo(FCX - 13, ey - 2); ctx.quadraticCurveTo(FCX, ey - 7, FCX + 13, ey - 2); ctx.stroke(); }
   }
   function drawCape(ctx, col){
     ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.fillStyle = col || "#2b2f3a";
@@ -9848,7 +9878,7 @@ const SAL = (() => {
     const dc = opt.decor === "neon" ? ["#2a1b3d", "#4a2a5e"] : opt.decor === "plants" ? ["#eef7e8", "#d7ead0"] : ["#f7efe4", "#ead9c3"]; const g2 = ctx.createLinearGradient(0, 0, 0, H); g2.addColorStop(0, dc[0]); g2.addColorStop(1, dc[1]); ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = "rgba(255,255,255,.35)"; for(let x = 0; x < W; x += 44) for(let y = 0; y < H; y += 44) if((x + y)/44 % 2 === 0) ctx.fillRect(x, y, 44, 44);
     const back = cl.strands.filter(s => s.g === "back" && !s.clip), front = cl.strands.filter(s => s.g === "front" && !s.clip), all = cl.strands.filter(s => s.g !== "bang");
-    const capCol = (() => { const c = all.map(x => hexRgb(strandColor(x))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
+    const capCol = (() => { const c = all.map(x => hexRgb(strandColor(x, x.rootCol || x.color))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
     if(!styled && cl.tex !== 3) drawLayer(ctx, cl, front, time);
     drawCape(ctx, opt.basin ? "#9ec9e8" : null);
     ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.fillStyle = shade(cl.skin, -.1); ctx.beginPath(); ctx.rect(FCX - 28, FCY + 40, 56, 92); ctx.fill(); ctx.stroke();
@@ -9885,7 +9915,7 @@ const SAL = (() => {
     drawCape(ctx, opt.basin ? "#9ec9e8" : null);
     if(styled && (cl.style === "pony" || cl.style === "braid")){ /* tail over the shoulder sits in front of the cape */ drawTail(ctx, cl, time, cl.style); }
     drawFace(ctx, cl, time, mood);
-    const s0 = allBack[Math.floor(allBack.length/2)], e0 = eff(s0, cl), capCol = (() => { const c = allBack.map(x => hexRgb(strandColor(x))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
+    const s0 = allBack[Math.floor(allBack.length/2)], e0 = eff(s0, cl), capCol = (() => { const c = allBack.map(x => hexRgb(strandColor(x, x.rootCol || x.color))), n = c.length; return rgbHex(c.reduce((a, v) => a + v[0], 0)/n, c.reduce((a, v) => a + v[1], 0)/n, c.reduce((a, v) => a + v[2], 0)/n); })();
     ctx.fillStyle = capCol; ctx.strokeStyle = INK; ctx.lineWidth = 3; capPath(ctx); ctx.fill(); if(!(cl.tex === 3 && !styled)) ctx.stroke(); else { ctx.save(); ctx.clip(); ctx.restore(); ctx.beginPath(); ctx.moveTo(FCX - FRX*.92, FCY - FRY*.62); ctx.bezierCurveTo(FCX - FRX*.92, FCY - FRY*.62, FCX - FRX*.55, FCY - FRY*.8, FCX - FRX*.55, FCY - FRY*.8); ctx.quadraticCurveTo(FCX, FCY - FRY*.93, FCX + FRX*.55, FCY - FRY*.8); ctx.bezierCurveTo(FCX + FRX*.92, FCY - FRY*.62, FCX + FRX*.92, FCY - FRY*.62, FCX + FRX*.92, FCY - FRY*.62); ctx.stroke(); }
     if(cl.tex >= 2 && !styled){ ctx.save(); capPath(ctx); ctx.clip(); ctx.strokeStyle = shade(capCol, .28); ctx.globalAlpha = .7; ctx.lineWidth = 2; const R2 = rng("cap" + cl.name); for(let k = 0; k < 40; k++){ const x = CX - 80 + R2()*160, y = CY - 100 + R2()*60; ctx.beginPath(); ctx.arc(x, y, 4 + R2()*3, R2()*6, R2()*6 + 3.5); ctx.stroke(); } ctx.globalAlpha = 1; ctx.restore(); }
     else { ctx.strokeStyle = mix(capCol, "#fff", .25 + e0.shine*.3); ctx.lineWidth = 2; ctx.globalAlpha = .5 + e0.shine*.4; ctx.beginPath(); ctx.moveTo(CX - 40, CY - 72); ctx.quadraticCurveTo(CX - 10, CY - 92, CX + 30, CY - 86); ctx.moveTo(CX + 20, CY - 64); ctx.quadraticCurveTo(CX + 50, CY - 76, CX + 70, CY - 52); ctx.stroke(); ctx.globalAlpha = 1; }
@@ -9909,7 +9939,7 @@ const SAL = (() => {
     const avg = a => a.reduce((x, y) => x + y, 0)/Math.max(1, a.length), sd = a => { const m = avg(a); return Math.sqrt(avg(a.map(v => (v - m)**2))); };
     const all = cl.strands.filter(s => s.g !== "bang"), E = all.map(s => eff(s, cl));
     const front = ends("front"), back = ends("back"), bang = ends("bang");
-    const colAvg = (() => { const c = all.map(s => hexRgb(s.color)); return rgbHex(avg(c.map(x => x[0])), avg(c.map(x => x[1])), avg(c.map(x => x[2]))); })();
+    const colAvg = (() => { const c = all.map(s => hexRgb(mix(mix(s.rootCol || s.color, s.color, .64), s.tipCol || s.color, .3))); return rgbHex(avg(c.map(x => x[0])), avg(c.map(x => x[1])), avg(c.map(x => x[2]))); })();
     return {endY:avg(front)*.7 + avg(back)*.3, frontY:avg(front), backY:avg(back), bangY:avg(bang), even:sd(front) + sd(back)*.5,
       curl:avg(E.map(e => e.curl)), frizz:avg(E.map(e => e.frizz)), shine:avg(E.map(e => e.shine)), vol:avg(E.map(e => e.vol)), wet:avg(cl.strands.map(s => s.wet)),
       foam:avg(cl.strands.map(s => s.foam)), dirt:avg(cl.strands.map(s => s.dirt)), knots:cl.strands.reduce((a, s) => a + s.knots.length, 0), dmg:avg(cl.strands.map(s => s.heat)),
@@ -9962,7 +9992,7 @@ const SAL = (() => {
     const P = s.pts; for(let i = 1; i < P.length; i++){ if(P[i].y >= y && P[i-1].y < y){ const f = (y - P[i-1].y)/((P[i].y - P[i-1].y) || 1); s.L = s.L.slice(0, i - 1).concat([s.L[i-1]*clamp(f, .05, 1)]); s.pts = P.slice(0, i + 1); s.pts[i] = {x:lerp(P[i-1].x, P[i].x, f), y, px:lerp(P[i-1].x, P[i].x, f), py:y}; s.knots = s.knots.filter(k => k.t <= i/(P.length - 1)); return true; } }
     return false;
   }
-  return {SUBS, CLIP_AT, W, H, CX, CY, SRX, SRY, FCX, FCY, FRX, FRY, LV, TEX, TEXC, TOOLS, REQ, DYES, NATURAL, tool, st, owns, makeClient, buildTarget, cutStrandAtY, drawClient, step, settle, eff, measure, score, mix, lum, hexRgb};
+  return {faceFx, SUBS, CLIP_AT, W, H, CX, CY, SRX, SRY, FCX, FCY, FRX, FRY, LV, TEX, TEXC, TOOLS, REQ, DYES, NATURAL, tool, st, owns, makeClient, buildTarget, cutStrandAtY, drawClient, step, settle, eff, measure, score, mix, lum, hexRgb};
 })();
 
 /* ---------- Hair Salon v7: the game ---------- */
@@ -10595,6 +10625,107 @@ const SAL_PHASES = [
       if(this.view === "back") ctx.setTransform(-dpr, 0, 0, dpr, SAL.W*dpr, 0); else ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       prev.tick.call(this);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+  });
+}
+
+/* ---------- Hair Salon v7.4: hair color zones, split ends, greys, clippers and more client types ---------- */
+Object.assign(ICONS, {"g:clippers":`<rect x="10" y="10" width="20" height="27" rx="6" fill="#3a86ff" ${IL}/><rect x="8" y="3" width="24" height="8" rx="2" fill="#d9dde3" ${IL}/>${[11,15,19,23,27].map(x => `<path d="M${x} 3 v-2" stroke="#2b2118" stroke-width="1.6"/>`).join("")}<rect x="16" y="18" width="8" height="5" rx="2" fill="#fffdf8"/>`});
+SAL.TOOLS.push(["clippers","Clippers","g:clippers","Buzzes hair down to the guard length. Choose a guard number: #1 is shortest. Clip the top up first to keep it long!",0]);
+SAL.DYES.push(["caramel","#d9a35b"],["burgundy","#7e1b3a"]);
+SAL_R.clippers = 30;
+SAL_PHASES[1][2].splice(5, 0, "clippers");
+const SAL_GREY = "#cfcac2";
+const salZoneCol = s => SAL.mix(SAL.mix(s.rootCol || s.color, s.color, .64), s.tipCol || s.color, .3);
+const salIsGrey = c => { const [r, g, b] = SAL.hexRgb(c), mx = Math.max(r, g, b), mn = Math.min(r, g, b); return mx > 160 && mx - mn < 26; };
+SAL.REQ.push(
+  {k:"roots", t:"Root touch-up", tex:[0,1,2], start:["shoulder","chest"], need:[], pattern:"roots", say:c => `My roots are showing! Can you color them to match my ${c.dyeName || "color"}?`, tip:"In the Color phase, paint only the roots (the top part near the scalp) with the dye that matches the lengths. Turn the chair: the roots at the back count too!",
+    target:c => ({rootsMatch:true, curl:(c.natCurl ?? 0)})},
+  {k:"balayage", t:"Sun-kissed balayage", tex:[0,1,2], start:["chest","waist"], need:[], baseKeys:["darkbrown","brown","black"], say:() => "I want sun-kissed balayage: lighter, caramel ends but my natural color at the roots.", tip:"Bleach just the ends to lift them, then paint caramel dye on the ends. Keep the roots natural. Work the back too.",
+    target:c => ({tipLight:"#d9a35b", rootsNatural:true, curl:(c.natCurl ?? 0)})},
+  {k:"splitends", t:"Split-end rescue", tex:[0,1,2], start:["chest","waist"], need:[], pattern:"split", say:() => "My ends are so split and frayed. Cut off the damage, but don't go too short!", tip:"Split ends can't be glued back together: they have to be cut off. Trim about 3 cm all the way round, front and back.",
+    target:(c, sv) => ({endY:sv.endY - 30, splitGone:true, curl:(c.natCurl ?? 0), frizzMax:.35})},
+  {k:"greys", t:"Cover the greys", tex:[0,1,2], start:["shoulder","chest"], need:[], pattern:"greys", say:() => "The greys are taking over! Can you color them back to my natural shade?", tip:"Grey hair has lost its pigment. Paint the grey strands (and grey roots) with a natural shade that matches the rest.",
+    target:c => ({greysGone:true, curl:(c.natCurl ?? 0)})},
+  {k:"fade", t:"Short back and sides", tex:[0,1,3], start:["ear","chin"], need:[], say:() => "Short back and sides with clippers, but leave some length on top, please.", tip:"Clip the bangs (top) section up, then run the clippers with a #2 guard over the sides and back. Turn the chair for the back! Unclip the top and tidy it with scissors.",
+    target:() => ({sidesMax:34, topMin:60})}
+);
+Object.assign(SAL_PRICE, {roots:45, balayage:65, splitends:30, greys:45, fade:25});
+{
+  const origMake = SAL.makeClient;
+  SAL.makeClient = function(req, opts = {}){
+    if(req.baseKeys && !opts.baseKey) opts.baseKey = pick(req.baseKeys);
+    const cl = origMake(req, opts), fx = SAL.faceFx(cl);
+    cl.strands.forEach(s => { s.color = SAL.mix(s.color, s.layer < .5 ? "#ffffff" : "#000000", Math.random()*.07); });
+    const pattern = opts.pattern || req.pattern || (fx.age === "senior" ? "greys" : pick(["none","none","none","highlights","balayage","none","split"]));
+    cl.pattern = pattern;
+    if(pattern === "highlights") cl.strands.forEach(s => { if(Math.random() < .28) s.color = SAL.mix(s.color, "#f0d9a0", .55); });
+    if(pattern === "balayage" && req.k !== "balayage") cl.strands.forEach(s => s.tipCol = SAL.mix(s.color, "#e2b86f", .55));
+    if(pattern === "split") cl.strands.forEach(s => { if(Math.random() < .75) s.split = true; });
+    if(pattern === "greys") cl.strands.forEach(s => { if(Math.random() < .38) s.color = SAL.mix(SAL_GREY, s.color, .15); else s.rootCol = SAL.mix(SAL_GREY, s.color, .3); });
+    if(pattern === "roots"){ const dy = pick([["copper","#c8641e"],["platinum","#f1ead8"],["burgundy","#7e1b3a"],["caramel","#d9a35b"]]); cl.dyeName = dy[0]; cl.dyeHex = dy[1]; const nat = cl.base; cl.strands.forEach(s => { s.color = SAL.mix(dy[1], s.color, .06); s.rootCol = SAL.mix(nat, s.color, .05); }); }
+    return cl;
+  };
+  const origBuild = SAL.buildTarget;
+  SAL.buildTarget = function(cl, tg){
+    const t = origBuild(cl, tg);
+    t.strands.forEach(s => {
+      if(tg.rootsMatch) s.rootCol = null;
+      if(tg.tipLight) s.tipCol = tg.tipLight;
+      if(tg.splitGone) s.split = false;
+      if(tg.greysGone){ s.color = cl.base; s.rootCol = null; }
+    });
+    if(tg.sidesMax){ t.strands.forEach(s => { const keep = s.g === "bang" ? 90 : 22; let acc = 0, i = 0; for(; i < s.L.length; i++){ acc += s.L[i]; if(acc >= keep) break; } s.L = s.L.slice(0, i + 1); s.pts = s.pts.slice(0, i + 2); }); SAL.settle(t, 100); }
+    return t;
+  };
+  const origScore = SAL.score;
+  SAL.score = function(cl, tg, final){
+    const r = origScore(cl, tg, final), add = (k, label, w, v, why) => r.parts.push({k, label, w, v:clamp(v, 0, 1), why});
+    const list = cl.strands.filter(s => s.g !== "bang"), d = (a, b) => { const A = SAL.hexRgb(a), B = SAL.hexRgb(b); return Math.hypot(A[0] - B[0], A[1] - B[1], A[2] - B[2])/255; };
+    if(tg.rootsMatch){ const m = list.reduce((a, s) => a + (s.rootCol ? d(s.rootCol, s.color) : 0), 0)/list.length; add("roots", "Roots blended", 22, 1 - m*3.2, m > .08 ? "You can still see the roots. Paint the top section near the scalp, front and back." : "Seamless, no roots showing."); }
+    if(tg.tipLight){ const m = list.reduce((a, s) => a + d(s.tipCol || s.color, tg.tipLight), 0)/list.length; add("tips", "Sun-kissed ends", 20, 1 - m*2.4, m > .15 ? "The ends aren't light enough. Bleach the ends first, then caramel dye." : "Gorgeous caramel ends."); }
+    if(tg.rootsNatural){ const m = list.reduce((a, s) => a + d(s.rootCol || s.color, cl.base), 0)/list.length; add("natroots", "Natural roots kept", 12, 1 - m*3, m > .12 ? "Balayage keeps the roots natural: don't paint near the scalp." : "Natural at the roots, just right."); }
+    if(tg.splitGone){ const f = list.filter(s => s.split).length/list.length; add("split", "Split ends gone", 18, 1 - f*1.4, f > .1 ? `Some split ends are left (${Math.round(f*100)}%). Trim every section, back included.` : "Healthy, sealed ends."); }
+    if(tg.greysGone){ const f = list.filter(s => salIsGrey(s.color) || (s.rootCol && salIsGrey(s.rootCol))).length/list.length; add("greys", "Greys covered", 22, 1 - f*2, f > .05 ? `${Math.round(f*100)}% of strands still show grey. Paint the grey strands and grey roots.` : "Every grey covered."); }
+    if(tg.sidesMax){ const len = s => s.L.reduce((a, b) => a + b, 0), sides = list.reduce((a, s) => a + len(s), 0)/list.length, top = cl.strands.filter(s => s.g === "bang").reduce((a, s) => a + len(s), 0)/9;
+      add("sides", "Short sides and back", 20, sides <= tg.sidesMax ? 1 : 1 - (sides - tg.sidesMax)/80, sides > tg.sidesMax ? "The sides and back are still too long: run the clippers all over them, back included." : "Crisp and short.");
+      add("top", "Length left on top", 14, top >= tg.topMin ? 1 : top/tg.topMin, top < tg.topMin ? "Oops, the top got buzzed too! Clip the top up before using the clippers." : "Nice length on top."); }
+    const tw = r.parts.reduce((a, q) => a + q.w, 0); r.pct = Math.round(r.parts.reduce((a, q) => a + q.w*q.v, 0)/tw*100);
+    return r;
+  };
+}
+{
+  const H = STUDIO.hair, prev = {apply:H.apply, toolUI:H.toolUI, snip:H.snip, newClient:H.newClient};
+  Object.assign(H, {
+    newClient(daily){ this.guard = 2; prev.newClient.call(this, daily); },
+    toolUI(){
+      prev.toolUI.call(this);
+      const o = $("slOpts"); if(!o) return;
+      if(this.tool === "clippers"){ o.insertAdjacentHTML("afterbegin", `<div class="chips">${[1,2,3,4].map(g => `<button type="button" class="ch${this.guard === g ? " sel" : ""}" data-guard="${g}">Guard #${g}</button>`).join("")}</div>`); }
+      if(this.tool === "dye" || this.tool === "bleach") o.insertAdjacentHTML("beforeend", `<p class="tooltip-line">Color goes exactly where you paint: near the scalp colors the <b>roots</b>, the bottom colors the <b>ends</b>.</p>`);
+      const prevClick = o.onclick; o.onclick = e => { const b = e.target.closest("[data-guard]"); if(b){ this.guard = +b.dataset.guard; sfx.click(); this.toolUI(); return; } prevClick && prevClick(e); };
+    },
+    snip(a, b){ const before = this.cl.strands.map(s => s.pts.length); prev.snip.call(this, a, b); this.cl.strands.forEach((s, i) => { if(s.pts.length < before[i]) s.split = false; }); },
+    apply(){
+      const p = this.ptr, cl = this.cl, k = this.tool; if(!p || !p.down || this.locked) return;
+      if(k === "clippers"){
+        if(cl.station === "basin") return this.tipOnce("basinTool", "Bring them back to the styling chair for that.");
+        const keep = [0, 12, 18, 26, 36][this.guard];
+        this.hitsNear(30).forEach(([s, w]) => { if(w < .25) return; let acc = 0, i = 0; for(; i < s.L.length; i++){ acc += s.L[i]; if(acc >= keep) break; } if(i >= s.L.length - 1) return;
+          const piece = s.pts.slice(i + 1).map(q => ({x:q.x, y:q.y})); s.L = s.L.slice(0, i + 1); s.L[i] = Math.max(2, s.L[i] - (acc - keep)); s.pts = s.pts.slice(0, i + 2); s.split = false; s.knots = s.knots.filter(q => q.t < .2);
+          if(piece.length > 1) this.parts.push({type:"clip", pts:piece, vx:(Math.random() - .5)*2, vy:-1.5, life:60, col:s.color}); });
+        if(this.frame % 3 === 0) tone(118 + Math.random()*8, .06, "sawtooth", .02); return;
+      }
+      if(k === "dye" || k === "bleach"){
+        const dy = k === "bleach" ? "#f0dfae" : SAL.DYES.find(x => x[0] === this.dye)[1];
+        this.hitsNear(k === "bleach" ? 30 : 28).forEach(([s, w, t]) => { const zone = t < .28 ? "rootCol" : t > .56 ? "tipCol" : "color", cur = s[zone] || s.color;
+          let nc; if(k === "bleach"){ nc = SAL.mix(cur, dy, .05*w); s.heat = Math.min(1, s.heat + .002*w); } else { const L = SAL.lum(cur), mask = clamp((.55 - L)*1.7, 0, .85); nc = SAL.mix(cur, SAL.mix(dy, cur, mask*.9), .07*w); }
+          if(zone === "color"){ const oldMid = s.color; s.color = nc; if(!s.rootCol) s.rootCol = oldMid; if(!s.tipCol) s.tipCol = oldMid; } else s[zone] = nc; });
+        if(this.frame % 2 === 0) this.fxPush({type:k === "bleach" ? "foam" : "blob", x:p.x + (Math.random() - .5)*10, y:p.y + 6, vx:(Math.random() - .5), vy:1.5, life:22, col:dy});
+        if(k === "dye" && this.hitsNear(28).some(([s]) => SAL.lum(s.color) < .3)) this.tipOnce("dark", "Dye is see-through: on dark hair it barely shows. Lighten it with bleach first for bright or pastel colors.");
+        return;
+      }
+      prev.apply.call(this);
     }
   });
 }
