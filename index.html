@@ -1092,6 +1092,13 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .sal-req{grid-template-columns:84px 1fr;padding:8px}.sal-req canvas{width:84px}.sal-req h3{font-size:18px}.sal-say{font-size:13.5px}
 .sal-tags{display:flex;gap:4px;flex-wrap:wrap}.sal-tags span{font:600 11px "DM Mono",monospace;border:1.5px solid var(--ink);border-radius:999px;padding:1px 7px;background:#fff7d6}
 .sal-steps{margin:0}.sal-steps li{cursor:pointer}
+
+.mk-sign{background:linear-gradient(160deg,#fff0f6,#ffe0ec)}
+.mk-mirror{border-radius:28px;border-color:#e8b4c8}
+.mk-shades{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.mk-shade{height:34px;border:2px solid var(--ink);border-radius:8px;cursor:pointer;display:grid;place-items:center;font:600 11px "DM Mono",monospace;color:#2b2118}.mk-shade span{background:rgba(255,255,255,.75);border-radius:4px;padding:0 4px}.mk-shade.sel{box-shadow:0 0 0 3px #ffd166,0 0 0 5px var(--ink)}
+.mk-sw{display:flex;flex-wrap:wrap;gap:4px}.mk-sw .sw{width:24px;height:24px}
+.mk-sliders{display:grid;gap:4px}.mk-sliders label{display:grid;grid-template-columns:70px 1fr;align-items:center;font-size:12px}
+.mk-compare{grid-template-columns:1fr 1fr}
 </style>
 </head>
 <body>
@@ -10739,6 +10746,443 @@ Object.assign(SAL_PRICE, {roots:45, balayage:65, splitends:30, greys:45, fade:25
     }
   });
 }
+
+/* =========================================================
+   MAKEUP STUDIO PRO: real painting in layers on a canvas.
+   Skin has needs (shine, redness, dark circles, blemishes,
+   dry patches). Prep and color-correct them, build a base,
+   sculpt, do the eyes and lips, then finish. Clients bring a
+   photo of the look; scoring samples the actual pixels.
+   ========================================================= */
+const MK_CLASSIC = STUDIO.makeup;
+const MKP = (() => {
+  const W = 440, H = 520, S = 2, CX = 220, CY = 262, RX = 116, RY = 150, EY = 240, EX = 50, EW = 25, EH = 12;
+  const lerp = (a, b, t) => a + (b - a)*t;
+  const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const rgbHex = (r, g, b) => "#" + [r, g, b].map(v => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, "0")).join("");
+  const mix = (a, b, t) => { const A = hexRgb(a), B = hexRgb(b); return rgbHex(lerp(A[0], B[0], t), lerp(A[1], B[1], t), lerp(A[2], B[2], t)); };
+  const rgba = (h, a) => { const [r, g, b] = hexRgb(h); return `rgba(${r},${g},${b},${a})`; };
+  /* zones as ellipses [cx, cy, rx, ry, rotDeg] */
+  const Z = {
+    forehead:[[CX, 170, 74, 28, 0]], nose:[[CX, 288, 13, 40, 0]], chin:[[CX, 392, 32, 16, 0]],
+    undereye:[[CX - EX, 262, 25, 9, 0], [CX + EX, 262, 25, 9, 0]], lids:[[CX - EX, 221, 27, 10, 0], [CX + EX, 221, 27, 10, 0]],
+    lash:[[CX - EX, 236, 26, 5, 0], [CX + EX, 236, 26, 5, 0]], brows:[[CX - EX - 2, 205, 30, 7, -6], [CX + EX + 2, 205, 30, 7, 6]],
+    apples:[[CX - 66, 306, 24, 16, 0], [CX + 66, 306, 24, 16, 0]], cheekbones:[[CX - 80, 284, 32, 11, 26], [CX + 80, 284, 32, 11, -26]],
+    contour:[[CX - 86, 326, 32, 9, 32], [CX + 86, 326, 32, 9, -32]], highlight:[[CX - 68, 266, 20, 7, 24], [CX + 68, 266, 20, 7, -24], [CX, 282, 5, 22, 0]],
+    cheeks:[[CX - 62, 300, 30, 26, 0], [CX + 62, 300, 30, 26, 0]], lips:[[CX, 350, 34, 13, 0]]
+  };
+  const inE = (x, y, [cx, cy, rx, ry, rot]) => { const a = -rot*Math.PI/180, dx = x - cx, dy = y - cy, lx = dx*Math.cos(a) - dy*Math.sin(a), ly = dx*Math.sin(a) + dy*Math.cos(a); return (lx*lx)/(rx*rx) + (ly*ly)/(ry*ry) <= 1; };
+  const inZ = (x, y, z) => (Z[z] || []).some(e => inE(x, y, e));
+  const samples = z => { const out = []; (Z[z] || []).forEach(e => { for(let i = -4; i <= 4; i++) for(let j = -3; j <= 3; j++){ const lx = i/4.6*e[2], ly = j/3.6*e[3], a = e[4]*Math.PI/180, x = e[0] + lx*Math.cos(a) - ly*Math.sin(a), y = e[1] + lx*Math.sin(a) + ly*Math.cos(a); if(inE(x, y, e)) out.push([x, y]); } }); return out; };
+  /* face geometry */
+  function facePath(ctx, f){
+    const J = {oval:[1.05, .35, .55, .8, 1.1], round:[1.12, .5, .66, .76, 1.05], square:[1.06, .62, .74, .86, 1.03], heart:[1.1, .18, .42, .82, 1.12], long:[.98, .4, .5, .88, 1.15]}[f.jaw];
+    ctx.beginPath(); ctx.moveTo(CX, CY - RY); ctx.bezierCurveTo(CX + RX*J[0], CY - RY, CX + RX*J[0], CY + RY*J[1], CX + RX*J[2], CY + RY*J[3]); ctx.quadraticCurveTo(CX, CY + RY*J[4], CX - RX*J[2], CY + RY*J[3]); ctx.bezierCurveTo(CX - RX*J[0], CY + RY*J[1], CX - RX*J[0], CY - RY, CX, CY - RY);
+  }
+  function lipsPath(ctx, f){
+    const w = {soft:34, full:36, thin:32, wide:42, bow:32}[f.lips], up = f.lips === "full" ? 13 : f.lips === "thin" ? 7 : 10, lo = f.lips === "full" ? 15 : f.lips === "thin" ? 9 : 12, bow = f.lips === "bow" ? 5 : 3, y = 350;
+    ctx.beginPath(); ctx.moveTo(CX - w, y); ctx.bezierCurveTo(CX - w*.6, y - up*.7, CX - w*.25, y - up, CX, y - up + bow); ctx.bezierCurveTo(CX + w*.25, y - up, CX + w*.6, y - up*.7, CX + w, y); ctx.bezierCurveTo(CX + w*.55, y + lo, CX - w*.55, y + lo, CX - w, y); ctx.closePath();
+  }
+  function eyePath(ctx, d, f, open = 1){ const x = CX + d*EX, h = {almond:EH, round:EH*1.2, hooded:EH*.85, monolid:EH*.72, upturned:EH}[f.eye]*open, t = f.eye === "upturned" ? -4 : 0; ctx.beginPath(); ctx.moveTo(x - EW*d*-1, EY + (d > 0 ? 0 : t)); ctx.moveTo(x - EW, EY + (d > 0 ? 2 : t + 2)); ctx.quadraticCurveTo(x, EY - h*1.5, x + EW, EY + (d > 0 ? t + 2 : 2)); ctx.quadraticCurveTo(x, EY + h*1.1, x - EW, EY + (d > 0 ? 2 : t + 2)); ctx.closePath(); }
+  /* the client */
+  const CONDS = {shine:["Oily shine","Shiny T-zone: cleanse, prime and set with powder."], red:["Redness","Red patches: green corrector cancels red, then foundation."], dark:["Dark circles","Blue-purple under the eyes: peach corrector, then concealer."], blem:["Blemishes","Spots: dab concealer right on them (and be gentle)."], dry:["Dry patches","Flaky skin: moisturizer first, or makeup clings to the flakes."], freck:["Freckles","Natural freckles: many people love them, so ask before covering."]};
+  function makeFace(o = {}){
+    const R2 = Math.random, pk = a => a[Math.floor(R2()*a.length)], depth = o.depth ?? Math.floor(R2()*SKINS.length);
+    const f = {depth, skin:SKINS[depth][0], u:o.u || pk(["warm","cool","neutral"]), jaw:pk(["oval","round","square","heart","long"]), eye:pk(["almond","round","hooded","monolid","upturned"]), brow:pk(["soft","thick","arched","straight","thin"]), lips:pk(["soft","full","thin","wide","bow"]),
+      eyeC:depth >= 5 ? pk(["#3b2a1d","#4a2c1d","#5a3a24"]) : pk(["#5a3a24","#3b2a1d","#4f7a3a","#3d6fb0","#7a5a2a","#2e6e8e"]), hair:pk(["#1d1714","#3d2618","#6b4128","#8f3c1d","#d9b26a","#b9561f"]), band:pk(["#ff7db8","#3a86ff","#ffd166","#57cc99","#fffdf8"]), nose:pk(["button","long","wide","round"]), conds:{}};
+    f.eyeName = {"#5a3a24":"brown","#3b2a1d":"darkbrown","#4a2c1d":"darkbrown","#4f7a3a":"green","#3d6fb0":"blue","#7a5a2a":"hazel","#2e6e8e":"blue"}[f.eyeC] || "brown";
+    const want = o.conds || Object.keys(CONDS).filter(() => R2() < .3);
+    const spots = [];
+    want.forEach(k => { f.conds[k] = 1;
+      if(k === "shine") [[CX, 170], [CX - 30, 165], [CX + 30, 168], [CX, 275], [CX, 300]].forEach(([x, y]) => spots.push({k, x:x + (R2() - .5)*14, y:y + (R2() - .5)*10, r:12 + R2()*8, v:1}));
+      if(k === "red") [[CX - 64, 304], [CX + 64, 304], [CX, 300]].forEach(([x, y]) => spots.push({k, x:x + (R2() - .5)*10, y:y + (R2() - .5)*10, r:k === "red" ? 20 + R2()*8 : 10, v:1}));
+      if(k === "dark") [-1, 1].forEach(d => spots.push({k, x:CX + d*EX, y:263, r:22, v:1}));
+      if(k === "blem") for(let i = 0; i < 6; i++) spots.push({k, x:CX + (R2() - .5)*150, y:180 + R2()*200, r:3 + R2()*2.5, v:1});
+      if(k === "dry") [[CX - 70, 290], [CX + 66, 300], [CX, 175]].forEach(([x, y]) => spots.push({k, x:x + (R2() - .5)*20, y:y + (R2() - .5)*14, r:16, v:1}));
+      if(k === "freck") for(let i = 0; i < 26; i++){ const d = R2() < .5 ? -1 : 1; spots.push({k, x:CX + d*(10 + R2()*60), y:278 + R2()*36, r:1.3 + R2()*.8, v:1}); }
+    });
+    spots.forEach(s => { if(!inZFace(s.x, s.y, f)) s.v = 0; });
+    f.spots = spots.filter(s => s.v);
+    return f;
+  }
+  const _pc = document.createElement("canvas").getContext("2d");
+  function inZFace(x, y, f){ facePath(_pc, f); return _pc.isPointInPath(x, y); }
+  /* layers */
+  const LAYERS = ["prep","corr","base","cheek","eye","brow","lip","detail","extra"];
+  function makeLayers(){ const L = {}; LAYERS.forEach(k => { const c = document.createElement("canvas"); c.width = W*S; c.height = H*S; const x = c.getContext("2d"); x.setTransform(S, 0, 0, S, 0, 0); L[k] = c; }); return L; }
+  function clearLayers(L){ LAYERS.forEach(k => { const x = L[k].getContext("2d"); x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, L[k].width, L[k].height); x.restore(); }); }
+  /* brushes */
+  function stamp(ctx, x, y, r, col, a, soft = .7, clip){
+    ctx.save(); if(clip) clip(ctx);
+    const g = ctx.createRadialGradient(x, y, r*(1 - soft)*.9, x, y, r); g.addColorStop(0, rgba(col, a)); g.addColorStop(1, rgba(col, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill(); ctx.restore();
+  }
+  function line(ctx, a, b, w, col, alpha, clip){ ctx.save(); if(clip) clip(ctx); ctx.strokeStyle = rgba(col, alpha); ctx.lineWidth = w; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.restore(); }
+  function erase(ctx, x, y, r, a = .25){ ctx.save(); ctx.globalCompositeOperation = "destination-out"; const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(0,0,0,${a})`); g.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill(); ctx.restore(); }
+  const _tmp = document.createElement("canvas"); _tmp.width = 160*S; _tmp.height = 160*S;
+  function smudge(layer, x, y, r){ const t = _tmp.getContext("2d"), cx = layer.getContext("2d"), sx = (x - r)*S, sy = (y - r)*S, sz = r*2*S; t.setTransform(1, 0, 0, 1, 0, 0); t.clearRect(0, 0, _tmp.width, _tmp.height); t.drawImage(layer, sx, sy, sz, sz, 0, 0, sz, sz);
+    cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.beginPath(); cx.arc(x*S, y*S, r*S, 0, 6.283); cx.clip(); cx.clearRect(sx, sy, sz, sz); cx.filter = `blur(${(r*S*.12).toFixed(1)}px)`; cx.drawImage(_tmp, 0, 0, sz, sz, sx + (Math.random() - .5)*2, sy + (Math.random() - .5)*2, sz, sz); cx.filter = "none"; cx.restore(); }
+  function alphaAt(layer, x, y){ const d = layer.getContext("2d").getImageData(Math.round(x*S), Math.round(y*S), 1, 1).data; return d[3]/255; }
+  /* render */
+  function drawFace(ctx, f, L, opt = {}){
+    const time = opt.time || 0, mood = opt.mood || "neutral";
+    ctx.save();
+    const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, opt.bg ? opt.bg[0] : "#fdf1f4"); bg.addColorStop(1, opt.bg ? opt.bg[1] : "#f3dce4"); ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    if(!opt.noLights) for(let i = 0; i < 7; i++){ const x = 30 + i*63; ctx.fillStyle = "#fff8d6"; ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, 18, 9, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.fillStyle = "rgba(255,240,180,.35)"; ctx.beginPath(); ctx.arc(x, 18, 15, 0, 6.28); ctx.fill(); }
+    ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.lineJoin = "round";
+    ctx.fillStyle = f.hair; ctx.beginPath(); ctx.ellipse(CX, CY - 36, RX*1.18, RY*1.02, 0, Math.PI*.92, Math.PI*2.08); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#f6f0e6"; ctx.beginPath(); ctx.moveTo(40, H + 4); ctx.bezierCurveTo(46, 470, 140, 440, 190, 432); ctx.lineTo(250, 432); ctx.bezierCurveTo(300, 440, 394, 470, 400, H + 4); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = shade(f.skin, -.08); ctx.beginPath(); ctx.rect(CX - 34, CY + 110, 68, 70); ctx.fill(); ctx.stroke();
+    [-1, 1].forEach(d => { ctx.fillStyle = f.skin; ctx.beginPath(); ctx.ellipse(CX + d*RX*.98, CY + 4, 15, 24, 0, 0, 6.28); ctx.fill(); ctx.stroke(); });
+    ctx.fillStyle = f.skin; facePath(ctx, f); ctx.fill();
+    const sg = ctx.createRadialGradient(CX - 24, CY - 30, 16, CX, CY, RX*1.35); sg.addColorStop(0, "rgba(255,255,255,.10)"); sg.addColorStop(.62, "rgba(0,0,0,0)"); sg.addColorStop(1, "rgba(0,0,0,.2)"); ctx.fillStyle = sg; facePath(ctx, f); ctx.fill();
+    /* skin conditions under the makeup */
+    ctx.save(); facePath(ctx, f); ctx.clip();
+    f.spots.forEach(s => { if(s.v <= .02) return; const a = s.v;
+      if(s.k === "shine"){ const g = ctx.createRadialGradient(s.x - 3, s.y - 3, 1, s.x, s.y, s.r); g.addColorStop(0, `rgba(255,255,255,${.55*a})`); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.28); ctx.fill(); }
+      else if(s.k === "red"){ const g = ctx.createRadialGradient(s.x, s.y, 2, s.x, s.y, s.r); g.addColorStop(0, `rgba(220,60,60,${.38*a})`); g.addColorStop(1, "rgba(220,60,60,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.28); ctx.fill(); }
+      else if(s.k === "dark"){ ctx.fillStyle = `rgba(90,60,120,${.32*a})`; ctx.beginPath(); ctx.ellipse(s.x, s.y, s.r, 8, 0, 0, Math.PI); ctx.fill(); }
+      else if(s.k === "blem"){ ctx.fillStyle = `rgba(200,50,50,${.8*a})`; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.28); ctx.fill(); ctx.fillStyle = `rgba(255,220,200,${.6*a})`; ctx.beginPath(); ctx.arc(s.x - .8, s.y - .8, s.r*.35, 0, 6.28); ctx.fill(); }
+      else if(s.k === "dry"){ const R3 = rng("dry" + s.x); ctx.fillStyle = `rgba(255,255,255,${.75*a})`; for(let i = 0; i < 18; i++){ ctx.fillRect(s.x + (R3() - .5)*s.r*2, s.y + (R3() - .5)*s.r*1.4, 2, 1.4); } }
+      else if(s.k === "freck"){ ctx.fillStyle = rgba(shade(f.skin, -.42), .9*a); ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.28); ctx.fill(); } });
+    ctx.restore();
+    if(L){ ["prep","corr","base","cheek","eye"].forEach(k => ctx.drawImage(L[k], 0, 0, W, H)); }
+    facePath(ctx, f); ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.stroke();
+    /* eyes */
+    const blink = !opt.still && (time % 4600) < 110;
+    [-1, 1].forEach(d => { const x = CX + d*EX;
+      if(blink || mood === "ouch"){ ctx.beginPath(); ctx.moveTo(x - EW, EY); ctx.quadraticCurveTo(x, EY + (mood === "ouch" ? -6 : 5), x + EW, EY); ctx.strokeStyle = INK; ctx.lineWidth = 2.6; ctx.stroke(); return; }
+      ctx.fillStyle = "#fff"; eyePath(ctx, d, f); ctx.fill(); ctx.save(); eyePath(ctx, d, f); ctx.clip(); ctx.fillStyle = f.eyeC; ctx.beginPath(); ctx.arc(x + d, EY + 1, 10.5, 0, 6.28); ctx.fill(); ctx.fillStyle = shade(f.eyeC, -.35); ctx.beginPath(); ctx.arc(x + d, EY + 1, 10.5, 0, 6.28); ctx.lineWidth = 2; ctx.strokeStyle = shade(f.eyeC, -.45); ctx.stroke(); ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x + d, EY + 1, 4.8, 0, 6.28); ctx.fill(); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x + d - 3, EY - 2.5, 2.4, 0, 6.28); ctx.fill(); ctx.restore();
+      ctx.strokeStyle = INK; ctx.lineWidth = 2.6; eyePath(ctx, d, f); ctx.stroke();
+      if(f.eye === "hooded" || f.eye === "monolid"){ ctx.strokeStyle = shade(f.skin, -.35); ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(x - EW + 2, EY - 4); ctx.quadraticCurveTo(x, EY - EH*2, x + EW - 2, EY - 4); ctx.stroke(); }
+      else { ctx.strokeStyle = shade(f.skin, -.28); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x - EW + 4, EY - 9); ctx.quadraticCurveTo(x, EY - EH*2.3, x + EW - 4, EY - 9); ctx.stroke(); }
+      ctx.strokeStyle = INK; ctx.lineWidth = 1.4; for(let k = 0; k < 4; k++){ const lx = x + d*(6 + k*5); ctx.beginPath(); ctx.moveTo(lx, EY - EH + 2 + k); ctx.lineTo(lx + d*3, EY - EH - 2 + k); ctx.stroke(); } });
+    /* brows */
+    const bw = {soft:4, thick:6, arched:4, straight:4.5, thin:2.4}[f.brow], ar = {soft:6, thick:4, arched:11, straight:2, thin:7}[f.brow];
+    [-1, 1].forEach(d => { const x = CX + d*(EX + 2); ctx.strokeStyle = shade(f.hair, -.15); ctx.lineWidth = bw; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(x - d*30, 210); ctx.quadraticCurveTo(x + d*2, 202 - ar, x + d*30, 207); ctx.stroke(); });
+    if(L) ctx.drawImage(L.brow, 0, 0, W, H);
+    /* nose */
+    ctx.strokeStyle = shade(f.skin, -.4); ctx.lineWidth = 2.4; ctx.beginPath();
+    ({button:() => { ctx.moveTo(CX + 2, 262); ctx.quadraticCurveTo(CX - 8, 300, CX + 5, 303); }, long:() => { ctx.moveTo(CX + 3, 248); ctx.quadraticCurveTo(CX - 10, 304, CX + 6, 308); }, wide:() => { ctx.moveTo(CX - 13, 300); ctx.quadraticCurveTo(CX, 310, CX + 13, 300); }, round:() => { ctx.arc(CX, 298, 9, .3, 2.8); }})[f.nose](); ctx.stroke();
+    /* lips */
+    ctx.fillStyle = shade(f.skin, -.22); lipsPath(ctx, f); ctx.fill();
+    if(L) ctx.drawImage(L.lip, 0, 0, W, H);
+    ctx.strokeStyle = shade(f.skin, -.5); ctx.lineWidth = 1.8; lipsPath(ctx, f); ctx.stroke(); const lw = {soft:34, full:36, thin:32, wide:42, bow:32}[f.lips]; ctx.beginPath(); ctx.moveTo(CX - lw, 350); ctx.quadraticCurveTo(CX, mood === "happy" ? 356 : 352, CX + lw, 350); ctx.stroke();
+    if(L){ ctx.drawImage(L.detail, 0, 0, W, H); ctx.drawImage(L.extra, 0, 0, W, H); }
+    /* headband */
+    ctx.fillStyle = f.band; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(CX, CY - 92, RX*1.1, 42, 0, Math.PI*1.04, Math.PI*1.96); ctx.ellipse(CX, CY - 72, RX*1.04, 34, 0, Math.PI*1.96, Math.PI*1.04, true); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+  /* scoring: compare composites zone by zone */
+  const SC = 1/4, _a = document.createElement("canvas"), _b = document.createElement("canvas"); _a.width = _b.width = W*SC; _a.height = _b.height = H*SC;
+  function composite(cv, f, L){ const x = cv.getContext("2d"); x.setTransform(SC, 0, 0, SC, 0, 0); x.clearRect(0, 0, W, H); drawFace(x, f, L, {still:true, noLights:true}); return x.getImageData(0, 0, cv.width, cv.height).data; }
+  const pix = (d, x, y) => { const i = (Math.round(y*SC)*Math.round(W*SC) + Math.round(x*SC))*4; return [d[i], d[i+1], d[i+2]]; };
+  function compare(f, Lp, Lt){
+    const A = composite(_a, f, Lp), B = composite(_b, f, Lt), out = {};
+    ["forehead","cheeks","apples","cheekbones","contour","highlight","lids","lash","brows","lips","undereye","nose","chin"].forEach(z => { const pts = samples(z); let d = 0, dl = 0, dr = 0; pts.forEach(([x, y]) => { const a = pix(A, x, y), b = pix(B, x, y); d += Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])/441; dl += ((a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]))/765; dr += ((a[0] - a[2]) - (b[0] - b[2]))/255; }); out[z] = {d:d/pts.length, dl:dl/pts.length, dr:dr/pts.length}; });
+    return out;
+  }
+  return {W, H, S, CX, CY, RX, RY, EY, EX, EW, EH, Z, CONDS, LAYERS, inZ, inE, samples, facePath, lipsPath, eyePath, makeFace, makeLayers, clearLayers, stamp, line, erase, smudge, alphaAt, drawFace, compare, mix, hexRgb, rgba, inZFace};
+})();
+
+/* ---------- Makeup Studio Pro: the game ---------- */
+Object.assign(ICONS, {
+  "g:cleanser":`<rect x="12" y="12" width="16" height="25" rx="5" fill="#9be7ff" ${IL}/><rect x="15" y="5" width="10" height="8" rx="2" fill="#2b2118"/><circle cx="31" cy="9" r="3" fill="#fff" ${IL}/><circle cx="35" cy="14" r="2" fill="#fff" ${IL}/>`,
+  "g:primer":`<rect x="13" y="8" width="14" height="29" rx="4" fill="#d9dde3" ${IL}/><rect x="13" y="8" width="14" height="8" fill="#ff7db8" ${IL}/><rect x="16" y="22" width="8" height="9" fill="#fffdf8"/>`,
+  "g:eyecream":`<path d="M8 22 h24 v10 q0 5 -5 5 h-14 q-5 0 -5 -5z" fill="#c8a2f0" ${IL}/><rect x="6" y="16" width="28" height="7" rx="3" fill="#7b3fa0" ${IL}/>`,
+  "g:corrector":`<rect x="5" y="10" width="30" height="22" rx="4" fill="#fffdf8" ${IL}/><circle cx="13" cy="21" r="5" fill="#b7d9a3" ${IL}/><circle cx="27" cy="21" r="5" fill="#f2a079" ${IL}/><circle cx="20" cy="15" r="3" fill="#d4c2ef"/>`,
+  "g:foundation":`<path d="M12 14 h16 v20 q0 3 -3 3 h-10 q-3 0 -3 -3z" fill="#e2aa83" ${IL}/><rect x="15" y="5" width="10" height="9" rx="2" fill="#2b2118"/>`,
+  "g:sponge":`<path d="M20 4 C31 4 34 26 30 33 C27 38 13 38 10 33 C6 26 9 4 20 4Z" fill="#ff7db8" ${IL}/><path d="M15 14 q5 -4 10 0" stroke="#fff" stroke-width="2" fill="none"/>`,
+  "g:concealer":`<rect x="15" y="12" width="10" height="25" rx="3" fill="#f1c6a6" ${IL}/><rect x="16" y="4" width="8" height="9" rx="3" fill="#2b2118"/>`,
+  "g:powder":`<ellipse cx="20" cy="26" rx="15" ry="9" fill="#f3e3d3" ${IL}/><ellipse cx="20" cy="17" rx="12" ry="7" fill="#fffdf8" ${IL}/><circle cx="12" cy="9" r="1.4" fill="#fff"/><circle cx="28" cy="8" r="1.4" fill="#fff"/>`,
+  "g:blushpan":`<rect x="5" y="9" width="30" height="24" rx="5" fill="#2b2118" ${IL}/><circle cx="20" cy="21" r="9" fill="#ff8fb8" ${IL}/>`,
+  "g:highlighter":`<rect x="5" y="9" width="30" height="24" rx="5" fill="#2b2118" ${IL}/><circle cx="20" cy="21" r="9" fill="#fff1d6" ${IL}/><path d="M16 17 l3 2 l-3 2 M24 19 l2 1" stroke="#ffd166" stroke-width="1.6"/>`,
+  "g:contour":`<rect x="15" y="10" width="10" height="27" rx="3" fill="#7a5c4f" ${IL}/><path d="M15 10 l5 -6 l5 6" fill="#9b6a45" ${IL}/>`,
+  "g:palette":`<rect x="4" y="8" width="32" height="24" rx="4" fill="#2b2118" ${IL}/>${[["#c8642e",10,15],["#d9b13b",20,15],["#8e5bd1",30,15],["#2050c8",10,25],["#d48a9a",20,25],["#1f8a8a",30,25]].map(([c,x,y]) => `<circle cx="${x}" cy="${y}" r="3.6" fill="${c}"/>`).join("")}`,
+  "g:liner":`<path d="M8 34 L30 8" stroke="#2b2118" stroke-width="6" stroke-linecap="round"/><path d="M30 8 L34 4" stroke="#2b2118" stroke-width="2.4" stroke-linecap="round"/>`,
+  "g:mascara":`<rect x="6" y="18" width="18" height="8" rx="3" fill="#ff7db8" ${IL}/><path d="M24 22 h10" stroke="#2b2118" stroke-width="2.6"/>${[26,29,32].map(x => `<path d="M${x} 17 v10" stroke="#2b2118" stroke-width="1.4"/>`).join("")}`,
+  "g:falsies":`<path d="M6 26 q14 -10 28 0" stroke="#2b2118" stroke-width="3" fill="none"/>${[8,12,16,20,24,28,32].map((x, i) => `<path d="M${x} ${24 - Math.sin(i/6*3.14)*5} l${(x - 20)*.25} -9" stroke="#2b2118" stroke-width="1.6"/>`).join("")}`,
+  "g:browpencil":`<path d="M8 32 L30 10" stroke="#7a4a2a" stroke-width="5" stroke-linecap="round"/><path d="M30 10 L34 6" stroke="#2b2118" stroke-width="2"/><path d="M6 16 q8 -6 16 -2" stroke="#4a2c1d" stroke-width="2.4" fill="none"/>`,
+  "g:lipstick":`<rect x="13" y="20" width="14" height="17" rx="2" fill="#d9b13b" ${IL}/><path d="M15 20 V10 l10 -5 V20" fill="#d7263d" ${IL}/>`,
+  "g:lipliner":`<path d="M8 34 L30 8" stroke="#a3121f" stroke-width="5" stroke-linecap="round"/><path d="M30 8 L33 5" stroke="#2b2118" stroke-width="2"/>`,
+  "g:gloss":`<rect x="14" y="14" width="12" height="23" rx="4" fill="#ffc2d9" ${IL}/><rect x="16" y="5" width="8" height="10" rx="2" fill="#2b2118"/><path d="M17 20 v10" stroke="#fff" stroke-width="2"/>`,
+  "g:setspray":`<rect x="12" y="12" width="16" height="25" rx="4" fill="#cfe8ff" ${IL}/><rect x="15" y="5" width="10" height="8" rx="2" fill="#d9dde3" ${IL}/><path d="M28 7 h7 M31 3 l4 -2 M31 11 l4 2" stroke="#2b2118" stroke-width="2" stroke-linecap="round"/>`,
+  "g:glitter":`<rect x="12" y="14" width="16" height="23" rx="4" fill="#b8e2ff" ${IL}/>${[[16,20,"#ff7db8"],[23,24,"#ffd166"],[18,30,"#9b5de5"],[25,31,"#57cc99"]].map(([x,y,c]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="${c}"/>`).join("")}<rect x="15" y="7" width="10" height="8" rx="2" fill="#2b2118"/>`,
+  "g:gems":`<path d="M20 6 L30 16 L20 34 L10 16Z" fill="#4cc9f0" ${IL}/><path d="M10 16 h20 M20 6 v28" stroke="#fff" stroke-width="1.4"/>`,
+  "g:facepaint":`<path d="M8 32 L26 12" stroke="#c8915a" stroke-width="4" stroke-linecap="round"/><path d="M26 12 q6 -8 10 -6 q-2 6 -8 9z" fill="#ff7db8" ${IL}/>`,
+  "g:freckpen":`<path d="M8 32 L28 10" stroke="#8a5233" stroke-width="5" stroke-linecap="round"/>${[[30,22],[34,28],[28,30]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#8a5233"/>`).join("")}`,
+  "g:blend":`<path d="M20 4 C31 4 34 26 30 33 C27 38 13 38 10 33 C6 26 9 4 20 4Z" fill="#ffd166" ${IL}/><path d="M12 20 q8 -6 16 0 M12 26 q8 -6 16 0" stroke="#fff" stroke-width="1.8" fill="none"/>`,
+  "g:wipe":`<rect x="6" y="10" width="28" height="22" rx="3" fill="#fffdf8" ${IL}/><path d="M10 16 q10 6 20 0 M10 24 q10 6 20 0" stroke="#9ec9e8" stroke-width="2" fill="none"/>`
+});
+const MKT = {
+  cleanser:["Cleanser","g:cleanser","Massage over oily or dull skin, then it wipes clean. Removes shine and grime.",{r:30}],
+  moist:["Moisturizer","g:eyecream","Smooths dry, flaky patches so makeup glides on instead of clinging.",{r:28}],
+  primer:["Primer","g:primer","Blurs pores and controls oil so makeup lasts. Great on the T-zone.",{r:26}],
+  eyecream:["Eye cream","g:eyecream","Gently pat under the eyes to brighten dark circles.",{r:16}],
+  corrector:["Color corrector","g:corrector","Cancel a color with its opposite: green hides red, peach hides blue-purple circles.",{r:12, layer:"corr", a:.2, soft:.75}],
+  foundation:["Foundation","g:foundation","Build an even base over the whole face. Match the shade at the jawline.",{r:26, layer:"base", a:.1, soft:.85}],
+  concealer:["Concealer","g:concealer","Dab it on spots and under the eyes for extra coverage.",{r:9, layer:"base", a:.24, soft:.7}],
+  powder:["Setting powder","g:powder","Press it over the T-zone to set makeup and stop shine.",{r:30}],
+  contour:["Contour","g:contour","Draw a soft shadow under the cheekbones, toward the ear.",{r:13, layer:"cheek", a:.09, soft:.8}],
+  bronzer:["Bronzer","g:blushpan","Warm the face where the sun hits: forehead, cheekbones, nose.",{r:20, layer:"cheek", a:.07, soft:.85}],
+  blush:["Blush","g:blushpan","Smile! Dab on the apples of the cheeks, or sweep up the cheekbones.",{r:17, layer:"cheek", a:.09, soft:.85}],
+  highlight:["Highlighter","g:highlighter","Tap where light hits: tops of cheekbones, down the nose.",{r:10, layer:"cheek", a:.16, soft:.75, shimmer:true}],
+  shadow:["Eyeshadow","g:palette","Pack on the lids, then blend up to the crease.",{r:9, layer:"eye", a:.16, soft:.75}],
+  liner:["Eyeliner","g:liner","Trace along the upper lash line. Flick outward past the corner for a wing.",{line:2.4, layer:"detail"}],
+  mascara:["Mascara","g:mascara","Sweep up from the roots of the lashes to lengthen them.",{layer:"detail"}],
+  falsies:["False lashes","g:falsies","Tap just above an eye to apply a strip of lashes.",{layer:"detail"}],
+  browpencil:["Brow pencil","g:browpencil","Feather in short, hair-like strokes along the brow.",{layer:"brow"}],
+  lipliner:["Lip liner","g:lipliner","Outline the lips so color stays crisp.",{line:1.8, layer:"lip"}],
+  lipstick:["Lipstick","g:lipstick","Fill in the lips. It stays inside the lip line.",{r:7, layer:"lip", a:.32, soft:.55}],
+  gloss:["Lip gloss","g:gloss","A swipe adds juicy shine on top of lipstick.",{r:6, layer:"lip", a:.18, soft:.7}],
+  spray:["Setting spray","g:setspray","Mist over the finished face so the makeup lasts all night.",{r:60}],
+  glitter:["Glitter","g:glitter","Sweep sparkle on the lids, cheekbones or temples.",{r:12, layer:"extra"}],
+  gems:["Face gems","g:gems","Tap to stick on gems: try the outer corners of the eyes.",{layer:"extra"}],
+  paint:["Face paint","g:facepaint","Draw anything: hearts, stars, stripes or graphic liner.",{line:3, layer:"extra"}],
+  freckles:["Faux freckles","g:freckpen","Tap little dots across the nose and cheeks.",{layer:"extra"}],
+  blend:["Blending sponge","g:blend","Bounce over harsh edges to melt them into the skin.",{r:16}],
+  wipe:["Makeup wipe","g:wipe","Wipes off the current step's makeup where you rub.",{r:16}]
+};
+const MK_PHASES = [["prep","Prep",["cleanser","moist","primer","eyecream"],["prep"]],["base","Base",["corrector","foundation","concealer","powder","blend","wipe"],["corr","base"]],["sculpt","Sculpt",["contour","bronzer","blush","highlight","blend","wipe"],["cheek"]],["eyes","Eyes",["shadow","liner","mascara","falsies","browpencil","blend","wipe"],["eye","detail","brow"]],["lips","Lips",["lipliner","lipstick","gloss","blend","wipe"],["lip"]],["finish","Finish",["spray","glitter","gems","paint","freckles","wipe"],["extra"]]];
+const MK_COL = {corrector:[["green","#9ccf8a"],["peach","#f2a079"],["lavender","#cdb8ef"],["yellow","#f3dc8c"]], contour:MK_COLORS.contour.map(c => [c[0], c[1]]), bronzer:MK_COLORS.bronzer.map(c => [c[0], c[1]]), blush:BLUSHES.map(b => [b[0], b[1]]), highlight:MK_COLORS.highlight.map(c => [c[0], c[1]]),
+  shadow:MK_COLORS.shadow.map(c => [c[0], c[1]]), liner:MK_COLORS.liner.map(c => [c[0], c[1]]), mascara:MK_COLORS.mascara.map(c => [c[0], c[1]]), browpencil:MK_COLORS.brow.map(c => [c[0], c[1]]), lipliner:MK_COLORS.lipliner.map(c => [c[0], c[1]]), lipstick:MK_LIPS_ALL().map(l => [l[0], l[1]]), gloss:MK_COLORS.gloss.map(c => [c[0], c[1]]),
+  glitter:MK_COLORS.glitter.map(c => [c[0], c[1]]), gems:MK_COLORS.gems.map(c => [c[0], c[1]]), paint:MK_COLORS.facepaint.map(c => [c[0], c[1]]), freckles:MK_COLORS.freckles.map(c => [c[0], c[1]])};
+/* looks the client can bring in (the target photo is painted with the same brushes) */
+const MK_LOOKS = [
+  {k:"natural", t:"Natural day look", say:"Just me, but fresher: even skin, rosy cheeks, defined lashes.", base:1, conceal:1, blush:["pink","apples"], mascara:"black", brows:1, lips:["pink nude", 0], tip:"Light, even base, conceal spots, blush on the apples, mascara, brows and a soft lip."},
+  {k:"softglam", t:"Soft glam", say:"Soft glam for a dinner date: glowy, sculpted, with a little wing.", base:1, conceal:1, contour:"cool taupe", bronzer:"sun-kissed", blush:["peach","cheekbones"], highlight:"champagne", shadow:["bronze","champagne"], liner:["brown","thin"], mascara:"black", falsies:1, brows:1, lips:["nude-brown", 1], tip:"Sculpt with contour and bronzer, warm bronze lids, a thin liner, lashes and a glossy nude lip."},
+  {k:"smoky", t:"Smoky night out", say:"A dark, smoky eye with a sharp wing. I'm going dancing!", base:1, conceal:1, contour:"deep", shadow:["black","plum"], liner:["black","wing"], mascara:"black", falsies:1, brows:1, lips:["berry", 0], set:1, tip:"Pack black on the lids, blend plum around it, flick a wing, add lashes and a berry lip. Set it so it survives the dance floor."},
+  {k:"redcarpet", t:"Red-carpet classic", say:"Old-Hollywood: gold lids, a winged liner and a perfect red lip.", base:1, conceal:1, highlight:"gold", shadow:["gold","champagne"], liner:["black","wing"], mascara:"black", brows:1, lips:["blue-red", 0], set:1, tip:"Flawless base, gold shimmer lids, a crisp wing and a blue-red lip lined first."},
+  {k:"festival", t:"Festival sparkle", say:"Festival time! Bright eyes, glitter and gems everywhere.", base:1, shadow:["turquoise","pink"], mascara:"black", glitter:"holographic", gems:1, lips:["hot pink", 1], set:1, tip:"Bright shadow, glitter on the lids and cheekbones, gems at the outer corners, glossy pink lips."},
+  {k:"bridal", t:"Bridal glow", say:"It's my wedding! Glowing, romantic, and it has to last all day.", base:1, conceal:1, blush:["rose","apples"], highlight:"pearl", shadow:["champagne","rose"], liner:["brown","thin"], mascara:"black", falsies:1, brows:1, lips:["rose", 1], set:1, tip:"Glowy base, rose blush, pearly highlight, soft champagne eyes, lashes, rose lips, and setting spray so it lasts."},
+  {k:"nomakeup", t:"No-makeup makeup", say:"I want to look like I'm wearing nothing at all. Keep my freckles!", base:0, conceal:1, keepFreckles:1, brows:1, mascara:"brown", lips:["peach", 1], tip:"Skip heavy foundation: just conceal spots, groom the brows, brown mascara and a tinted gloss."},
+  {k:"editorial", t:"Editorial color", say:"Make it fashion: bold blue lids and a graphic liner.", base:1, conceal:1, shadow:["cobalt","sky"], liner:["cobalt","wing"], mascara:"black", brows:1, lips:["nude", 0], tip:"Saturated cobalt on the lids, a graphic colored wing, and a quiet nude lip so the eyes lead."},
+  {k:"sunset", t:"Sunset glam", say:"Warm sunset colors: orange, pink and gold!", base:1, conceal:1, bronzer:"golden", blush:["coral","cheekbones"], highlight:"gold", shadow:["orange","gold"], liner:["black","thin"], mascara:"black", lips:["coral", 1], tip:"Analogous warm colors: orange and gold on the lids, coral cheeks and lips, golden bronzer."},
+  {k:"goth", t:"Gothic glam", say:"Dark and dramatic: black lips and a smoky eye.", base:1, conceal:1, contour:"cool taupe", shadow:["black","plum"], liner:["black","wing"], mascara:"black", brows:1, lips:["black", 0], set:1, tip:"Smoky black eyes, sharp contour and a black lip lined first."}
+];
+const MKS = () => { S.mkpro = S.mkpro || {coins:120, owned:[], served:0, totalMatch:0, best:0, bestDay:0, days:0, daily:{}}; return S.mkpro; };
+const MK_SHOP = [["probrush","Pro brush set","g:blend","Softer, smoother strokes for flawless blending.",70],["ringlight","Ring light","g:highlighter","A bright ring light: see every detail.",50],["neonpal","Neon palette","g:palette","Six neon eyeshadows and liners.",60],["holo","Holo glitter pack","g:glitter","Extra glitter shades.",40],["velvet","Velvet chair","g:sponge","Clients relax more (and tip more).",60]];
+const colHex = (k, name) => (MK_COL[k] || []).find(c => c[0] === name)?.[1];
+function mkAutoPaint(f, L, look){
+  const x = k => L[k].getContext("2d"), face = c => { MKP.facePath(c, f); c.clip(); }, lipClip = c => { MKP.lipsPath(c, f); c.clip(); };
+  const fill = (k, zone, col, r, a, soft, clip, step = 1) => MKP.samples(zone).forEach(([px, py], i) => { if(i % step === 0) MKP.stamp(x(k), px, py, r, col, a, soft, clip); });
+  const shades = foundationShades(f.depth), match = shades.find(s => s.depth === f.depth && s.u === f.u);
+  if(look.base){ for(let yy = MKP.CY - MKP.RY; yy < MKP.CY + MKP.RY + 10; yy += 14) for(let xx = MKP.CX - MKP.RX; xx < MKP.CX + MKP.RX; xx += 14) MKP.stamp(x("base"), xx, yy, 22, match.c, .12, .85, face); }
+  if(look.conceal){ f.spots.forEach(s => { if(s.k === "freck" && look.keepFreckles) return; if(s.k === "blem") MKP.stamp(x("base"), s.x, s.y, 7, mixHex(match.c, "#ffffff", .05), .85, .5, face); if(s.k === "red" || s.k === "dark" || s.k === "shine" || s.k === "dry") MKP.stamp(x("base"), s.x, s.y, s.r*1.2, match.c, look.base ? .5 : .55, .8, face); }); }
+  if(look.contour) fill("cheek", "contour", colHex("contour", look.contour), 12, .14, .85, face);
+  if(look.bronzer) [["forehead"],["cheekbones"],["nose"]].forEach(([z]) => fill("cheek", z, colHex("bronzer", look.bronzer), 16, .06, .9, face, 2));
+  if(look.blush) fill("cheek", look.blush[1], colHex("blush", look.blush[0]), 14, .12, .9, face);
+  if(look.highlight) fill("cheek", "highlight", colHex("highlight", look.highlight), 7, .3, .7, face);
+  if(look.shadow){ fill("eye", "lids", colHex("shadow", look.shadow[0]), 8, .32, .7, face); if(look.shadow[1]) [-1, 1].forEach(d => { for(let t = -1; t <= 1; t += .1){ MKP.stamp(x("eye"), MKP.CX + d*MKP.EX + t*30, 216 - Math.cos(t*1.4)*8, 8, colHex("shadow", look.shadow[1]), .12, .9, face); } }); }
+  if(look.liner){ const c = colHex("liner", look.liner[0]), w = look.liner[1] === "wing" ? 3.4 : 2.2; [-1, 1].forEach(d => { let prev = null; for(let t = -1; t <= 1.001; t += .1){ const px = MKP.CX + d*MKP.EX + d*t*MKP.EW, py = MKP.EY - MKP.EH*(1 - t*t)*1.05 + 1; if(prev) MKP.line(x("detail"), prev, [px, py], w*(t > .6 ? 1.15 : 1), c, .95); prev = [px, py]; } if(look.liner[1] === "wing"){ MKP.line(x("detail"), prev, [prev[0] + d*13, prev[1] - 9], w, c, .95); } }); }
+  if(look.mascara) mkLashes(x("detail"), f, colHex("mascara", look.mascara), 1);
+  if(look.falsies) [-1, 1].forEach(d => mkFalsies(x("detail"), d));
+  if(look.brows) [-1, 1].forEach(d => { for(let i = 0; i < 16; i++){ const t = i/15, bx = MKP.CX + d*(MKP.EX + 2) + d*(t - .5)*58, by = 209 - Math.sin(t*3.14)*6; MKP.line(x("brow"), [bx, by + 3], [bx + d*3, by - 3], 1.6, shade(f.hair, -.25), .7); } });
+  if(look.lips){ const c = colHex("lipstick", look.lips[0]); for(let xx = MKP.CX - 40; xx <= MKP.CX + 40; xx += 5) for(let yy = 334; yy <= 366; yy += 5) MKP.stamp(x("lip"), xx, yy, 7, c, .4, .5, lipClip); if(look.lips[1]) for(let xx = MKP.CX - 20; xx <= MKP.CX + 20; xx += 5) MKP.stamp(x("lip"), xx, 356, 4, "#ffffff", .3, .8, lipClip); }
+  if(look.glitter){ const R2 = rng("gl" + look.k); for(let i = 0; i < 90; i++){ const z = pick(["lids","cheekbones"]), pt = pick(MKP.samples(z)); mkSparkle(x("extra"), pt[0] + (R2() - .5)*8, pt[1] + (R2() - .5)*6, colHex("glitter", look.glitter) || "#b8e2ff"); } }
+  if(look.gems) [-1, 1].forEach(d => [0, 1, 2].forEach(k => mkGem(x("extra"), MKP.CX + d*(MKP.EX + MKP.EW + 6 + k*5), MKP.EY + 6 + k*8, "#4cc9f0")));
+}
+function mkLashes(c, f, col, amt){ [-1, 1].forEach(d => { for(let i = 0; i <= 10; i++){ const t = i/10, px = MKP.CX + d*MKP.EX + d*(t*2 - 1)*MKP.EW*.9, py = MKP.EY - MKP.EH*(1 - (t*2 - 1)**2)*1.05 + 1, len = (7 + t*5)*amt; MKP.line(c, [px, py], [px + d*(t - .3)*6, py - len], 1.5, col, .9); } }); }
+function mkFalsies(c, d){ for(let i = 0; i <= 16; i++){ const t = i/16, px = MKP.CX + d*MKP.EX + d*(t*2 - 1)*MKP.EW*.92, py = MKP.EY - MKP.EH*(1 - (t*2 - 1)**2)*1.05, len = 9 + t*8; MKP.line(c, [px, py], [px + d*(t - .2)*9, py - len], 1.3, "#141414", .95); } MKP.line(c, [MKP.CX + d*MKP.EX - MKP.EW*.9, MKP.EY - 1], [MKP.CX + d*MKP.EX + MKP.EW*.9, MKP.EY - 1], 2.4, "#141414", .9); }
+function mkSparkle(c, x, y, col){ c.save(); c.fillStyle = col; c.globalAlpha = .9; c.beginPath(); c.arc(x, y, .8 + Math.random()*1.2, 0, 6.28); c.fill(); c.fillStyle = "#fff"; c.globalAlpha = .7; c.fillRect(x - .5, y - .5, 1, 1); c.restore(); }
+function mkGem(c, x, y, col){ c.save(); c.fillStyle = col; c.strokeStyle = INK; c.lineWidth = 1; c.beginPath(); c.moveTo(x, y - 4); c.lineTo(x + 3.5, y); c.lineTo(x, y + 4); c.lineTo(x - 3.5, y); c.closePath(); c.fill(); c.stroke(); c.fillStyle = "#fff"; c.globalAlpha = .8; c.fillRect(x - 1, y - 2, 1.5, 1.5); c.restore(); }
+STUDIO.makeup = {
+  start(mode){ if(mode === "theme" || mode === "classic") return MK_CLASSIC.start.call(MK_CLASSIC, mode); this.lobby(); },
+  lobby(){
+    const s = MKS(); cancelAnimationFrame(this.raf); const avg = s.served ? Math.round(s.totalMatch/s.served) : 0;
+    stage.innerHTML = `<div class="sal-lobby"><div class="sal-sign mk-sign"><span class="eyebrow">Your makeup studio</span><h3>Day ${s.days + 1}</h3>
+      <div class="sal-stats"><span><small>Coins</small><b class="coin">${fmt(s.coins)}</b></span><span><small>Faces done</small><b>${s.served}</b></span><span><small>Average match</small><b>${s.served ? avg + "%" : "–"}</b></span><span><small>Best match</small><b>${s.best ? s.best + "%" : "–"}</b></span></div>
+      <p class="stage-tip">Three clients a day bring a photo of the look they want. Real skin has real needs: shine, redness, dark circles, spots and dry patches. Prep it, correct it, build a base, sculpt, do the eyes and lips, then finish. Every brushstroke is scored against their photo.</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="mkOpen">Open the studio →</button><button class="btn" type="button" id="mkDaily">Daily challenge face</button></div>
+      <p class="tooltip-line">${s.daily[today()] ? `Today's best: <b>${s.daily[today()]}%</b>.` : "Everyone gets the same face today. Your best match is saved."}</p></div>
+      <div class="sal-shop"><span class="eyebrow">Upgrades</span><div class="sal-shopgrid">${MK_SHOP.map(([k, n, ic, d, p]) => { const own = s.owned.includes(k); return `<div class="sal-item${own ? " own" : ""}"><span class="ti">${icon(ic, 34)}</span><b>${n}</b><small>${d}</small>${own ? `<span class="owned">Owned</span>` : `<button class="btn-sm" type="button" data-buy="${k}" ${s.coins < p ? "disabled" : ""}><span class="coin">${p}</span></button>`}</div>`; }).join("")}</div><p class="tooltip-line">All the essentials are already in your kit.</p></div></div>`;
+    stage.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => { const t = MK_SHOP.find(x => x[0] === b.dataset.buy); if(s.coins < t[4]) return; s.coins -= t[4]; s.owned.push(t[0]); save(); sfx.win(); this.lobby(); });
+    $("mkOpen").onclick = () => { this.day = {n:0, earned:0, results:[]}; this.newClient(); };
+    $("mkDaily").onclick = () => { this.day = {n:0, earned:0, results:[], daily:true}; const r0 = Math.random; Math.random = rng("mk" + today()); try{ this.newClient(); } finally { Math.random = r0; } };
+    setSide("Coins", fmt(s.coins));
+  },
+  newClient(){
+    const own = MKS().owned;
+    if(own.includes("neonpal")) [["neon pink","#ff2fa8"],["neon green","#39ff14"],["neon orange","#ff7a00"]].forEach(c => { if(!MK_COL.shadow.some(x => x[0] === c[0])){ MK_COL.shadow.push(c); MK_COL.liner.push(c); } });
+    const look = pick(MK_LOOKS.filter(l => !(this.lastLooks || []).includes(l.k))); this.lastLooks = [...(this.lastLooks || []).slice(-3), look.k];
+    const f = MKP.makeFace(look.keepFreckles ? {conds:["freck", pick(["blem","red","dark"])]} : {}); f.name = pick(NAMES);
+    this.look = look; this.f = f; this.L = MKP.makeLayers(); this.T = MKP.makeLayers();
+    this.tf = {...f, spots:f.spots.map(s => ({...s, v:(look.conceal || look.base) && !(s.k === "freck" && look.keepFreckles) ? 0 : s.v}))};
+    mkAutoPaint(this.tf, this.T, look);
+    this.phase = 0; this.tool = "cleanser"; this.size = 1; this.alpha = 1; this.soft = .8; this.finish = "matte"; this.col = {}; this.locked = false; this.mood = 1; this.ouch = 0; this.pains = 0; this.fx = []; this.tips = new Set(); this.frame = 0; this.view = "face";
+    this.used = {}; this.shadeUse = {}; this.blended = 0; this.set = {powder:0, spray:0}; this.prepped = {cleanser:0, moist:0, primer:0}; this.t0 = performance.now();
+    const shades = foundationShades(f.depth); this.shades = shades; this.col.foundation = shades[0].id; this.col.concealer = shades[0].id;
+    this.render();
+  },
+  render(){
+    const f = this.f, s = MKS(), look = this.look;
+    stage.innerHTML = `<div class="sal mkp">
+      <div class="sal-hud"><span class="coin">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily challenge" : `Client ${this.day.n + 1} of 3`}</span><span id="mkTime">0:00</span><span class="sal-moodbar"><i id="mkMood"></i></span><span class="sal-match"><small>Match</small><b id="mkMatch">–</b></span><button class="btn btn-solid sal-finish" type="button" id="mkNext"></button></div>
+      <div class="sal-hud2"><div class="sal-meters" id="mkMeters"></div></div>
+      <ol class="stepper sal-steps" id="mkSteps">${MK_PHASES.map(([k, l], i) => `<li data-ph="${i}"><span>${i + 1}</span>${l}</li>`).join("")}</ol>
+      <div class="sal-main"><div class="sal-chair"><div class="sal-speech"><b>${f.name}</b><div class="sal-bubble" id="mkBubble"></div></div>
+        <div class="sal-mirror mk-mirror"><canvas id="mkCv" aria-label="${f.name}'s face"></canvas><p class="msg sal-msg sal-toast" id="mkMsg"></p></div>
+        <div class="row-btns"><div class="chips" id="mkView">${[["face","Full face"],["eyes","Eyes close-up"],["lips","Lips close-up"]].map(([k, l]) => `<button type="button" class="ch" data-view="${k}">${l}</button>`).join("")}</div><label class="hlmode"><input type="checkbox" id="mkGuide" ${S.rating.makeup < 6 ? "checked" : ""}> Zone guides</label></div></div>
+        <div class="sal-side"><div class="sal-req"><canvas id="mkGoal" width="300" height="355"></canvas><div><span class="eyebrow">${look.t}</span><h3>${f.name}</h3><div class="sal-tags"><span>${SKINS[f.depth][1]} skin</span><span>${f.u} undertone</span><span>${f.eyeName.replace("darkbrown", "dark brown")} eyes</span>${Object.keys(f.conds).map(k => `<span>${MKP.CONDS[k][0].toLowerCase()}</span>`).join("")}</div><p class="sal-say">“${look.say}”</p><details><summary>Artist's notes</summary><p class="tooltip-line">${look.tip} ${Object.keys(f.conds).map(k => MKP.CONDS[k][1]).join(" ")}</p></details></div></div>
+          <div class="sal-tools" id="mkTools"></div><div class="sal-opts" id="mkOpts"></div></div></div>
+      <div id="mkRes" class="sal-overlay"></div></div>`;
+    const cv = $("mkCv"), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = MKP.W*dpr; cv.height = MKP.H*dpr; this.cv = cv; this.ctx = cv.getContext("2d"); this.dpr = dpr;
+    const gc = $("mkGoal").getContext("2d"); gc.scale(300/MKP.W, 355/MKP.H); MKP.drawFace(gc, this.tf, this.T, {still:true, mood:"happy", noLights:true});
+    $("mkSteps").onclick = e => { const li = e.target.closest("[data-ph]"); if(li && !this.locked) this.enterPhase(+li.dataset.ph); };
+    $("mkView").onclick = e => { const b = e.target.closest("[data-view]"); if(b){ this.view = b.dataset.view; sfx.click(); this.viewUI(); } };
+    this.bindPointer(); this.enterPhase(0, true); this.viewUI();
+    this.say(pick(["Hi! I brought a photo of the look.","Hello! Can you make me look like this?","I'm so excited!"]));
+    const tok = G.token; cancelAnimationFrame(this.raf); const loop = () => { if(G.token !== tok || !document.body.contains(cv)) return; this.tick(); this.raf = requestAnimationFrame(loop); }; this.raf = requestAnimationFrame(loop);
+  },
+  viewUI(){ stage.querySelectorAll("#mkView [data-view]").forEach(b => b.classList.toggle("sel", b.dataset.view === this.view)); },
+  xf(){ return {face:[1, 0, 0], eyes:[2.1, MKP.CX, MKP.EY - 8], lips:[2.6, MKP.CX, 350]}[this.view]; },
+  say(t, kind){ const b = $("mkBubble"); if(!b) return; b.textContent = t; b.className = "sal-bubble" + (kind ? " " + kind : ""); void b.offsetWidth; b.classList.add("pop"); },
+  note(t){ const m = $("mkMsg"); if(!m) return; m.textContent = t; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); clearTimeout(this.noteT); this.noteT = setTimeout(() => m && m.classList.remove("show"), 4200); },
+  tipOnce(k, t){ if(this.tips.has(k)) return; this.tips.add(k); this.note(t); },
+  enterPhase(i, quiet){
+    this.phase = i; const [k, label, tools] = MK_PHASES[i];
+    stage.querySelectorAll("#mkSteps li").forEach((li, j) => { li.classList.toggle("now", j === i); li.classList.toggle("done", j < i); });
+    $("mkTools").innerHTML = `<div class="sal-group"><span class="eyebrow">${label}</span><div class="sal-grow">${tools.map(t => `<button type="button" class="sal-tool" data-t="${t}" title="${MKT[t][0]}"><span class="ti">${icon(MKT[t][1], 28)}</span><small>${MKT[t][0]}</small></button>`).join("")}</div></div>`;
+    $("mkTools").onclick = e => { const b = e.target.closest("[data-t]"); if(b && !this.locked){ this.tool = b.dataset.t; sfx.click(); this.toolUI(); } };
+    this.tool = tools[0]; const last = i === MK_PHASES.length - 1, nb = $("mkNext");
+    nb.textContent = last ? "Finish & reveal" : `Next: ${MK_PHASES[i + 1][1]} →`; nb.onclick = () => { if(this.locked) return; last ? this.finishLook() : this.enterPhase(i + 1); };
+    if(k === "eyes" && !quiet) this.view = "eyes"; else if(k === "lips" && !quiet) this.view = "lips"; else if(!quiet) this.view = "face"; this.viewUI();
+    this.note({prep:"Prep the skin: cleanse oily areas, moisturize dry patches, prime the T-zone.", base:"Correct colors first (green on red, peach on dark circles), then foundation in the right shade, concealer on spots, and powder.", sculpt:"Contour under the cheekbones, bronzer where the sun hits, blush and highlighter.", eyes:"Shadow on the lids, liner along the lashes, mascara, lashes and brows. Use the close-up!", lips:"Line, fill, gloss.", finish:"Setting spray, sparkle and fun extras, then reveal!"}[k]);
+    this.toolUI();
+  },
+  toolUI(){
+    stage.querySelectorAll("#mkTools .sal-tool").forEach(b => b.classList.toggle("sel", b.dataset.t === this.tool));
+    const t = this.tool, [name, , desc, P] = MKT[t], o = $("mkOpts"); let h = `<p class="tooltip-line"><b>${name}:</b> ${desc}</p>`;
+    if(t === "foundation" || t === "concealer") h += `<div class="mk-shades">${this.shades.map(sh => `<button type="button" class="mk-shade${this.col[t] === sh.id ? " sel" : ""}" data-shade="${sh.id}" style="background:${sh.c}" title="${sh.id}"><span>${sh.id}</span></button>`).join("")}</div><p class="tooltip-line">Number = depth, letter = undertone (C cool, N neutral, W warm). Swatch it on the jawline and compare!</p>`;
+    else if(MK_COL[t]) h += `<div class="swatches mk-sw">${MK_COL[t].map(([n, c]) => `<button type="button" class="sw${(this.col[t] || MK_COL[t][0][0]) === n ? " sel" : ""}" data-col="${n}" style="background:${c}" title="${n}" aria-label="${n}"></button>`).join("")}</div><p class="tooltip-line" id="mkColName">${this.col[t] || MK_COL[t][0][0]}</p>`;
+    if(P.layer && P.r) h += `<div class="mk-sliders"><label>Size<input type="range" id="mkSize" min=".5" max="2" step=".05" value="${this.size}"></label><label>Intensity<input type="range" id="mkAlpha" min=".3" max="2" step=".05" value="${this.alpha}"></label><label>Softness<input type="range" id="mkSoft" min=".2" max=".95" step=".05" value="${this.soft}"></label></div>`;
+    if(["shadow","highlight","blush"].includes(t)) h += `<div class="chips">${["matte","satin","shimmer"].map(x => `<button type="button" class="ch${this.finish === x ? " sel" : ""}" data-fin="${x}">${x}</button>`).join("")}</div>`;
+    o.innerHTML = h;
+    o.onclick = e => { const b = e.target.closest("[data-shade],[data-col],[data-fin]"); if(!b) return; if(b.dataset.shade) this.col[t] = b.dataset.shade; if(b.dataset.col) this.col[t] = b.dataset.col; if(b.dataset.fin) this.finish = b.dataset.fin; sfx.click(); this.toolUI(); };
+    const sl = (id, k) => { const el = $(id); if(el) el.oninput = e => this[k] = +e.target.value; }; sl("mkSize", "size"); sl("mkAlpha", "alpha"); sl("mkSoft", "soft");
+  },
+  bindPointer(){
+    const cv = this.cv;
+    const pos = e => { const r = cv.getBoundingClientRect(); let x = (e.clientX - r.left)/r.width*MKP.W, y = (e.clientY - r.top)/r.height*MKP.H; const [z, cx, cy] = this.xf(); if(z !== 1){ x = cx + (x - MKP.W/2)/z; y = cy + (y - MKP.H/2)/z; } return [x, y]; };
+    cv.onpointerdown = e => { if(this.locked) return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){} const [x, y] = pos(e); this.ptr = {x, y, px:x, py:y, down:true, hover:true}; this.tap(x, y); this.paint(x, y, x, y); };
+    cv.onpointermove = e => { const [x, y] = pos(e), q = this.ptr || {x, y}; this.ptr = {...q, px:q.x, py:q.y, x, y, hover:true, down:q.down && e.buttons > 0}; if(this.ptr.down) this.paint(q.x, q.y, x, y); };
+    cv.onpointerup = cv.onpointercancel = () => { if(this.ptr) this.ptr.down = false; };
+    cv.onpointerleave = () => { if(this.ptr){ this.ptr.down = false; this.ptr.hover = false; } };
+  },
+  fxPush(q){ this.fx.push(q); if(this.fx.length > 220) this.fx.shift(); },
+  tap(x, y){
+    const t = this.tool, f = this.f, ex = this.L.extra.getContext("2d"), dt = this.L.detail.getContext("2d");
+    if(t === "gems"){ if(!MKP.inZFace(x, y, f)) return this.tipOnce("off", "Gems go on the face."); mkGem(ex, x, y, colHex("gems", this.col.gems || MK_COL.gems[0][0])); this.used.gems = (this.used.gems || 0) + 1; tone(1200, .05, "triangle", .03); }
+    if(t === "freckles"){ if(!MKP.inZFace(x, y, f)) return; MKP.stamp(ex, x, y, 1.6, colHex("freckles", this.col.freckles || "brown"), .9, .3); this.used.freckles = (this.used.freckles || 0) + 1; }
+    if(t === "falsies"){ const d = x < MKP.CX ? -1 : 1, near = Math.hypot(x - (MKP.CX + d*MKP.EX), y - (MKP.EY - 10)) < 30; if(!near) return this.tipOnce("fl", "Tap right along the top of an eye to apply the strip."); this.falsie = this.falsie || {}; if(this.falsie[d]) return; this.falsie[d] = true; mkFalsies(dt, d); sfx.good(); this.say("Ooh, so fluttery!", "good"); }
+  },
+  paint(x0, y0, x1, y1){
+    const t = this.tool, f = this.f, P = MKT[t][3], dist = Math.hypot(x1 - x0, y1 - y0), steps = Math.max(1, Math.ceil(dist/3)), face = c => { MKP.facePath(c, f); c.clip(); };
+    const ec = this._ec || (this._ec = document.createElement("canvas").getContext("2d")), inEye = (x, y) => [-1, 1].some(d => { MKP.eyePath(ec, d, f, .8); return ec.isPointInPath(x, y); });
+    const pro = MKS().owned.includes("probrush") ? .08 : 0;
+    for(let i = 1; i <= steps || i === 1; i++){ const k = i/steps, x = x0 + (x1 - x0)*k, y = y0 + (y1 - y0)*k;
+      if(["liner","mascara","shadow"].includes(t) && inEye(x, y)){ if(this.frame - (this.lastOuch || -99) > 40){ this.lastOuch = this.frame; this.pains++; this.mood = Math.max(0, this.mood - .08); this.ouch = 25; sfx.bad(); this.say("OW! That's my eye!", "bad"); this.tipOnce("eye", "Stay on the lash line, not the eyeball! Use the Eyes close-up for precision."); } continue; }
+      const onFace = MKP.inZFace(x, y, f);
+      switch(t){
+        case "cleanser": case "moist": case "primer": case "eyecream": {
+          if(!onFace) break; const key = {cleanser:"shine", moist:"dry", primer:"shine", eyecream:"dark"}[t], r = P.r;
+          f.spots.forEach(s => { const d = Math.hypot(s.x - x, s.y - y); if(d < r + s.r && s.k === key) s.v = Math.max(t === "primer" ? .25 : t === "eyecream" ? .4 : 0, s.v - (t === "cleanser" ? .012 : .01)); });
+          this.prepped[t] = (this.prepped[t] || 0) + 1; if(i === 1 && this.frame % 3 === 0) this.fxPush({type:t === "cleanser" ? "foam" : "blob", x, y, vx:(Math.random() - .5)*1.5, vy:-.4, life:26, col:t === "cleanser" ? "#ffffff" : t === "eyecream" ? "#e9dcff" : "#fff4e8"}); break; }
+        case "powder": if(!onFace) break; f.spots.forEach(s => { if(s.k === "shine" && Math.hypot(s.x - x, s.y - y) < 34) s.v = Math.max(0, s.v - .015); }); this.set.powder++; if(i === 1 && this.frame % 2 === 0) this.fxPush({type:"powder", x:x + (Math.random() - .5)*20, y, vx:(Math.random() - .5), vy:.6, life:30, col:"#fffaf2"}); break;
+        case "spray": this.set.spray++; if(i === 1) for(let q = 0; q < 3; q++) this.fxPush({type:"mist", x:x + (Math.random() - .5)*60, y:y + (Math.random() - .5)*40, vx:0, vy:.3, life:30, col:"#d6ecff"}); break;
+        case "blend": { const ph = MK_PHASES[this.phase][3]; ph.forEach(L => { if(L !== "detail") MKP.smudge(this.L[L], x, y, (P.r + 4)*this.size); }); this.blended++; break; }
+        case "wipe": MK_PHASES[this.phase][3].forEach(L => MKP.erase(this.L[L].getContext("2d"), x, y, P.r*this.size, .2)); break;
+        case "liner": case "lipliner": case "paint": { const c = this.L[P.layer].getContext("2d"), col = colHex(t, this.col[t] || MK_COL[t][0][0]); if(t !== "paint" && !onFace) break; MKP.line(c, [x - (x1 - x0)/steps, y - (y1 - y0)/steps], [x, y], P.line*this.size, col, .95, face); this.used[t] = (this.used[t] || 0) + 1; break; }
+        case "mascara": { if(i !== 1) break; const c = this.L.detail.getContext("2d"), col = colHex("mascara", this.col.mascara || "black"); [-1, 1].forEach(d => { const ex = MKP.CX + d*MKP.EX; if(Math.abs(x - ex) < MKP.EW + 4 && y < MKP.EY && y > MKP.EY - MKP.EH - 22){ const tt = clamp((x - ex)*d/MKP.EW*.5 + .5, 0, 1), px = ex + d*(tt*2 - 1)*MKP.EW*.9, py = MKP.EY - MKP.EH*(1 - (tt*2 - 1)**2)*1.05 + 1; MKP.line(c, [px, py], [px + d*(tt - .3)*6, py - 11 - tt*5], 1.5, col, .5); this.used.mascara = (this.used.mascara || 0) + 1; } }); break; }
+        case "browpencil": { if(i % 2) break; if(!MKP.inZ(x, y, "brows")) { this.tipOnce("brow", "Feather the pencil along the brows."); break; } const d = x < MKP.CX ? -1 : 1, c = this.L.brow.getContext("2d"); MKP.line(c, [x, y + 3], [x + d*3, y - 3], 1.5, colHex("browpencil", this.col.browpencil || MK_COL.browpencil[0][0]), .6); this.used.brows = (this.used.brows || 0) + 1; break; }
+        case "glitter": if(!onFace) break; for(let q = 0; q < 2; q++) mkSparkle(this.L.extra.getContext("2d"), x + (Math.random() - .5)*P.r*2, y + (Math.random() - .5)*P.r, colHex("glitter", this.col.glitter || MK_COL.glitter[0][0])); this.used.glitter = (this.used.glitter || 0) + 1; break;
+        case "gems": case "freckles": case "falsies": break;
+        default: {
+          if(!P.layer || !P.r) break; if(!onFace && t !== "lipstick" && t !== "gloss"){ if(this.frame - (this.lastOff || -99) > 60){ this.lastOff = this.frame; this.tipOnce("offface", "Makeup only goes on the face."); } break; }
+          let col; if(t === "foundation" || t === "concealer"){ const sh = this.shades.find(q => q.id === this.col[t]); col = t === "concealer" ? mixHex(sh.c, "#ffffff", .06) : sh.c; this.shadeUse[sh.id] = (this.shadeUse[sh.id] || 0) + 1; } else col = colHex(t, this.col[t] || MK_COL[t][0][0]);
+          const clip = t === "lipstick" || t === "gloss" ? (c => { MKP.lipsPath(c, f); c.clip(); }) : face, c = this.L[P.layer].getContext("2d");
+          MKP.stamp(c, x, y, P.r*this.size, col, Math.min(.95, P.a*this.alpha), clamp(this.soft + pro, .2, .97), clip);
+          if((P.shimmer || this.finish === "shimmer") && Math.random() < .5) mkSparkle(c, x + (Math.random() - .5)*P.r, y + (Math.random() - .5)*P.r*.6, "#ffffff");
+          if(t === "corrector"){ const want = {green:"red", peach:"dark", yellow:"dark", lavender:"none"}[this.col.corrector || "green"]; f.spots.forEach(s => { if(Math.hypot(s.x - x, s.y - y) < s.r + 6){ if(s.k === want) s.v = Math.max(.15, s.v - .02); } }); }
+          this.used[t] = (this.used[t] || 0) + 1;
+        }
+      }
+    }
+    if(P.layer && this.frame - (this.lastPop || -99) > 55){ this.lastPop = this.frame; this.fxPush({type:"text", x:x1, y:y1 - 26, vx:0, vy:-.5, life:55, text:"+" + MKT[t][0]}); tone(700 + Math.random()*90, .04, "sine", .02); }
+  },
+  tick(){
+    this.frame++; const ctx = this.ctx, f = this.f, now = performance.now(), d = this.dpr, [z, cx, cy] = this.xf();
+    ctx.setTransform(d*z, 0, 0, d*z, d*(MKP.W/2 - cx*z), d*(MKP.H/2 - cy*z)); if(z === 1) ctx.setTransform(d, 0, 0, d, 0, 0);
+    if(this.ouch) this.ouch--;
+    const mood = this.ouch ? "ouch" : this.locked && this.result ? (this.result.pct >= 80 ? "happy" : "neutral") : this.mood < .5 ? "sad" : "neutral";
+    MKP.drawFace(ctx, f, this.L, {time:now, mood, bg:MKS().owned.includes("ringlight") ? ["#fffaf0", "#ffe9f2"] : null});
+    if($("mkGuide") && $("mkGuide").checked && !this.locked){ const zs = {prep:[], base:["undereye"], sculpt:["contour","apples","cheekbones","highlight"], eyes:["lids","lash","brows"], lips:["lips"], finish:[]}[MK_PHASES[this.phase][0]]; ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(43,33,24,.4)"; ctx.lineWidth = 1.2/z; zs.forEach(k => MKP.Z[k].forEach(([ex, ey, rx, ry, rot]) => { ctx.beginPath(); ctx.ellipse(ex, ey, rx, ry, rot*Math.PI/180, 0, 6.28); ctx.stroke(); })); ctx.setLineDash([]); }
+    this.fx = this.fx.filter(q => q.life-- > 0);
+    this.fx.forEach(q => { q.x += q.vx; q.y += q.vy; ctx.globalAlpha = Math.min(1, q.life/14);
+      if(q.type === "text"){ ctx.save(); ctx.translate(q.x, q.y); ctx.scale(1/z, 1/z); ctx.font = "600 15px Fredoka, sans-serif"; ctx.lineWidth = 4; ctx.strokeStyle = "#fffdf8"; ctx.strokeText(q.text, -30, 0); ctx.fillStyle = INK; ctx.fillText(q.text, -30, 0); ctx.restore(); }
+      else { ctx.fillStyle = q.col; ctx.beginPath(); ctx.arc(q.x, q.y, q.type === "powder" ? 1.6 : q.type === "mist" ? 2 : 4, 0, 6.28); ctx.fill(); }
+      ctx.globalAlpha = 1; });
+    const p = this.ptr, P = MKT[this.tool][3];
+    if(p && p.hover && !this.locked){ ctx.strokeStyle = "rgba(43,33,24,.6)"; ctx.lineWidth = 1.5/z; ctx.setLineDash([3/z, 3/z]); ctx.beginPath(); ctx.arc(p.x, p.y, (P.r || P.line || 4)*(P.r ? this.size : 1), 0, 6.28); ctx.stroke(); ctx.setLineDash([]); }
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    if(this.frame % 20 === 0 && !this.locked){
+      const sec = Math.floor((now - this.t0)/1000); $("mkTime").textContent = `${Math.floor(sec/60)}:${String(sec % 60).padStart(2, "0")}`; $("mkMood").style.width = Math.round(this.mood*100) + "%";
+      if(this.frame % 60 === 0){ const r = this.score(); this.live = r; const m = $("mkMatch"); m.textContent = r.pct + "%"; m.className = r.pct >= 85 ? "hi" : r.pct >= 60 ? "mid" : "lo";
+        $("mkMeters").innerHTML = r.parts.filter(q => q.w >= 8).map(q => `<div class="sal-meter"><span>${q.label}</span><i><b style="width:${Math.round(q.v*100)}%" class="${q.v >= .85 ? "hi" : q.v >= .55 ? "mid" : "lo"}"></b></i></div>`).join(""); }
+    }
+  },
+  score(){
+    const f = this.f, look = this.look, C = MKP.compare(f, this.L, this.T), parts = [], add = (k, label, w, v, why) => parts.push({k, label, w, v:clamp(v, 0, 1), why});
+    const Bz = this.bare || (this.bare = MKP.compare(f, MKP.makeLayers(), this.T));
+    const zoneWhy = (z, what) => { const c = C[z], b = Bz[z]; if(b.d > .05 && c.d > b.d*.7) return `Not enough ${what} yet: compare with their photo.`; if(c.dl < -.05) return `The ${what} is darker or heavier than in the photo.`; if(c.dl > .05) return `The ${what} is lighter than in the photo.`; if(c.dr > .05) return `The ${what} is too warm or red.`; if(c.dr < -.05) return `The ${what} is too cool.`; return c.d < .05 ? "Matches the photo." : "Close, but not quite the photo."; };
+    const zv = (zs, k = 5) => 1 - zs.reduce((a, z) => a + C[z].d, 0)/zs.length*k;
+    add("base", "Skin and base", 18, zv(["forehead","cheeks","nose","chin"], 6), zoneWhy("cheeks", "base"));
+    const shadeIds = Object.entries(this.shadeUse).sort((a, b) => b[1] - a[1]), match = this.shades.find(s => s.depth === f.depth && s.u === f.u);
+    if(look.base) add("shade", "Foundation shade", 10, shadeIds.length ? (shadeIds[0][0] === match.id ? 1 : this.shades.find(s => s.id === shadeIds[0][0]).depth === f.depth ? .6 : .2) : 0, !shadeIds.length ? "No foundation yet." : shadeIds[0][0] === match.id ? `Perfect match: ${match.id}.` : `Not quite: the best match was ${match.id} (${f.u} undertone, matched on the jawline).`);
+    const vis = k => f.spots.filter(s => s.k === k).reduce((a, s) => a + s.v*(1 - MKP.alphaAt(this.L.base, s.x, s.y)*.85), 0)/Math.max(1, f.spots.filter(s => s.k === k).length);
+    const conds = Object.keys(f.conds).filter(k => !(k === "freck" && look.keepFreckles));
+    if(conds.length) add("skin", "Skin concerns handled", 14, 1 - conds.reduce((a, k) => a + vis(k), 0)/conds.length*1.3, conds.map(k => vis(k) > .3 ? MKP.CONDS[k][1] : null).filter(Boolean)[0] || "Skin looks smooth and even.");
+    if(look.keepFreckles) add("freck", "Freckles kept", 8, f.spots.filter(s => s.k === "freck").reduce((a, s) => a + (1 - MKP.alphaAt(this.L.base, s.x, s.y)), 0)/Math.max(1, f.spots.filter(s => s.k === "freck").length), "They asked to keep their freckles!");
+    if(look.contour || look.bronzer) add("contour", "Contour and bronze", 8, zv(["contour","cheekbones"]), zoneWhy("contour", "contour"));
+    if(look.blush) add("blush", "Blush", 10, zv([look.blush[1]], 5.5), zoneWhy(look.blush[1], "blush"));
+    if(look.highlight) add("highlight", "Highlight", 6, zv(["highlight"]), zoneWhy("highlight", "highlight"));
+    add("eyes", "Eyeshadow", look.shadow ? 14 : 8, zv(["lids"], 4.5), look.shadow ? zoneWhy("lids", "eyeshadow") : (C.lids.d > .06 ? "They didn't want eyeshadow." : "Clean lids, as in the photo."));
+    add("lashes", "Liner and lashes", 12, zv(["lash"], 4), zoneWhy("lash", "liner and lashes"));
+    add("brows", "Brows", 6, zv(["brows"], 5), zoneWhy("brows", "brow"));
+    add("lips", "Lips", 14, zv(["lips"], 3.6), zoneWhy("lips", "lip color"));
+    if(look.glitter || look.gems) add("sparkle", "Sparkle", 8, Math.min(1, ((this.used.glitter || 0) + (this.used.gems || 0)*6)/40), (this.used.glitter || this.used.gems) ? "Sparkling!" : "The photo has glitter and gems.");
+    if(look.set) add("set", "Set to last", 8, Math.min(1, this.set.powder/40)*.5 + Math.min(1, this.set.spray/30)*.5, this.set.spray < 20 ? "A big night needs setting powder and setting spray." : "Locked in for hours.");
+    if(f.conds.dry || f.conds.shine) add("prep", "Skin prepped", 8, (f.conds.dry ? Math.min(1, this.prepped.moist/40) : 1)*.5 + (f.conds.shine ? Math.min(1, (this.prepped.cleanser + this.prepped.primer)/60) : 1)*.5, "Prep makes everything sit better: moisturize dry patches, cleanse and prime oily areas.");
+    add("blend", "Blended edges", 6, Math.min(1, .45 + this.blended/80), this.blended < 30 ? "Bounce the blending sponge over edges so nothing looks stripy." : "Seamless blending.");
+    add("comfort", "Happy client", 6, this.mood, this.pains ? `${this.pains} poke${this.pains === 1 ? "" : "s"} in the eye! Use the close-up view for liner and mascara.` : "Relaxed the whole time.");
+    const tw = parts.reduce((a, q) => a + q.w, 0); return {pct:Math.round(parts.reduce((a, q) => a + q.w*q.v, 0)/tw*100), parts};
+  },
+  finishLook(){
+    if(this.locked) return; this.locked = true; this.view = "face"; this.viewUI();
+    const r = this.score(); this.result = r; const s = MKS(), price = 40, earn = Math.round(price*r.pct/100), tip = r.pct >= 92 ? 16 : r.pct >= 80 ? 8 : r.pct >= 65 ? 3 : 0, velvet = s.owned.includes("velvet") && r.pct >= 70 ? 4 : 0;
+    s.coins += earn + tip + velvet; s.served++; s.totalMatch += r.pct; const pb = r.pct > s.best; s.best = Math.max(s.best, r.pct); this.day.n++; this.day.earned += earn + tip + velvet; this.day.results.push({name:this.f.name, t:this.look.t, pct:r.pct});
+    if(this.day.daily){ const prevD = s.daily[today()] || 0; s.daily[today()] = Math.max(prevD, r.pct); }
+    save(); adapt("makeup", r.pct/100); r.pct >= 85 ? sfx.win() : r.pct >= 60 ? sfx.good() : sfx.bad();
+    this.say(r.pct >= 90 ? "I look INCREDIBLE. Thank you!" : r.pct >= 75 ? "I love it!" : r.pct >= 55 ? "It's nice, not quite the photo." : "Hmm, this isn't what I showed you…", r.pct >= 55 ? "good" : "bad");
+    const mk = (L, ff) => { const c = document.createElement("canvas"); c.width = 300; c.height = 355; const x = c.getContext("2d"); x.scale(300/MKP.W, 355/MKP.H); MKP.drawFace(x, ff, L, {still:true, mood:"happy", noLights:true}); return c; };
+    const last = this.day.daily || this.day.n >= 3;
+    $("mkRes").innerHTML = `<div class="reveal sal-result"><span class="eyebrow">${r.pct >= 90 ? "Flawless" : r.pct >= 75 ? "Gorgeous match" : r.pct >= 55 ? "Close enough" : "Missed the brief"}${pb ? " · New personal best!" : ""}</span><div class="sal-pct"><b>${r.pct}</b>% match</div>
+      <div class="sal-compare mk-compare"><figure><div id="mkA"></div><figcaption>Your work</figcaption></figure><figure><div id="mkG"></div><figcaption>Their photo</figcaption></figure></div>
+      <div class="sal-pay"><span>Service <b class="coin">${earn}</b></span><span>Tip <b class="coin">${tip + velvet}</b></span></div>
+      ${checklist(r.parts.map(q => ({label:`${q.label} · ${Math.round(q.v*100)}%`, ok:q.v >= .75, why:q.why})))}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="mkNextC">${this.day.daily ? "Back to the studio" : last ? "Close for the day" : "Next client →"}</button></div></div>`;
+    $("mkA").appendChild(mk(this.L, this.f)); $("mkG").appendChild(mk(this.T, this.tf));
+    $("mkNextC").onclick = () => { if(this.day.daily) return this.lobby(); if(last) return this.endDay(); this.newClient(); };
+  },
+  endDay(){
+    const s = MKS(), r = this.day.results, avg = Math.round(r.reduce((a, x) => a + x.pct, 0)/r.length), stars = avg >= 85 ? 3 : avg >= 65 ? 2 : 1; s.days++; s.bestDay = Math.max(s.bestDay, this.day.earned); save();
+    endSession({title:stars === 3 ? "Beauty legend" : stars === 2 ? "Rising artist" : "Keep practicing", stars, xp:20 + 15*stars, body:`<div class="big">${fmt(this.day.earned)}</div><p class="m-note">coins earned · average match ${avg}%.</p><ul class="roundlog">${r.map(x => `<li><span>${x.name} · ${x.t}</span><span>${x.pct}%</span></li>`).join("")}</ul>`, actions:[["Next day", () => startRoom("makeup", "studio"), true], ["Lobby", goHub]]});
+  }
+};
+ROOMS.makeup.blurb = "Run a makeup studio. Clients bring a photo of the look they want and real skin with real needs. Prep, color-correct, build a base, sculpt, paint the eyes and lips with real brushes, blend, and finish. Every stroke is scored against their photo.";
+ROOMS.makeup.tip = "<b>Tip:</b> match foundation on the jawline, cancel colors with their opposites (green hides red), and use the close-up view for liner.";
+ROOMS.makeup.modes = [["studio","Open the studio"],["theme","Theme challenge"],["classic","Classic appointment"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]];
+HOWTO.makeup = ["Clients bring a photo. Work through the steps: Prep, Base, Sculpt, Eyes, Lips, Finish.","Pick a tool and a shade, set size, intensity and softness, then paint on the face. Blend edges with the sponge; wipe mistakes.","The Match meter compares your face to their photo. Finish to see them side by side and earn coins and tips."];
 
 renderHub();
 </script>
