@@ -1131,7 +1131,7 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .fp-clock{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.fp-clock label{display:flex;flex-direction:column;gap:2px;flex:1;min-width:180px}.fp-clock input{width:100%}
 #fpProb.bad{color:#c0392b;font-weight:700}
 .fp-compare{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.fp-compare canvas{width:100%;height:auto}
-.sal-req.fp-brief{grid-template-columns:110px 1fr}.sal-req.fp-brief canvas{width:110px;height:90px;border:2px solid var(--ink);border-radius:10px}
+.sal-req.fp-brief{grid-template-columns:150px 1fr}.sal-req.fp-brief canvas{width:110px;height:90px;border:2px solid var(--ink);border-radius:10px}
 .gf-sign{background:linear-gradient(135deg,#ffe7f3,#e8f3ff)}
 .gf-main .gf-left{min-width:0}
 .gf-phone{max-width:460px;margin:0 auto;background:#fffdf8;border:3px solid var(--ink);border-radius:26px;padding:10px 10px 4px;box-shadow:5px 6px 0 var(--ink);max-height:78vh;overflow:auto;color:#2b2118}
@@ -1283,6 +1283,14 @@ html.high-contrast body{color:#000}html.high-contrast .tooltip-line,html.high-co
 .coach-card{position:fixed;width:min(360px,calc(100vw - 20px));background:#fff8d6;border:3px solid var(--ink);border-radius:16px;box-shadow:5px 6px 0 var(--ink);padding:12px 14px;color:#2b2118;transition:top .35s,left .35s}.coach-card .btn-solid{background:#ffd166!important;color:#2b2118!important;border:2.5px solid var(--ink)}.coach-card small{font-weight:800;text-transform:uppercase;font-size:10.5px;letter-spacing:.06em;color:#b8860b}.coach-card p{margin:6px 0 10px;font-size:15px}
 .tl-kit canvas{width:240px;max-width:100%;border:2.5px solid var(--ink);border-radius:14px;margin:auto;display:block}.ex-ev.nope{background:#ffd5cc}#tlWorn li:not(:last-child)::after{content:"↓ then"}
 .lb-list li.lb-me{background:#fff1a8;border-radius:8px;padding-left:6px}
+.char-fig{position:relative;display:inline-flex;flex-direction:column;align-items:center;vertical-align:bottom}.char-fig .char-head{position:relative;z-index:2;margin-bottom:-14%}.char-fig .char-head svg{width:100%;height:auto;display:block}.char-fig .pm-body{width:100%;height:auto;display:block;overflow:visible}.char-fig small{font-size:11px;font-weight:700;margin-top:2px}
+.char-fig .pm-armL,.char-fig .pm-armR{transition:transform .5s cubic-bezier(.3,1.4,.5,1)}.char-fig .pm-armL{transform-origin:52px 34px}.char-fig .pm-armR{transform-origin:148px 34px}
+.char-fig[data-pose=cross] .pm-armL{transform:rotate(-62deg) translate(6px,-10px)}.char-fig[data-pose=cross] .pm-armR{transform:rotate(62deg) translate(-6px,-10px)}.char-fig[data-pose=hips] .pm-armL{transform:rotate(28deg) scaleY(.7)}.char-fig[data-pose=hips] .pm-armR{transform:rotate(-28deg) scaleY(.7)}.char-fig[data-pose=open] .pm-armL{transform:rotate(38deg)}.char-fig[data-pose=open] .pm-armR{transform:rotate(-38deg)}.char-fig[data-pose=point] .pm-armR{transform:rotate(-105deg)}
+.char-wheel{position:absolute;bottom:-6%;left:-10%;width:120%;z-index:3}.char-dog svg{width:100%}
+.fp-fam{display:flex;align-items:flex-end;justify-content:center;gap:1px;flex-wrap:nowrap;width:150px;min-height:96px;border:2px solid var(--ink);border-radius:10px;background:linear-gradient(#fff4e6 70%,#a9d18e 70%);padding:4px;overflow:hidden}.fp-fam .char-fig small{display:none}
+.char-name{display:flex;flex-direction:column;align-items:center;gap:2px}.char-name .char-fig{width:40px!important;height:52px;overflow:hidden}
+.gf-person .char-fig{width:150px}
+.gf-story>span.gf-face{background:#ffe9d1;overflow:hidden;align-items:end}.gf-face svg{margin-top:6px}
 </style>
 
 <div class="wrap">
@@ -11837,7 +11845,7 @@ STUDIO.cook = {
     stage.innerHTML = `<div class="sal ckp">
       <div class="sal-hud"><span class="coin">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily dish" : `Ticket ${this.day.n + 1} of 3`}</span><span id="ckTime">0:00</span><span class="sal-moodbar" title="Customer patience"><i id="ckPat"></i></span><span class="sal-match"><small>Match</small><b id="ckMatch">–</b></span><button class="btn btn-solid sal-finish" type="button" id="ckNext"></button></div>
       <ol class="stepper sal-steps" id="ckSteps">${CK_PH.map(([k, l], i) => `<li data-ph="${i}"><span>${i + 1}</span>${l}</li>`).join("")}</ol>
-      <div class="sal-main"><div class="sal-chair"><div class="sal-speech"><b>${this.cust.name}</b><div class="sal-bubble" id="ckBubble"></div></div>
+      <div class="sal-main"><div class="sal-chair"><div class="sal-speech"><b class="char-name">${CHAR.html(CHAR.look(this.cust.name, {skin:this.cust.skin}), {size:40, mood:"happy"})}${this.cust.name}</b><div class="sal-bubble" id="ckBubble"></div></div>
         <div class="sal-mirror ck-mirror"><canvas id="ckCv" aria-label="Kitchen"></canvas><p class="msg sal-msg sal-toast" id="ckMsg"></p></div></div>
         <div class="sal-side"><div class="sal-req"><canvas id="ckGoal" width="300" height="300"></canvas><div><span class="eyebrow">Ticket</span><h3>${rec.n}</h3><p class="sal-say">“${rec.photo}”</p><details><summary>Chef's notes</summary><p class="tooltip-line">${rec.tip}</p></details></div></div><div class="sw-panel" id="ckPanel"></div></div></div>
       <div id="ckRes" class="sal-overlay"></div></div>`;
@@ -12469,10 +12477,9 @@ STUDIO.floor = {
       <ol class="stepper sal-steps" id="fpSteps">${FP_PH.map(([k, l], i) => `<li data-ph="${i}"><span>${i + 1}</span>${l}</li>`).join("")}</ol>
       <div class="sal-main"><div class="sal-chair"><div class="sal-speech"><b>${fam.n}</b><div class="sal-bubble" id="fpBubble"></div></div>
         <div class="sal-mirror fp-mirror"><canvas id="fpCv" aria-label="Floor plan"></canvas><div class="fp-isobtns" id="fpIsoBtns"><button class="btn-sm" type="button" data-rot="-1" aria-label="Rotate left">⟲</button><button class="btn-sm" type="button" data-rot="1" aria-label="Rotate right">⟳</button></div><p class="msg sal-msg sal-toast" id="fpMsg"></p></div></div>
-        <div class="sal-side"><div class="sal-req fp-brief"><canvas id="fpFam" width="220" height="180" aria-label="The family"></canvas><div><span class="eyebrow">Clients · budget ${money(fam.budget)}</span><h3>${fam.n}</h3><p class="sal-say">“${fam.say}”</p><details><summary>Wish list</summary><ul class="sw-seams">${fam.needs.map(n => `<li>${n.txt}</li>`).join("")}</ul></details></div></div><div class="sw-panel" id="fpPanel"></div></div></div>
+        <div class="sal-side"><div class="sal-req fp-brief"><div class="fp-fam" id="fpFam" aria-label="The family">${fam.who.map(([n, kind], i) => CHAR.html(CHAR.look(fam.k + n, {skin:this.skins[i]}), {size:38, kind, name:n, mood:"happy"})).join("")}</div><div><span class="eyebrow">Clients · budget ${money(fam.budget)}</span><h3>${fam.n}</h3><p class="sal-say">“${fam.say}”</p><details><summary>Wish list</summary><ul class="sw-seams">${fam.needs.map(n => `<li>${n.txt}</li>`).join("")}</ul></details></div></div><div class="sw-panel" id="fpPanel"></div></div></div>
       <div id="fpRes" class="sal-overlay"></div></div>`;
     const cv = $("fpCv"), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = 560*dpr; cv.height = 460*dpr; this.cv = cv; this.ctx = cv.getContext("2d"); this.dpr = dpr;
-    this.drawFamily($("fpFam").getContext("2d"));
     $("fpSteps").onclick = e => { const li = e.target.closest("[data-ph]"); if(li && !this.locked && +li.dataset.ph <= this.maxPhase && +li.dataset.ph < 6) this.enterPhase(+li.dataset.ph); };
     $("fpNext").onclick = () => { if(this.locked) return; if(this.phase === 6) return this.moveIn(); this.enterPhase(this.phase + 1); };
     $("fp3d").onclick = () => { this.iso = !this.iso; $("fp3d").classList.toggle("sel", this.iso); $("fp3d").textContent = this.iso ? "Plan view" : "3D view"; $("fpIsoBtns").classList.toggle("on", this.iso); sfx.click(); if(this.iso) this.tipOnce("iso", "A dollhouse view of your design. Rotate it with the arrows, or drag sideways."); };
@@ -12751,7 +12758,7 @@ STUDIO.gift = {
   /* ---------- feed ---------- */
   feed(){
     const g = this.g, L = $("gfLeft"), com = ["Love this!","Haha, same.","Miss you!","Ooh, tell me more.","Classic you.","This made my day.","Need an update!"];
-    L.innerHTML = `<div class="gf-phone"><div class="gf-stories">${this.friends.map(([n, r]) => `<button type="button" class="gf-story" data-dm="${n}"><span>${n[0]}</span><small>${n}</small></button>`).join("")}</div>
+    L.innerHTML = `<div class="gf-phone"><div class="gf-stories">${this.friends.map(([n, r]) => `<button type="button" class="gf-story" data-dm="${n}"><span class="gf-face">${faceSVG({...CHAR.look(n), mood:"happy"}, 40)}</span><small>${n}</small></button>`).join("")}</div>
       ${this.sent.map((p, pi) => { const ph = GF_PHOTO.find(([re]) => re.test(p.title + " " + p.parts.map(q => q.t).join(" "))) || [0, "g:mug", "#f1e6da"]; const likes = 12 + (g.name.length*7 + pi*13) % 60; return `<article class="gf-post"><header><span class="gf-mini">${faceSVG({...this.face, mood:"happy"}, 34)}</span><div><b>${g.name}</b><small>${p.date}</small></div></header>
         <div class="gf-photo" style="background:linear-gradient(135deg,${ph[2]},#fff)">${icon(ph[1], 96)}<span class="gf-cap">${p.title}</span></div>
         <div class="gf-acts"><button type="button" class="gf-heart${this.liked.has(pi) ? " on" : ""}" data-like="${pi}" aria-label="Like"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg></button><small>${likes + (this.liked.has(pi) ? 1 : 0)} likes</small></div>
@@ -12784,7 +12791,7 @@ STUDIO.gift = {
   /* ---------- DMs ---------- */
   dms(){ const L = $("gfLeft"), who = this.dmWho || this.friends[0][0], f = this.friends.find(x => x[0] === who) || this.friends[0]; this.dmWho = f[0];
     const log = this.asked.filter(a => a.from === f[0]);
-    L.innerHTML = `<div class="gf-phone gf-chat"><header class="gf-chathead"><span class="gf-story"><span>${f[0][0]}</span></span><div><b>${f[0]}</b><small>${this.g.name}'s ${f[1]}</small></div></header><div class="gf-msgs">
+    L.innerHTML = `<div class="gf-phone gf-chat"><header class="gf-chathead"><span class="gf-story"><span class="gf-face">${faceSVG({...CHAR.look(f[0]), mood:"happy"}, 40)}</span></span><div><b>${f[0]}</b><small>${this.g.name}'s ${f[1]}</small></div></header><div class="gf-msgs">
       <p class="gf-bub them">Hey! What's up?</p>${log.map(a => `<p class="gf-bub me">${a.q}</p><p class="gf-bub them">${a.a}</p>`).join("")}${!log.length ? `<p class="gf-bub me muted">Ask about ${this.g.name}…</p>` : ""}</div></div>`;
     this.tipOnce("dm", `You can ask ${this.qLeft} questions in total. Choose who you ask and what wisely.`);
   },
@@ -12882,13 +12889,13 @@ STUDIO.gift = {
   give(){
     this.enterPhase(5); this.locked = true; const r = this.score(); this.res = r; const W2 = this.wrap, it = this.cart[0], mood = r.bad ? "sad" : r.pct >= 70 ? "happy" : "neutral";
     const paper = GF_PAPERS[W2.paper] || GF_PAPERS.kraft;
-    $("gfLeft").innerHTML = `<div class="gf-stage"><div class="gf-person" id="gfPerson">${faceSVG({...this.face, mood:"neutral"}, 170)}</div><div class="gf-speech" id="gfSay">Ooh, for me?</div>
+    $("gfLeft").innerHTML = `<div class="gf-stage"><div class="gf-person" id="gfPerson">${CHAR.html(this.face, {size:150, mood:"neutral"})}</div><div class="gf-speech" id="gfSay">Ooh, for me?</div>
       <div class="gf-box" id="gfBox" style="--p1:${paper[1]};--p2:${paper[2]};--rib:${W2.ribbon || "#e63946"}"><div class="gf-lid"></div><div class="gf-bow"></div><div class="gf-gift" id="gfGift">${this.cart.map(x => icon(x.i, 80)).join("")}</div></div><div class="gf-burst" id="gfBurst"></div></div>`;
     const tok = G.token, at = (ms, fn) => setTimeout(() => { if(G.token === tok) fn(); }, ms);
     at(500, () => { $("gfBox").classList.add("shake"); tone(300, .08, "triangle", .03); });
     at(1300, () => { $("gfBox").classList.add("rip"); tone(180, .15, "sawtooth", .03); const B = $("gfBurst"); for(let i = 0; i < 18; i++){ const s = document.createElement("i"); s.style.cssText = `--dx:${(Math.random() - .5)*320}px;--dy:${-60 - Math.random()*180}px;--r:${Math.random()*720 - 360}deg;background:repeating-linear-gradient(45deg,${paper[1]} 0 5px,${paper[2]} 5px 8px)`; B.appendChild(s); } });
     at(2100, () => { $("gfBox").classList.add("open"); });
-    at(2500, () => { $("gfGift").classList.add("up"); $("gfPerson").innerHTML = faceSVG({...this.face, mood}, 170); const say = r.bad ? `Oh… thank you. ${r.parts.find(p => p.k === "avoid").why.split(". ")[0].replace(/^Oops: /, "But ")}.` : r.needOk && r.likeOk ? `How did you KNOW?! I've needed one of these!` : r.needOk ? "Oh, I really needed this. Thank you!" : r.likeOk ? "Aw, that's so me!" : "That's kind of you."; $("gfSay").textContent = say; $("gfSay").classList.add("pop", r.bad ? "bad" : "good"); r.pct >= 70 ? sfx.win() : r.bad ? sfx.bad() : sfx.good();
+    at(2500, () => { $("gfGift").classList.add("up"); $("gfPerson").innerHTML = CHAR.html(this.face, {size:150, mood, pose:CHAR.moodPose(mood)}); const say = r.bad ? `Oh… thank you. ${r.parts.find(p => p.k === "avoid").why.split(". ")[0].replace(/^Oops: /, "But ")}.` : r.needOk && r.likeOk ? `How did you KNOW?! I've needed one of these!` : r.needOk ? "Oh, I really needed this. Thank you!" : r.likeOk ? "Aw, that's so me!" : "That's kind of you."; $("gfSay").textContent = say; $("gfSay").classList.add("pop", r.bad ? "bad" : "good"); r.pct >= 70 ? sfx.win() : r.bad ? sfx.bad() : sfx.good();
       if(r.pct >= 70){ const B = $("gfBurst"); for(let i = 0; i < 12; i++){ const h = document.createElement("b"); h.className = "heart"; h.style.cssText = `--dx:${(Math.random() - .5)*260}px;--dy:${-120 - Math.random()*120}px;--r:0deg;left:${45 + Math.random()*10}%`; B.appendChild(h); } } });
     at(5200, () => this.results());
   },
@@ -12973,7 +12980,7 @@ const PMS = () => { S.pmpro = S.pmpro || {coins:120, owned:[], served:0, totalMa
 const PM_POSE = {Heated:"point", Guarded:"cross", Tense:"hips", Calmer:"down", Open:"open"};
 const PM_TONES = [["calm","Calm","Slow, low, steady"],["warm","Warm","Kind, caring"],["firm","Firm","Clear, direct"]];
 const PM_RANKS = [[0,"Trainee"],[3,"Junior mediator"],[8,"Mediator"],[15,"Senior mediator"],[25,"Master peacemaker"]];
-const pmLook = (sc, i) => { const L = (CAST_LOOK[sc.id] || [])[i]; if(L) return L; const r = rng(sc.id + i), pk = a => a[Math.floor(r()*a.length)]; return {skin:pk(SKINS)[0], hair:pk(["curls","buzz","long","pixie","bun","ponytail","afro","braids"]), hairC:pk(["black","darkbrown","brown","auburn","blonde","grey"]), top:pk(["#ff7db8","#3a8dff","#22b8a7","#e85d3a","#78c552","#b97cf6","#ffbf2e"]), eye:pk(["brown","darkbrown","blue","green"]), shape:pk(["oval","round","heart","square","long"])}; };
+const pmLook = (sc, i) => { const L = (CAST_LOOK[sc.id] || [])[i]; if(L) return L; if(typeof CHAR !== "undefined") return CHAR.look(sc.id + sc.cast[i].n); const r = rng(sc.id + i), pk = a => a[Math.floor(r()*a.length)]; return {skin:pk(SKINS)[0], hair:pk(["curls","buzz","long","pixie","bun","ponytail","afro","braids"]), hairC:pk(["black","darkbrown","brown","auburn","blonde","grey"]), top:pk(["#ff7db8","#3a8dff","#22b8a7","#e85d3a","#78c552","#b97cf6","#ffbf2e"]), eye:pk(["brown","darkbrown","blue","green"]), shape:pk(["oval","round","heart","square","long"])}; };
 function pmBody(top){ const sk = "#00000000"; return `<svg viewBox="0 0 200 170" class="pm-body" aria-hidden="true"><g class="pm-armL"><path d="M52 34 C34 60 30 92 34 120" stroke="var(--ink)" stroke-width="22" stroke-linecap="round" fill="none"/><path d="M52 34 C34 60 30 92 34 120" stroke="${top}" stroke-width="15" stroke-linecap="round" fill="none"/><circle cx="34" cy="124" r="9" fill="var(--pmskin)" stroke="var(--ink)" stroke-width="3"/></g><path d="M48 30 Q100 6 152 30 L162 170 L38 170 Z" fill="${top}" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/><path d="M84 16 Q100 34 116 16" fill="none" stroke="var(--ink)" stroke-width="3"/><g class="pm-armR"><path d="M148 34 C166 60 170 92 166 120" stroke="var(--ink)" stroke-width="22" stroke-linecap="round" fill="none"/><path d="M148 34 C166 60 170 92 166 120" stroke="${top}" stroke-width="15" stroke-linecap="round" fill="none"/><circle cx="166" cy="124" r="9" fill="var(--pmskin)" stroke="var(--ink)" stroke-width="3"/></g></svg>`; }
 STUDIO.peace = {
   start(mode){ if(mode === "classic") return PEACE_CLASSIC.start.call(PEACE_CLASSIC, mode); this.lobby(); },
@@ -13747,5 +13754,19 @@ const LB = {db:null, user:null, me:null, last:"", ready:false,
 
 /* close any results pop-up before a session summary opens (it used to sit on top of the summary) */
 { const _es0 = endSession; endSession = function(...a){ document.querySelectorAll(".sal-overlay").forEach(o => { o.innerHTML = ""; }); const c = document.getElementById("coachOv"); if(c) c.remove(); return _es0.apply(this, a); }; }
+
+/* =========================================================
+   SHARED CHARACTER ENGINE: one way to make a person and draw
+   them full-body (salon-style face + posable body), used by
+   Peacemaker, Gift Detective, Floorplan and the Test Kitchen.
+   ========================================================= */
+const CHAR = {
+  look(seed, over = {}){ const r = rng("char" + seed), pk = a => a[Math.floor(r()*a.length)]; return {skin:pk(SKINS)[0], hair:pk(["curls","buzz","long","pixie","bun","ponytail","afro","braids","bob"]), hairC:pk(["black","darkbrown","brown","auburn","blonde","grey"]), top:pk(["#ff7db8","#3a8dff","#22b8a7","#e85d3a","#78c552","#b97cf6","#ffbf2e"]), eye:pk(["brown","darkbrown","blue","green"]), shape:pk(["oval","round","heart","square","long"]), ...randomFeatures(seed), ...over}; },
+  html(look, o = {}){ const size = o.size || 120, kind = o.kind || "adult", sc = kind === "kid" ? .78 : 1;
+    if(kind === "dog") return `<div class="char-fig char-dog" style="width:${size*.8}px" title="${o.name || ""}"><svg viewBox="0 0 80 60"><ellipse cx="38" cy="38" rx="26" ry="14" fill="#b5793f" stroke="var(--ink)" stroke-width="3"/><circle cx="62" cy="24" r="13" fill="#b5793f" stroke="var(--ink)" stroke-width="3"/><ellipse cx="70" cy="16" rx="5" ry="9" fill="#8a5a33" stroke="var(--ink)" stroke-width="2"/><circle cx="66" cy="22" r="2.2" fill="var(--ink)"/><path d="M12 34 q-10 -8 -6 -16" fill="none" stroke="var(--ink)" stroke-width="3"/></svg>${o.name ? `<small>${o.name}</small>` : ""}</div>`;
+    return `<div class="char-fig${kind === "chair" ? " char-chair" : ""}" data-pose="${o.pose || "down"}" data-mood="${o.mood || "neutral"}" style="--pmskin:${look.skin};width:${size*sc}px"><div class="char-head">${faceSVG({...look, mood:o.mood || "neutral"}, size*sc*.78)}</div>${pmBody(look.top || "#3a8dff")}${kind === "chair" ? `<svg class="char-wheel" viewBox="0 0 100 60"><circle cx="30" cy="34" r="22" fill="none" stroke="#555" stroke-width="5"/><circle cx="78" cy="46" r="10" fill="none" stroke="#555" stroke-width="4"/><path d="M30 34 H80" stroke="#555" stroke-width="4"/></svg>` : ""}${o.name ? `<small>${o.name}</small>` : ""}</div>`; },
+  moodPose(mood){ return {happy:"open", sad:"cross", angry:"point", neutral:"down", tense:"hips"}[mood] || "down"; }
+};
+
 renderHub();
 </script>
