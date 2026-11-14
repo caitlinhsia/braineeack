@@ -61,4 +61,6 @@ Map data: [Natural Earth](https://www.naturalearthdata.com/) (public domain), vi
 - **Shared wallet**: one coin balance used by every shop.
 - **Sticker book**: 27 achievements with unlock toasts.
 - **Settings**: sound volume, generated background music, reduced motion, bigger buttons and high contrast.
+- **Leaderboards**: on claude.ai, top scores for every studio across everyone the arcade is shared with.
+- **Tutorials**: a spotlight tour the first time you open each rebuilt studio.
 - **Saves**: all studio progress, coins, stickers and settings now survive a page reload.
