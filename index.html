@@ -13755,6 +13755,8 @@ const LB = {db:null, user:null, me:null, last:"", ready:false,
 };
 { const pl = document.querySelector("header .player"); if(pl && !$("lbBtn")){ const sb = $("stickerBtn"); const b = document.createElement("button"); b.className = "chip"; b.id = "lbBtn"; b.type = "button"; b.textContent = "Leaderboards"; (sb ? sb.parentNode.insertBefore(b, sb) : pl.appendChild(b)); b.onclick = () => LB.open(); } LB.init(); }
 
+/* close any results pop-up before a session summary opens (it used to sit on top of the summary) */
+{ const _es0 = endSession; endSession = function(...a){ document.querySelectorAll(".sal-overlay").forEach(o => { o.innerHTML = ""; }); const c = document.getElementById("coachOv"); if(c) c.remove(); return _es0.apply(this, a); }; }
 renderHub();
 </script>
 </body>
