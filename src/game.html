@@ -1100,6 +1100,8 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .sw-seams{margin:0;padding-left:18px;font-size:13px}.sw-seams .done{color:#2a9d8f}.sw-seams .cur{font-weight:700}
 .sw-alter{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.sw-alter b{width:52px;text-transform:capitalize}
 .sw-cost{font-size:13px}
+.ck-sign{background:linear-gradient(160deg,#fff6ea,#ffe6c7)}
+.ck-mirror{border-radius:18px;border-color:#c8915a}
 </style>
 
 <div class="wrap">
@@ -11585,6 +11587,276 @@ ROOMS.sewing.blurb = "Run a tailoring studio. Measure clients with a tape, choos
 ROOMS.sewing.tip = "<b>Tip:</b> bust is the fullest point, waist the narrowest, hip the widest. Keep the raw edge on the 1.5 cm guide and backstitch at both ends.";
 ROOMS.sewing.modes = [["studio","Open the studio"],["classic","Classic garments"],["sprint","Stitch sprint · 60s"],["practice","Quiz"]];
 HOWTO.sewing = ["Measure the client: pick bust, waist, hip or length, then drag the tape across (or down) the body.","Choose fabric, lay out and pin the pieces, then cut along the lines. On the machine, hold to sew and steer to keep the edge on the red guide.","Fit it on the client, take in or let out, press, hem and close it, then hit the runway."];
+
+/* =========================================================
+   TEST KITCHEN PRO: a real kitchen.
+   Ticket → Prep (knife work, whisking, cracking) → Cook (live
+   stove: heat knobs, doneness you can see, flipping, stirring,
+   burning) → Season (taste and balance) → Plate (match the
+   photo) → Serve. Coins, upgrades, daily dish.
+   ========================================================= */
+const COOK_CLASSIC = STUDIO.cook;
+const CK_ING = {
+  onion:{n:"Onion", c:"#f3e2c7", o:"#b98b5c", r:34}, garlic:{n:"Garlic", c:"#f7f0e1", o:"#c9b48f", r:16}, tomato:{n:"Tomato", c:"#e63946", o:"#8e1b23", r:30}, carrot:{n:"Carrot", c:"#f4842c", o:"#a8501a", r:22, long:true},
+  pepper:{n:"Bell pepper", c:"#ffbf2e", o:"#b07b00", r:30}, zucchini:{n:"Zucchini", c:"#57a34d", o:"#2e6a2a", r:20, long:true}, basil:{n:"Basil", c:"#3fa34d", o:"#1e5e27", r:20}, lemon:{n:"Lemon", c:"#ffe066", o:"#c9a227", r:26}
+};
+const CK_CUT = {slice:["Slice","Even slices about 5 mm thick", 1, 13], dice:["Dice","Cubes about 1 cm: cut one way, then across", 2, 22], mince:["Mince","Very fine: lots of close cuts both ways", 2, 8], julienne:["Julienne","Thin matchsticks: slice lengthwise, then into strips", 2, 10]};
+/* cooking items: rate per second at full heat; window = perfectly done; flip = two sides; stir = sticks unless stirred */
+const CK_ITEM = {
+  pancake:{n:"Pancake", raw:"#f7e3b5", done:"#d99a4e", burnt:"#4a2a12", rate:.11, win:[.9, 1.12], flip:true, shape:"disc", r:26, minT:1.5},
+  egg:{n:"Omelette", raw:"#fff3b0", done:"#ffd166", burnt:"#a86b2a", rate:.08, win:[.85, 1.02], stir:true, shape:"blob", r:46, minT:1},
+  salmon:{n:"Salmon", raw:"#ff9e80", done:"#f6b18e", burnt:"#5a2a14", rate:.07, win:[.9, 1.1], flip:true, shape:"fillet", r:34, minT:2},
+  greens:{n:"Greens", raw:"#57cc99", done:"#2a9d5a", burnt:"#3a3a1a", rate:.18, win:[.8, 1.15], stir:true, shape:"pieces", r:6, minT:1.5},
+  garlicc:{n:"Garlic", raw:"#f7f0e1", done:"#e8c27a", burnt:"#5a3a14", rate:.3, win:[.8, 1.05], stir:true, shape:"pieces", r:3, minT:1},
+  sauce:{n:"Tomato sauce", raw:"#e63946", done:"#b8281f", burnt:"#4a1410", rate:.05, win:[.9, 1.3], stir:true, shape:"liquid", r:48, minT:1},
+  pasta:{n:"Pasta", raw:"#f3e3a6", done:"#f0d68a", burnt:"#c9b16a", rate:.075, win:[.92, 1.06], shape:"strands", r:40, minT:2.6, inWater:true},
+  carrotc:{n:"Carrot", raw:"#f4842c", done:"#e06a1a", burnt:"#4a2210", rate:.12, win:[.85, 1.15], stir:true, shape:"sticks", r:4, minT:2},
+  pepperc:{n:"Pepper", raw:"#ffbf2e", done:"#e8a020", burnt:"#4a3010", rate:.16, win:[.8, 1.15], stir:true, shape:"sticks", r:4, minT:2},
+  noodles:{n:"Noodles", raw:"#f3d58a", done:"#e8c070", burnt:"#6a4a20", rate:.14, win:[.85, 1.15], stir:true, shape:"strands", r:42, minT:2}
+};
+const CK_REC = [
+  {k:"pancakes", n:"Fluffy pancakes", photo:"A stack of three golden pancakes with butter, syrup and berries.", prep:[["whisk","Batter","Whisk until smooth: no lumps"]], vessels:[["pan","Frying pan"]], add:[["pan","pancake",3,"Pour a pancake"]], season:{sweet:[.5, .8], salt:[.05, .25]}, base:{sweet:.3, salt:.05}, plate:[["stack",220,250],["butter",220,214],["berries",290,300]], tip:"Medium heat. Flip when bubbles pop on top and the edges look set. Too hot and the outside burns before the middle cooks."},
+  {k:"pasta", n:"Pasta al pomodoro", photo:"A neat nest of spaghetti in tomato sauce with fresh basil.", prep:[["garlic","mince"],["tomato","dice"],["basil","slice"]], vessels:[["pot","Pasta pot"],["pan","Saucepan"]], add:[["pot","water",1,"Fill with water"],["pot","salt",1,"Salt the water"],["pot","pasta",1,"Add the pasta"],["pan","garlicc",1,"Add garlic"],["pan","sauce",1,"Add tomatoes"]], season:{salt:[.45, .7], sour:[.2, .5], sweet:[.15, .35]}, base:{salt:.15, sour:.4, sweet:.15}, plate:[["nest",220,260],["basil",250,230]], tip:"Boil the water fully and salt it before the pasta goes in. Cook garlic gently: it burns in seconds. Pasta is ready when it's al dente, with a little bite."},
+  {k:"stirfry", n:"Veggie stir-fry", photo:"Glossy noodles with crisp carrot and pepper strips.", prep:[["carrot","julienne"],["pepper","slice"],["garlic","mince"]], vessels:[["wok","Wok"]], add:[["wok","garlicc",1,"Add garlic"],["wok","carrotc",1,"Add carrot"],["wok","pepperc",1,"Add pepper"],["wok","noodles",1,"Add noodles"]], season:{salt:[.45, .7], sweet:[.2, .45], heat:[.2, .6]}, base:{salt:.3, sweet:.15, heat:.05}, plate:[["bowl",220,260]], tip:"High heat and keep everything moving. Hard vegetables (carrot) go in before soft ones (pepper), then the noodles."},
+  {k:"salmon", n:"Seared salmon & greens", photo:"Crispy-skinned salmon on a bed of bright greens with a lemon wedge.", prep:[["zucchini","slice"],["lemon","slice"]], vessels:[["pan","Skillet"],["pan2","Sauté pan"]], add:[["pan","salmon",1,"Lay in the salmon"],["pan2","greens",1,"Add the greens"]], season:{salt:[.4, .65], sour:[.25, .55]}, base:{salt:.1, sour:.05}, plate:[["greens",220,280],["fillet",220,250],["lemon",290,232]], tip:"Hot pan, skin side down, and don't move it: it releases when it's crisp. Flip once. Greens just need a quick toss on medium."},
+  {k:"omelette", n:"French omelette", photo:"A smooth, pale-yellow folded omelette with herbs.", prep:[["crack","Eggs","Crack 3 eggs cleanly"],["whisk","Eggs","Whisk until even"],["basil","mince"]], vessels:[["pan","Omelette pan"]], add:[["pan","egg",1,"Pour in the eggs"]], season:{salt:[.3, .55]}, base:{salt:.05}, plate:[["omelette",220,260],["basil",250,240]], tip:"Medium-low heat. Stir gently so it sets in soft curds, then fold before it browns. A French omelette has no brown color at all."}
+];
+const CKS = () => { S.ckpro = S.ckpro || {coins:120, owned:[], served:0, totalMatch:0, best:0, days:0, daily:{}}; return S.ckpro; };
+const CK_SHOP = [["knife","Chef's knife","✂","Sharper knife: cuts are more forgiving.",60],["castiron","Cast-iron pan","g:gel","Holds heat: steadier cooking.",70],["thermo","Probe thermometer","g:primer","Shows exact doneness numbers.",50],["herbs","Herb garden","🌿","Fresh garnishes earn bigger tips.",40]];
+const CK_PH = [["ticket","Ticket"],["prep","Prep"],["cook","Cook"],["season","Season"],["plate","Plate"]];
+STUDIO.cook = {
+  start(mode){ if(mode === "classic") return COOK_CLASSIC.start.call(COOK_CLASSIC, mode); this.lobby(); },
+  lobby(){
+    const s = CKS(); cancelAnimationFrame(this.raf); const avg = s.served ? Math.round(s.totalMatch/s.served) : 0;
+    stage.innerHTML = `<div class="sal-lobby"><div class="sal-sign ck-sign"><span class="eyebrow">Your kitchen</span><h3>Service ${s.days + 1}</h3>
+      <div class="sal-stats"><span><small>Coins</small><b class="coin">${fmt(s.coins)}</b></span><span><small>Dishes served</small><b>${s.served}</b></span><span><small>Average match</small><b>${s.served ? avg + "%" : "–"}</b></span><span><small>Best</small><b>${s.best ? s.best + "%" : "–"}</b></span></div>
+      <p class="stage-tip">Tickets come in with a photo of the dish. Prep with real knife work, cook on a live stove where food browns and burns, taste and season, then plate it to match the photo.</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckOpen">Start service →</button><button class="btn" type="button" id="ckDaily">Daily dish</button></div>
+      <p class="tooltip-line">${s.daily[today()] ? `Today's best: <b>${s.daily[today()]}%</b>.` : "Everyone cooks the same dish today."}</p></div>
+      <div class="sal-shop"><span class="eyebrow">Upgrades</span><div class="sal-shopgrid">${CK_SHOP.map(([k, n, ic, d, p]) => { const own = s.owned.includes(k); return `<div class="sal-item${own ? " own" : ""}"><span class="ti">${icon(ic, 34)}</span><b>${n}</b><small>${d}</small>${own ? `<span class="owned">Owned</span>` : `<button class="btn-sm" type="button" data-buy="${k}" ${s.coins < p ? "disabled" : ""}><span class="coin">${p}</span></button>`}</div>`; }).join("")}</div></div></div>`;
+    stage.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => { const t = CK_SHOP.find(x => x[0] === b.dataset.buy); if(s.coins < t[4]) return; s.coins -= t[4]; s.owned.push(t[0]); save(); sfx.win(); this.lobby(); });
+    $("ckOpen").onclick = () => { this.day = {n:0, earned:0, results:[]}; this.newOrder(); };
+    $("ckDaily").onclick = () => { this.day = {n:0, earned:0, results:[], daily:true}; const r0 = Math.random; Math.random = rng("ck" + today()); try{ this.newOrder(); } finally { Math.random = r0; } };
+    setSide("Coins", fmt(s.coins));
+  },
+  newOrder(){
+    const rec = pick(CK_REC.filter(r => !(this.lastRec || []).includes(r.k))); this.lastRec = [...(this.lastRec || []).slice(-2), rec.k];
+    this.rec = rec; this.cust = {name:pick(NAMES), skin:pick(SKINS)[0], hair:pick(["#1d1714","#3d2618","#6b4128","#d9b26a","#8f3c1d"]), patience:1};
+    this.prep = rec.prep.map(([a, b, c]) => CK_ING[a] ? {ing:a, cut:b, cuts:[[], []], dir:0, done:false} : {task:a, label:b, say:c, prog:0, done:false, flaws:0});
+    this.vessels = rec.vessels.map(([id, n]) => ({id, n, kind:id.replace(/\d/, ""), heat:0, temp:0, items:[], water:false, salted:false, boil:0}));
+    this.taste = {...{salt:0, sour:0, sweet:0, heat:0}, ...rec.base}; this.tasted = 0; this.plated = rec.plate.map(([k, tx, ty]) => ({k, tx, ty, x:80 + Math.random()*60, y:440 + Math.random()*40, placed:false})); this.drizzle = []; this.garnish = 0;
+    this.phase = 0; this.prepIdx = 0; this.locked = false; this.fx = []; this.tips = new Set(); this.frame = 0; this.t0 = performance.now(); this.burnt = 0; this.smoke = 0; this.tool = null;
+    this.render();
+  },
+  render(){
+    const s = CKS(), rec = this.rec;
+    stage.innerHTML = `<div class="sal ckp">
+      <div class="sal-hud"><span class="coin">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily dish" : `Ticket ${this.day.n + 1} of 3`}</span><span id="ckTime">0:00</span><span class="sal-moodbar" title="Customer patience"><i id="ckPat"></i></span><span class="sal-match"><small>Match</small><b id="ckMatch">–</b></span><button class="btn btn-solid sal-finish" type="button" id="ckNext"></button></div>
+      <ol class="stepper sal-steps" id="ckSteps">${CK_PH.map(([k, l], i) => `<li data-ph="${i}"><span>${i + 1}</span>${l}</li>`).join("")}</ol>
+      <div class="sal-main"><div class="sal-chair"><div class="sal-speech"><b>${this.cust.name}</b><div class="sal-bubble" id="ckBubble"></div></div>
+        <div class="sal-mirror ck-mirror"><canvas id="ckCv" aria-label="Kitchen"></canvas><p class="msg sal-msg sal-toast" id="ckMsg"></p></div></div>
+        <div class="sal-side"><div class="sal-req"><canvas id="ckGoal" width="300" height="300"></canvas><div><span class="eyebrow">Ticket</span><h3>${rec.n}</h3><p class="sal-say">“${rec.photo}”</p><details><summary>Chef's notes</summary><p class="tooltip-line">${rec.tip}</p></details></div></div><div class="sw-panel" id="ckPanel"></div></div></div>
+      <div id="ckRes" class="sal-overlay"></div></div>`;
+    const cv = $("ckCv"), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = 440*dpr; cv.height = 480*dpr; this.cv = cv; this.ctx = cv.getContext("2d"); this.dpr = dpr;
+    const gc = $("ckGoal").getContext("2d"); gc.scale(300/440, 300/440); this.drawPlate(gc, true);
+    $("ckSteps").onclick = e => { const li = e.target.closest("[data-ph]"); if(li && !this.locked && +li.dataset.ph <= this.maxPhase) this.enterPhase(+li.dataset.ph); };
+    this.maxPhase = 0; this.bindPointer(); this.enterPhase(0); this.say(pick(["Hi! One of these, please.","I'm starving!","Can I get this exactly like the photo?"]));
+    const tok = G.token; cancelAnimationFrame(this.raf); const loop = () => { if(G.token !== tok || !document.body.contains(cv)) return; this.tick(); this.raf = requestAnimationFrame(loop); }; this.raf = requestAnimationFrame(loop);
+  },
+  say(t, kind){ const b = $("ckBubble"); if(!b) return; b.textContent = t; b.className = "sal-bubble" + (kind ? " " + kind : ""); void b.offsetWidth; b.classList.add("pop"); },
+  note(t){ const m = $("ckMsg"); if(!m) return; m.textContent = t; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); clearTimeout(this.noteT); this.noteT = setTimeout(() => m && m.classList.remove("show"), 4500); },
+  tipOnce(k, t){ if(this.tips.has(k)) return; this.tips.add(k); this.note(t); },
+  enterPhase(i){
+    this.phase = i; this.maxPhase = Math.max(this.maxPhase || 0, i); const k = CK_PH[i][0];
+    stage.querySelectorAll("#ckSteps li").forEach((li, j) => { li.classList.toggle("now", j === i); li.classList.toggle("done", j < i); });
+    const nb = $("ckNext"), last = i === CK_PH.length - 1; nb.textContent = last ? "Serve!" : `Next: ${CK_PH[i + 1][1]} →`;
+    nb.onclick = () => { if(this.locked) return; const why = this.block(); if(why) return this.note(why); last ? this.serve() : this.enterPhase(i + 1); };
+    this.panel();
+    this.note({ticket:"Read the ticket and the photo. Then prep your ingredients.", prep:"Knife work: drag the knife straight across the ingredient. Even cuts cook evenly.", cook:"Set each burner's heat, add ingredients in order, then stir (drag in the pan) or flip (tap the food). Watch the color!", season:"Taste with the spoon, then adjust. You can always add more, but you can't take it out.", plate:"Drag each part onto the plate to match the photo, then drizzle and garnish."}[k]);
+  },
+  block(){ const k = CK_PH[this.phase][0]; if(k === "prep" && !this.prep.every(p => p.done)) return "Finish the prep first."; if(k === "cook" && !this.allAdded()) return "Add every ingredient and cook it."; if(k === "plate" && !this.plated.every(p => p.placed)) return "Put every part of the dish on the plate."; return null; },
+  allAdded(){ return this.rec.add.every(([v, it]) => { const vs = this.vessels.find(q => q.id === v); return it === "water" ? vs.water : it === "salt" ? vs.salted : vs.items.some(x => x.k === it); }); },
+  panel(){
+    const k = CK_PH[this.phase][0], p = $("ckPanel"), rec = this.rec; let h = "";
+    if(k === "ticket") h = `<p class="stage-tip">${rec.tip}</p><ul class="sw-seams">${rec.prep.map(([a, b]) => `<li>${CK_ING[a] ? `${CK_CUT[b][0]} the ${CK_ING[a].n.toLowerCase()}` : b + ": " + rec.prep.find(x => x[0] === a)[2]}</li>`).join("")}${rec.add.map(a => `<li>${a[3]}</li>`).join("")}</ul>`;
+    if(k === "prep"){ const t = this.prep[this.prepIdx]; h = `<ul class="sw-seams">${this.prep.map((q, i) => `<li class="${q.done ? "done" : i === this.prepIdx ? "cur" : ""}">${q.ing ? `${CK_CUT[q.cut][0]} the ${CK_ING[q.ing].n.toLowerCase()}` : q.label + ": " + q.say}${q.done && q.q != null ? ` · ${Math.round(q.q*100)}%` : ""}</li>`).join("")}</ul>${t && t.ing ? `<p class="tooltip-line"><b>${CK_CUT[t.cut][0]}:</b> ${CK_CUT[t.cut][1]}. ${CK_CUT[t.cut][2] === 2 ? (t.dir === 0 ? "First cut one way." : "Now turn it and cut across.") : ""}</p><div class="row-btns" style="justify-content:flex-start">${CK_CUT[t.cut][2] === 2 && t.dir === 0 ? `<button class="btn-sm" type="button" id="ckTurn">Turn it 90°</button>` : ""}<button class="btn-sm" type="button" id="ckDoneCut">Done cutting</button></div>` : t ? `<p class="tooltip-line">${t.task === "whisk" ? "Whisk in fast circles inside the bowl." : t.task === "crack" ? "Tap the egg on the bowl's rim, then pull it apart gently (slow drag down)." : "Pat dry with the paper towel."}</p>` : ""}`; }
+    if(k === "cook") h = this.vessels.map((v, i) => `<div class="opt-group"><h4>${v.n}</h4><div class="chips">${[[0,"Off"],[1,"Low"],[2,"Medium"],[3,"High"]].map(([hv, l]) => `<button type="button" class="ch${v.heat === hv ? " sel" : ""}" data-v="${i}" data-heat="${hv}">${l}</button>`).join("")}</div><div class="chips">${this.rec.add.filter(a => a[0] === v.id).map(a => { const added = a[1] === "water" ? v.water : a[1] === "salt" ? v.salted : v.items.filter(x => x.k === a[1]).length >= a[2]; return `<button type="button" class="ch" data-v="${i}" data-add="${a[1]}" ${added ? "disabled" : ""}>${a[3]}</button>`; }).join("")}${v.items.some(x => x.k === "egg") && !v.folded ? `<button type="button" class="ch" data-v="${i}" data-fold="1">Fold</button>` : ""}${v.id === "pot" && v.items.some(x => x.k === "pasta") && !v.drained ? `<button type="button" class="ch" data-v="${i}" data-drain="1">Drain the pasta</button>` : ""}</div></div>`).join("") + `<p class="tooltip-line">Drag in a pan to stir. Tap a pancake or fillet to flip it.</p>`;
+    if(k === "season") h = `<div class="chips">${[["salt","Pinch of salt"],["sour","Squeeze of lemon"],["sweet","Pinch of sugar"],["heat","Chili flakes"]].filter(([q]) => this.rec.season[q] || q === "salt").map(([q, l]) => `<button type="button" class="ch" data-tst="${q}">${l}</button>`).join("")}</div><div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="ckTaste">Taste with a spoon</button></div><div id="ckBars">${this.tasted ? this.bars() : `<p class="tooltip-line">Taste first to see how it is.</p>`}</div>`;
+    if(k === "plate") h = `<p class="tooltip-line">Drag the food onto the plate where the photo has it.</p><div class="chips"><button type="button" class="ch${!this.tool ? " sel" : ""}" id="ckMove">Move food</button><button type="button" class="ch${this.tool === "drizzle" ? " sel" : ""}" id="ckDrizzle">Drizzle sauce / syrup</button><button type="button" class="ch${this.tool === "garnish" ? " sel" : ""}" id="ckGarnish">Garnish</button></div>`;
+    p.innerHTML = h;
+    p.onclick = e => { const b = e.target.closest("[data-heat],[data-add],[data-fold],[data-drain],[data-tst],#ckTaste,#ckTurn,#ckDoneCut,#ckDrizzle,#ckGarnish,#ckMove"); if(!b || this.locked) return; if(b.id === "ckMove") this.tool = null;
+      const v = this.vessels[+b.dataset.v];
+      if(b.dataset.heat != null && v){ v.heat = +b.dataset.heat; }
+      if(b.dataset.add) this.addItem(v, b.dataset.add);
+      if(b.dataset.fold){ v.folded = true; this.say("Ooh, nice fold!", "good"); }
+      if(b.dataset.drain){ v.drained = true; v.heat = 0; this.fx.push({type:"text", x:120, y:140, vx:0, vy:-.5, life:50, text:"Drained!"}); }
+      if(b.dataset.tst){ const amt = {salt:.08, sour:.1, sweet:.08, heat:.1}[b.dataset.tst]; this.taste[b.dataset.tst] = Math.min(1.2, this.taste[b.dataset.tst] + amt); this.tasted = 0; for(let i = 0; i < 6; i++) this.fx.push({type:"grain", x:220 + (Math.random() - .5)*60, y:120, vx:(Math.random() - .5)*1.5, vy:2 + Math.random()*2, life:30, col:{salt:"#ffffff", sour:"#ffe066", sweet:"#fff7e0", heat:"#d7263d"}[b.dataset.tst]}); }
+      if(b.id === "ckTaste"){ this.tasted = 1; this.say(this.tasteLine(), "good"); }
+      if(b.id === "ckTurn"){ const t = this.prep[this.prepIdx]; t.dir = 1; }
+      if(b.id === "ckDoneCut") this.finishCut();
+      if(b.id === "ckDrizzle") this.tool = "drizzle"; if(b.id === "ckGarnish") this.tool = "garnish";
+      sfx.click(); this.panel(); };
+  },
+  bars(){ const S2 = this.rec.season; return `<div class="sal-meters">${Object.keys(this.taste).filter(q => S2[q] || q === "salt").map(q => { const v = this.taste[q], [lo, hi] = S2[q] || [0, .3], ok = v >= lo && v <= hi; return `<div class="sal-meter"><span>${q} ${ok ? "· just right" : v < lo ? "· needs more" : "· too much!"}</span><i><b style="width:${Math.min(100, v/1.2*100)}%" class="${ok ? "hi" : v > hi ? "lo" : "mid"}"></b></i></div>`; }).join("")}</div>`; },
+  tasteLine(){ const S2 = this.rec.season, t = this.taste, off = Object.keys(S2).map(q => [q, t[q] < S2[q][0] ? "low" : t[q] > S2[q][1] ? "high" : "ok"]).find(x => x[1] !== "ok"); return off ? ({salt:{low:"Hmm, a bit bland.", high:"Whoa, salty!"}, sour:{low:"Needs some brightness.", high:"So sour!"}, sweet:{low:"Could be a touch sweeter.", high:"Too sweet!"}, heat:{low:"Where's the kick?", high:"Hot hot hot!"}})[off[0]][off[1]] : "Mmm, perfectly balanced!"; },
+  addItem(v, k){
+    if(k === "water"){ v.water = true; this.fx.push({type:"text", x:120, y:160, vx:0, vy:-.5, life:40, text:"+Water"}); return; }
+    if(k === "salt"){ if(!v.water) return this.note("Fill the pot with water first."); v.salted = true; this.taste.salt = Math.min(1.2, this.taste.salt + .2); this.note("Pasta water should taste like the sea: it seasons the pasta from the inside."); return; }
+    const d = CK_ITEM[k]; if(d.inWater){ if(!v.water) return this.note("The pasta needs a pot of water."); if(v.temp < 2.6){ v.soggy = true; this.note("The water isn't boiling yet! Pasta added to cool water turns gummy. Wait for a rolling boil next time."); } if(!v.salted) this.tipOnce("salt", "You forgot to salt the water: the pasta will taste flat."); }
+    if(v.items.length && k === "pancake" && v.items.filter(x => x.k === "pancake").length >= 3) return;
+    const prepOf = {garlicc:"garlic", carrotc:"carrot", pepperc:"pepper", greens:"zucchini"}[k]; const pq = prepOf ? this.prep.find(q => q.ing === prepOf) : null;
+    const n = v.items.length, it = {k, d:[0, 0], side:0, x:0, y:0, stick:0, even:pq && pq.q != null ? pq.q : 1};
+    if(k === "pancake"){ it.x = [-40, 40, 0][n % 3]; it.y = [-20, -20, 40][n % 3]; }
+    v.items.push(it); if(v.temp < CK_ITEM[k].minT - .6) this.tipOnce("cold" + k, `The ${v.n.toLowerCase()} isn't hot enough yet: food in a cold pan steams and goes soggy instead of browning.`);
+    tone(300, .2, "sawtooth", .02); this.fx.push({type:"text", x:this.vx(v) - 30, y:this.vy(v) - 60, vx:0, vy:-.5, life:45, text:"+" + d.n});
+  },
+  vx(v){ return this.vessels.length === 1 ? 220 : this.vessels.indexOf(v) === 0 ? 125 : 315; },
+  vy(){ return 250; },
+  bindPointer(){
+    const cv = this.cv, pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left)/r.width*440, (e.clientY - r.top)/r.height*480]; };
+    cv.onpointerdown = e => { if(this.locked) return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){} const [x, y] = pos(e); this.ptr = {x, y, sx:x, sy:y, down:true, hover:true, path:[[x, y]]}; this.down(x, y); };
+    cv.onpointermove = e => { const [x, y] = pos(e), q = this.ptr || {x, y}; this.ptr = {...q, px:q.x, py:q.y, x, y, hover:true, down:q.down && e.buttons > 0}; if(this.ptr.down){ (this.ptr.path = this.ptr.path || []).push([x, y]); this.drag(x, y); } };
+    cv.onpointerup = cv.onpointercancel = () => { if(this.ptr && this.ptr.down) this.up(); if(this.ptr) this.ptr.down = false; };
+    cv.onpointerleave = () => { if(this.ptr) this.ptr.hover = false; };
+  },
+  down(x, y){
+    const k = CK_PH[this.phase][0];
+    if(k === "cook"){ this.vessels.forEach(v => v.items.forEach(it => { const d = CK_ITEM[it.k]; if(!d.flip) return; const ix = this.vx(v) + it.x, iy = this.vy(v) + it.y; if(Math.hypot(x - ix, y - iy) < d.r){ if(it.d[0] < .5 && !it.flipWarn){ it.flipWarn = true; this.note("Too early! Wait until the underside is golden (bubbles on top for pancakes)."); } it.side = 1 - it.side; it.flips = (it.flips || 0) + 1; it.flipAnim = 12; tone(500, .06, "triangle", .03); if(it.flips > 2 && it.k === "salmon") this.tipOnce("flip", "Flip salmon only once: moving it tears the crispy skin."); } })); }
+    if(k === "plate"){ if(this.tool === "drizzle" || this.tool === "garnish") return; this.dragF = this.plated.slice().reverse().find(f => Math.hypot(x - f.x, y - f.y) < 40) || null; }
+  },
+  drag(x, y){
+    const k = CK_PH[this.phase][0], t = this.prep[this.prepIdx];
+    if(k === "prep" && t && t.task){ const sp = Math.hypot(x - (this.ptr.px ?? x), y - (this.ptr.py ?? y));
+      if(Math.hypot(x - 220, y - 250) < 120){ if(t.task === "whisk"){ t.prog = Math.min(1, t.prog + sp/2600); if(this.frame % 4 === 0) tone(700 + Math.random()*200, .02, "triangle", .01); }
+        if(t.task === "crack"){ t.prog = Math.min(1, t.prog + sp/700); if(sp > 26){ t.flaws++; this.tipOnce("shell", "Too rough: bits of shell fell in! Crack gently."); } }
+        if(t.prog >= 1 && !t.done){ t.done = true; t.q = clamp(1 - t.flaws*.15, .3, 1); sfx.good(); this.prepIdx++; this.panel(); } } }
+    if(k === "cook"){ this.vessels.forEach(v => { if(Math.hypot(x - this.vx(v), y - this.vy(v)) < 80) v.items.forEach(it => { if(CK_ITEM[it.k].stir){ it.stick = 0; it.stirred = (it.stirred || 0) + 1; it.even = Math.min(1, it.even + .002); } }); }); }
+    if(k === "plate"){ if(this.dragF){ this.dragF.x = x; this.dragF.y = y; } else if(this.tool === "drizzle"){ this.drizzle.push([x, y]); } }
+  },
+  up(){
+    const k = CK_PH[this.phase][0], t = this.prep[this.prepIdx];
+    if(k === "prep" && t && t.ing && this.ptr.path && this.ptr.path.length > 3){ const a = this.ptr.path[0], b = this.ptr.path[this.ptr.path.length - 1]; if(Math.hypot(b[0] - a[0], b[1] - a[1]) > 50){ const pos = t.dir === 0 ? (a[0] + b[0])/2 : (a[1] + b[1])/2; t.cuts[t.dir].push(pos); this.thunk(); } }
+    if(k === "plate"){ if(this.dragF){ this.dragF.placed = Math.hypot(this.dragF.x - 220, this.dragF.y - 250) < 150; this.dragF = null; } else if(this.tool === "garnish"){ this.garnish++; this.fx.push({type:"leaf", x:this.ptr.x, y:this.ptr.y, vx:0, vy:0, life:9999}); } }
+  },
+  thunk(){ tone(160, .05, "square", .03); this.fx.push({type:"text", x:this.ptr.x, y:this.ptr.y - 10, vx:0, vy:-.8, life:20, text:"chop"}); },
+  finishCut(){
+    const t = this.prep[this.prepIdx]; if(!t || !t.ing) return; const [, , dirs, gap] = CK_CUT[t.cut], ing = CK_ING[t.ing], span = ing.r*2*(ing.long ? 2.6 : 1);
+    const evalDir = cuts => { const s = [...cuts].sort((p, q) => p - q); if(s.length < 2) return 0; const gaps = s.slice(1).map((v, i) => v - s[i]), avg = gaps.reduce((p, q) => p + q, 0)/gaps.length, sd = Math.sqrt(gaps.reduce((p, q) => p + (q - avg)**2, 0)/gaps.length); const sizeOk = 1 - Math.min(1, Math.abs(avg - gap)/gap); return clamp((1 - sd/Math.max(4, avg))*.55 + sizeOk*.45 + (CKS().owned.includes("knife") ? .05 : 0), 0, 1); };
+    const need = Math.max(2, Math.floor(span/gap) - 1); if(t.cuts[0].length < need*.6) return this.note(`Keep cutting: about ${need} cuts across for this size.`);
+    if(dirs === 2 && t.cuts[1].length < 2) return this.note("Now turn it and cut across the other way.");
+    t.q = dirs === 2 ? (evalDir(t.cuts[0]) + evalDir(t.cuts[1]))/2 : evalDir(t.cuts[0]); t.done = true; sfx.good(); this.say(t.q > .75 ? "Wow, knife skills!" : "Hmm, uneven pieces cook unevenly.", t.q > .75 ? "good" : "bad"); this.prepIdx++; this.panel();
+  },
+  tick(){
+    this.frame++; const ctx = this.ctx, k = CK_PH[this.phase][0], now = performance.now(), dt = 1/60;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    /* the stove keeps cooking in every phase once things are in the pan */
+    this.vessels.forEach(v => { const target = v.heat*(CKS().owned.includes("castiron") && v.kind === "pan" ? 1.05 : 1); v.temp += (target - v.temp)*(v.water ? .004 : .02);
+      v.items.forEach(it => { const d = CK_ITEM[it.k]; if(d.inWater && v.drained) return; const f = Math.max(0, v.temp - .3)**1.4/(3**1.4); it.d[it.side ? 1 : 0] += d.rate*f*dt*(d.inWater ? (v.temp >= 2.4 ? 1 : .3) : 1)*(1 + (d.stir && (it.stick += dt) > 4 && v.temp > 1.5 ? 1.5 : 0));
+        if(!d.flip) it.d[1] = it.d[0]; const top = Math.max(...it.d); if(top > d.win[1] + .25){ if(!it.burnt){ it.burnt = true; this.burnt++; this.say("Is something burning?!", "bad"); sfx.bad(); } if(this.frame % 4 === 0) this.fx.push({type:"smoke", x:this.vx(v) + it.x + (Math.random() - .5)*20, y:this.vy(v) + it.y, vx:(Math.random() - .5)*.6, vy:-1.2, life:50}); }
+        if(this.frame % 9 === 0 && v.temp > 1.2 && !d.inWater) tone(2000 + Math.random()*2000, .02, "sawtooth", .004); }); if(v.water && v.temp > 2.5 && this.frame % 3 === 0) this.fx.push({type:"bubble", x:this.vx(v) + (Math.random() - .5)*90, y:this.vy(v) + (Math.random() - .5)*60, vx:0, vy:-.3, life:16}); });
+    ctx.fillStyle = "#efe4d2"; ctx.fillRect(0, 0, 440, 480);
+    if(k === "ticket" || k === "season" || k === "plate"){ if(k === "plate") this.drawPlate(ctx, false); else this.drawStove(ctx); if(k === "ticket"){ ctx.fillStyle = "rgba(255,253,248,.9)"; ctx.fillRect(80, 60, 280, 120); ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.strokeRect(80, 60, 280, 120); ctx.fillStyle = INK; ctx.font = "600 18px Fredoka, sans-serif"; ctx.fillText(`ORDER: ${this.rec.n}`, 96, 96); ctx.font = "13px Figtree, sans-serif"; ctx.fillText(`for ${this.cust.name}`, 96, 120); } }
+    if(k === "prep") this.drawPrep(ctx);
+    if(k === "cook") this.drawStove(ctx);
+    this.fx = this.fx.filter(q => q.life-- > 0); this.fx.forEach(q => { q.x += q.vx; q.y += q.vy; ctx.globalAlpha = Math.min(1, q.life/14);
+      if(q.type === "text"){ ctx.font = "600 14px Fredoka, sans-serif"; ctx.lineWidth = 4; ctx.strokeStyle = "#fffdf8"; ctx.strokeText(q.text, q.x, q.y); ctx.fillStyle = INK; ctx.fillText(q.text, q.x, q.y); }
+      else if(q.type === "smoke"){ ctx.fillStyle = "rgba(90,90,90,.35)"; ctx.beginPath(); ctx.arc(q.x, q.y, 8 + (50 - q.life)*.4, 0, 6.28); ctx.fill(); }
+      else if(q.type === "bubble"){ ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(q.x, q.y, 4, 0, 6.28); ctx.stroke(); }
+      else if(q.type === "grain"){ q.vy += .1; ctx.fillStyle = q.col; ctx.fillRect(q.x, q.y, 2.5, 2.5); }
+      else if(q.type === "leaf" && k === "plate"){ ctx.globalAlpha = 1; ctx.fillStyle = "#3fa34d"; ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(q.x, q.y, 7, 4, .6, 0, 6.28); ctx.fill(); ctx.stroke(); }
+      ctx.globalAlpha = 1; });
+    if(this.frame % 20 === 0 && !this.locked){ const sec = Math.floor((now - this.t0)/1000); $("ckTime").textContent = `${Math.floor(sec/60)}:${String(sec % 60).padStart(2, "0")}`; this.cust.patience = clamp(1 - Math.max(0, sec - 240)/300, 0, 1); $("ckPat").style.width = Math.round(this.cust.patience*100) + "%"; if(this.frame % 60 === 0){ const r = this.score(); const m = $("ckMatch"); m.textContent = r.pct + "%"; m.className = r.pct >= 85 ? "hi" : r.pct >= 60 ? "mid" : "lo"; } }
+  },
+  drawPrep(ctx){
+    const t = this.prep[this.prepIdx]; ctx.fillStyle = "#c8915a"; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(40, 120, 360, 260, 16) : ctx.rect(40, 120, 360, 260); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = "rgba(0,0,0,.12)"; ctx.lineWidth = 2; for(let i = 0; i < 6; i++){ ctx.beginPath(); ctx.moveTo(60, 150 + i*40); ctx.lineTo(380, 140 + i*42); ctx.stroke(); }
+    if(!t){ ctx.fillStyle = INK; ctx.font = "600 18px Fredoka, sans-serif"; ctx.fillText("Prep done!", 170, 260); return; }
+    if(t.task){ ctx.fillStyle = "#d9dde3"; ctx.beginPath(); ctx.ellipse(220, 260, 100, 70, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.fillStyle = t.task === "whisk" ? (this.rec.k === "pancakes" ? "#f7e3b5" : "#ffd166") : "#fff3b0"; ctx.beginPath(); ctx.ellipse(220, 262, 84, 54, 0, 0, 6.28); ctx.fill();
+      if(t.task === "whisk"){ const lumps = Math.round((1 - t.prog)*14); ctx.fillStyle = "#e8cf9a"; for(let i = 0; i < lumps; i++){ ctx.beginPath(); ctx.arc(170 + (i*37) % 100, 240 + (i*23) % 44, 5, 0, 6.28); ctx.fill(); } }
+      if(t.task === "crack"){ const n = Math.floor(t.prog*3); ctx.fillStyle = "#ffbf2e"; for(let i = 0; i < n; i++){ ctx.beginPath(); ctx.arc(190 + i*30, 262, 12, 0, 6.28); ctx.fill(); } if(t.flaws){ ctx.fillStyle = "#fff"; for(let i = 0; i < t.flaws; i++) ctx.fillRect(200 + i*14, 250, 5, 3); } }
+      ctx.fillStyle = INK; ctx.font = "600 14px Fredoka, sans-serif"; ctx.fillText(`${t.label}: ${Math.round(t.prog*100)}%`, 170, 360); return; }
+    const ing = CK_ING[t.ing], long = ing.long, rx = ing.r*(long ? 2.6 : 1), ry = ing.r;
+    ctx.save(); ctx.translate(220, 250); if(t.dir === 1 && !long) ctx.rotate(0);
+    ctx.fillStyle = ing.c; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, 0, rx*1.6, ry*1.6, 0, 0, 6.28); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,.3)"; ctx.beginPath(); ctx.ellipse(-rx*.5, -ry*.5, rx*.5, ry*.35, -.4, 0, 6.28); ctx.fill(); ctx.restore();
+    ctx.strokeStyle = shade(ing.c, -.45); ctx.lineWidth = 2; t.cuts[0].forEach(x => { ctx.beginPath(); ctx.moveTo(x, 250 - ry*1.6); ctx.lineTo(x, 250 + ry*1.6); ctx.stroke(); }); t.cuts[1].forEach(y => { ctx.beginPath(); ctx.moveTo(220 - rx*1.6, y); ctx.lineTo(220 + rx*1.6, y); ctx.stroke(); });
+    ctx.setLineDash([4, 6]); ctx.strokeStyle = "rgba(255,255,255,.7)"; ctx.lineWidth = 1.5; const gap = CK_CUT[t.cut][3]; if(S.rating.cook < 5) for(let x = 220 - rx*1.6 + gap; x < 220 + rx*1.6; x += gap){ if(t.dir === 0){ ctx.beginPath(); ctx.moveTo(x, 250 - ry*1.8); ctx.lineTo(x, 250 - ry*1.6 - 2); ctx.stroke(); } } ctx.setLineDash([]);
+    const p = this.ptr; if(p && p.hover){ ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(t.dir === 0 ? 0 : Math.PI/2); ctx.fillStyle = "#d9dde3"; ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-3, -60); ctx.lineTo(6, -60); ctx.lineTo(6, 10); ctx.lineTo(-3, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#2b2118"; ctx.fillRect(-2, 10, 7, 30); ctx.restore(); }
+  },
+  drawStove(ctx){
+    ctx.fillStyle = "#2b2f3a"; ctx.fillRect(20, 110, 400, 300); ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.strokeRect(20, 110, 400, 300);
+    this.vessels.forEach(v => { const x = this.vx(v), y = this.vy(v), glow = v.temp/3;
+      ctx.strokeStyle = `rgba(255,${120 - glow*60},40,${.2 + glow*.7})`; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(x, y, 92, 0, 6.28); ctx.stroke();
+      if(v.kind === "pot"){ ctx.fillStyle = "#9aa5b1"; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 80, 0, 6.28); ctx.fill(); ctx.stroke(); if(v.water && !v.drained){ ctx.fillStyle = v.salted ? "#a8d8f0" : "#b8e2f8"; ctx.beginPath(); ctx.arc(x, y, 70, 0, 6.28); ctx.fill(); } }
+      else { ctx.fillStyle = "#1d1d22"; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, v.kind === "wok" ? 86 : 78, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#3a3a42"; ctx.beginPath(); ctx.arc(x, y, v.kind === "wok" ? 70 : 64, 0, 6.28); ctx.fill(); ctx.fillStyle = "#1d1d22"; ctx.fillRect(x + (this.vessels.indexOf(v) === 0 && this.vessels.length > 1 ? -150 : 70), y - 8, 80, 16); }
+      v.items.forEach(it => this.drawItem(ctx, v, it, x + it.x, y + it.y));
+      ctx.fillStyle = "#fffdf8"; ctx.font = "600 12px DM Mono, monospace"; ctx.fillText(`${v.n}: ${["off","low","medium","high"][v.heat]}`, x - 60, 132 + (this.vessels.indexOf(v) % 2)*0);
+      if(CKS().owned.includes("thermo")) v.items.forEach((it, i) => { ctx.fillText(`${CK_ITEM[it.k].n} ${Math.round(Math.max(...it.d)*100)}%`, x - 60, 390 - i*14); }); });
+  },
+  drawItem(ctx, v, it, x, y){
+    const d = CK_ITEM[it.k], col = s => { const t = it.d[s]; return t < 1 ? mixHex(d.raw, d.done, clamp(t, 0, 1)) : mixHex(d.done, d.burnt, clamp((t - d.win[1])/.45, 0, 1)); }, face = col(it.side ? 0 : 1);
+    ctx.save(); ctx.strokeStyle = INK; ctx.lineWidth = 2.2;
+    if(it.flipAnim){ it.flipAnim--; ctx.translate(x, y); ctx.scale(1, Math.abs(Math.cos(it.flipAnim/12*Math.PI)) || .05); ctx.translate(-x, -y); }
+    if(d.shape === "disc"){ ctx.fillStyle = face; ctx.beginPath(); ctx.arc(x, y, d.r, 0, 6.28); ctx.fill(); ctx.stroke(); if(it.k === "pancake" && it.d[it.side ? 1 : 0] > .55 && it.d[it.side ? 0 : 1] < .3){ ctx.fillStyle = "rgba(200,170,110,.8)"; for(let k = 0; k < 7; k++){ ctx.beginPath(); ctx.arc(x + Math.cos(k*2.4)*d.r*.55, y + Math.sin(k*2.4)*d.r*.55, 2, 0, 6.28); ctx.fill(); } } }
+    else if(d.shape === "fillet"){ ctx.fillStyle = face; ctx.beginPath(); ctx.ellipse(x, y, d.r*1.4, d.r*.7, .2, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.strokeStyle = "rgba(255,255,255,.5)"; for(let k = -2; k <= 2; k++){ ctx.beginPath(); ctx.moveTo(x + k*10, y - d.r*.5); ctx.quadraticCurveTo(x + k*10 + 6, y, x + k*10, y + d.r*.5); ctx.stroke(); } }
+    else if(d.shape === "blob" || d.shape === "liquid"){ ctx.fillStyle = col(0); ctx.beginPath(); ctx.ellipse(x, y, d.r, d.r*.85, 0, 0, 6.28); ctx.fill(); if(v.folded){ ctx.fillStyle = shade(col(0), -.08); ctx.beginPath(); ctx.ellipse(x, y + 4, d.r, d.r*.42, 0, 0, Math.PI); ctx.fill(); ctx.stroke(); } if(d.shape === "blob" && it.stirred){ ctx.strokeStyle = "rgba(255,255,255,.5)"; for(let k = 0; k < 8; k++){ ctx.beginPath(); ctx.arc(x + Math.cos(k)*20, y + Math.sin(k*1.7)*16, 6, 0, 3); ctx.stroke(); } } }
+    else if(d.shape === "pieces" || d.shape === "sticks"){ const R2 = rng(it.k + v.id), n = d.shape === "sticks" ? 22 : 30; ctx.fillStyle = col(0); for(let k = 0; k < n; k++){ const a = R2()*6.28, r = R2()*52, px = x + Math.cos(a)*r + (it.stirred ? Math.sin(this.frame*.05 + k)*2 : 0), py = y + Math.sin(a)*r; ctx.beginPath(); if(d.shape === "sticks") ctx.ellipse(px, py, 9, 2.4, a, 0, 6.28); else ctx.arc(px, py, d.r*(.7 + R2()*.6)*(it.even < .6 ? 1 + R2() : 1), 0, 6.28); ctx.fill(); ctx.lineWidth = 1; ctx.stroke(); } }
+    else if(d.shape === "strands"){ ctx.strokeStyle = col(0); ctx.lineWidth = 3; const R2 = rng("st" + it.k); for(let k = 0; k < 26; k++){ const a = R2()*6.28; ctx.beginPath(); ctx.arc(x + Math.cos(a)*14, y + Math.sin(a)*14, 18 + R2()*28, a, a + 2.2); ctx.stroke(); } }
+    ctx.restore();
+  },
+  drawPlate(ctx, photo){
+    ctx.fillStyle = "#e8dccb"; ctx.fillRect(0, 0, 440, 480); ctx.fillStyle = "#c8915a"; ctx.fillRect(0, 380, 440, 100);
+    ctx.fillStyle = "#fffdf8"; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(220, 250, 170, 150, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.strokeStyle = "rgba(43,33,24,.18)"; ctx.beginPath(); ctx.ellipse(220, 250, 130, 112, 0, 0, 6.28); ctx.stroke();
+    const items = photo ? this.rec.plate.map(([k, x, y]) => ({k, x, y})) : this.plated;
+    const rd = k => { const v = this.vessels.flatMap(q => q.items); const m = {stack:"pancake", butter:null, berries:null, nest:"pasta", basil:null, bowl:"noodles", greens:"greens", fillet:"salmon", lemon:null, omelette:"egg"}[k]; const it = m && v.find(q => q.k === m); return it ? (Math.max(...it.d) > CK_ITEM[m].win[1] + .25 ? CK_ITEM[m].burnt : mixHex(CK_ITEM[m].raw, CK_ITEM[m].done, clamp(Math.min(...it.d), 0, 1))) : null; };
+    items.forEach(f => { const c = photo ? null : rd(f.k); ctx.strokeStyle = INK; ctx.lineWidth = 2.4;
+      ({stack:() => { for(let i = 0; i < 3; i++){ ctx.fillStyle = c || "#d99a4e"; ctx.beginPath(); ctx.ellipse(f.x, f.y - i*12, 70, 22, 0, 0, 6.28); ctx.fill(); ctx.stroke(); } },
+        butter:() => { ctx.fillStyle = "#fff3a8"; ctx.fillRect(f.x - 12, f.y - 8, 24, 16); ctx.strokeRect(f.x - 12, f.y - 8, 24, 16); },
+        berries:() => { ["#3a4fb0","#d7263d","#3a4fb0","#d7263d"].forEach((bc, i) => { ctx.fillStyle = bc; ctx.beginPath(); ctx.arc(f.x + (i % 2)*14, f.y + Math.floor(i/2)*12, 7, 0, 6.28); ctx.fill(); ctx.stroke(); }); },
+        nest:() => { ctx.strokeStyle = c || "#f0d68a"; ctx.lineWidth = 4; for(let k = 0; k < 20; k++){ ctx.beginPath(); ctx.arc(f.x, f.y, 20 + k*2.6, k, k + 3); ctx.stroke(); } ctx.fillStyle = "#b8281f"; ctx.beginPath(); ctx.arc(f.x, f.y, 28, 0, 6.28); ctx.fill(); },
+        basil:() => { ctx.fillStyle = "#3fa34d"; [[0, 0], [10, 6], [-8, 8]].forEach(([a, b]) => { ctx.beginPath(); ctx.ellipse(f.x + a, f.y + b, 9, 5, .5, 0, 6.28); ctx.fill(); ctx.stroke(); }); },
+        bowl:() => { ctx.fillStyle = "#3a86ff"; ctx.beginPath(); ctx.ellipse(f.x, f.y, 110, 90, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.strokeStyle = c || "#e8c070"; ctx.lineWidth = 4; for(let k = 0; k < 24; k++){ ctx.beginPath(); ctx.arc(f.x, f.y, 16 + k*2.6, k*1.3, k*1.3 + 2.4); ctx.stroke(); } ctx.fillStyle = "#f4842c"; for(let k = 0; k < 10; k++){ ctx.beginPath(); ctx.ellipse(f.x + Math.cos(k)*50, f.y + Math.sin(k*1.3)*40, 10, 3, k, 0, 6.28); ctx.fill(); } },
+        greens:() => { ctx.fillStyle = c || "#2a9d5a"; for(let k = 0; k < 18; k++){ ctx.beginPath(); ctx.ellipse(f.x + Math.cos(k*2.1)*60, f.y + Math.sin(k*1.7)*34, 14, 7, k, 0, 6.28); ctx.fill(); ctx.stroke(); } },
+        fillet:() => { ctx.fillStyle = c || "#f6b18e"; ctx.beginPath(); ctx.ellipse(f.x, f.y, 62, 30, .15, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#8a4a2a"; ctx.beginPath(); ctx.ellipse(f.x, f.y - 22, 56, 8, .15, 0, 6.28); ctx.fill(); },
+        lemon:() => { ctx.fillStyle = "#ffe066"; ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, 18, -.4, 2.4); ctx.closePath(); ctx.fill(); ctx.stroke(); },
+        omelette:() => { ctx.fillStyle = c || "#ffd166"; ctx.beginPath(); ctx.ellipse(f.x, f.y, 90, 36, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.strokeStyle = "rgba(255,255,255,.5)"; ctx.beginPath(); ctx.moveTo(f.x - 70, f.y); ctx.quadraticCurveTo(f.x, f.y - 14, f.x + 70, f.y); ctx.stroke(); }})[f.k]();
+      if(!photo && !f.placed){ ctx.setLineDash([3, 3]); ctx.strokeStyle = "#e76f51"; ctx.beginPath(); ctx.arc(f.x, f.y, 30, 0, 6.28); ctx.stroke(); ctx.setLineDash([]); } });
+    if(photo && ["pancakes","pasta","salmon"].includes(this.rec.k)){ ctx.strokeStyle = this.rec.k === "pancakes" ? "#8a4a12" : "#b8281f"; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(160, 200); ctx.quadraticCurveTo(220, 170, 280, 210); ctx.stroke(); }
+    if(!photo && this.drizzle.length > 1){ ctx.strokeStyle = this.rec.k === "pancakes" ? "#8a4a12" : "#b8281f"; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.beginPath(); this.drizzle.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); }
+  },
+  score(){
+    const parts = [], add = (k, label, w, v, why) => parts.push({k, label, w, v:clamp(v, 0, 1), why}), rec = this.rec;
+    const pq = this.prep.filter(p => p.done).map(p => p.q ?? 1); add("prep", "Prep and knife work", 14, this.prep.length ? pq.reduce((a, b) => a + b, 0)/this.prep.length : 1, pq.some(q => q < .7) ? "Uneven cuts cook unevenly: keep your knife strokes the same distance apart." : "Clean, even prep.");
+    const items = this.vessels.flatMap(v => v.items.map(it => [v, it]));
+    items.forEach(([v, it]) => { const d = CK_ITEM[it.k], lo = Math.min(...it.d), hi = Math.max(...it.d), [a, b] = d.win; let q = lo < a ? 1 - (a - lo)*2.2 : hi > b ? 1 - (hi - b)*2.5 : 1; if(d.flip && Math.abs(it.d[0] - it.d[1]) > .3) q -= .25; if(it.even < .7) q -= .1; if(v.soggy && d.inWater) q -= .3;
+      const name = d.n.toLowerCase(), why = hi > b + .25 ? `The ${name} burned: lower the heat or take it off sooner.` : lo < a ? `The ${name} is undercooked${d.flip ? " on one side" : ""}.` : v.soggy && d.inWater ? "Gummy pasta: it went into water that wasn't boiling." : d.flip && Math.abs(it.d[0] - it.d[1]) > .3 ? "Cooked unevenly: flip it so both sides brown." : `Perfectly cooked ${name}.`;
+      if(!parts.some(p => p.k === "cook" + it.k)) add("cook" + it.k, `${d.n} doneness`, 14, q, why); });
+    if(rec.k === "omelette"){ const v = this.vessels[0]; add("fold", "Folded", 6, v.folded ? 1 : 0, v.folded ? "Neatly folded." : "A French omelette is folded."); }
+    if(rec.k === "pasta"){ const v = this.vessels.find(q => q.id === "pot"); add("water", "Salted, boiling water", 8, (v.salted ? .5 : 0) + (v.soggy ? 0 : .5), !v.salted ? "Salt the pasta water." : v.soggy ? "Wait for a rolling boil." : "Perfect pasta water."); }
+    const S2 = rec.season, offs = Object.keys(S2).map(q => { const v = this.taste[q], [lo, hi] = S2[q]; return v < lo ? lo - v : v > hi ? v - hi : 0; }); add("season", "Seasoning", 14, 1 - offs.reduce((a, b) => a + b, 0)*2.2, this.tasteLine() + (this.tasted ? "" : " Always taste before serving!"));
+    const pl = this.plated.map(f => f.placed ? Math.max(0, 1 - Math.hypot(f.x - f.tx, f.y - f.ty)/120) : 0); add("plate", "Plating like the photo", 12, pl.reduce((a, b) => a + b, 0)/pl.length, pl.some(v => v < .5) ? "Arrange it like the photo." : "Picture-perfect plating.");
+    add("garnish", "Finishing touches", 6, Math.min(1, (this.drizzle.length > 6 ? .5 : 0) + Math.min(.5, this.garnish*.17)), "A drizzle and fresh garnish make it look like the photo.");
+    add("time", "Served on time", 6, this.cust.patience, this.cust.patience < .7 ? "The customer waited a long time." : "Quick service.");
+    const tw = parts.reduce((a, q) => a + q.w, 0); return {pct:Math.round(parts.reduce((a, q) => a + q.w*q.v, 0)/tw*100), parts};
+  },
+  serve(){
+    if(this.locked) return; this.locked = true; const r = this.score(), s = CKS(), earn = Math.round(30*r.pct/100), tip = (r.pct >= 90 ? 12 : r.pct >= 75 ? 6 : 0) + (s.owned.includes("herbs") && this.garnish ? 3 : 0);
+    s.coins += earn + tip; s.served++; s.totalMatch += r.pct; const pb = r.pct > s.best; s.best = Math.max(s.best, r.pct); this.day.n++; this.day.earned += earn + tip; this.day.results.push({name:this.cust.name, t:this.rec.n, pct:r.pct}); if(this.day.daily) s.daily[today()] = Math.max(s.daily[today()] || 0, r.pct);
+    save(); adapt("cook", r.pct/100); r.pct >= 85 ? sfx.win() : r.pct >= 60 ? sfx.good() : sfx.bad(); this.say(r.pct >= 90 ? "This is incredible! Compliments to the chef!" : r.pct >= 70 ? "Delicious, thank you!" : "Hmm… it's okay.", r.pct >= 70 ? "good" : "bad");
+    const mk = photo => { const c = document.createElement("canvas"); c.width = 300; c.height = 300; const x = c.getContext("2d"); x.scale(300/440, 300/440); this.drawPlate(x, photo); return c; }, last = this.day.daily || this.day.n >= 3;
+    $("ckRes").innerHTML = `<div class="reveal sal-result"><span class="eyebrow">${r.pct >= 90 ? "Michelin material" : r.pct >= 75 ? "Delicious" : r.pct >= 55 ? "Edible" : "Back to the kitchen"}${pb ? " · New personal best!" : ""}</span><div class="sal-pct"><b>${r.pct}</b>% match</div>
+      <div class="sal-compare mk-compare"><figure><div id="ckA"></div><figcaption>Your plate</figcaption></figure><figure><div id="ckG"></div><figcaption>The photo</figcaption></figure></div>
+      <div class="sal-pay"><span>Bill <b class="coin">${earn}</b></span><span>Tip <b class="coin">${tip}</b></span></div>
+      ${checklist(r.parts.map(q => ({label:`${q.label} · ${Math.round(q.v*100)}%`, ok:q.v >= .75, why:q.why})))}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="ckNextC">${this.day.daily ? "Back to the kitchen" : last ? "End service" : "Next ticket →"}</button></div></div>`;
+    $("ckA").appendChild(mk(false)); $("ckG").appendChild(mk(true));
+    $("ckNextC").onclick = () => { if(this.day.daily) return this.lobby(); if(last){ const rs = this.day.results, avg = Math.round(rs.reduce((a, x) => a + x.pct, 0)/rs.length), stars = avg >= 85 ? 3 : avg >= 65 ? 2 : 1; s.days++; save(); return endSession({title:stars === 3 ? "Head chef" : stars === 2 ? "Sous chef" : "Line cook", stars, xp:20 + 15*stars, body:`<div class="big">${fmt(this.day.earned)}</div><p class="m-note">coins earned · average match ${avg}%.</p><ul class="roundlog">${rs.map(x => `<li><span>${x.name} · ${x.t}</span><span>${x.pct}%</span></li>`).join("")}</ul>`, actions:[["Next service", () => startRoom("cook", "studio"), true], ["Lobby", goHub]]}); } this.newOrder(); };
+  }
+};
+ROOMS.cook.blurb = "Run a kitchen. Tickets come in with a photo of the dish: prep with real knife work, cook on a live stove where food browns, sizzles and burns, flip and stir, taste and season, then plate it to match the photo.";
+ROOMS.cook.tip = "<b>Tip:</b> watch the color, not the clock. Boil and salt pasta water first, add hard vegetables before soft ones, and taste before you serve.";
+ROOMS.cook.modes = [["studio","Start service"],["classic","Classic tasting"],["sprint","Pantry sprint · 60s"],["practice","Quiz"]];
+HOWTO.cook = ["Read the ticket and its photo, then prep: drag the knife across ingredients for even cuts, whisk and crack eggs.","On the stove, set each burner's heat, add ingredients in order, stir (drag) or flip (tap) and watch the color change.","Taste and season, plate it like the photo, then serve for coins and tips."];
 
 renderHub();
 </script>
