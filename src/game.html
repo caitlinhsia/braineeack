@@ -1102,6 +1102,22 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .sw-cost{font-size:13px}
 .ck-sign{background:linear-gradient(160deg,#fff6ea,#ffe6c7)}
 .ck-mirror{border-radius:18px;border-color:#c8915a}
+.at-sign{background:linear-gradient(135deg,#ffe3f1,#fff4e0)}
+.at-mirror canvas{aspect-ratio:440/560}
+.sal-req.at-board{grid-template-columns:110px 1fr}.sal-req.at-board canvas{width:110px;height:140px;border:2px solid var(--ink);border-radius:10px;background:#fff4fa}
+.at-pal{display:flex;gap:4px;margin:4px 0}.at-pal i{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink)}
+.at-harm{font-size:12px;font-weight:700;padding:3px 9px;border:2px solid var(--ink);border-radius:99px;background:#eee}.at-harm.ok{background:#c9f0b5}
+.at-rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;margin-top:6px;background:repeating-linear-gradient(180deg,transparent 0 4px,rgba(43,33,24,.06) 4px 5px);padding:8px 4px;border-top:4px solid #8a6a4a;border-radius:4px}
+.at-hang{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;border:2px solid var(--ink);border-radius:10px;background:var(--card,#fffdf8);cursor:pointer;font:inherit;color:inherit;transition:transform .1s;position:relative}
+.at-hang::before{content:"";position:absolute;top:-9px;left:50%;width:12px;height:8px;margin-left:-6px;border:2px solid #8a6a4a;border-bottom:0;border-radius:8px 8px 0 0}
+.at-hang canvas{width:62px;height:74px;border-radius:6px}.at-hang small{font-size:10.5px;line-height:1.1;text-align:center}
+.at-hang:hover{transform:translateY(-2px) rotate(-1deg)}.at-hang.sel{background:#ffe08a;box-shadow:inset 0 0 0 2px var(--ink)}.at-hang.locked{opacity:.4}
+.at-dot{display:inline-block;width:12px;height:12px;border-radius:50%;border:1.5px solid var(--ink);margin-right:5px;vertical-align:-2px}
+.at-wheelbox{display:grid;grid-template-columns:minmax(150px,210px) 1fr;gap:10px;align-items:start;margin-top:6px}.at-wheelbox canvas{width:100%;aspect-ratio:1;cursor:crosshair;touch-action:manipulation}
+@media(max-width:520px){.at-wheelbox{grid-template-columns:1fr}.at-wheelbox canvas{max-width:240px;margin:auto}}
+.at-judges{display:grid;gap:8px;margin:8px 0}.at-judge{display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:start;border:2px solid var(--ink);border-radius:12px;padding:8px;background:#fff8fc}
+.at-face{width:40px;height:40px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-weight:800;color:#fff;font-size:18px}
+.at-judge p{margin:3px 0 0;font-size:13.5px}.at-card{float:right;font-weight:800;background:#fff;border:2px solid var(--ink);border-radius:6px;padding:0 6px}
 </style>
 
 <div class="wrap">
@@ -11857,6 +11873,280 @@ ROOMS.cook.blurb = "Run a kitchen. Tickets come in with a photo of the dish: pre
 ROOMS.cook.tip = "<b>Tip:</b> watch the color, not the clock. Boil and salt pasta water first, add hard vegetables before soft ones, and taste before you serve.";
 ROOMS.cook.modes = [["studio","Start service"],["classic","Classic tasting"],["sprint","Pantry sprint · 60s"],["practice","Quiz"]];
 HOWTO.cook = ["Read the ticket and its photo, then prep: drag the knife across ingredients for even cuts, whisk and crack eggs.","On the stove, set each burner's heat, add ingredients in order, stir (drag) or flip (tap) and watch the color change.","Taste and season, plate it like the photo, then serve for coins and tips."];
+
+/* =========================================================
+   ATELIER PRO: a stylist's studio. A client brings a mood
+   board for an occasion; you dress a live model from the
+   wardrobe rack, choose fabrics, color it on an interactive
+   wheel, then send it down the runway to three judges.
+   ========================================================= */
+const ATELIER_CLASSIC = STUDIO.atelier;
+const swHex = id => { const s = SW[id], l = s.l/100, a = s.s/100*Math.min(l, 1 - l), f = n => { const k = (n + s.h/30) % 12, c = l - a*Math.max(-1, Math.min(k - 3, 9 - k, 1)); return Math.round(c*255).toString(16).padStart(2, "0"); }; return "#" + f(0) + f(8) + f(4); };
+const AT_FAB = {cotton:["Cotton",0,0], linen:["Linen",0,0], wool:["Wool",0,1], knit:["Knit",0,1], silk:["Silk",1,0], velvet:["Velvet",1,0], sequin:["Sequins",2,0], denim:["Denim",0,0], leather:["Leather",1,0]};
+const ATW = {
+  tee:{s:"top", n:"T-shirt", sleeve:.35, neck:"round", fab:"cotton"}, blouse:{s:"top", n:"Silk blouse", sleeve:1, neck:"v", fab:"silk"}, tank:{s:"top", n:"Tank top", sleeve:0, strap:true, neck:"round", fab:"cotton"},
+  sweater:{s:"top", n:"Sweater", sleeve:1, neck:"round", fab:"knit"}, shirt:{s:"top", n:"Button shirt", sleeve:1, neck:"v", fab:"cotton"}, corset:{s:"top", n:"Corset top", sleeve:0, neck:"sweet", fab:"silk", price:40},
+  mini:{s:"bottom", n:"Mini skirt", kind:"skirt", len:"thigh", flare:.15, fab:"denim"}, aline:{s:"bottom", n:"A-line midi skirt", kind:"skirt", len:"midi", flare:.35, fab:"cotton"}, pencil:{s:"bottom", n:"Pencil skirt", kind:"skirt", len:"knee", flare:-.06, fab:"wool"}, maxi:{s:"bottom", n:"Maxi skirt", kind:"skirt", len:"floor", flare:.25, fab:"linen"},
+  wide:{s:"bottom", n:"Wide-leg trousers", kind:"pants", width:1.3, fab:"wool"}, straight:{s:"bottom", n:"Straight trousers", kind:"pants", width:1, fab:"wool"}, jeans:{s:"bottom", n:"Skinny jeans", kind:"pants", width:.8, fab:"denim"}, shorts:{s:"bottom", n:"Denim shorts", kind:"shorts", fab:"denim"},
+  sheath:{s:"dress", n:"Sheath dress", len:"knee", flare:.02, neck:"round", fab:"wool"}, adress:{s:"dress", n:"A-line dress", len:"midi", flare:.3, neck:"v", fab:"cotton"}, ball:{s:"dress", n:"Ball gown", len:"floor", flare:.55, neck:"sweet", fab:"silk"}, mermaid:{s:"dress", n:"Mermaid gown", len:"floor", flare:.05, mermaid:true, neck:"v", fab:"sequin"},
+  wrap:{s:"dress", n:"Wrap dress", len:"knee", flare:.2, neck:"v", wrap:true, fab:"silk"}, slip:{s:"dress", n:"Slip dress", len:"midi", flare:.12, strap:true, neck:"v", fab:"silk"}, minid:{s:"dress", n:"Mini dress", len:"thigh", flare:.2, neck:"round", fab:"sequin"}, empire:{s:"dress", n:"Empire dress", len:"midi", flare:.38, empire:true, neck:"v", fab:"linen"},
+  blazer:{s:"outer", n:"Blazer", len:"hip", fab:"wool"}, trench:{s:"outer", n:"Trench coat", len:"knee", fab:"cotton"}, denimj:{s:"outer", n:"Denim jacket", len:"waist", fab:"denim"}, cardigan:{s:"outer", n:"Cardigan", len:"hip", fab:"knit"}, puffer:{s:"outer", n:"Puffer coat", len:"hip", puffy:true, fab:"cotton"}, cape:{s:"outer", n:"Cape", len:"knee", cape:true, fab:"velvet", price:50},
+  heels:{s:"shoes", n:"Heels"}, flats:{s:"shoes", n:"Ballet flats"}, boots:{s:"shoes", n:"Boots"}, sneakers:{s:"shoes", n:"Sneakers"}, sandals:{s:"shoes", n:"Sandals"},
+  clutch:{s:"bag", n:"Clutch"}, tote:{s:"bag", n:"Tote"}, cross:{s:"bag", n:"Crossbody"}, backpack:{s:"bag", n:"Backpack"},
+  pendant:{s:"jewel", n:"Pendant"}, statement:{s:"jewel", n:"Statement necklace", price:30}, pearls:{s:"jewel", n:"Pearls"}, hoops:{s:"jewel", n:"Hoop earrings"},
+  beret:{s:"hat", n:"Beret"}, sunhat:{s:"hat", n:"Sun hat"}, beanie:{s:"hat", n:"Beanie"}, fedora:{s:"hat", n:"Fedora", price:30},
+  belt:{s:"belt", n:"Belt"}
+};
+const AT_SLOTS = [["dress","Dresses"],["top","Tops"],["bottom","Bottoms"],["outer","Outerwear"],["shoes","Shoes"],["bag","Bags"],["jewel","Jewelry"],["hat","Hats"],["belt","Belts"]];
+const AT_LEN = {waist:SWP.Y.waist + 10, hip:SWP.Y.hip + 8, thigh:SWP.Y.thigh + 18, knee:SWP.Y.knee, midi:SWP.Y.calf, floor:SWP.Y.floor - 4};
+const AT_OCC = [
+  {k:"gala", n:"a black-tie gala", season:"winter", look:{dress:["ball","mermaid"], shoes:["heels"], bag:["clutch"], jewel:["statement","pearls"]}, cols:[["0d","blk","ivo"],["240d","ivo","cam"],["270m","blk","gry"]], fabs:["silk","velvet","sequin"],
+    rules:[["Floor-length gown", o => o.dress && ATW[o.dress.k].len === "floor", "Black tie means a full-length gown."], ["Luxe fabric: silk, velvet or sequins", o => o.dress && ["silk","velvet","sequin"].includes(o.dress.fab), "Evening fabrics catch the light in dim ballrooms."], ["Heels and a clutch", o => o.shoes?.k === "heels" && o.bag?.k === "clutch", "Elegant shoes and a small evening bag complete black tie."]]},
+  {k:"beach", n:"a beach wedding", season:"summer", look:{dress:["adress","slip","wrap"], shoes:["sandals"], hat:["sunhat"], bag:["clutch"]}, cols:[["180l","ivo","cam"],["330l","ivo","0l"],["150l","ivo","cam"]], fabs:["linen","cotton","silk"],
+    rules:[["Breathable fabric: linen, cotton or silk", o => (o.dress || o.top) && ["linen","cotton","silk"].includes((o.dress || o.top).fab), "Natural fibers breathe in the heat."], ["Sandals for sand", o => o.shoes?.k === "sandals", "Heels sink into sand."], ["Not floor-length", o => !o.dress || ATW[o.dress.k].len !== "floor", "A long hem drags through the sand."]]},
+  {k:"interview", n:"a job interview", season:"any", look:{top:["blouse","shirt"], bottom:["straight","pencil","wide"], outer:["blazer"], shoes:["flats","heels"], bag:["tote"]}, cols:[["blk","ivo","240d"],["chr","ivo","210m"],["cam","ivo","30d"]], fabs:["wool","cotton","silk"],
+    rules:[["A blazer", o => o.outer?.k === "blazer", "A blazer reads as polished and confident."], ["Mostly neutral colors", o => AT_CLOTH.filter(q => o[q]?.col && !SW[o[q].col].neutral).length <= 1, "Keep the clothes neutral with one accent at most: the focus stays on you, not your outfit."], ["Closed, practical shoes", o => ["flats","heels","boots"].includes(o.shoes?.k), "Sandals and sneakers read as too casual."]]},
+  {k:"winter", n:"a winter city weekend", season:"winter", look:{top:["sweater","shirt"], bottom:["jeans","straight","wide"], outer:["trench","puffer"], shoes:["boots"], hat:["beanie","beret"]}, cols:[["0d","cam","chr"],["30d","ivo","blk"],["240d","gry","ivo"]], fabs:["wool","knit","denim"],
+    rules:[["A warm coat", o => ["trench","puffer","cape"].includes(o.outer?.k), "Layer a coat over everything."], ["Boots", o => o.shoes?.k === "boots", "Boots keep feet dry on icy streets."], ["Warm fabric: wool or knit", o => [o.top, o.outer, o.dress].some(g => g && ["wool","knit","velvet"].includes(g.fab)), "Wool stays warm even when damp."]]},
+  {k:"festival", n:"a summer music festival", season:"summer", look:{top:["tank","tee"], bottom:["shorts","mini","aline"], shoes:["boots","sneakers"], bag:["cross"], hat:["sunhat"]}, cols:[["300m","60m","180m"],["30m","210m","ivo"],["0m","120m","240m"]], fabs:["denim","cotton"],
+    rules:[["Hands free: a crossbody bag", o => o.bag?.k === "cross", "You'll be dancing: keep your hands free."], ["Comfy shoes for standing all day", o => ["boots","sneakers"].includes(o.shoes?.k), "Hours on your feet in grass and mud."], ["Bright colors", o => outfitCols(o).some(c => !SW[c].neutral && SW[c].s > 60), "Festivals are for color!"]]},
+  {k:"date", n:"a first date at a café", season:"any", look:{dress:["wrap","adress","sheath"], shoes:["flats","heels"], jewel:["pendant","hoops"], bag:["cross"]}, cols:[["330m","ivo","cam"],["0m","blk","ivo"],["270l","ivo","gry"]], fabs:["silk","cotton","knit"],
+    rules:[["One statement color", o => outfitCols(o).filter(c => !SW[c].neutral).length >= 1, "One bold color draws the eye without shouting."], ["Not too formal: knee or midi", o => !o.dress || ["knee","midi"].includes(ATW[o.dress.k].len), "A café isn't a ballroom."], ["A little jewelry", o => !!o.jewel, "A pendant or hoops frame your face in conversation."]]},
+  {k:"graduation", n:"a graduation ceremony", season:"summer", look:{dress:["sheath","adress"], shoes:["flats"], jewel:["pearls","pendant"], bag:["clutch"]}, cols:[["210m","ivo","cam"],["150m","ivo","gry"],["240l","ivo","blk"]], fabs:["cotton","linen","silk"],
+    rules:[["Flats for crossing the stage", o => o.shoes?.k === "flats", "Every year someone trips on the stage steps in heels."], ["Knee or midi under the gown", o => o.dress ? ["knee","midi"].includes(ATW[o.dress.k].len) : true, "It peeks out neatly under a graduation gown."], ["Breathable fabric", o => (o.dress || o.top) && ["cotton","linen","silk"].includes((o.dress || o.top).fab), "Gowns are hot!"]]}
+];
+const outfitCols = o => Object.values(o).filter(Boolean).map(g => g.col).filter(Boolean);
+const AT_FLATTER = {hourglass:["Define the waist: a belt, wrap or sheath", o => !!o.belt || ["wrap","sheath","mermaid"].includes(o.dress?.k), "Hourglass shapes look best when the waist is defined."], pear:["Balance the hips: A-line or wide-leg, with interest up top", o => ["aline","maxi","adress","ball","empire"].includes((o.dress || o.bottom)?.k) || o.bottom?.k === "wide", "A-line and wide-leg shapes skim the hips and balance the shoulders."], apple:["Draw the eye up: empire waist or V-neck, no waist belt", o => !o.belt && (o.dress?.k === "empire" || ATW[(o.dress || o.top)?.k]?.neck === "v"), "An empire line or V-neck elongates the torso."], rectangle:["Create curves: a belt, ball gown or wrap", o => !!o.belt || ["ball","wrap","adress"].includes(o.dress?.k), "A belted waist or full skirt adds curves."], triangle:["Balance broad shoulders: fuller skirt or wide trousers", o => ["aline","maxi","adress","ball"].includes((o.dress || o.bottom)?.k) || o.bottom?.k === "wide", "Volume below the waist balances strong shoulders."]};
+const ATS = () => { S.atpro = S.atpro || {coins:120, owned:[], served:0, totalMatch:0, best:0, days:0, daily:{}}; return S.atpro; };
+const AT_PH = [["brief","Mood board"],["style","Style"],["color","Color & fabric"],["access","Accessorize"],["runway","Runway"]];
+/* drawing an outfit on the SWP model */
+const AT_L = {};
+function atDraw(ctx, cl, o, opt = {}){
+  const Y = SWP.Y, CX = SWP.CX, hx = y => SWP.halfAt(cl, y), fab = g => ({c:g.col ? swHex(g.col) : "#cccccc", print:"plain", sheen:AT_FAB[g.fab]?.[1] === 1});
+  const F = {bust:cl.B + 8, waist:cl.Wa + 6, hip:cl.Hp + 8};
+  SWP.drawBody(ctx, cl, {mood:opt.mood || "neutral", bg:opt.bg});
+  const tex = g => { const kind = g.fab; ctx.save(); ctx.globalCompositeOperation = "source-atop"; if(kind === "sequin"){ const R2 = rng("sq" + g.k); ctx.fillStyle = "rgba(255,255,255,.75)"; for(let i = 0; i < 160; i++){ ctx.beginPath(); ctx.arc(CX - 140 + R2()*280, 120 + R2()*440, 1 + R2()*1.4, 0, 6.28); ctx.fill(); } } if(kind === "wool" || kind === "knit"){ ctx.strokeStyle = "rgba(0,0,0,.12)"; ctx.lineWidth = 1; for(let x = 0; x < 440; x += kind === "knit" ? 6 : 4){ ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + (kind === "knit" ? 3 : 0), 560); ctx.stroke(); } } if(kind === "denim"){ ctx.strokeStyle = "rgba(255,255,255,.14)"; ctx.lineWidth = 1; for(let x = -560; x < 440; x += 5){ ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 560, 560); ctx.stroke(); } } if(kind === "velvet"){ const gg = ctx.createRadialGradient(CX, 300, 20, CX, 300, 260); gg.addColorStop(0, "rgba(255,255,255,.12)"); gg.addColorStop(1, "rgba(0,0,0,.35)"); ctx.fillStyle = gg; ctx.fillRect(0, 0, 440, 560); } if(kind === "leather"){ ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fillRect(CX - 40, 0, 14, 560); } ctx.restore(); };
+  const lay = (g, fn) => { const real = ctx; AT_L.c = AT_L.c || document.createElement("canvas"); const c = AT_L.c; if(c.width !== 880){ c.width = 880; c.height = 1120; } const L2 = c.getContext("2d"); L2.setTransform(2, 0, 0, 2, 0, 0); L2.clearRect(0, 0, 440, 560); L2.lineJoin = "round"; L2.strokeStyle = INK; L2.lineWidth = 3; ctx = L2; try{ fn(); tex(g); } finally { ctx = real; } ctx.drawImage(c, 0, 0, 440, 560); };
+  const shoes = o.shoes; if(shoes){ const c = shoes.col ? swHex(shoes.col) : "#2b2118"; [-1, 1].forEach(d => { const x = CX + d*16, y = Y.floor - 4; ctx.fillStyle = c; ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath();
+    if(shoes.k === "boots"){ ctx.rect(x - 13, y - 60, 26, 60); } else if(shoes.k === "heels"){ ctx.moveTo(x - 14, y); ctx.lineTo(x + 12, y - 2); ctx.lineTo(x + 12, y - 14); ctx.quadraticCurveTo(x, y - 18, x - 14, y - 6); ctx.closePath(); ctx.fillRect(x + 8, y - 4, 4, 10); } else if(shoes.k === "sandals"){ ctx.rect(x - 13, y - 8, 26, 6); ctx.moveTo(x - 10, y - 8); ctx.lineTo(x + 10, y - 16); } else ctx.ellipse(x, y - 6, 16, 9, 0, 0, 6.28); ctx.fill(); ctx.stroke(); if(shoes.k === "sneakers"){ ctx.fillStyle = "#fff"; ctx.fillRect(x - 14, y - 3, 28, 4); } }); }
+  const bot = o.bottom, top = o.top, dr = o.dress;
+  if(bot) lay(bot, () => { const B = ATW[bot.k];
+    if(B.kind === "skirt"){ SWP.drawGarment(ctx, cl, {kind:"skirt", flare:B.flare}, F, AT_LEN[B.len], fab(bot)); }
+    else { const end = B.kind === "shorts" ? Y.thigh + 26 : Y.floor - 8, w = B.width || 1; ctx.fillStyle = fab(bot).c; ctx.strokeStyle = INK; ctx.lineWidth = 3; const path = () => { ctx.beginPath(); ctx.moveTo(CX - hx(Y.waist) - 4, Y.waist); ctx.lineTo(CX + hx(Y.waist) + 4, Y.waist); ctx.lineTo(CX + hx(Y.hip) + 6, Y.hip); ctx.lineTo(CX + (6 + 26*w) + (B.kind === "shorts" ? 10 : 0), end); ctx.lineTo(CX + 4, end); ctx.lineTo(CX + 2, Y.thigh + 10); ctx.lineTo(CX - 2, Y.thigh + 10); ctx.lineTo(CX - 4, end); ctx.lineTo(CX - (6 + 26*w) - (B.kind === "shorts" ? 10 : 0), end); ctx.lineTo(CX - hx(Y.hip) - 6, Y.hip); ctx.closePath(); }; path(); ctx.fill(); ctx.stroke(); } });
+  if(dr) lay(dr, () => { const D = ATW[dr.k]; SWP.drawGarment(ctx, cl, {kind:"dress", flare:D.mermaid ? -.05 : D.flare, strap:D.strap, neck:D.neck === "sweet" ? "round" : D.neck}, D.empire ? {...F, waist:cl.B + 6} : F, D.mermaid ? Y.knee + 4 : AT_LEN[D.len], fab(dr)); if(D.mermaid){ ctx.fillStyle = fab(dr).c; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(CX - hx(Y.knee) - 2, Y.knee); ctx.quadraticCurveTo(CX - 90, Y.floor - 10, CX - 110, Y.floor); ctx.lineTo(CX + 110, Y.floor); ctx.quadraticCurveTo(CX + 90, Y.floor - 10, CX + hx(Y.knee) + 2, Y.knee); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+    if(D.wrap){ ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(CX - hx(Y.shoulder)*.5, Y.shoulder + 4); ctx.lineTo(CX + hx(Y.waist), Y.waist + 4); ctx.lineTo(CX - 10, AT_LEN[D.len]); ctx.stroke(); }
+    if(D.empire){ ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(CX - hx(Y.ubust) - 2, Y.ubust); ctx.lineTo(CX + hx(Y.ubust) + 2, Y.ubust); ctx.stroke(); }
+    });
+  if(top && !dr) lay(top, () => { const T = ATW[top.k]; SWP.drawGarment(ctx, cl, {kind:"top", strap:T.strap, neck:T.neck === "sweet" ? "round" : T.neck}, F, bot ? Y.hhip - 4 : Y.hip + 8, fab(top));
+    if(top.k === "shirt"){ ctx.fillStyle = "#fffdf8"; for(let y = Y.under; y < Y.hhip - 8; y += 18){ ctx.beginPath(); ctx.arc(CX, y, 2.4, 0, 6.28); ctx.fill(); ctx.stroke(); } }
+    if(top.k === "corset"){ ctx.strokeStyle = INK; ctx.lineWidth = 1.5; for(let k = -2; k <= 2; k++){ ctx.beginPath(); ctx.moveTo(CX + k*18, Y.under); ctx.lineTo(CX + k*14, Y.hhip - 8); ctx.stroke(); } } });
+  const sleeveOf = o.outer ? {g:o.outer, len:1} : top && !dr ? {g:top, len:ATW[top.k].sleeve} : null;
+  if(o.belt){ const c = o.belt.col ? swHex(o.belt.col) : "#5a3622", y = ATW[dr?.k]?.empire ? Y.ubust : Y.waist; ctx.fillStyle = c; ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.fillRect(CX - hx(y) - 8, y - 6, hx(y)*2 + 16, 12); ctx.strokeRect(CX - hx(y) - 8, y - 6, hx(y)*2 + 16, 12); ctx.fillStyle = "#ffd166"; ctx.fillRect(CX - 8, y - 7, 16, 14); ctx.strokeRect(CX - 8, y - 7, 16, 14); }
+  if(o.outer) lay(o.outer, () => { const Ot = ATW[o.outer.k], c = fab(o.outer).c, end = AT_LEN[Ot.len] || Y.hip; ctx.fillStyle = c; ctx.strokeStyle = INK; ctx.lineWidth = 3;
+    if(Ot.cape){ ctx.beginPath(); ctx.moveTo(CX - 26, Y.neck + 6); ctx.lineTo(CX - hx(Y.shoulder) - 10, Y.shoulder); ctx.lineTo(CX - 150, end); ctx.lineTo(CX - 60, end); ctx.lineTo(CX - 30, Y.bust); ctx.lineTo(CX + 30, Y.bust); ctx.lineTo(CX + 60, end); ctx.lineTo(CX + 150, end); ctx.lineTo(CX + hx(Y.shoulder) + 10, Y.shoulder); ctx.lineTo(CX + 26, Y.neck + 6); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+    else [-1, 1].forEach(d => { const path = () => { ctx.beginPath(); ctx.moveTo(CX + d*16, Y.neck + 10); ctx.lineTo(CX + d*(hx(Y.shoulder) + (Ot.puffy ? 16 : 8)), Y.shoulder); ctx.lineTo(CX + d*(hx(Math.min(end, Y.hip)) + (Ot.puffy ? 18 : 10)), Math.min(end, Y.hip)); ctx.lineTo(CX + d*(hx(Math.min(end, Y.hip)) + 18 + (end > Y.hip ? 10 : 0)), end); ctx.lineTo(CX + d*18, end); ctx.lineTo(CX + d*20, Y.bust + 10); ctx.closePath(); }; ctx.fillStyle = c; path(); ctx.fill(); ctx.stroke(); if(Ot.puffy){ ctx.strokeStyle = "rgba(0,0,0,.2)"; for(let y = Y.under; y < end; y += 26){ ctx.beginPath(); ctx.moveTo(CX + d*20, y); ctx.lineTo(CX + d*(hx(Math.min(y, Y.hip)) + 16), y); ctx.stroke(); } } ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(CX + d*16, Y.neck + 10); ctx.lineTo(CX + d*32, Y.under + 10); ctx.lineTo(CX + d*20, Y.bust + 10); ctx.stroke(); ctx.lineWidth = 3; }); });
+  if(sleeveOf && sleeveOf.len > 0) lay(sleeveOf.g, () => { const c = fab(sleeveOf.g).c; [-1, 1].forEach(d => { const sx = CX + d*hx(Y.shoulder)*.92, p0 = [sx, Y.shoulder + 6], p1 = [sx + d*14, Y.waist - 40], p2 = [sx + d*10, Y.hip + 10], pts = []; for(let t = 0; t <= sleeveOf.len + .001; t += .05){ const u = 1 - t; pts.push([u*u*p0[0] + 2*u*t*p1[0] + t*t*p2[0], u*u*p0[1] + 2*u*t*p1[1] + t*t*p2[1]]); } ctx.lineCap = "round"; ctx.strokeStyle = INK; ctx.lineWidth = o.outer?.k === "puffer" ? 30 : 24; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.strokeStyle = c; ctx.lineWidth -= 5; ctx.stroke(); ctx.lineCap = "butt"; }); });
+  if(o.jewel){ const k = o.jewel.k, c = o.jewel.col ? swHex(o.jewel.col) : "#ffd166"; ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
+    if(k === "hoops"){ [-1, 1].forEach(d => { ctx.strokeStyle = INK; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(CX + d*30, 90, 7, 0, 6.28); ctx.stroke(); ctx.strokeStyle = "#ffd166"; ctx.lineWidth = 2.4; ctx.stroke(); }); }
+    else if(k === "pearls"){ for(let i = 0; i < 15; i++){ const a = Math.PI*(.15 + .7*i/14); ctx.fillStyle = "#fbfaf5"; ctx.beginPath(); ctx.arc(CX - Math.cos(a)*24, Y.neck + 8 + Math.sin(a)*24, 3.2, 0, 6.28); ctx.fill(); ctx.stroke(); } }
+    else { ctx.strokeStyle = "#ffd166"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(CX, Y.neck + 4, 24, .3, Math.PI - .3); ctx.stroke(); ctx.fillStyle = c; ctx.strokeStyle = INK; if(k === "statement"){ for(let i = 0; i < 7; i++){ const a = Math.PI*(.25 + .5*i/6); ctx.beginPath(); ctx.ellipse(CX - Math.cos(a)*26, Y.neck + 6 + Math.sin(a)*26, 6, 8, 0, 0, 6.28); ctx.fill(); ctx.stroke(); } } else { ctx.beginPath(); ctx.moveTo(CX, Y.neck + 22); ctx.lineTo(CX + 7, Y.neck + 31); ctx.lineTo(CX, Y.neck + 40); ctx.lineTo(CX - 7, Y.neck + 31); ctx.closePath(); ctx.fill(); ctx.stroke(); } } }
+  if(o.bag){ const k = o.bag.k, c = o.bag.col ? swHex(o.bag.col) : "#5a3622", hxR = CX + hx(Y.shoulder)*.92 + 22; ctx.fillStyle = c; ctx.strokeStyle = INK; ctx.lineWidth = 2.5;
+    if(k === "clutch"){ ctx.fillRect(hxR - 4, Y.hip, 34, 20); ctx.strokeRect(hxR - 4, Y.hip, 34, 20); }
+    else if(k === "tote"){ ctx.beginPath(); ctx.moveTo(hxR - 22, Y.shoulder + 6); ctx.lineTo(hxR + 6, Y.waist); ctx.stroke(); ctx.fillRect(hxR - 6, Y.waist, 46, 50); ctx.strokeRect(hxR - 6, Y.waist, 46, 50); }
+    else if(k === "cross"){ ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(CX - hx(Y.shoulder)*.7, Y.shoulder); ctx.lineTo(CX + hx(Y.hhip) + 4, Y.hhip); ctx.stroke(); ctx.lineWidth = 2.5; ctx.fillRect(CX + hx(Y.hhip) - 6, Y.hhip - 4, 32, 26); ctx.strokeRect(CX + hx(Y.hhip) - 6, Y.hhip - 4, 32, 26); }
+    else { [-1, 1].forEach(d => { ctx.beginPath(); ctx.moveTo(CX + d*20, Y.shoulder); ctx.lineTo(CX + d*30, Y.waist); ctx.stroke(); }); } }
+  if(o.hat){ const k = o.hat.k, c = o.hat.col ? swHex(o.hat.col) : "#3d2618"; ctx.fillStyle = c; ctx.strokeStyle = INK; ctx.lineWidth = 2.5;
+    if(k === "sunhat"){ ctx.beginPath(); ctx.ellipse(CX, 46, 70, 14, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.ellipse(CX, 36, 32, 22, 0, Math.PI, 0); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#ff7db8"; ctx.fillRect(CX - 32, 38, 64, 6); }
+    else if(k === "beret"){ ctx.beginPath(); ctx.ellipse(CX + 6, 38, 40, 16, -.15, 0, 6.28); ctx.fill(); ctx.stroke(); }
+    else if(k === "beanie"){ ctx.beginPath(); ctx.ellipse(CX, 46, 33, 30, 0, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillRect(CX - 34, 42, 68, 12); ctx.strokeRect(CX - 34, 42, 68, 12); }
+    else { ctx.beginPath(); ctx.ellipse(CX, 44, 52, 10, 0, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.fillRect(CX - 28, 18, 56, 26); ctx.strokeRect(CX - 28, 18, 56, 26); } }
+}
+const AT_SHOP = [["couture","Couture rack","g:jacket","Unlocks the corset top and the velvet cape.",80],["jewelbox","Jewelry box","g:gems","Unlocks the statement necklace and fedora.",50],["lookbook","Lookbook","g:book","Shows harmony guides on the color wheel.",60],["lights","Runway lights","g:highlighter","Brighter runway: bigger tips from the judges.",70]];
+const AT_UNLOCK = {corset:"couture", cape:"couture", statement:"jewelbox", fedora:"jewelbox"};
+const AT_JUDGES = [["Margot","the editor","#ff7db8"],["Dev","the stylist","#3a8dff"],["Ines","the designer","#78c552"]];
+const AT_CLOTH = ["dress","top","bottom","outer"], AT_ACC = ["shoes","bag","jewel","hat","belt"];
+STUDIO.atelier = {
+  start(mode){ if(mode === "classic") return ATELIER_CLASSIC.start.call(ATELIER_CLASSIC, mode); this.lobby(); },
+  lobby(){
+    const s = ATS(); cancelAnimationFrame(this.raf); const avg = s.served ? Math.round(s.totalMatch/s.served) : 0;
+    stage.innerHTML = `<div class="sal-lobby"><div class="sal-sign at-sign"><span class="eyebrow">Your studio</span><h3>Season ${s.days + 1}</h3>
+      <div class="sal-stats"><span><small>Coins</small><b class="coin">${fmt(s.coins)}</b></span><span><small>Clients styled</small><b>${s.served}</b></span><span><small>Average score</small><b>${s.served ? avg + "%" : "–"}</b></span><span><small>Best</small><b>${s.best ? s.best + "%" : "–"}</b></span></div>
+      <p class="stage-tip">Clients bring a mood board for an occasion. Dress the model from the wardrobe rack, pick each piece's fabric and color on the wheel, accessorize, then send the look down the runway to three judges.</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="atOpen">Open the studio →</button><button class="btn" type="button" id="atDaily">Daily look</button></div>
+      <p class="tooltip-line">${s.daily[today()] ? `Today's best: <b>${s.daily[today()]}%</b>.` : "Everyone styles the same client today."}</p></div>
+      <div class="sal-shop"><span class="eyebrow">Upgrades</span><div class="sal-shopgrid">${AT_SHOP.map(([k, n, ic, d, p]) => { const own = s.owned.includes(k); return `<div class="sal-item${own ? " own" : ""}"><span class="ti">${icon(ic, 34)}</span><b>${n}</b><small>${d}</small>${own ? `<span class="owned">Owned</span>` : `<button class="btn-sm" type="button" data-buy="${k}" ${s.coins < p ? "disabled" : ""}><span class="coin">${p}</span></button>`}</div>`; }).join("")}</div></div></div>`;
+    stage.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => { const t = AT_SHOP.find(x => x[0] === b.dataset.buy); if(s.coins < t[4]) return; s.coins -= t[4]; s.owned.push(t[0]); save(); sfx.win(); this.lobby(); });
+    $("atOpen").onclick = () => { this.day = {n:0, earned:0, results:[]}; this.newClient(); };
+    $("atDaily").onclick = () => { this.day = {n:0, earned:0, results:[], daily:true}; const r0 = Math.random; Math.random = rng("at" + today()); try{ this.newClient(); } finally { Math.random = r0; } };
+    setSide("Coins", fmt(s.coins));
+  },
+  newClient(){
+    const occ = pick(AT_OCC.filter(x => !(this.lastOcc || []).includes(x.k))); this.lastOcc = [...(this.lastOcc || []).slice(-3), occ.k];
+    this.occ = occ; this.cl = SWP.makeBody(); const pal = pick(occ.cols), fl = AT_FLATTER[this.cl.shape]; let T = {};
+    for(let tries = 0; tries < 40; tries++){ T = {}; Object.entries(occ.look).forEach(([slot, ks]) => { const ok = ks.filter(k => this.owns(k)); T[slot] = {k:pick(ok.length ? ok : ks)}; }); if(!fl[1](T) && ["hourglass","rectangle"].includes(this.cl.shape)) T.belt = {k:"belt"}; if(fl[1](T)) break; }
+    const clothes = AT_CLOTH.filter(q => T[q]); clothes.forEach((q, i) => { T[q].col = pal[Math.min(i, 1)]; T[q].fab = ATW[T[q].k].fab && occ.fabs.includes(ATW[T[q].k].fab) ? ATW[T[q].k].fab : pick(occ.fabs); if(q === "bottom" && T.top) T[q].col = pal[1]; if(q === "top") T[q].col = pal[0]; });
+    if(T.outer) T.outer.col = pal[2] && SW[pal[2]].neutral ? pal[2] : pal[1];
+    AT_ACC.filter(q => T[q]).forEach((q, i) => { T[q].col = i % 2 ? pal[2] : (q === "shoes" ? (SW[pal[1]].neutral ? pal[1] : "blk") : pal[2]); });
+    this.target = T; this.pal = pal; this.o = {}; this.sel = null; this.rack = occ.look.dress ? "dress" : "top";
+    this.phase = 0; this.maxPhase = 0; this.locked = false; this.fx = []; this.tips = new Set(); this.t0 = performance.now(); this.walk = null;
+    this.render();
+  },
+  owns(k){ const u = AT_UNLOCK[k]; return !u || ATS().owned.includes(u); },
+  render(){
+    const s = ATS(), occ = this.occ;
+    stage.innerHTML = `<div class="sal atp">
+      <div class="sal-hud"><span class="coin">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily look" : `Client ${this.day.n + 1} of 3`}</span><span id="atHarm" class="at-harm">No colors yet</span><span class="sal-match"><small>Score</small><b id="atMatch">–</b></span><button class="btn btn-solid sal-finish" type="button" id="atNext"></button></div>
+      <ol class="stepper sal-steps" id="atSteps">${AT_PH.map(([k, l], i) => `<li data-ph="${i}"><span>${i + 1}</span>${l}</li>`).join("")}</ol>
+      <div class="sal-main"><div class="sal-chair"><div class="sal-speech"><b>${this.cl.name}</b><div class="sal-bubble" id="atBubble"></div></div>
+        <div class="sal-mirror at-mirror"><canvas id="atCv" aria-label="Your model wearing the outfit"></canvas><p class="msg sal-msg sal-toast" id="atMsg"></p></div></div>
+        <div class="sal-side"><div class="sal-req at-board"><canvas id="atGoal" width="220" height="280" aria-label="Mood board"></canvas><div><span class="eyebrow">Mood board · ${occ.season === "any" ? "any season" : occ.season}</span><h3>Dressing for ${occ.n}</h3><div class="at-pal">${this.pal.map(c => `<i style="background:${css(c)}" title="${SW[c].name}"></i>`).join("")}</div><p class="tooltip-line">Body shape: <b>${this.cl.shape}</b>. ${AT_FLATTER[this.cl.shape][0]}.</p><details><summary>Dress code</summary><ul class="sw-seams">${occ.rules.map(r => `<li>${r[0]}</li>`).join("")}</ul></details></div></div><div class="sw-panel" id="atPanel"></div></div></div>
+      <div id="atRes" class="sal-overlay"></div></div>`;
+    const cv = $("atCv"), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = 440*dpr; cv.height = 560*dpr; this.cv = cv; this.ctx = cv.getContext("2d"); this.dpr = dpr;
+    const gc = $("atGoal").getContext("2d"); gc.scale(220/440, 280/560); atDraw(gc, this.cl, this.target, {mood:"happy", bg:"#fff4fa"});
+    $("atSteps").onclick = e => { const li = e.target.closest("[data-ph]"); if(li && !this.locked && +li.dataset.ph <= this.maxPhase && +li.dataset.ph < 4) this.enterPhase(+li.dataset.ph); };
+    $("atNext").onclick = () => { if(this.locked) return; if(this.phase === 3) return this.runway(); this.enterPhase(this.phase + 1); };
+    cv.onclick = e => { if(this.phase !== 2 || this.locked) return; const r = cv.getBoundingClientRect(), y = (e.clientY - r.top)/r.height*560, x = (e.clientX - r.left)/r.width*440; const hit = this.hitSlot(x, y); if(hit){ this.sel = hit; sfx.click(); this.panel(); } };
+    this.enterPhase(0); this.say(pick([`I'm going to ${occ.n}! Here's my mood board.`, `Help! I have ${occ.n} and nothing to wear.`, `Can you make me look like this for ${occ.n}?`]));
+    const tok = G.token; cancelAnimationFrame(this.raf); const loop = () => { if(G.token !== tok || !document.body.contains(cv)) return; this.tick(); this.raf = requestAnimationFrame(loop); }; this.raf = requestAnimationFrame(loop);
+  },
+  hitSlot(x, y){ const o = this.o, Y = SWP.Y; if(o.hat && y < 60) return "hat"; if(o.jewel && y > Y.neck - 30 && y < Y.neck + 44 && Math.abs(x - 220) < 40) return "jewel"; if(o.shoes && y > Y.floor - 60) return "shoes"; if(o.bag && x > 300) return "bag"; if(o.belt && Math.abs(y - Y.waist) < 10) return "belt"; if(o.outer && Math.abs(x - 220) > 30 && y < (AT_LEN[ATW[o.outer.k].len] || Y.hip)) return "outer"; if(o.dress) return "dress"; if(o.top && y < Y.hhip) return "top"; if(o.bottom && y >= Y.waist) return "bottom"; return null; },
+  say(t, kind){ const b = $("atBubble"); if(!b) return; b.textContent = t; b.className = "sal-bubble" + (kind ? " " + kind : ""); void b.offsetWidth; b.classList.add("pop"); },
+  note(t){ const m = $("atMsg"); if(!m) return; m.textContent = t; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); clearTimeout(this.noteT); this.noteT = setTimeout(() => m && m.classList.remove("show"), 4500); },
+  tipOnce(k, t){ if(this.tips.has(k)) return; this.tips.add(k); this.note(t); },
+  enterPhase(i){
+    this.phase = i; this.maxPhase = Math.max(this.maxPhase, i); const k = AT_PH[i][0];
+    stage.querySelectorAll("#atSteps li").forEach((li, j) => { li.classList.toggle("now", j === i); li.classList.toggle("done", j < this.maxPhase && j !== i); });
+    const nb = $("atNext"); nb.textContent = ["Start styling →","Color & fabric →","Accessorize →","Send down the runway →",""][i];
+    if(k === "style") this.rack = this.rack === "shoes" ? "top" : this.rack;
+    if(k === "color"){ this.sel = AT_CLOTH.find(q => this.o[q]) || null; if(!this.o.dress && !(this.o.top && this.o.bottom)) this.note("Your model still needs a dress, or a top and a bottom."); }
+    if(k === "access"){ this.rack = "shoes"; this.sel = null; }
+    this.panel(); this.update();
+  },
+  wear(k){
+    const g = ATW[k], o = this.o, slot = g.s;
+    if(!this.owns(k)) return this.note(`Unlock the ${AT_SHOP.find(x => x[0] === AT_UNLOCK[k])[1].toLowerCase()} in the lobby to use this.`);
+    if(o[slot]?.k === k){ delete o[slot]; sfx.click(); }
+    else { const prev = o[slot]; o[slot] = {k, col:prev?.col || (AT_ACC.includes(slot) ? null : "ivo"), fab:g.fab || null};
+      if(slot === "dress"){ if(o.top || o.bottom) this.tipOnce("dresswap", "A dress replaces the top and bottom."); delete o.top; delete o.bottom; }
+      if(slot === "top" || slot === "bottom") delete o.dress;
+      sfx.good(); this.fx.push({type:"spark", t:0}); }
+    this.panel(); this.update();
+  },
+  panel(){
+    const k = AT_PH[this.phase][0], p = $("atPanel"), occ = this.occ, s = ATS(); let h = "";
+    const rackHTML = slots => `<div class="chips at-tabs">${slots.map(([sk, l]) => `<button type="button" class="ch${this.rack === sk ? " sel" : ""}" data-rack="${sk}">${l}</button>`).join("")}</div><div class="at-rack">${Object.entries(ATW).filter(([, g]) => g.s === this.rack).map(([key, g]) => { const on = this.o[g.s]?.k === key, lock = !this.owns(key); return `<button type="button" class="at-hang${on ? " sel" : ""}${lock ? " locked" : ""}" data-wear="${key}"><canvas width="70" height="84" data-thumb="${key}"></canvas><small>${g.n}${lock ? " · locked" : ""}</small></button>`; }).join("")}</div>`;
+    if(k === "brief") h = `<p class="stage-tip">${this.cl.name} is dressing for <b>${occ.n}</b>. The mood board shows the look: match its pieces and palette, follow the dress code, and flatter a <b>${this.cl.shape}</b> shape.</p><ul class="sw-seams">${occ.rules.map(r => `<li><b>${r[0]}.</b> ${r[2]}</li>`).join("")}<li><b>${AT_FLATTER[this.cl.shape][0]}.</b> ${AT_FLATTER[this.cl.shape][2]}</li></ul>`;
+    if(k === "style") h = `<p class="tooltip-line">Tap a piece on the rack to put it on. Tap it again to take it off.</p>` + rackHTML(AT_SLOTS.filter(x => AT_CLOTH.includes(x[0])));
+    if(k === "access") h = `<p class="tooltip-line">Shoes, a bag and a little jewelry finish the look. Edit: two to four accessories is usually right.</p>` + rackHTML(AT_SLOTS.filter(x => AT_ACC.includes(x[0]))) + this.colorUI(AT_ACC);
+    if(k === "color") h = this.colorUI(AT_CLOTH) + (this.sel && AT_CLOTH.includes(this.sel) ? `<div class="opt-group"><h4>Fabric for the ${ATW[this.o[this.sel].k].n.toLowerCase()}</h4><div class="chips">${Object.entries(AT_FAB).map(([fk, f]) => `<button type="button" class="ch${this.o[this.sel].fab === fk ? " sel" : ""}" data-fab="${fk}">${f[0]}</button>`).join("")}</div></div>` : "");
+    if(k === "runway") h = `<p class="tooltip-line">Lights, camera…</p>`;
+    p.innerHTML = h;
+    p.querySelectorAll("[data-thumb]").forEach(c => this.thumb(c, c.dataset.thumb));
+    const wc = p.querySelector("#atWheel"); if(wc) this.drawWheel(wc);
+    p.onclick = e => { const b = e.target.closest("[data-rack],[data-wear],[data-pick],[data-fab],[data-neu]"); if(!b || this.locked) return;
+      if(b.dataset.rack){ this.rack = b.dataset.rack; sfx.click(); return this.panel(); }
+      if(b.dataset.wear) return this.wear(b.dataset.wear);
+      if(b.dataset.pick){ this.sel = b.dataset.pick; sfx.click(); return this.panel(); }
+      if(b.dataset.fab && this.o[this.sel]){ this.o[this.sel].fab = b.dataset.fab; const ok = occ.fabs.includes(b.dataset.fab); if(!ok && occ.season !== "any") this.tipOnce("fab" + b.dataset.fab, `${AT_FAB[b.dataset.fab][0]} isn't ideal for ${occ.season === "summer" ? "summer heat" : occ.season === "winter" ? "the cold" : "this"}.`); sfx.click(); this.panel(); return this.update(); }
+      if(b.dataset.neu) this.setCol(b.dataset.neu);
+    };
+  },
+  colorUI(slots){
+    const worn = slots.filter(q => this.o[q]); if(!worn.length) return slots === AT_CLOTH ? `<p class="tooltip-line">Dress the model first.</p>` : "";
+    if(!this.sel || !worn.includes(this.sel)) this.sel = worn[0];
+    return `<div class="opt-group"><h4>Color · tap a piece (or tap it on the model)</h4><div class="chips">${worn.map(q => `<button type="button" class="ch${this.sel === q ? " sel" : ""}" data-pick="${q}"><i class="at-dot" style="background:${this.o[q].col ? css(this.o[q].col) : "#ccc"}"></i>${ATW[this.o[q].k].n}</button>`).join("")}</div>
+      <div class="at-wheelbox"><canvas id="atWheel" width="440" height="440" aria-label="Color wheel"></canvas><div><p class="tooltip-line" id="atWheelNote">${this.harmLine()}</p><div class="chips at-neu">${["blk","chr","gry","ivo","cam"].map(n => `<button type="button" class="ch${this.o[this.sel]?.col === n ? " sel" : ""}" data-neu="${n}"><i class="at-dot" style="background:${css(n)}"></i>${SW[n].name}</button>`).join("")}</div></div></div></div>`;
+  },
+  setCol(id){ const g = this.o[this.sel]; if(!g) return; g.col = id; sfx.click(); tone(300 + (SW[id].neutral ? 0 : SW[id].h), .06, "sine", .03); this.fx.push({type:"spark", t:0}); this.panel(); this.update(); },
+  harmLine(){ const cols = outfitCols(this.o); if(!cols.length) return "Tap the wheel to dye this piece."; const {res} = harmonyOf(cols); const hs = [...res].map(r => HARM[r]); return hs.length ? `<b>${hs[0].name}</b>: ${hs[0].def}. ${hs[0].why}` : `No named harmony yet. Try neighbors on the wheel, opposites, or one hue with neutrals.`; },
+  drawWheel(c){
+    const x = c.getContext("2d"), cx = 220, cy = 220; x.clearRect(0, 0, 440, 440); this.wheel = c;
+    const ring = [["d", 80, 130], ["m", 130, 175], ["l", 175, 215]];
+    HUES.forEach(([h]) => ring.forEach(([t, r0, r1]) => { const a0 = (h - 15 - 90)*Math.PI/180, a1 = (h + 15 - 90)*Math.PI/180; x.beginPath(); x.arc(cx, cy, r1, a0, a1); x.arc(cx, cy, r0, a1, a0, true); x.closePath(); x.fillStyle = css(h + t); x.fill(); x.strokeStyle = "#fffdf8"; x.lineWidth = 3; x.stroke(); }));
+    const cols = outfitCols(this.o), hues = [...new Set(cols.filter(q => !SW[q].neutral).map(q => SW[q].h))], pt = (h, r) => [cx + r*Math.sin(h*Math.PI/180), cy - r*Math.cos(h*Math.PI/180)];
+    if(ATS().owned.includes("lookbook") && this.o[this.sel]?.col && !SW[this.o[this.sel].col].neutral){ const h0 = SW[this.o[this.sel].col].h; x.setLineDash([6, 6]); x.strokeStyle = "rgba(43,33,24,.45)"; x.lineWidth = 2; [[h0 + 180, "comp"], [h0 + 30, "analog"], [h0 - 30, "analog"], [h0 + 120, "triad"], [h0 - 120, "triad"]].forEach(([h]) => { const [px, py] = pt(h, 200); x.beginPath(); x.moveTo(cx, cy); x.lineTo(px, py); x.stroke(); }); x.setLineDash([]); }
+    if(hues.length >= 2){ x.strokeStyle = INK; x.lineWidth = 4; x.beginPath(); hues.slice().sort((a, b) => a - b).forEach((h, i) => { const [px, py] = pt(h, 150); i ? x.lineTo(px, py) : x.moveTo(px, py); }); x.closePath(); x.stroke(); }
+    cols.forEach(id => { if(SW[id].neutral) return; const s = SW[id], r = {d:105, m:152, l:195}[id.slice(-1)], [px, py] = pt(s.h, r); x.beginPath(); x.arc(px, py, 13, 0, 6.28); x.fillStyle = "#fffdf8"; x.fill(); x.strokeStyle = INK; x.lineWidth = 3; x.stroke(); x.beginPath(); x.arc(px, py, 7, 0, 6.28); x.fillStyle = css(id); x.fill(); });
+    const sel = this.o[this.sel]; x.fillStyle = sel?.col ? css(sel.col) : "#eee"; x.beginPath(); x.arc(cx, cy, 70, 0, 6.28); x.fill(); x.strokeStyle = INK; x.lineWidth = 3; x.stroke(); x.fillStyle = sel?.col && SW[sel.col].l < 50 ? "#fff" : INK; x.font = "700 22px system-ui, sans-serif"; x.textAlign = "center"; x.fillText(sel?.col ? SW[sel.col].name : "pick", cx, cy + 8);
+    c.onclick = e => { const r = c.getBoundingClientRect(), px = (e.clientX - r.left)/r.width*440 - cx, py = (e.clientY - r.top)/r.height*440 - cy, d = Math.hypot(px, py); if(d < 80 || d > 215) return; const ang = (Math.atan2(px, -py)*180/Math.PI + 360) % 360, h = Math.round(ang/30)*30 % 360, t = d < 130 ? "d" : d < 175 ? "m" : "l"; this.setCol(h + t); };
+  },
+  thumb(c, key){ const x = c.getContext("2d"), g = ATW[key], o = {[g.s]:{k:key, col:g.s === "shoes" || g.s === "bag" || g.s === "belt" || g.s === "hat" ? null : "gry", fab:g.fab}}; x.save(); const zoom = {hat:[2.2, 0, 0], jewel:[2, 0, -40], shoes:[2, 0, -470], bag:[1.1, -40, -160], belt:[1.6, 0, -220]}[g.s]; x.fillStyle = "#fff8f0"; x.fillRect(0, 0, 70, 84);
+    if(zoom){ x.translate(35, 42); x.scale(70/440*zoom[0], 70/440*zoom[0]); x.translate(-220 + zoom[1], zoom[2] - 30); } else x.scale(70/440, 84/560); const cl = {...this.cl, skin:"#efe6da", hairStyle:"bun", hair:"#d8cfc4"}; atDraw(x, cl, o, {bg:"#fff8f0"}); x.restore(); },
+  update(){
+    const cols = outfitCols(this.o), h = $("atHarm"); if(h){ const {res} = harmonyOf(cols); const neu = cols.length && cols.every(c => SW[c].neutral); h.textContent = cols.length ? (res.size ? HARM[[...res][0]].name : neu ? "All neutrals" : "No harmony yet") : "No colors yet"; h.classList.toggle("ok", res.size > 0 || !!neu); }
+    const n = $("atWheelNote"); if(n) n.innerHTML = this.harmLine();
+    const m = $("atMatch"); if(m) m.textContent = Object.keys(this.o).length ? this.score().pct + "%" : "–";
+  },
+  tick(){
+    const ctx = this.ctx; if(!ctx) return; ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); const now = performance.now();
+    if(this.walk) return this.drawRunway(ctx, now);
+    const sway = Math.sin(now/900)*1.5; ctx.save(); ctx.translate(220, 560); ctx.rotate(sway*Math.PI/900); ctx.translate(-220, -560);
+    atDraw(ctx, this.cl, this.o, {mood:Object.keys(this.o).length > 2 ? "happy" : "neutral", bg:"#fbf3ee"}); ctx.restore();
+    if(this.phase === 2 && this.sel && this.o[this.sel]){ ctx.strokeStyle = "rgba(255,125,184,.9)"; ctx.setLineDash([6, 5]); ctx.lineWidth = 2; const Y = SWP.Y, box = {hat:[150, 10, 140, 60], jewel:[180, Y.neck - 26, 80, 70], shoes:[170, Y.floor - 66, 100, 70], bag:[290, Y.shoulder, 110, 260], belt:[140, Y.waist - 12, 160, 24], outer:[90, Y.shoulder - 10, 260, 300], dress:[100, Y.shoulder - 10, 240, 410], top:[120, Y.shoulder - 10, 200, 170], bottom:[110, Y.waist - 6, 220, 290]}[this.sel]; if(box) ctx.strokeRect(...box); ctx.setLineDash([]); }
+    this.fx = this.fx.filter(f => { f.t++; if(f.type === "spark"){ for(let i = 0; i < 6; i++){ const a = i*1.05 + f.t*.05, r = 40 + f.t*4; ctx.fillStyle = `rgba(255,209,102,${1 - f.t/30})`; ctx.beginPath(); ctx.arc(220 + Math.cos(a)*r, 280 + Math.sin(a)*r*1.4, 4, 0, 6.28); ctx.fill(); } } return f.t < 30; });
+  },
+  score(){
+    const o = this.o, T = this.target, occ = this.occ, parts = [], add = (k, label, w, v, why) => parts.push({k, label, w, v:clamp(v, 0, 1), why});
+    const whole = !!o.dress || (!!o.top && !!o.bottom);
+    add("whole", "A complete outfit", 10, whole ? (o.shoes ? 1 : .6) : 0, !whole ? "The model needs a dress, or a top and a bottom." : !o.shoes ? "Don't forget shoes!" : "Head to toe, done.");
+    occ.rules.forEach((r, i) => { const ok = !!r[1](o); add("rule" + i, r[0], 8, ok ? 1 : 0, ok ? "Dress code: nailed." : r[2]); });
+    const ts = Object.keys(T), pm = ts.map(q => o[q]?.k === T[q].k ? 1 : o[q] ? .55 : (q === "top" || q === "bottom") && o.dress && T[q] ? .2 : 0), miss = ts.filter((q, i) => pm[i] < .5).map(q => ATW[T[q].k].n.toLowerCase());
+    add("board", "Matches the mood board", 16, pm.reduce((a, b) => a + b, 0)/ts.length, miss.length ? `The board had: ${miss.slice(0, 3).join(", ")}.` : "Every piece from the board, in your own way.");
+    const cols = outfitCols(o), cd = (a, b) => { const A = SW[a], B = SW[b]; if(A.neutral || B.neutral) return A.neutral && B.neutral ? Math.abs(A.l - B.l)/90 : 1; return hd(A.h, B.h)/90 + Math.abs(A.l - B.l)/100; };
+    const palv = cols.length ? this.pal.reduce((a, c) => a + Math.max(0, 1 - Math.min(...cols.map(q => cd(c, q)))), 0)/this.pal.length : 0;
+    add("palette", "Palette like the board", 12, palv, palv > .75 ? "Spot-on palette." : `The board's palette is ${this.pal.map(c => SW[c].name).join(", ")}.`);
+    const {res} = harmonyOf(cols), hname = [...res][0], hues = new Set(cols.filter(q => !SW[q].neutral).map(q => SW[q].h)).size;
+    add("harmony", "Color harmony", 12, !cols.length ? 0 : res.size ? 1 : hues === 0 ? .8 : .3, res.size ? `${HARM[hname].name}: ${HARM[hname].why}` : hues === 0 ? "All neutrals: safe, but a little flat." : "These hues don't form a harmony. Try neighbors, opposites, or one hue with neutrals.");
+    const fl = AT_FLATTER[this.cl.shape], flok = whole && !!fl[1](o); add("flatter", `Flatters a ${this.cl.shape} shape`, 10, flok ? 1 : .2, flok ? fl[2] : `${fl[0]}. ${fl[2]}`);
+    const fabs = AT_CLOTH.filter(q => o[q]).map(q => o[q].fab), fv = fabs.length ? fabs.filter(f => occ.fabs.includes(f)).length/fabs.length : 0;
+    add("fabric", "Fabric suits the occasion", 8, fv, fv >= .99 ? "Right fabrics for the setting." : `Best here: ${occ.fabs.map(f => AT_FAB[f][0].toLowerCase()).join(", ")}.`);
+    const na = AT_ACC.filter(q => o[q] && q !== "shoes").length; add("acc", "Accessories balanced", 8, na === 0 ? .2 : na <= 3 ? 1 : .5, na === 0 ? "A bag or jewelry finishes the look." : na > 3 ? "Before you leave, take one accessory off (Coco Chanel's rule)." : "Just the right amount.");
+    const tw = parts.reduce((a, q) => a + q.w, 0); return {pct:Math.round(parts.reduce((a, q) => a + q.w*q.v, 0)/tw*100), parts};
+  },
+  runway(){
+    if(!this.o.dress && !(this.o.top && this.o.bottom)){ this.note("Your model can't walk out like that! Add a dress, or a top and a bottom."); return this.enterPhase(1); }
+    this.enterPhase(4); this.locked = true; this.res = this.score(); this.walk = {t0:performance.now(), flashes:[]}; $("atNext").disabled = true; this.say("Here I go!", "good");
+    const lights = ATS().owned.includes("lights"); for(let i = 0; i < (lights ? 26 : 16); i++) this.walk.flashes.push({at:600 + Math.random()*3600, x:Math.random() < .5 ? 20 + Math.random()*80 : 340 + Math.random()*80, y:200 + Math.random()*260});
+    tone(392, .12, "triangle", .04); setTimeout(() => tone(523, .12, "triangle", .04), 140);
+    clearTimeout(this.walkT); const tok = G.token; this.walkT = setTimeout(() => { if(G.token === tok) this.results(); }, 4800);
+  },
+  drawRunway(ctx, now){
+    const t = (now - this.walk.t0)/4400, p = Math.min(1, t), lights = ATS().owned.includes("lights");
+    ctx.fillStyle = lights ? "#2a1d3a" : "#1d1622"; ctx.fillRect(0, 0, 440, 560);
+    ctx.fillStyle = "#3b2c4a"; ctx.beginPath(); ctx.moveTo(190, 150); ctx.lineTo(250, 150); ctx.lineTo(420, 560); ctx.lineTo(20, 560); ctx.closePath(); ctx.fill();
+    for(let i = 0; i < 9; i++){ const y = 160 + i*i*5.2, w = 30 + i*i*2.4; ctx.fillStyle = "rgba(255,230,160,.6)"; ctx.beginPath(); ctx.arc(220 - w - 10, y, 2 + i*.3, 0, 6.28); ctx.arc(220 + w + 10, y, 2 + i*.3, 0, 6.28); ctx.fill(); }
+    const g = ctx.createRadialGradient(220, 300, 10, 220, 300, 260); g.addColorStop(0, lights ? "rgba(255,240,220,.35)" : "rgba(255,240,220,.2)"); g.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, 440, 560);
+    for(let i = 0; i < 14; i++){ const x = 10 + i*31, side = i < 7 ? 1 : -1; ctx.fillStyle = "#120d16"; ctx.beginPath(); ctx.arc(x, 530 - Math.abs(i - 6.5)*0, 16, Math.PI, 0); ctx.fill(); }
+    const sc = .38 + .5*p, bob = Math.abs(Math.sin(now/180))*6*(p < 1 ? 1 : 0), sway = Math.sin(now/360)*3*(p < 1 ? 1 : 0);
+    ctx.save(); ctx.translate(220 + sway, 150 + 400*p*.82 - bob + 30); ctx.scale(sc, sc); ctx.translate(-220, -560 + 40);
+    ctx.save(); ctx.beginPath(); ctx.rect(-500, -200, 1440, 1200); ctx.clip(); atDraw(ctx, this.cl, this.o, {mood:"happy", bg:"rgba(0,0,0,0)"}); ctx.restore(); ctx.restore();
+    this.walk.flashes.forEach(f => { const d = now - this.walk.t0 - f.at; if(d > 0 && d < 160){ ctx.fillStyle = `rgba(255,255,255,${1 - d/160})`; ctx.beginPath(); ctx.arc(f.x, f.y, 26, 0, 6.28); ctx.fill(); ctx.fillStyle = `rgba(255,255,255,${.25*(1 - d/160)})`; ctx.fillRect(0, 0, 440, 560); if(!f.snd){ f.snd = 1; tone(1800, .03, "square", .015); } } });
+    if(p >= 1){ ctx.fillStyle = "#fff"; ctx.font = "700 22px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.fillText("✦ pose ✦", 220, 140); }
+  },
+  judge(i){ const r = this.res, P = k => r.parts.find(q => q.k === k), occ = this.occ;
+    if(i === 0){ const b = P("board"), pl = P("palette"); return b.v > .75 && pl.v > .7 ? "This IS the mood board. I'd put it on a cover." : b.v > .5 ? `Close to the brief. ${pl.v < .6 ? "The palette drifted, though." : "Lovely colors."}` : `I didn't see the board in this. ${b.why}`; }
+    if(i === 1){ const h = P("harmony"), a = P("acc"); return h.v >= 1 ? `${HARM[[...harmonyOf(outfitCols(this.o)).res][0]].name}! ${a.v >= 1 ? "And the accessories are perfectly edited." : a.why}` : `${h.why}`; }
+    const f = P("flatter"), fb = P("fabric"), rules = r.parts.filter(q => q.k.startsWith("rule") && q.v < 1); return rules.length ? `For ${occ.n}? ${rules[0].why}` : f.v >= 1 ? `It flatters the figure beautifully. ${fb.v < 1 ? fb.why : "And the fabric is right for the occasion."}` : f.why; },
+  results(){
+    this.walk = null; const r = this.res, s = ATS(), earn = Math.round(30*r.pct/100), tip = (r.pct >= 90 ? 12 : r.pct >= 75 ? 6 : 0) + (s.owned.includes("lights") && r.pct >= 75 ? 4 : 0);
+    s.coins += earn + tip; s.served++; s.totalMatch += r.pct; const pb = r.pct > s.best; s.best = Math.max(s.best, r.pct); this.day.n++; this.day.earned += earn + tip; this.day.results.push({name:this.cl.name, t:this.occ.n, pct:r.pct}); if(this.day.daily) s.daily[today()] = Math.max(s.daily[today()] || 0, r.pct);
+    save(); adapt("atelier", r.pct/100); r.pct >= 85 ? sfx.win() : r.pct >= 60 ? sfx.good() : sfx.bad(); this.say(r.pct >= 85 ? "I feel AMAZING. Thank you!" : r.pct >= 65 ? "I love it!" : "Hmm… not quite what I pictured.", r.pct >= 65 ? "good" : "bad");
+    const mk = tgt => { const c = document.createElement("canvas"); c.width = 220; c.height = 280; const x = c.getContext("2d"); x.scale(220/440, 280/560); atDraw(x, this.cl, tgt ? this.target : this.o, {mood:"happy", bg:tgt ? "#fff4fa" : "#fbf3ee"}); return c; }, last = this.day.daily || this.day.n >= 3;
+    const scores = [r.parts.filter(q => ["board","palette"].includes(q.k)), r.parts.filter(q => ["harmony","acc"].includes(q.k)), r.parts.filter(q => q.k.startsWith("rule") || ["flatter","fabric","whole"].includes(q.k))].map(ps => { const w = ps.reduce((a, q) => a + q.w, 0); return Math.max(1, Math.round(ps.reduce((a, q) => a + q.w*q.v, 0)/w*10)); });
+    $("atRes").innerHTML = `<div class="reveal sal-result"><span class="eyebrow">${r.pct >= 90 ? "Showstopper" : r.pct >= 75 ? "Runway ready" : r.pct >= 55 ? "Street style" : "Back to the sketchbook"}${pb ? " · New personal best!" : ""}</span><div class="sal-pct"><b>${r.pct}</b>%</div>
+      <div class="at-judges">${AT_JUDGES.map(([n, role, c], i) => `<div class="at-judge"><span class="at-face" style="background:${c}">${n[0]}</span><div><b>${n}</b> <small>${role}</small><span class="at-card">${scores[i]}/10</span><p>“${this.judge(i)}”</p></div></div>`).join("")}</div>
+      <div class="sal-compare mk-compare"><figure><div id="atA"></div><figcaption>Your look</figcaption></figure><figure><div id="atG"></div><figcaption>Mood board</figcaption></figure></div>
+      <div class="sal-pay"><span>Fee <b class="coin">${earn}</b></span><span>Tip <b class="coin">${tip}</b></span></div>
+      ${checklist(r.parts.map(q => ({label:`${q.label} · ${Math.round(q.v*100)}%`, ok:q.v >= .75, why:q.why})))}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="atNextC">${this.day.daily ? "Back to the studio" : last ? "End the season" : "Next client →"}</button></div></div>`;
+    $("atA").appendChild(mk(false)); $("atG").appendChild(mk(true));
+    $("atNextC").onclick = () => { if(this.day.daily) return this.lobby(); if(last){ const rs = this.day.results, avg = Math.round(rs.reduce((a, x) => a + x.pct, 0)/rs.length), stars = avg >= 85 ? 3 : avg >= 65 ? 2 : 1; s.days++; save(); return endSession({title:stars === 3 ? "Creative director" : stars === 2 ? "Senior stylist" : "Junior stylist", stars, xp:20 + 15*stars, body:`<div class="big">${fmt(this.day.earned)}</div><p class="m-note">coins earned · average score ${avg}%.</p><ul class="roundlog">${rs.map(x => `<li><span>${x.name} · ${x.t}</span><span>${x.pct}%</span></li>`).join("")}</ul>`, actions:[["Next season", () => startRoom("atelier", "studio"), true], ["Lobby", goHub]]}); } this.newClient(); };
+  }
+};
+ROOMS.atelier.blurb = "Run a styling studio. Clients bring a mood board for an occasion: dress the model from a wardrobe rack, choose fabrics, dye each piece on a live color wheel that names your harmony, accessorize, then send the look down the runway to three judges.";
+ROOMS.atelier.tip = "<b>Tip:</b> follow the dress code first, then the palette. Neighbors on the wheel blend, opposites pop, and neutrals let one accent shine.";
+ROOMS.atelier.modes = [["studio","Open the studio"],["classic","Classic design"],["sprint","Color sprint · 60s"],["practice","Quiz"]];
+HOWTO.atelier = ["Read the mood board: the occasion, its dress code, the palette and the client's body shape.","Dress the model from the rack, then tap each piece and the color wheel to dye it and pick a fabric. The wheel names your harmony.","Add shoes, a bag and jewelry, then send it down the runway. Three judges score it."];
 
 renderHub();
 </script>
