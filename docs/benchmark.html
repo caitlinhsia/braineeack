@@ -89,7 +89,7 @@ tr.detail td{text-align:left;padding:0;border-bottom:2px solid var(--ink)}
   </div>
 
   <div class="tablebox"><table id="t" aria-label="Benchmark ratings by game"><thead></thead><tbody></tbody></table></div>
-  <p class="note">Ratings are my honest read of the current build (version 36), not a user survey. "Fit" is the game's total as a share of the benchmark's 40 points.</p>
+  <p class="note">Ratings are my honest read of the current build (version 37), not a user survey. "Fit" is the game's total as a share of the benchmark's 40 points.</p>
 
   <section>
     <span class="eyebrow">Cross-cutting</span>
@@ -165,21 +165,29 @@ const G = [
   {k:"history", n:"Mystery Guest", w:"explore", r:[3, 4, 4, 4, 4, 4, 3, 4], pri:0,
    now:"43 historical figures, silhouette reveal, clue points. New: explorer's lobby, collection, coins and daily; The interview workshop (ask questions, answers in character, the portrait sharpens as you learn).",
    todo:["Artifacts from their life to examine","Guests that answer free-typed questions","Hall of fame"]},
-  {k:"dive", n:"Deep Dive", w:"core", r:[3,3,4,2,3,3,3,3], pri:4,
-   now:"16 categories, typing answers, rarity depth, two versions.",
-   todo:["Animated ocean with creatures appearing at each depth","Head-to-head mode against a ghost of your best run","More categories and daily category leaderboard"]},
-  {k:"lab", n:"Science Lab", w:"core", r:[3,2,2,1,3,3,2,1], pri:4,
-   now:"Organs and bones, light vs ink mixing, sink or float, planets.",
-   todo:["Body explorer with layers (skin, muscle, skeleton, organs)","Experiment sandbox: circuits, chemical reactions, magnets, plants growing","Microscope view with cells to identify","Lab notebook, coins and daily experiment"]},
-  {k:"memory", n:"Echo Grid", w:"core", r:[2,2,2,1,3,2,2,3], pri:4, now:"Repeat lit-up tile patterns; adaptive length; daily puzzle.", todo:["Themed boards (music notes, colors, shapes) with sounds","Level map with power-ups","Leaderboard and streak rewards"]},
-  {k:"math", n:"Quick Sums", w:"core", r:[2,2,3,1,3,2,2,3], pri:4, now:"Fast multiple-choice arithmetic with adaptive difficulty.", todo:["Hands-on modes: a shop till making change, recipe scaling, sports stats","Visual models (number lines, fraction bars) when you miss","Level map and leaderboard"]},
-  {k:"words", n:"Unscramble", w:"core", r:[2,2,3,1,3,3,2,3], pri:4, now:"Rebuild words from letters with definitions; spaced review; daily puzzle.", todo:["Drag-and-drop letter tiles with satisfying snaps","Word families and roots explained when solved","Themed packs and leaderboard"]},
-  {k:"logic", n:"Switchboard", w:"core", r:[3,2,2,1,3,2,2,3], pri:4, now:"Lights-out puzzle with daily, arcade and zen modes.", todo:["More puzzle types (pipes, sliding blocks, logic grids)","Hint system that teaches strategy","Level map with stars and leaderboard"]}
+  {k:"dive", n:"Deep Dive", w:"core", r:[4, 4, 4, 3, 4, 4, 4, 4], pri:0,
+   now:"16 categories, typing answers, rarity depth, two versions. New: an animated ocean depth chart where creatures appear in each zone as your record dive gets deeper, and a dive log.",
+   todo:["Head-to-head against a ghost of your best run","More categories","Online leaderboard"]},
+  {k:"lab", n:"Science Lab", w:"core", r:[4, 4, 4, 4, 4, 4, 4, 4], pri:0,
+   now:"Organs and bones, light vs ink mixing, sink or float, planets. New: Circuit lab with 10 levels (rotate wires to close a loop through bulbs and a switch, learn series circuits), level map with stars, personal leaderboard and a daily level.",
+   todo:["Body explorer with layers","Chemistry and magnets sandboxes","Microscope view with cells to identify"]},
+  {k:"memory", n:"Echo Grid", w:"core", r:[4, 4, 4, 3, 4, 3, 4, 4], pri:0,
+   now:"Repeat lit-up tile patterns; adaptive length; daily puzzle. New: Melody memory, a playable piano with notes, colors and shapes boards, lives, a 10-level map with stars, personal leaderboard and a daily level.",
+   todo:["Power-ups","Two-player call-and-response","Online leaderboard"]},
+  {k:"math", n:"Quick Sums", w:"core", r:[4, 4, 4, 4, 4, 4, 4, 4], pri:0,
+   now:"Fast multiple-choice arithmetic with adaptive difficulty. New: Shop till, counting out change with real coins and notes, a counting-up number line when you miss, fewest-coins bonus, 10-level map, leaderboard and daily level.",
+   todo:["Recipe scaling and sports stats modes","Fraction bars","Online leaderboard"]},
+  {k:"words", n:"Unscramble", w:"core", r:[4, 4, 4, 3, 4, 4, 4, 4], pri:0,
+   now:"Rebuild words from letters with definitions; spaced review; daily puzzle. New: Root builder, snapping prefixes, roots and suffixes together with the meaning of every part and related words, 10-level map, leaderboard and daily level.",
+   todo:["Drag tiles in the classic mode","Themed packs","Online leaderboard"]},
+  {k:"logic", n:"Switchboard", w:"core", r:[4, 4, 4, 3, 4, 4, 4, 4], pri:0,
+   now:"Lights-out puzzle with daily, arcade and zen modes. New: Slide puzzle (3×3 and 4×4) with hints that show the next best move and teach the row-by-row strategy, 10-level map with stars, leaderboard and daily level.",
+   todo:["Pipes and logic-grid puzzles","Hints for lights-out","Online leaderboard"]},
 ];
 const CROSS = [["One shared character engine","The faces and bodies from the salon and makeup studio reused everywhere: Peacemaker, Gift Detective, Atelier, Sewing fittings, Kitchen customers."],["One coin economy","Coins earned anywhere spent in any shop, with a player profile and avatar to dress."],["Achievements and collections","Stickers, stamps and trophies for milestones in every game."],["Sound and music","A soundtrack per room and richer sound effects, with a mute and volume control."],["First-time tutorials","A guided first client in every studio that teaches each tool by doing."],["Daily challenge everywhere","Every game gets a same-for-everyone daily round with a saved best."],["Accessibility","Larger touch targets, colorblind-safe palettes, reduced-motion mode, keyboard play."],["Phone polish","Every studio laid out so the canvas and tools fit a phone screen without scrolling."]];
 const PRI = ["Benchmark","Next up","Soon","Later","Later"];
 const PRIC = ["p0","p1","p2","p3","p3"];
-const ORDER = [["Sewing Room (done, round one)","Measurements, shears, pedal-driven machine, fittings and a sketch to match are in. Draping cloth comes in round two."],["Test Kitchen (done, round one)","Live stove, knife skills, seasoning and plating are in. More dishes and a dinner rush come in round two."],["Atelier (done, round one)","Mood boards, a wardrobe rack with layering, fabric textures, a live color wheel, a runway and judges are in. Dragging and prints come in round two."],["Floorplan Lab (done, round one)","Families, doors and windows, real-size furniture with clearances, budget, sun path, 3D dollhouse and move-in are in. Hallways and storeys come in round two."],["Gift Detective (done, round one)","Feed with clue pinning, DMs, hand wrapping, cards, unboxing and holiday rush are in."],["Peacemaker (done, round one)","Body language, timer, tone, goal card, rescue branch, endings and replay are in."],["Explorer games (done, round one)","Explorer lobby with collection books, coins and daily workshops, plus a hands-on workshop for each of the eight games."],["Brain gym","Themed visuals, hands-on modes, level maps and leaderboards."],["Hair and Makeup round two","Braiding, rollers, color mixing; brush types, skin texture, special effects."]];
+const ORDER = [["Sewing Room (done, round one)","Measurements, shears, pedal-driven machine, fittings and a sketch to match are in. Draping cloth comes in round two."],["Test Kitchen (done, round one)","Live stove, knife skills, seasoning and plating are in. More dishes and a dinner rush come in round two."],["Atelier (done, round one)","Mood boards, a wardrobe rack with layering, fabric textures, a live color wheel, a runway and judges are in. Dragging and prints come in round two."],["Floorplan Lab (done, round one)","Families, doors and windows, real-size furniture with clearances, budget, sun path, 3D dollhouse and move-in are in. Hallways and storeys come in round two."],["Gift Detective (done, round one)","Feed with clue pinning, DMs, hand wrapping, cards, unboxing and holiday rush are in."],["Peacemaker (done, round one)","Body language, timer, tone, goal card, rescue branch, endings and replay are in."],["Explorer games (done, round one)","Explorer lobby with collection books, coins and daily workshops, plus a hands-on workshop for each of the eight games."],["Brain gym (done, round one)","Level maps with stars, personal leaderboards, daily levels and a new hands-on mode in every game."],["Hair and Makeup round two","Braiding, rollers, color mixing; brush types, skin texture, special effects."]];
 const total = g => g.r.reduce((a,b) => a+b, 0);
 document.getElementById("quals").innerHTML = Q.map(([n,d],i) => `<div class="qual"><b>${i+1}. ${n}</b>${d}</div>`).join("");
 document.querySelector("#t thead").innerHTML = `<tr><th class="game" scope="col">Game</th>${Q.map(([n]) => `<th scope="col">${n}</th>`).join("")}<th scope="col">Fit</th><th scope="col">Priority</th></tr>`;
