@@ -1099,6 +1099,16 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .mk-sw{display:flex;flex-wrap:wrap;gap:4px}.mk-sw .sw{width:24px;height:24px}
 .mk-sliders{display:grid;gap:4px}.mk-sliders label{display:grid;grid-template-columns:70px 1fr;align-items:center;font-size:12px}
 .mk-compare{grid-template-columns:1fr 1fr}
+
+.sw-sign{background:linear-gradient(160deg,#f2f7ff,#e3ecfb)}
+.sw-mirror{border-radius:18px;border-color:#9ab3d6}
+.sw-panel{display:flex;flex-direction:column;gap:8px}
+.sw-bolts{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+.sw-bolt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:7px 8px;border:2px solid var(--ink);border-radius:10px;background:var(--card,#fffdf8);cursor:pointer;font:inherit;color:inherit;text-align:left}
+.sw-bolt small{font-size:11px;opacity:.75}.sw-bolt.sel{background:#ffe08a}
+.sw-seams{margin:0;padding-left:18px;font-size:13px}.sw-seams .done{color:#2a9d8f}.sw-seams .cur{font-weight:700}
+.sw-alter{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.sw-alter b{width:52px;text-transform:capitalize}
+.sw-cost{font-size:13px}
 </style>
 </head>
 <body>
@@ -11185,6 +11195,406 @@ ROOMS.makeup.blurb = "Run a makeup studio. Clients bring a photo of the look the
 ROOMS.makeup.tip = "<b>Tip:</b> match foundation on the jawline, cancel colors with their opposites (green hides red), and use the close-up view for liner.";
 ROOMS.makeup.modes = [["studio","Open the studio"],["theme","Theme challenge"],["classic","Classic appointment"],["sprint","Beauty sprint · 60s"],["practice","Quiz"]];
 HOWTO.makeup = ["Clients bring a photo. Work through the steps: Prep, Base, Sculpt, Eyes, Lips, Finish.","Pick a tool and a shade, set size, intensity and softness, then paint on the face. Blend edges with the sponge; wipe mistakes.","The Match meter compares your face to their photo. Finish to see them side by side and earn coins and tips."];
+
+/* =========================================================
+   SEWING ROOM PRO: a tailor's appointment.
+   Brief → Measure (tape on the body) → Fabric → Cut (lay out,
+   pin, shears) → Sew (drive the machine) → Fit (alter) →
+   Finish (press, hem) → Runway, scored against the sketch.
+   ========================================================= */
+const SEW_CLASSIC = STUDIO.sewing;
+const SWP = (() => {
+  const W = 440, H = 560, CX = 220, Y = {neck:118, shoulder:140, under:172, bust:202, ubust:230, waist:262, hhip:296, hip:332, thigh:372, knee:446, calf:500, floor:552};
+  const hw = c => c*0.597;
+  const circAt = (cl, y) => { const P = cl.prof; for(let i = 1; i < P.length; i++) if(y <= P[i][0]){ const t = (y - P[i-1][0])/(P[i][0] - P[i-1][0]); return (P[i-1][1] + (P[i][1] - P[i-1][1])*t)/0.597; } return P[P.length - 1][1]/0.597; };
+  const SHAPES = {hourglass:[0, -26, 0], pear:[0, -20, 10], apple:[0, -6, -2], rectangle:[0, -12, -2], triangle:[0, -18, -8]};
+  function makeBody(o = {}){
+    const shape = o.shape || pick(Object.keys(SHAPES)), B = o.bust || R(78, 116), [, dw, dh] = SHAPES[shape];
+    const cl = {name:o.name || pick(NAMES), shape, B, Wa:Math.max(58, B + dw + R(-3, 3)), Hp:B + dh + R(-2, 4) + 6, skin:o.skin || pick(SKINS)[0], hair:o.hair || pick(["#1d1714","#3d2618","#6b4128","#8f3c1d","#d9b26a","#b9561f","#bdbab4"]), hairStyle:pick(["bun","bob","long","curls","pony"]), mood:1};
+    cl.prof = [[Y.neck, 14], [Y.shoulder, hw(B)*1.06], [Y.under, hw(B)*.97], [Y.bust, hw(B)], [Y.ubust, hw((B + cl.Wa)/2) - 2], [Y.waist, hw(cl.Wa)], [Y.hhip, hw((cl.Wa + cl.Hp)/2) + 3], [Y.hip, hw(cl.Hp)], [Y.thigh, hw(cl.Hp)*.95], [Y.knee, hw(cl.Hp)*.72], [Y.floor, hw(cl.Hp)*.6]];
+    return cl;
+  }
+  const halfAt = (cl, y) => hw(circAt(cl, y));
+  function drawHead(ctx, cl, mood){
+    ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.lineJoin = "round";
+    if(cl.hairStyle === "long" || cl.hairStyle === "curls"){ ctx.fillStyle = cl.hair; ctx.beginPath(); ctx.ellipse(CX, 104, 44, 62, 0, 0, 6.28); ctx.fill(); ctx.stroke(); }
+    ctx.fillStyle = shade(cl.skin, -.08); ctx.beginPath(); ctx.rect(CX - 11, 100, 22, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = cl.skin; ctx.beginPath(); ctx.ellipse(CX, 72, 30, 37, 0, 0, 6.28); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = cl.hair; ctx.beginPath(); ctx.ellipse(CX, 56, 32, 24, 0, Math.PI, 0); ctx.quadraticCurveTo(CX + 18, 50, CX, 52); ctx.quadraticCurveTo(CX - 18, 50, CX - 32, 56); ctx.fill(); ctx.stroke();
+    if(cl.hairStyle === "bun"){ ctx.beginPath(); ctx.arc(CX, 30, 15, 0, 6.28); ctx.fill(); ctx.stroke(); }
+    if(cl.hairStyle === "pony"){ ctx.beginPath(); ctx.ellipse(CX + 34, 70, 9, 26, .3, 0, 6.28); ctx.fill(); ctx.stroke(); }
+    if(cl.hairStyle === "bob"){ ctx.beginPath(); ctx.moveTo(CX - 32, 56); ctx.quadraticCurveTo(CX - 40, 90, CX - 28, 100); ctx.lineTo(CX - 24, 64); ctx.moveTo(CX + 32, 56); ctx.quadraticCurveTo(CX + 40, 90, CX + 28, 100); ctx.lineTo(CX + 24, 64); ctx.fill(); ctx.stroke(); }
+    ctx.fillStyle = INK; [-1, 1].forEach(d => { ctx.beginPath(); ctx.ellipse(CX + d*11, 72, 3, mood === "ouch" ? .8 : 3.6, 0, 0, 6.28); ctx.fill(); });
+    ctx.fillStyle = "rgba(255,110,110,.25)"; [-1, 1].forEach(d => { ctx.beginPath(); ctx.ellipse(CX + d*17, 84, 6, 4, 0, 0, 6.28); ctx.fill(); });
+    ctx.lineWidth = 2.4; ctx.beginPath(); if(mood === "happy"){ ctx.moveTo(CX - 9, 89); ctx.quadraticCurveTo(CX, 98, CX + 9, 89); } else if(mood === "sad" || mood === "ouch"){ ctx.moveTo(CX - 8, 94); ctx.quadraticCurveTo(CX, 88, CX + 8, 94); } else { ctx.moveTo(CX - 7, 91); ctx.quadraticCurveTo(CX, 95, CX + 7, 91); } ctx.stroke();
+  }
+  function bodyPath(ctx, cl){ const P = cl.prof; ctx.beginPath(); ctx.moveTo(CX - P[0][1], P[0][0]); P.forEach(([y, h]) => ctx.lineTo(CX - h, y)); ctx.lineTo(CX + P[P.length - 1][1], Y.floor); for(let i = P.length - 1; i >= 0; i--) ctx.lineTo(CX + P[i][1], P[i][0]); ctx.closePath(); }
+  function drawBody(ctx, cl, opt = {}){
+    ctx.save(); ctx.fillStyle = opt.bg || "#f3ece2"; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "rgba(43,33,24,.08)"; ctx.lineWidth = 1; for(let y = 0; y < H; y += 20){ ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    ctx.fillStyle = "rgba(43,33,24,.12)"; ctx.beginPath(); ctx.ellipse(CX, Y.floor + 2, 90, 10, 0, 0, 6.28); ctx.fill();
+    const sk = cl.skin; ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.lineJoin = "round";
+    [-1, 1].forEach(d => { const sx = CX + d*halfAt(cl, Y.shoulder)*.92; ctx.strokeStyle = INK; ctx.lineWidth = 17; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(sx, Y.shoulder + 6); ctx.quadraticCurveTo(sx + d*14, Y.waist - 40, sx + d*10, Y.hip + 10); ctx.stroke(); ctx.strokeStyle = sk; ctx.lineWidth = 11; ctx.stroke(); });
+    ctx.lineCap = "butt";
+    ctx.fillStyle = sk; ctx.strokeStyle = INK; ctx.lineWidth = 3; bodyPath(ctx, cl); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#f4f1ea"; ctx.beginPath(); ctx.moveTo(CX - halfAt(cl, Y.under), Y.under - 4); ctx.lineTo(CX + halfAt(cl, Y.under), Y.under - 4); ctx.lineTo(CX + halfAt(cl, Y.ubust), Y.ubust); ctx.lineTo(CX - halfAt(cl, Y.ubust), Y.ubust); ctx.closePath(); ctx.fill(); ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(CX - halfAt(cl, Y.hhip + 6), Y.hhip + 6); ctx.lineTo(CX + halfAt(cl, Y.hhip + 6), Y.hhip + 6); ctx.lineTo(CX + halfAt(cl, Y.thigh) - 4, Y.thigh); ctx.lineTo(CX + 4, Y.thigh + 6); ctx.lineTo(CX - halfAt(cl, Y.thigh) + 4, Y.thigh); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = shade(sk, -.35); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(CX, Y.thigh + 6); ctx.lineTo(CX, Y.floor - 2); ctx.stroke();
+    drawHead(ctx, cl, opt.mood || "neutral");
+    ctx.restore();
+  }
+  /* fabric fill (color + print) */
+  function fabricFill(ctx, fab, x0, y0){
+    const c = fab.c; if(!fab.print || fab.print === "plain") return c;
+    const t = document.createElement("canvas"); t.width = t.height = 24; const x = t.getContext("2d"); x.fillStyle = c; x.fillRect(0, 0, 24, 24); const fg = fab.c2 || (SWP.lum(c) > .6 ? "#2b2118" : "#fffdf8");
+    x.fillStyle = fg; x.strokeStyle = fg; x.globalAlpha = .75;
+    if(fab.print === "dots"){ x.beginPath(); x.arc(6, 6, 2.6, 0, 6.28); x.arc(18, 18, 2.6, 0, 6.28); x.fill(); }
+    if(fab.print === "stripes"){ x.fillRect(0, 0, 24, 6); x.fillRect(0, 12, 24, 6); }
+    if(fab.print === "gingham"){ x.globalAlpha = .35; x.fillRect(0, 0, 12, 24); x.fillRect(0, 0, 24, 12); }
+    if(fab.print === "floral"){ [[6, 6], [18, 17]].forEach(([a, b]) => { for(let k = 0; k < 5; k++){ x.beginPath(); x.arc(a + Math.cos(k*1.26)*3, b + Math.sin(k*1.26)*3, 2, 0, 6.28); x.fill(); } x.fillStyle = "#ffd166"; x.beginPath(); x.arc(a, b, 1.6, 0, 6.28); x.fill(); x.fillStyle = fg; }); }
+    if(fab.print === "plaid"){ x.globalAlpha = .4; x.fillRect(4, 0, 4, 24); x.fillRect(0, 14, 24, 4); x.globalAlpha = .7; x.fillRect(16, 0, 1.5, 24); x.fillRect(0, 6, 24, 1.5); }
+    return ctx.createPattern(t, "repeat");
+  }
+  const lum = h => { const n = parseInt(h.slice(1), 16); return ((n >> 16 & 255)*.3 + (n >> 8 & 255)*.59 + (n & 255)*.11)/255; };
+  /* garment on the body. F = finished circumferences; fits come from F vs body */
+  function drawGarment(ctx, cl, g, F, hemY, fab, opt = {}){
+    const kind = g.kind, top = kind === "skirt" ? Y.waist : Y.shoulder + 2, levels = [];
+    const bodyH = y => halfAt(cl, y);
+    const want = (lv, y) => { const f = F[lv]; return f ? Math.max(bodyH(y) - 1, hw(f)) : null; };
+    const pts = [];
+    if(kind !== "skirt"){ pts.push([Y.shoulder + 2, bodyH(Y.shoulder)*(g.strap ? .55 : .96)], [Y.under, want("bust", Y.under) || bodyH(Y.under) + 2], [Y.bust, want("bust", Y.bust)]); }
+    pts.push([Y.waist, want("waist", Y.waist) || bodyH(Y.waist) + 6]);
+    if(hemY > Y.hhip) pts.push([Y.hhip, Math.max(want("hip", Y.hhip) ? hw(F.hip)*.96 : bodyH(Y.hhip) + 6, bodyH(Y.hhip))]);
+    if(hemY > Y.hip) pts.push([Y.hip, want("hip", Y.hip) || bodyH(Y.hip) + 8]);
+    const last = pts[pts.length - 1][1], flare = g.flare || 0;
+    if(hemY > pts[pts.length - 1][0] + 4) pts.push([hemY, Math.max(bodyH(Math.min(hemY, Y.floor)) + 2, last + (hemY - pts[pts.length - 1][0])*flare)]);
+    else pts[pts.length - 1][0] = hemY;
+    const path = () => { ctx.beginPath(); ctx.moveTo(CX - pts[0][1], pts[0][0]); pts.forEach(([y, h]) => ctx.lineTo(CX - h, y)); for(let i = pts.length - 1; i >= 0; i--) ctx.lineTo(CX + pts[i][1], pts[i][0]); ctx.closePath(); };
+    ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.lineJoin = "round";
+    ctx.fillStyle = fabricFill(ctx, fab); path(); ctx.fill();
+    const sg = ctx.createLinearGradient(CX - 120, 0, CX + 120, 0); sg.addColorStop(0, "rgba(0,0,0,.22)"); sg.addColorStop(.3, "rgba(0,0,0,0)"); sg.addColorStop(.7, "rgba(0,0,0,0)"); sg.addColorStop(1, "rgba(0,0,0,.22)"); ctx.fillStyle = sg; path(); ctx.fill();
+    if(fab.sheen){ const sh = ctx.createLinearGradient(CX - 60, top, CX + 20, hemY); sh.addColorStop(0, "rgba(255,255,255,0)"); sh.addColorStop(.45, "rgba(255,255,255,.28)"); sh.addColorStop(.6, "rgba(255,255,255,0)"); ctx.fillStyle = sh; path(); ctx.fill(); }
+    path(); ctx.stroke();
+    if(g.neck && kind !== "skirt"){ ctx.fillStyle = cl.skin; ctx.beginPath(); ctx.moveTo(CX - 22, Y.shoulder + 1); ctx.quadraticCurveTo(CX, Y.shoulder + (g.neck === "v" ? 40 : 22), CX + 22, Y.shoulder + 1); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+    if(g.strap){ [-1, 1].forEach(d => { ctx.fillStyle = fabricFill(ctx, fab); ctx.beginPath(); ctx.rect(CX + d*bodyH(Y.shoulder)*.5 - 5, Y.neck + 18, 10, Y.shoulder - Y.neck - 14); ctx.fill(); ctx.lineWidth = 2; ctx.stroke(); }); }
+    if(kind === "dress" || kind === "skirt") { ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(CX - (want("waist", Y.waist) || bodyH(Y.waist) + 6), Y.waist); ctx.lineTo(CX + (want("waist", Y.waist) || bodyH(Y.waist) + 6), Y.waist); ctx.stroke(); }
+    /* fit cues: strain where too tight, drag folds where too baggy */
+    const fit = opt.fit || {}; ctx.lineWidth = 1.6;
+    [["bust", Y.bust], ["waist", Y.waist], ["hip", Y.hip]].forEach(([lv, y]) => { const f = fit[lv]; if(f == null || y > hemY || y < top) return; const h = want(lv, y) || bodyH(y);
+      if(f < 0){ ctx.strokeStyle = "rgba(200,40,40,.7)"; for(let k = -3; k <= 3; k++){ if(!k) continue; const x = CX + k*h/4; ctx.beginPath(); ctx.moveTo(x - 6, y - 7); ctx.lineTo(x + 6, y + 5); ctx.stroke(); } }
+      else if(f > 10){ ctx.strokeStyle = "rgba(43,33,24,.35)"; for(let k = -2; k <= 2; k++){ const x = CX + k*h/3; ctx.beginPath(); ctx.moveTo(x, y - 14); ctx.quadraticCurveTo(x + 4, y, x, y + 16); ctx.stroke(); } } });
+    ctx.strokeStyle = "rgba(43,33,24,.18)"; for(let k = -2; k <= 2; k++){ const x = CX + k*24; ctx.beginPath(); ctx.moveTo(x, Math.max(top, Y.waist) + 10); ctx.lineTo(x + k*flare*40, hemY - 6); ctx.stroke(); }
+    ctx.restore();
+  }
+  return {W, H, CX, Y, hw, circAt, halfAt, makeBody, drawBody, drawGarment, fabricFill, lum, bodyPath};
+})();
+/* ---------- garments, fabrics and requests ---------- */
+const SWG = {
+  aline:{n:"A-line skirt", kind:"skirt", flare:.32, meas:["waist","hip","length"], seams:[["Side seams", "straight"], ["Back seam", "straight"], ["Waistband", "curve"]], close:"zip", ease:{waist:[1, 3], hip:[6, 12]},
+    pieces:m => [["Front", (m.hip + 8)/4 + 4, m.length + 6, true], ["Back", (m.hip + 8)/4 + 4, m.length + 6, false, 2], ["Waistband", 8, m.waist/2 + 6, false, 2]]},
+  pencil:{n:"Pencil skirt", kind:"skirt", flare:-.06, meas:["waist","hip","length"], seams:[["Darts", "straight"], ["Side seams", "curve"], ["Back seam and slit", "straight"]], close:"zip", ease:{waist:[1, 3], hip:[3, 6]},
+    pieces:m => [["Front", (m.hip + 4)/4 + 3, m.length + 6, true], ["Back", (m.hip + 4)/4 + 3, m.length + 6, false, 2], ["Waistband", 8, m.waist/2 + 6, false, 2]]},
+  tank:{n:"Tank top", kind:"top", strap:true, neck:"round", flare:.05, meas:["bust","waist","length"], seams:[["Shoulder seams", "straight"], ["Side seams", "straight"], ["Armhole binding", "curve"]], close:null, ease:{bust:[4, 10], waist:[6, 14]},
+    pieces:m => [["Front", (m.bust + 8)/4 + 3, m.length + 8, true], ["Back", (m.bust + 8)/4 + 3, m.length + 8, true]]},
+  shift:{n:"Shift dress", kind:"dress", neck:"round", flare:.1, meas:["bust","waist","hip","length"], seams:[["Bust darts", "straight"], ["Shoulder seams", "straight"], ["Side seams", "curve"], ["Back seam", "straight"]], close:"zip", ease:{bust:[5, 10], waist:[8, 16], hip:[6, 12]},
+    pieces:m => [["Front", (m.hip + 8)/4 + 4, m.length + 30, true], ["Back", (m.hip + 8)/4 + 4, m.length + 30, false, 2]]},
+  flare:{n:"Fit-and-flare dress", kind:"dress", neck:"v", flare:.42, meas:["bust","waist","length"], seams:[["Bodice darts", "straight"], ["Bodice side seams", "curve"], ["Skirt to bodice", "curve"], ["Skirt side seams", "straight"]], close:"zip", ease:{bust:[3, 7], waist:[1, 4]},
+    pieces:m => [["Bodice front", (m.bust + 5)/4 + 3, 26, true], ["Bodice back", (m.bust + 5)/4 + 3, 26, false, 2], ["Skirt front", (m.waist + 30)/4 + 6, m.length + 6, true], ["Skirt back", (m.waist + 30)/4 + 6, m.length + 6, false, 2]]},
+  corset:{n:"Corset top", kind:"top", neck:"sweet", flare:-.02, meas:["bust","waist","length"], seams:[["Panel seams", "curve"], ["Boning channels", "straight"], ["Facing", "curve"]], close:"lace", ease:{bust:[0, 3], waist:[-2, 2]},
+    pieces:m => [["Center front", 12, m.length + 6, true], ["Side front", 11, m.length + 6, false, 2], ["Side back", 11, m.length + 6, false, 2], ["Center back", 10, m.length + 6, false, 2]]}
+};
+const SWF = [
+  {k:"cotton", n:"Cotton poplin", price:8, stretch:0, drape:.3, sheen:false, needle:"universal", stitch:"straight", iron:"high", good:["aline","shift","tank","flare"]},
+  {k:"linen", n:"Linen", price:12, stretch:0, drape:.35, sheen:false, needle:"universal", stitch:"straight", iron:"high", good:["aline","shift","tank"]},
+  {k:"denim", n:"Stretch denim", price:14, stretch:.15, drape:.1, sheen:false, needle:"jeans", stitch:"straight", iron:"high", good:["pencil","aline"]},
+  {k:"ponte", n:"Ponte knit", price:13, stretch:.4, drape:.4, sheen:false, needle:"ballpoint", stitch:"zigzag", iron:"medium", good:["pencil","shift","tank","flare"]},
+  {k:"wool", n:"Wool crepe", price:22, stretch:0, drape:.45, sheen:false, needle:"universal", stitch:"straight", iron:"medium", good:["pencil","shift","aline"]},
+  {k:"satin", n:"Silk satin", price:28, stretch:0, drape:.85, sheen:true, needle:"microtex", stitch:"straight", iron:"low", good:["flare","corset","shift"]},
+  {k:"brocade", n:"Brocade", price:30, stretch:0, drape:.15, sheen:true, needle:"microtex", stitch:"straight", iron:"low", good:["corset","pencil"]},
+  {k:"jersey", n:"Cotton jersey", price:9, stretch:.6, drape:.7, sheen:false, needle:"ballpoint", stitch:"zigzag", iron:"medium", good:["tank","shift"]}
+];
+const SW_PRINTS = ["plain","dots","stripes","gingham","floral","plaid"];
+const SW_REQ = [
+  {g:"aline", say:"A twirly A-line skirt for weekends, knee length.", len:"knee", ease:"regular"},
+  {g:"pencil", say:"A sharp pencil skirt for my new office job. Fitted, just below the knee.", len:"below", ease:"fitted"},
+  {g:"tank", say:"A simple tank top for summer, comfy and a bit loose.", len:"hip", ease:"relaxed"},
+  {g:"shift", say:"A shift dress I can wear to a gallery opening, above the knee.", len:"above", ease:"regular"},
+  {g:"flare", say:"A fit-and-flare dress for my sister's wedding: fitted bodice, swishy skirt.", len:"knee", ease:"fitted"},
+  {g:"corset", say:"A structured corset top for a concert. Snug, but I need to breathe!", len:"waist", ease:"fitted"}
+];
+const SW_LEN = {waist:SWP.Y.waist + 8, hip:SWP.Y.hip + 6, above:SWP.Y.knee - 34, knee:SWP.Y.knee, below:SWP.Y.knee + 26, midi:SWP.Y.calf};
+const SW_EASE = {fitted:.3, regular:.6, relaxed:.95};
+const SWS = () => { S.sewpro = S.sewpro || {coins:120, owned:[], served:0, totalMatch:0, best:0, bestDay:0, days:0, daily:{}}; return S.sewpro; };
+const SW_SHOP = [["rotary","Rotary cutter","✂","Cuts cleaner, more forgiving lines.",60],["serger","Serger","g:clippers","Overlocks raw edges: stronger seams and bonus quality.",90],["form","Dress form","g:primer","Preview the fit before the client tries it on.",70],["proiron","Steam station","♨","Always the right temperature, crisper pressing.",50],["fabcard","Fabric store card","g:voucher","20% off all fabric.",60]];
+
+/* ---------- Sewing Room Pro: the game ---------- */
+const SW_PH = [["brief","Brief"],["measure","Measure"],["fabric","Fabric"],["cut","Cut"],["sew","Sew"],["fit","Fit"],["finish","Finish"]];
+const SW_K = 2.6, SW_FAB = {x:18, y:26, w:Math.round(75*2.6), h:520};
+STUDIO.sewing = {
+  start(mode){ if(mode === "classic") return SEW_CLASSIC.start.call(SEW_CLASSIC, mode); this.lobby(); },
+  lobby(){
+    const s = SWS(); cancelAnimationFrame(this.raf); const avg = s.served ? Math.round(s.totalMatch/s.served) : 0;
+    stage.innerHTML = `<div class="sal-lobby"><div class="sal-sign sw-sign"><span class="eyebrow">Your tailoring studio</span><h3>Day ${s.days + 1}</h3>
+      <div class="sal-stats"><span><small>Coins</small><b class="coin">${fmt(s.coins)}</b></span><span><small>Garments made</small><b>${s.served}</b></span><span><small>Average match</small><b>${s.served ? avg + "%" : "–"}</b></span><span><small>Best</small><b>${s.best ? s.best + "%" : "–"}</b></span></div>
+      <p class="stage-tip">Clients bring a sketch. Measure them with a tape, pick fabric within budget, lay out and cut the pattern, sew every seam on the machine, fit it on them and alter it, then press, hem and send it down the runway.</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="swOpen">Open the studio →</button><button class="btn" type="button" id="swDaily">Daily challenge client</button></div>
+      <p class="tooltip-line">${s.daily[today()] ? `Today's best: <b>${s.daily[today()]}%</b>.` : "Everyone gets the same client today. Your best match is saved."}</p></div>
+      <div class="sal-shop"><span class="eyebrow">Upgrades</span><div class="sal-shopgrid">${SW_SHOP.map(([k, n, ic, d, p]) => { const own = s.owned.includes(k); return `<div class="sal-item${own ? " own" : ""}"><span class="ti">${icon(ic, 34)}</span><b>${n}</b><small>${d}</small>${own ? `<span class="owned">Owned</span>` : `<button class="btn-sm" type="button" data-buy="${k}" ${s.coins < p ? "disabled" : ""}><span class="coin">${p}</span></button>`}</div>`; }).join("")}</div><p class="tooltip-line">Shears, pins, a tape measure, a machine and an iron are already in your studio.</p></div></div>`;
+    stage.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => { const t = SW_SHOP.find(x => x[0] === b.dataset.buy); if(s.coins < t[4]) return; s.coins -= t[4]; s.owned.push(t[0]); save(); sfx.win(); this.lobby(); });
+    $("swOpen").onclick = () => { this.day = {n:0, earned:0, results:[]}; this.newClient(); };
+    $("swDaily").onclick = () => { this.day = {n:0, earned:0, results:[], daily:true}; const r0 = Math.random; Math.random = rng("sw" + today()); try{ this.newClient(); } finally { Math.random = r0; } };
+    setSide("Coins", fmt(s.coins));
+  },
+  newClient(){
+    const req = pick(SW_REQ.filter(r => !(this.lastReq || []).includes(r.g))); this.lastReq = [...(this.lastReq || []).slice(-3), req.g];
+    const g = SWG[req.g], cl = SWP.makeBody(), designFab = pick(SWF.filter(f => f.good.includes(req.g)));
+    const col = pick(SEW_COLORS); this.design = {fab:designFab, c:col[1], cname:col[0], print:pick(["plain","plain","plain","dots","stripes","floral","gingham","plaid"])};
+    this.req = req; this.g = g; this.cl = cl; this.budget = Math.round(designFab.price*(g.kind === "dress" ? 2.4 : 1.4) + 12);
+    this.trueM = {bust:cl.B, waist:cl.Wa, hip:cl.Hp}; this.targetHem = SW_LEN[req.len]; this.meas = {}; this.measY = {};
+    this.fab = {f:SWF[0], c:SEW_COLORS[0][1], cname:SEW_COLORS[0][0], print:"plain"}; this.easeSel = req.ease;
+    this.pieces = null; this.cutStage = "layout"; this.seams = []; this.seamIdx = 0; this.alter = {bust:0, waist:0, hip:0}; this.hemY = null; this.press = {temp:null, n:0}; this.closed = false;
+    this.needle = "universal"; this.stitch = "straight"; this.speed = 2; this.phase = 0; this.locked = false; this.mood = 1; this.fx = []; this.tips = new Set(); this.frame = 0; this.t0 = performance.now();
+    this.render();
+  },
+  render(){
+    const s = SWS(), cl = this.cl, g = this.g;
+    stage.innerHTML = `<div class="sal swp">
+      <div class="sal-hud"><span class="coin">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily challenge" : `Client ${this.day.n + 1} of 3`}</span><span id="swTime">0:00</span><span>Budget <b class="coin">${this.budget}</b></span><span class="sal-match"><small>Match</small><b id="swMatch">–</b></span><button class="btn btn-solid sal-finish" type="button" id="swNext"></button></div>
+      <ol class="stepper sal-steps" id="swSteps">${SW_PH.map(([k, l], i) => `<li data-ph="${i}"><span>${i + 1}</span>${l}</li>`).join("")}</ol>
+      <div class="sal-main"><div class="sal-chair"><div class="sal-speech"><b>${cl.name}</b><div class="sal-bubble" id="swBubble"></div></div>
+        <div class="sal-mirror sw-mirror"><canvas id="swCv" aria-label="Sewing workspace"></canvas><p class="msg sal-msg sal-toast" id="swMsg"></p></div></div>
+        <div class="sal-side"><div class="sal-req"><canvas id="swGoal" width="300" height="382"></canvas><div><span class="eyebrow">${g.n}</span><h3>${cl.name}</h3><div class="sal-tags"><span>${cl.shape} shape</span><span>${this.design.cname}${this.design.print !== "plain" ? " " + this.design.print : ""}</span><span>${this.req.len} length</span></div><p class="sal-say">“${this.req.say}”</p></div></div>
+          <div class="sw-panel" id="swPanel"></div></div></div>
+      <div id="swRes" class="sal-overlay"></div></div>`;
+    const cv = $("swCv"), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = SWP.W*dpr; cv.height = SWP.H*dpr; this.cv = cv; this.ctx = cv.getContext("2d"); this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.dpr = dpr;
+    const gc = $("swGoal").getContext("2d"); gc.scale(300/SWP.W, 382/SWP.H); this.drawTarget(gc);
+    $("swSteps").onclick = e => { const li = e.target.closest("[data-ph]"); if(li && !this.locked && +li.dataset.ph <= this.maxPhase) this.enterPhase(+li.dataset.ph); };
+    this.maxPhase = 0; this.bindPointer(); this.enterPhase(0);
+    this.say(pick(["Hi! I brought a sketch.","Hello! Can you make this for me?","I've been dreaming about this outfit!"]));
+    const tok = G.token; cancelAnimationFrame(this.raf); const loop = () => { if(G.token !== tok || !document.body.contains(cv)) return; this.tick(); this.raf = requestAnimationFrame(loop); }; this.raf = requestAnimationFrame(loop);
+  },
+  idealF(){ const g = this.g, t = SW_EASE[this.req.ease], F = {}; Object.entries(g.ease).forEach(([lv, [lo, hi]]) => F[lv] = this.trueM[lv] + lo + (hi - lo)*t); return F; },
+  myF(){ const g = this.g, t = SW_EASE[this.easeSel], F = {}; Object.entries(g.ease).forEach(([lv, [lo, hi]]) => F[lv] = (this.meas[lv] ?? this.trueM[lv]) + lo + (hi - lo)*t + this.alter[lv] - (this.seamShift || 0)); return F; },
+  fitOf(F){ const g = this.g, out = {}, st = this.fab.f.stretch*8; Object.entries(g.ease).forEach(([lv, [lo, hi]]) => { const e = F[lv] - this.trueM[lv]; out[lv] = e < lo - 1 - st ? -1 : e > hi + 4 ? 12 : 4; out[lv + "E"] = e; }); return out; },
+  drawTarget(ctx){ const cl = this.cl; SWP.drawBody(ctx, cl, {mood:"happy", bg:"#fbf6ee"}); SWP.drawGarment(ctx, cl, this.g, this.idealF(), this.targetHem, {c:this.design.c, print:this.design.print, sheen:this.design.fab.sheen}); },
+  say(t, kind){ const b = $("swBubble"); if(!b) return; b.textContent = t; b.className = "sal-bubble" + (kind ? " " + kind : ""); void b.offsetWidth; b.classList.add("pop"); },
+  note(t){ const m = $("swMsg"); if(!m) return; m.textContent = t; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); clearTimeout(this.noteT); this.noteT = setTimeout(() => m && m.classList.remove("show"), 4500); },
+  tipOnce(k, t){ if(this.tips.has(k)) return; this.tips.add(k); this.note(t); },
+  enterPhase(i){
+    this.phase = i; this.maxPhase = Math.max(this.maxPhase || 0, i); const k = SW_PH[i][0];
+    stage.querySelectorAll("#swSteps li").forEach((li, j) => { li.classList.toggle("now", j === i); li.classList.toggle("done", j < i); });
+    const nb = $("swNext"), last = i === SW_PH.length - 1; nb.textContent = last ? "Runway!" : `Next: ${SW_PH[i + 1][1]} →`;
+    nb.onclick = () => { if(this.locked) return; const why = this.blockNext(); if(why) return this.note(why); last ? this.runway() : this.enterPhase(i + 1); };
+    if(k === "cut" && !this.pieces) this.draft();
+    if(k === "sew" && !this.seams.length) this.seams = this.g.seams.map(([n, kind]) => ({n, kind, p:0, dev:[], sdev:0, back0:false, back1:false, done:false}));
+    if(k === "finish" && this.hemY == null) this.hemY = this.lengthHem();
+    this.panel();
+    this.note({brief:"Study the sketch: garment, color, print and length. Then measure the client.", measure:"Pick a measurement, then drag the tape straight across the body (or down, for length).", fabric:"Choose a fabric that suits the garment, the color and print from the sketch, and how roomy it should be.", cut:"Drag every pattern piece onto the fabric. FOLD pieces go against the fold on the left. Use as little fabric as you can.", sew:"Set up the machine, then hold down on the fabric to press the pedal and steer to keep the raw edge on the 1.5 cm guide. Backstitch at the start and end!", fit:`${this.cl.name} tries it on. Watch for strain lines (too tight) and folds (too loose), then take in or let out the seams.`, finish:"Press the seams at the right temperature, drag the hem to the right length, and add the closure."}[k]);
+  },
+  blockNext(){
+    const k = SW_PH[this.phase][0];
+    if(k === "measure"){ const miss = this.g.meas.filter(m => this.meas[m] == null); if(miss.length) return `Still to measure: ${miss.join(", ")}.`; }
+    if(k === "cut"){ if(!this.pieces.every(p => p.cut)) return this.cutStage === "layout" ? "Place every piece on the fabric first." : this.cutStage === "pin" ? "Pin every piece (at least 4 pins each)." : "Cut out every piece with the shears."; }
+    if(k === "sew"){ if(!this.seams.every(s => s.done)) return "Sew every seam first."; }
+    return null;
+  },
+  lengthHem(){ const L = this.meas.length; if(L == null) return this.targetHem; return (this.g.kind === "skirt" ? SWP.Y.waist : SWP.Y.shoulder) + L*3; },
+  panel(){
+    const k = SW_PH[this.phase][0], p = $("swPanel"), g = this.g; let h = "";
+    if(k === "brief") h = `<p class="stage-tip">Budget for fabric: <b class="coin">${this.budget}</b>. The sketch shows a <b>${g.n.toLowerCase()}</b> in <b>${this.design.cname}${this.design.print !== "plain" ? " " + this.design.print : ""}</b>, ${this.req.len} length, with a <b>${this.req.ease}</b> fit.</p><p class="tooltip-line">Ease is the extra room a garment needs to move and breathe: fitted means a little, relaxed means lots. Knits stretch, so they need less.</p>`;
+    if(k === "measure") h = `<div class="chips" id="swMeas">${g.meas.map(m => `<button type="button" class="ch${this.mSel === m ? " sel" : ""}" data-m="${m}">${m}${this.meas[m] != null ? ` · ${this.meas[m]} cm` : ""}</button>`).join("")}</div><p class="tooltip-line">${{bust:"Bust: around the fullest part of the chest.", waist:"Waist: the narrowest part of the torso.", hip:"Hip: around the widest part of the seat.", length:`Length: from the ${g.kind === "skirt" ? "waist" : "shoulder"} down to where the hem should fall (${this.req.len}).`}[this.mSel || g.meas[0]]}</p><label class="hlmode"><input type="checkbox" id="swGuide" ${S.rating.sewing < 4 ? "checked" : ""}> Show body landmarks</label>`;
+    if(k === "fabric"){ const cost = f => Math.round(f.price*(SWS().owned.includes("fabcard") ? .8 : 1));
+      h = `<div class="sw-bolts">${SWF.map(f => `<button type="button" class="sw-bolt${this.fab.f.k === f.k ? " sel" : ""}" data-fab="${f.k}"><b>${f.n}</b><small>${f.stretch ? `stretch ${Math.round(f.stretch*100)}%` : "no stretch"} · ${f.drape > .6 ? "fluid drape" : f.drape < .25 ? "stiff" : "medium drape"}${f.sheen ? " · sheen" : ""}</small><span class="coin">${cost(f)}/m</span></button>`).join("")}</div>
+        <div class="swatches mk-sw">${SEW_COLORS.map(([n, c]) => `<button type="button" class="sw${this.fab.cname === n ? " sel" : ""}" data-col="${n}" style="background:${c}" title="${n}" aria-label="${n}"></button>`).join("")}</div>
+        <div class="chips">${SW_PRINTS.map(pr => `<button type="button" class="ch${this.fab.print === pr ? " sel" : ""}" data-pr="${pr}">${pr}</button>`).join("")}</div>
+        <div class="chips">${Object.keys(SW_EASE).map(e => `<button type="button" class="ch${this.easeSel === e ? " sel" : ""}" data-ease="${e}">${e} fit</button>`).join("")}</div>`; }
+    if(k === "cut") h = `<p class="stage-tip">${{layout:"Drag the pieces from the tray onto the fabric (left). Pieces marked FOLD must touch the folded edge. Fabric used sets the cost.", pin:"Tap inside each piece to pin it: at least 4 pins, or the fabric slides while you cut.", shears:"Trace around each piece's outline with the shears. Don't cut along the fold!"}[this.cutStage]}</p><div class="sw-cost" id="swCost"></div>`;
+    if(k === "sew"){ const s = this.seams[this.seamIdx]; h = `<div class="opt-group"><h4>Machine setup</h4><div class="chips">${NEEDLES.map(([v, l]) => `<button type="button" class="ch${this.needle === v ? " sel" : ""}" data-nd="${v}">${l}</button>`).join("")}</div><div class="chips">${STITCHES.map(([v, l]) => `<button type="button" class="ch${this.stitch === v ? " sel" : ""}" data-sk="${v}">${l}</button>`).join("")}</div><div class="chips">${[[1,"Slow"],[2,"Medium"],[3,"Fast"]].map(([v, l]) => `<button type="button" class="ch${this.speed === v ? " sel" : ""}" data-sp="${v}">${l}</button>`).join("")}</div></div>
+      <p class="stage-tip">Seam ${Math.min(this.seamIdx + 1, this.seams.length)} of ${this.seams.length}: <b>${s ? s.n : "done"}</b>${s && s.kind === "curve" ? " (curved: steer!)" : ""}</p><div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="swBack">Backstitch</button></div><ul class="sw-seams">${this.seams.map((q, i) => `<li class="${q.done ? "done" : i === this.seamIdx ? "cur" : ""}">${q.n}${q.done ? ` · ${Math.round(q.q*100)}%` : ""}</li>`).join("")}</ul>`; }
+    if(k === "fit") h = `<p class="stage-tip">Take in or let out each seam. You can only let out as far as the seam allowance (3 cm).</p>${Object.keys(g.ease).map(lv => `<div class="sw-alter"><b>${lv}</b><button class="btn-sm" type="button" data-alt="${lv}" data-d="-1">Take in 1 cm</button><button class="btn-sm" type="button" data-alt="${lv}" data-d="1">Let out 1 cm</button><span>${this.alter[lv] > 0 ? "+" : ""}${this.alter[lv]} cm</span></div>`).join("")}${SWS().owned.includes("form") ? `<p class="tooltip-line">Dress form readout: ${Object.keys(g.ease).map(lv => `${lv} ${this.fitOf(this.myF())[lv + "E"].toFixed(1)} cm ease`).join(" · ")}</p>` : ""}`;
+    if(k === "finish") h = `<div class="opt-group"><h4>Iron temperature</h4><div class="chips">${["low","medium","high"].map(t => `<button type="button" class="ch${this.press.temp === t ? " sel" : ""}" data-iron="${t}">${t}</button>`).join("")}</div></div><p class="tooltip-line">Then drag the iron over the garment to press it. Drag the dashed hem line to set the length.</p><div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="swClose" ${this.closed || !this.g.close ? "disabled" : ""}>${this.g.close === "lace" ? "Lace up the back" : this.g.close ? "Insert the zipper" : "No closure needed"}</button></div>`;
+    p.innerHTML = h;
+    p.onclick = e => { const b = e.target.closest("[data-m],[data-fab],[data-col],[data-pr],[data-ease],[data-nd],[data-sk],[data-sp],[data-alt],[data-iron],#swBack,#swClose"); if(!b || this.locked) return;
+      if(b.dataset.m) this.mSel = b.dataset.m; if(b.dataset.fab) this.fab.f = SWF.find(f => f.k === b.dataset.fab); if(b.dataset.col){ this.fab.cname = b.dataset.col; this.fab.c = SEW_COLORS.find(c => c[0] === b.dataset.col)[1]; } if(b.dataset.pr) this.fab.print = b.dataset.pr; if(b.dataset.ease) this.easeSel = b.dataset.ease;
+      if(b.dataset.nd) this.needle = b.dataset.nd; if(b.dataset.sk) this.stitch = b.dataset.sk; if(b.dataset.sp) this.speed = +b.dataset.sp;
+      if(b.dataset.alt){ const lv = b.dataset.alt, d = +b.dataset.d; this.alter[lv] = clamp(this.alter[lv] + d, -8, 3); if(this.alter[lv] === 3 && d > 0) this.note("That's all the seam allowance there is: you can't let it out any further."); this.react(); }
+      if(b.dataset.iron){ this.press.temp = b.dataset.iron; }
+      if(b.id === "swBack") this.backstitch();
+      if(b.id === "swClose"){ this.closed = true; sfx.good(); this.say(this.g.close === "lace" ? "Ooh, lace me in!" : "Zipped!", "good"); }
+      sfx.click(); this.panel(); };
+    if(this.mSel == null && k === "measure") this.mSel = g.meas[0];
+  },
+  react(){ const f = this.fitOf(this.myF()), tight = Object.keys(this.g.ease).filter(lv => f[lv] < 0), loose = Object.keys(this.g.ease).filter(lv => f[lv] > 10);
+    this.say(tight.length ? `It's tight around my ${tight[0]}!` : loose.length ? `It's a bit baggy at the ${loose[0]}.` : "Ooh, it fits perfectly!", tight.length || loose.length ? "bad" : "good"); },
+  draft(){
+    const m = {...this.trueM, ...this.meas, length:this.meas.length ?? 55}, list = this.g.pieces(m);
+    let ty = 24; this.pieces = list.map(([n, wcm, hcm, fold, count], i) => { const w = wcm*SW_K, hgt = hcm*SW_K, dx = n.match(/Skirt|Front|Back/) && this.g.flare > .2 && !n.match(/Bodice|band/i) ? w*this.g.flare*1.1 : 0;
+      const poly = fold ? [[0, 0], [w, 0], [w + dx, hgt], [0, hgt]] : [[dx/2, 0], [w + dx/2, 0], [w + dx, hgt], [0, hgt]];
+      const pc = {n, fold, count:count || 1, poly, bw:w + dx, bh:hgt, x:250 + (i % 2)*30, y:ty, placed:false, pins:0, cut:false, vis:null, acc:[]}; ty += Math.min(hgt*.4, 120); return pc; });
+    this.cutStage = "layout"; this.panel();
+  },
+  pieceAt(x, y){ for(let i = this.pieces.length - 1; i >= 0; i--){ const p = this.pieces[i]; if(p.cut) continue; if(x >= p.x && x <= p.x + p.bw && y >= p.y && y <= p.y + p.bh) return p; } return null; },
+  layoutCheck(){
+    const F = SW_FAB, ok = p => p.x >= F.x - 1 && p.x + p.bw <= F.x + F.w + 1 && p.y >= F.y - 1 && p.y + p.bh <= F.y + F.h + 1;
+    this.pieces.forEach(p => { p.placed = ok(p); if(p.placed && p.fold && Math.abs(p.x - F.x) < 12) p.x = F.x; });
+    const over = (a, b) => a.x < b.x + b.bw - 2 && b.x < a.x + a.bw - 2 && a.y < b.y + b.bh - 2 && b.y < a.y + a.bh - 2;
+    this.overlap = this.pieces.some((a, i) => this.pieces.some((b, j) => j > i && a.placed && b.placed && over(a, b)));
+    this.foldBad = this.pieces.some(p => p.placed && p.fold && p.x > F.x + 1);
+    const used = this.pieces.filter(p => p.placed).reduce((a, p) => Math.max(a, p.y + p.bh), F.y) - F.y;
+    this.meters = Math.max(.3, used/SW_K/100); this.cost = Math.round(this.meters*this.fab.f.price*(SWS().owned.includes("fabcard") ? .8 : 1));
+    const area = this.pieces.reduce((a, p) => a + p.bw*p.bh, 0); this.eff = clamp(area/(F.w*Math.max(used, 1)), 0, 1);
+    const c = $("swCost"); if(c) c.innerHTML = `Fabric used: <b>${this.meters.toFixed(2)} m</b> · cost <b class="coin">${this.cost}</b> of ${this.budget} · layout efficiency ${Math.round(this.eff*100)}%${this.overlap ? " · <b>pieces overlap!</b>" : ""}${this.foldBad ? " · <b>a FOLD piece isn't on the fold</b>" : ""}`;
+    if(this.cutStage === "layout" && this.pieces.every(p => p.placed) && !this.overlap && !this.foldBad){ this.cutStage = "pin"; this.note("Layout done! Now tap inside each piece to pin it (4 pins each)."); sfx.good(); this.panel(); this.layoutCheck(); }
+  },
+  bindPointer(){
+    const cv = this.cv, pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left)/r.width*SWP.W, (e.clientY - r.top)/r.height*SWP.H]; };
+    cv.onpointerdown = e => { if(this.locked) return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){} const [x, y] = pos(e); this.ptr = {x, y, sx:x, sy:y, down:true, hover:true}; this.down(x, y); };
+    cv.onpointermove = e => { const [x, y] = pos(e), q = this.ptr || {x, y}; this.ptr = {...q, px:q.x, py:q.y, x, y, hover:true, down:q.down && e.buttons > 0}; if(this.ptr.down) this.drag(x, y); };
+    cv.onpointerup = cv.onpointercancel = () => { if(this.ptr && this.ptr.down) this.up(); if(this.ptr) this.ptr.down = false; };
+    cv.onpointerleave = () => { if(this.ptr){ this.ptr.hover = false; } };
+    this.keyH && window.removeEventListener("keydown", this.keyH); this.keyH = e => { if(SW_PH[this.phase][0] === "sew" && (e.key === "b" || e.key === "B")) this.backstitch(); }; window.addEventListener("keydown", this.keyH);
+  },
+  down(x, y){
+    const k = SW_PH[this.phase][0];
+    if(k === "measure") this.tape = {x0:x, y0:y, x1:x, y1:y};
+    if(k === "cut"){
+      if(this.cutStage === "layout"){ const p = this.pieceAt(x, y); if(p){ this.dragP = {p, ox:x - p.x, oy:y - p.y}; this.pieces.splice(this.pieces.indexOf(p), 1); this.pieces.push(p); } }
+      else if(this.cutStage === "pin"){ const p = this.pieceAt(x, y); if(p){ p.pins++; (p.pinPts = p.pinPts || []).push([x - p.x, y - p.y]); tone(900, .03, "square", .02); if(this.pieces.every(q => q.pins >= 4)){ this.cutStage = "shears"; this.note("All pinned! Now trace around each outline with the shears."); this.panel(); } } }
+    }
+    if(k === "sew") this.pedal = true;
+    if(k === "finish"){ if(Math.abs(y - this.hemY) < 14) this.hemDrag = true; }
+  },
+  drag(x, y){
+    const k = SW_PH[this.phase][0];
+    if(k === "measure" && this.tape){ this.tape.x1 = x; this.tape.y1 = y; }
+    if(k === "cut"){
+      if(this.dragP){ this.dragP.p.x = x - this.dragP.ox; this.dragP.p.y = y - this.dragP.oy; }
+      if(this.cutStage === "shears"){ const own = SWS().owned.includes("rotary") ? 13 : 10;
+        this.pieces.forEach(p => { if(p.cut) return; const pts = this.perim(p); let near = 1e9; pts.forEach(q => { const d = Math.hypot(q[0] - x, q[1] - y); if(d < own) q[2] = true; near = Math.min(near, d); }); p.vis = pts; if(near < 24) p.acc.push(near);
+          if(pts.filter(q => q[2]).length/pts.length > .9){ p.cut = true; sfx.good(); this.fx.push({type:"text", x:p.x + p.bw/2, y:p.y + p.bh/2, vx:0, vy:-.6, life:50, text:`${p.n} cut!`}); if(this.pieces.every(q => q.cut)) this.note("Every piece is cut. On to sewing!"); } });
+        if(this.frame % 4 === 0) tone(2400, .02, "square", .015); }
+    }
+    if(k === "sew" && this.pedal){ this.steer = (this.steer || 0) + (x - (this.ptr.px ?? x)); }
+    if(k === "finish"){ if(this.hemDrag) this.hemY = clamp(y, SWP.Y.waist + 10, SWP.Y.floor - 10); else if(this.press.temp){ this.press.n++; if(this.frame % 3 === 0) this.fx.push({type:"steam", x, y, vx:(Math.random() - .5), vy:-1.2, life:30}); } else this.tipOnce("temp", "Choose the iron temperature for this fabric first."); }
+  },
+  up(){
+    const k = SW_PH[this.phase][0];
+    if(k === "measure" && this.tape){ const t = this.tape, m = this.mSel; this.tape = null;
+      if(m === "length"){ if(Math.abs(t.y1 - t.y0) < 30) return this.note("Drag the tape straight down for length."); const ref = this.g.kind === "skirt" ? SWP.Y.waist : SWP.Y.shoulder; if(Math.abs(t.y0 - ref) > 30) this.note(`Start the length at the ${this.g.kind === "skirt" ? "waist" : "shoulder"}.`); this.meas.length = Math.round((t.y1 - ref)/3); this.measY.length = t.y1; }
+      else { const y = (t.y0 + t.y1)/2, half = SWP.halfAt(this.cl, y); if(Math.min(t.x0, t.x1) > SWP.CX - half || Math.max(t.x0, t.x1) < SWP.CX + half) return this.note("Wrap the tape all the way around: drag from one side of the body past the other."); this.meas[m] = Math.round(SWP.circAt(this.cl, y)*2)/2; this.measY[m] = y; }
+      sfx.click(); this.say(pick(["Ooh, the tape's cold!","Hold on, let me stand up straight.","Got it?"])); const next = this.g.meas.find(q => this.meas[q] == null); if(next) this.mSel = next; this.panel(); }
+    if(k === "cut" && this.dragP){ this.dragP = null; this.layoutCheck(); }
+    if(k === "sew") this.pedal = false;
+    this.hemDrag = false;
+  },
+  perim(p){ if(p._per && p._px === p.x && p._py === p.y) return p._per; const out = [], P = p.poly; for(let i = 0; i < P.length; i++){ const a = P[i], b = P[(i + 1) % P.length]; if(p.fold && a[0] === 0 && b[0] === 0) continue; const L = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.ceil(L/6); for(let k = 0; k < n; k++){ const t = k/n; out.push([p.x + a[0] + (b[0] - a[0])*t, p.y + a[1] + (b[1] - a[1])*t, false]); } } if(p._per) out.forEach((q, i) => { if(p._per[i]) q[2] = p._per[i][2]; }); p._per = out; p._px = p.x; p._py = p.y; return out; },
+  backstitch(){ const s = this.seams[this.seamIdx]; if(!s || s.done) return; if(s.p < .08){ s.back0 = true; this.note("Backstitched at the start: the seam won't unravel."); sfx.click(); } else if(s.p > .9){ s.back1 = true; this.note("Backstitched at the end."); sfx.click(); } else this.note("Backstitch right at the start and the end of a seam."); },
+  edge(s, d){ const amp = s.kind === "curve" ? 26 : 6; return Math.sin(d/90 + s.n.length)*amp + Math.sin(d/37)*amp*.3; },
+  tick(){
+    this.frame++; const ctx = this.ctx, k = SW_PH[this.phase][0], cl = this.cl, now = performance.now();
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    if(k === "brief" || k === "measure" || k === "fabric"){
+      SWP.drawBody(ctx, cl, {mood:"neutral"});
+      if(k === "fabric") SWP.drawGarment(ctx, cl, this.g, this.myF(), this.lengthHem(), {c:this.fab.c, print:this.fab.print, sheen:this.fab.f.sheen});
+      if(k === "measure"){
+        if($("swGuide") && $("swGuide").checked){ ctx.setLineDash([3, 4]); ctx.strokeStyle = "rgba(43,33,24,.35)"; ctx.lineWidth = 1.2; ctx.font = "11px DM Mono, monospace"; ctx.fillStyle = "rgba(43,33,24,.6)"; [["bust", SWP.Y.bust], ["waist", SWP.Y.waist], ["hip", SWP.Y.hip], ["knee", SWP.Y.knee]].forEach(([n, y]) => { ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(400, y); ctx.stroke(); ctx.fillText(n, 404 - n.length*7, y - 3); }); ctx.setLineDash([]); }
+        Object.entries(this.measY).forEach(([m, y]) => { ctx.strokeStyle = "rgba(255,191,46,.8)"; ctx.lineWidth = 3; if(m === "length"){ const ref = this.g.kind === "skirt" ? SWP.Y.waist : SWP.Y.shoulder; ctx.beginPath(); ctx.moveTo(SWP.CX + 70, ref); ctx.lineTo(SWP.CX + 70, y); ctx.stroke(); } else { const h = SWP.halfAt(cl, y); ctx.beginPath(); ctx.moveTo(SWP.CX - h - 4, y); ctx.lineTo(SWP.CX + h + 4, y); ctx.stroke(); } });
+        if(this.tape){ const t = this.tape, len = this.mSel === "length"; ctx.save(); ctx.translate(t.x0, t.y0); const ang = len ? Math.PI/2 : Math.atan2(t.y1 - t.y0, t.x1 - t.x0), L = len ? t.y1 - t.y0 : Math.hypot(t.x1 - t.x0, t.y1 - t.y0); ctx.rotate(ang); ctx.fillStyle = "#ffd166"; ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.fillRect(0, -7, L, 14); ctx.strokeRect(0, -7, L, 14); ctx.fillStyle = INK; for(let x = 0; x < L; x += 6){ ctx.fillRect(x, -7, 1, x % 30 === 0 ? 8 : 4); } ctx.restore();
+          const reading = len ? Math.round((t.y1 - (this.g.kind === "skirt" ? SWP.Y.waist : SWP.Y.shoulder))/3) : Math.round(SWP.circAt(cl, (t.y0 + t.y1)/2)*2)/2; ctx.font = "600 15px Fredoka, sans-serif"; ctx.fillStyle = INK; ctx.strokeStyle = "#fffdf8"; ctx.lineWidth = 4; const tx = (t.x0 + t.x1)/2, ty = Math.min(t.y0, t.y1) - 14; ctx.strokeText(reading + " cm", tx - 24, ty); ctx.fillText(reading + " cm", tx - 24, ty); }
+      }
+    }
+    if(k === "cut") this.drawCut(ctx);
+    if(k === "sew") this.drawSew(ctx);
+    if(k === "fit" || k === "finish"){
+      const F = this.myF(), fit = this.fitOf(F), mood = Object.keys(this.g.ease).some(lv => fit[lv] < 0) ? "sad" : "happy";
+      SWP.drawBody(ctx, cl, {mood}); SWP.drawGarment(ctx, cl, this.g, F, k === "finish" ? this.hemY : this.lengthHem(), {c:this.fab.c, print:this.fab.print, sheen:this.fab.f.sheen}, {fit});
+      if(k === "finish"){ ctx.setLineDash([6, 5]); ctx.strokeStyle = "#e76f51"; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(60, this.hemY); ctx.lineTo(380, this.hemY); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = "#e76f51"; ctx.font = "12px DM Mono, monospace"; ctx.fillText("hem ↕", 384, this.hemY + 4);
+        if(this.press.temp && this.ptr && this.ptr.hover && !this.hemDrag){ ctx.fillStyle = "#d9dde3"; ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(this.ptr.x - 22, this.ptr.y + 10); ctx.lineTo(this.ptr.x + 16, this.ptr.y + 10); ctx.quadraticCurveTo(this.ptr.x + 22, this.ptr.y - 6, this.ptr.x + 4, this.ptr.y - 8); ctx.lineTo(this.ptr.x - 22, this.ptr.y - 8); ctx.closePath(); ctx.fill(); ctx.stroke(); } }
+    }
+    this.fx = this.fx.filter(q => q.life-- > 0); this.fx.forEach(q => { q.x += q.vx; q.y += q.vy; ctx.globalAlpha = Math.min(1, q.life/14); if(q.type === "text"){ ctx.font = "600 14px Fredoka, sans-serif"; ctx.lineWidth = 4; ctx.strokeStyle = "#fffdf8"; ctx.strokeText(q.text, q.x - 30, q.y); ctx.fillStyle = INK; ctx.fillText(q.text, q.x - 30, q.y); } else { ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.beginPath(); ctx.arc(q.x, q.y, 5 + (30 - q.life)*.3, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1; });
+    if(this.frame % 20 === 0 && !this.locked){ const sec = Math.floor((now - this.t0)/1000); $("swTime").textContent = `${Math.floor(sec/60)}:${String(sec % 60).padStart(2, "0")}`; if(this.frame % 60 === 0 && this.phase >= 2){ const r = this.score(); const m = $("swMatch"); m.textContent = r.pct + "%"; m.className = r.pct >= 85 ? "hi" : r.pct >= 60 ? "mid" : "lo"; } }
+  },
+  drawCut(ctx){
+    const F = SW_FAB, fab = this.fab; ctx.fillStyle = "#e9dcc6"; ctx.fillRect(0, 0, SWP.W, SWP.H);
+    ctx.fillStyle = "#c8915a"; ctx.fillRect(0, SWP.H - 18, SWP.W, 18);
+    ctx.fillStyle = SWP.fabricFill(ctx, {c:fab.c, print:fab.print}); ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.fillRect(F.x, F.y, F.w, F.h); ctx.strokeRect(F.x, F.y, F.w, F.h);
+    ctx.setLineDash([6, 5]); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(F.x, F.y); ctx.lineTo(F.x, F.y + F.h); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save(); ctx.translate(F.x - 6, F.y + 90); ctx.rotate(-Math.PI/2); ctx.font = "600 11px DM Mono, monospace"; ctx.fillStyle = INK; ctx.fillText("FOLD", 0, 0); ctx.restore();
+    ctx.font = "10px DM Mono, monospace"; ctx.fillStyle = "rgba(43,33,24,.6)"; for(let y = F.y; y <= F.y + F.h; y += SW_K*25){ ctx.fillRect(F.x + F.w + 2, y, 6, 1); ctx.fillText(Math.round((y - F.y)/SW_K) + "", F.x + F.w + 10, y + 3); }
+    ctx.fillStyle = "rgba(255,255,255,.5)"; ctx.fillRect(238, 14, 196, SWP.H - 40); ctx.fillStyle = INK; ctx.font = "600 12px DM Mono, monospace"; ctx.fillText("Pattern tray", 250, 30);
+    this.pieces.forEach(p => { if(p.cut){ return; } ctx.save(); ctx.translate(p.x, p.y); ctx.beginPath(); p.poly.forEach(([a, b], i) => i ? ctx.lineTo(a, b) : ctx.moveTo(a, b)); ctx.closePath(); ctx.fillStyle = "rgba(255,253,240,.82)"; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.setLineDash([5, 3]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = INK; ctx.font = "600 11px Figtree, sans-serif"; ctx.fillText(p.n, 6, 18); ctx.font = "10px DM Mono, monospace"; ctx.fillText(`cut ${p.count}${p.fold ? " · FOLD" : ""}`, 6, 32);
+      ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(p.bw/2, p.bh*.35); ctx.lineTo(p.bw/2, p.bh*.7); ctx.moveTo(p.bw/2 - 4, p.bh*.35 + 6); ctx.lineTo(p.bw/2, p.bh*.35); ctx.lineTo(p.bw/2 + 4, p.bh*.35 + 6); ctx.moveTo(p.bw/2 - 4, p.bh*.7 - 6); ctx.lineTo(p.bw/2, p.bh*.7); ctx.lineTo(p.bw/2 + 4, p.bh*.7 - 6); ctx.stroke();
+      (p.pinPts || []).forEach(([a, b]) => { ctx.strokeStyle = "#9aa5b1"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(a - 6, b + 6); ctx.lineTo(a + 6, b - 6); ctx.stroke(); ctx.fillStyle = "#e63946"; ctx.beginPath(); ctx.arc(a + 6, b - 6, 3, 0, 6.28); ctx.fill(); });
+      ctx.restore();
+      if(p.vis){ ctx.fillStyle = "#e63946"; p.vis.forEach(q => { if(q[2]){ ctx.fillRect(q[0] - 1.5, q[1] - 1.5, 3, 3); } }); }
+      if(!p.placed && this.cutStage === "layout"){ ctx.strokeStyle = "rgba(231,111,81,.6)"; ctx.lineWidth = 2; ctx.strokeRect(p.x - 2, p.y - 2, p.bw + 4, p.bh + 4); } });
+    const cutN = this.pieces.filter(p => p.cut).length; if(cutN){ ctx.fillStyle = INK; ctx.font = "600 12px DM Mono, monospace"; ctx.fillText(`Cut pile: ${cutN}/${this.pieces.length}`, 250, SWP.H - 28); }
+    if(this.cutStage === "shears" && this.ptr && this.ptr.hover){ const p = this.ptr; ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(p.x - 6, p.y + 10, 5, 0, 6.28); ctx.arc(p.x + 6, p.y + 10, 5, 0, 6.28); ctx.moveTo(p.x - 3, p.y + 6); ctx.lineTo(p.x + 6, p.y - 12); ctx.moveTo(p.x + 3, p.y + 6); ctx.lineTo(p.x - 6, p.y - 12); ctx.stroke(); }
+  },
+  drawSew(ctx){
+    const s = this.seams[this.seamIdx], W = SWP.W, H = SWP.H, NX = 200, NY = 250, K = 14, guide = NX + 1.5*K;
+    ctx.fillStyle = "#d9cdb8"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#cfd6dd"; ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.fillRect(130, 220, 180, 70); ctx.strokeRect(130, 220, 180, 70);
+    [[1, "1"], [1.5, "1.5"], [2, "2 cm"]].forEach(([c, l]) => { ctx.strokeStyle = c === 1.5 ? "#e63946" : "rgba(43,33,24,.5)"; ctx.lineWidth = c === 1.5 ? 2 : 1; ctx.beginPath(); ctx.moveTo(NX + c*K, 222); ctx.lineTo(NX + c*K, 288); ctx.stroke(); ctx.fillStyle = INK; ctx.font = "9px DM Mono, monospace"; ctx.fillText(l, NX + c*K - 4, 299); });
+    if(s && !s.done){
+      if(this.pedal){ const sp = [0, 1.4, 2.6, 4.2][this.speed]; s.p = Math.min(1, s.p + sp/900); s.d = (s.d || 0) + sp; if(this.frame % 2 === 0) tone(80 + this.speed*25, .04, "square", .012); }
+      this.steer = (this.steer || 0)*.985;
+      const off = (this.steer || 0), e = this.edge(s, s.d || 0), edgeX = guide + e + off, dev = (edgeX - guide)/K;
+      if(this.pedal){ s.dev.push(Math.abs(dev)); s.sdev += dev; s.n2 = (s.n2 || 0) + 1; (s.st = s.st || []).push([s.d || 0, NX - (e + off)]); }
+      const rows = 26; ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
+      ctx.fillStyle = SWP.fabricFill(ctx, {c:this.fab.c, print:this.fab.print}); ctx.beginPath(); ctx.moveTo(-10, -10);
+      for(let y = -10; y <= H + 10; y += 10){ const dd = (s.d || 0) + (NY - y); ctx.lineTo(guide + this.edge(s, dd) + off, y); } ctx.lineTo(-10, H + 10); ctx.closePath(); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.strokeStyle = "#fffdf8"; ctx.lineWidth = 2; ctx.setLineDash([5, 3]); ctx.beginPath(); (s.st || []).forEach(([dd, rx], i) => { const y = NY - ((s.d || 0) - dd), x = rx + this.edge(s, dd) + off - this.edge(s, dd); if(y < -20 || y > H + 20) return; i ? ctx.lineTo(x + (this.edge(s, dd) + off) - (this.edge(s, dd) + off), y) : ctx.moveTo(x, y); }); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+      ctx.fillStyle = "#fffdf8"; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(40, 0); ctx.lineTo(400, 0); ctx.lineTo(400, 150); ctx.lineTo(240, 150); ctx.lineTo(240, 215); ctx.lineTo(160, 215); ctx.lineTo(160, 150); ctx.lineTo(40, 150); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#ff7db8"; ctx.fillRect(40, 120, 360, 30); ctx.strokeRect(40, 120, 360, 30);
+      const bob = this.pedal ? Math.abs(Math.sin(this.frame*.9))*10 : 0; ctx.fillStyle = "#9aa5b1"; ctx.fillRect(NX - 3, 215, 6, 20 + bob); ctx.strokeRect(NX - 3, 215, 6, 20 + bob);
+      ctx.fillStyle = "#d9dde3"; ctx.fillRect(NX - 18, 236, 36, 12); ctx.strokeRect(NX - 18, 236, 36, 12);
+      ctx.fillStyle = INK; ctx.font = "600 13px Fredoka, sans-serif"; ctx.fillText(`${s.n} · ${Math.round(s.p*100)}%`, 60, 60); ctx.font = "12px DM Mono, monospace"; ctx.fillText(`edge ${dev >= 0 ? "+" : ""}${dev.toFixed(1)} cm from the guide`, 60, 82);
+      ctx.fillText(`backstitch: start ${s.back0 ? "✓" : "–"}  end ${s.back1 ? "✓" : "–"}`.replace("✓", "yes").replace("✓", "yes"), 60, 102);
+      ctx.fillStyle = Math.abs(dev) < .4 ? "#2a9d8f" : Math.abs(dev) < 1 ? "#d48a00" : "#d7263d"; ctx.beginPath(); ctx.arc(NX + 1.5*K + dev*K, 300, 5, 0, 6.28); ctx.fill();
+      if(s.p >= 1){ const mean = s.dev.reduce((a, b) => a + b, 0)/Math.max(1, s.dev.length), setup = this.needle === this.fab.f.needle && this.stitch === this.fab.f.stitch;
+        s.q = clamp(1 - mean/1.2 - (s.back0 ? 0 : .12) - (s.back1 ? 0 : .12), 0, 1)*(setup ? 1 : .75)*(SWS().owned.includes("serger") ? 1.05 : 1); s.q = Math.min(1, s.q); s.done = true; s.mean = mean; s.signed = s.sdev/Math.max(1, s.n2);
+        if(!setup) this.tipOnce("setup", `Skipped stitches and puckering! ${this.fab.f.n} needs a ${this.fab.f.needle} needle and a ${this.fab.f.stitch} stitch.`);
+        this.seamShift = this.seams.filter(q => q.done && /side|back seam|panel/i.test(q.n)).reduce((a, q) => a + q.signed*2, 0);
+        sfx.good(); this.fx.push({type:"text", x:180, y:330, vx:0, vy:-.6, life:60, text:`Seam ${Math.round(s.q*100)}%`}); this.pedal = false; this.steer = 0; this.seamIdx++; this.panel(); if(this.seamIdx >= this.seams.length) this.note("All seams sewn! Time for the fitting."); }
+    } else { ctx.fillStyle = INK; ctx.font = "600 16px Fredoka, sans-serif"; ctx.fillText("All seams sewn!", 150, 340); }
+  },
+  score(){
+    const parts = [], add = (k, label, w, v, why) => parts.push({k, label, w, v:clamp(v, 0, 1), why}), g = this.g, F = this.myF(), fit = this.fitOf(F);
+    const ml = g.meas.filter(m => m !== "length"), mErr = ml.map(m => this.meas[m] != null ? Math.abs(this.meas[m] - this.trueM[m]) : 8);
+    add("measure", "Accurate measurements", 12, 1 - mErr.reduce((a, b) => a + b, 0)/mErr.length/6, mErr.some(e => e > 3) ? `Off by up to ${Math.max(...mErr).toFixed(1)} cm: bust is at the fullest point, waist the narrowest, hip the widest.` : "Spot-on measurements.");
+    Object.keys(g.ease).forEach(lv => { const e = fit[lv + "E"], [lo, hi] = g.ease[lv], st = this.fab.f.stretch*8, bad = e < lo - 1 - st ? (lo - 1 - st) - e : e > hi + 4 ? e - (hi + 4) : 0; add("fit" + lv, `Fit at the ${lv}`, 12, 1 - bad/6, bad === 0 ? "Fits beautifully." : e < lo ? `Too tight by about ${bad.toFixed(1)} cm: let the seams out or add ease.` : `Too loose by about ${bad.toFixed(1)} cm: take it in.`); });
+    const hemCm = Math.abs(((this.hemY ?? this.lengthHem()) - this.targetHem)/3); add("length", "Length", 10, 1 - hemCm/8, hemCm > 3 ? `About ${Math.round(hemCm)} cm off the ${this.req.len} length in the sketch.` : "Perfect length.");
+    const good = this.fab.f.good.includes(this.req.g); add("fabric", "Right fabric", 10, good ? 1 : .3, good ? `${this.fab.f.n} suits a ${g.n.toLowerCase()}.` : `${this.fab.f.n} isn't ideal for a ${g.n.toLowerCase()}. Try ${SWF.filter(f => f.good.includes(this.req.g)).map(f => f.n.toLowerCase()).slice(0, 2).join(" or ")}.`);
+    const dc = SWP.lum(this.fab.c) - SWP.lum(this.design.c), cm = this.fab.cname === this.design.cname ? 1 : Math.max(0, .6 - Math.abs(dc)*2); add("color", "Color and print", 10, cm*.7 + (this.fab.print === this.design.print ? .3 : 0), this.fab.cname !== this.design.cname ? `The sketch is ${this.design.cname}.` : this.fab.print !== this.design.print ? `The sketch has a ${this.design.print} print.` : "Exactly the sketch's fabric.");
+    if(this.pieces){ const acc = this.pieces.filter(p => p.cut).map(p => { const a = p.acc.length ? p.acc.reduce((x, y) => x + y, 0)/p.acc.length : 12; return clamp(1 - a/14, 0, 1)*(p.pins >= 4 ? 1 : .6); }); add("cut", "Clean cutting", 8, acc.length ? acc.reduce((a, b) => a + b, 0)/this.pieces.length : 0, "Pin first, then cut right on the line.");
+      add("layout", "Thrifty layout", 6, Math.min(1, (this.eff || 0)/.55), (this.eff || 0) < .45 ? "Lots of wasted fabric: nest the pieces closer together." : "Efficient layout."); add("budget", "Within budget", 6, (this.cost || 0) <= this.budget ? 1 : 1 - ((this.cost - this.budget)/this.budget)*2, (this.cost || 0) <= this.budget ? `Fabric cost ${this.cost} of ${this.budget}.` : `Over budget: ${this.cost} of ${this.budget}.`); }
+    const done = this.seams.filter(s => s.done); if(this.seams.length) add("seams", "Seam quality", 14, done.length ? done.reduce((a, s) => a + s.q, 0)/this.seams.length : 0, done.some(s => !s.back0 || !s.back1) ? "Backstitch at both ends so seams don't unravel." : done.some(s => s.mean > .6) ? "Keep the raw edge on the 1.5 cm guide: go slower on curves." : "Straight, even seams.");
+    if(this.press.n) add("press", "Pressing", 6, (this.press.temp === this.fab.f.iron || SWS().owned.includes("proiron") ? 1 : .2)*Math.min(1, this.press.n/80), this.press.temp !== this.fab.f.iron ? `${this.fab.f.n} needs a ${this.fab.f.iron} iron.` : "Crisp, professional pressing.");
+    if(g.close) add("close", "Closure", 4, this.closed ? 1 : 0, this.closed ? "Done." : "They can't get in or out of it without a closure!");
+    const tw = parts.reduce((a, q) => a + q.w, 0); return {pct:Math.round(parts.reduce((a, q) => a + q.w*q.v, 0)/tw*100), parts};
+  },
+  runway(){
+    if(this.locked) return; this.locked = true; const r = this.score(), s = SWS(), price = 50, earn = Math.round(price*r.pct/100), tip = r.pct >= 90 ? 18 : r.pct >= 75 ? 8 : 0, refund = Math.max(0, this.budget - (this.cost || 0));
+    s.coins += earn + tip + Math.round(refund/2); s.served++; s.totalMatch += r.pct; const pb = r.pct > s.best; s.best = Math.max(s.best, r.pct); this.day.n++; this.day.earned += earn + tip; this.day.results.push({name:this.cl.name, t:this.g.n, pct:r.pct});
+    if(this.day.daily) s.daily[today()] = Math.max(s.daily[today()] || 0, r.pct); save(); adapt("sewing", r.pct/100); r.pct >= 85 ? sfx.win() : r.pct >= 60 ? sfx.good() : sfx.bad();
+    const mk = mine => { const c = document.createElement("canvas"); c.width = 300; c.height = 382; const x = c.getContext("2d"); x.scale(300/SWP.W, 382/SWP.H); if(mine){ SWP.drawBody(x, this.cl, {mood:r.pct >= 70 ? "happy" : "sad", bg:"#fbf6ee"}); SWP.drawGarment(x, this.cl, this.g, this.myF(), this.hemY ?? this.lengthHem(), {c:this.fab.c, print:this.fab.print, sheen:this.fab.f.sheen}, {fit:this.fitOf(this.myF())}); } else this.drawTarget(x); return c; };
+    const last = this.day.daily || this.day.n >= 3;
+    this.say(r.pct >= 90 ? "I feel AMAZING in this!" : r.pct >= 70 ? "I love it!" : "Hmm, it's not quite the sketch.", r.pct >= 70 ? "good" : "bad");
+    $("swRes").innerHTML = `<div class="reveal sal-result"><span class="eyebrow">${r.pct >= 90 ? "Couture quality" : r.pct >= 75 ? "Runway ready" : r.pct >= 55 ? "Wearable" : "Back to the drawing board"}${pb ? " · New personal best!" : ""}</span><div class="sal-pct"><b>${r.pct}</b>% match</div>
+      <div class="sal-compare mk-compare"><figure><div id="swA"></div><figcaption>Your garment</figcaption></figure><figure><div id="swG"></div><figcaption>Their sketch</figcaption></figure></div>
+      <div class="sal-pay"><span>Payment <b class="coin">${earn}</b></span><span>Tip <b class="coin">${tip}</b></span>${refund ? `<span>Leftover budget <b class="coin">${Math.round(refund/2)}</b></span>` : ""}</div>
+      ${checklist(r.parts.map(q => ({label:`${q.label} · ${Math.round(q.v*100)}%`, ok:q.v >= .75, why:q.why})))}
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="swNextC">${this.day.daily ? "Back to the studio" : last ? "Close for the day" : "Next client →"}</button></div></div>`;
+    $("swA").appendChild(mk(true)); $("swG").appendChild(mk(false));
+    $("swNextC").onclick = () => { if(this.day.daily) return this.lobby(); if(last){ const rs = this.day.results, avg = Math.round(rs.reduce((a, x) => a + x.pct, 0)/rs.length), stars = avg >= 85 ? 3 : avg >= 65 ? 2 : 1; s.days++; save(); return endSession({title:stars === 3 ? "Master tailor" : stars === 2 ? "Skilled seamstress" : "Keep stitching", stars, xp:20 + 15*stars, body:`<div class="big">${fmt(this.day.earned)}</div><p class="m-note">coins earned · average match ${avg}%.</p><ul class="roundlog">${rs.map(x => `<li><span>${x.name} · ${x.t}</span><span>${x.pct}%</span></li>`).join("")}</ul>`, actions:[["Next day", () => startRoom("sewing", "studio"), true], ["Lobby", goHub]]}); } this.newClient(); };
+  }
+};
+ROOMS.sewing.blurb = "Run a tailoring studio. Measure clients with a tape, choose fabric within budget, lay out, pin and cut the pattern, drive the sewing machine along every seam, fit and alter it on the client, then press, hem and send it down the runway.";
+ROOMS.sewing.tip = "<b>Tip:</b> bust is the fullest point, waist the narrowest, hip the widest. Keep the raw edge on the 1.5 cm guide and backstitch at both ends.";
+ROOMS.sewing.modes = [["studio","Open the studio"],["classic","Classic garments"],["sprint","Stitch sprint · 60s"],["practice","Quiz"]];
+HOWTO.sewing = ["Measure the client: pick bust, waist, hip or length, then drag the tape across (or down) the body.","Choose fabric, lay out and pin the pieces, then cut along the lines. On the machine, hold to sew and steer to keep the edge on the red guide.","Fit it on the client, take in or let out, press, hem and close it, then hit the runway."];
 
 renderHub();
 </script>
