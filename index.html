@@ -9779,16 +9779,17 @@ const SAL = (() => {
     const z = P[P.length - 1]; out.push([z.x, z.y]); return out;
   }
   function strokePts(ctx, pts){ if(pts.length < 2) return; ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for(let i = 1; i < pts.length - 1; i++){ const mx = (pts[i][0] + pts[i+1][0])/2, my = (pts[i][1] + pts[i+1][1])/2; ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my); } const z = pts[pts.length - 1]; ctx.lineTo(z[0], z[1]); ctx.stroke(); }
-  function drawLayer(ctx, cl, list, time){
-    const items = list.map(s => { const e = eff(s, cl); return {s, e, pts:stylePath(s, cl, e), col:strandColor(s)}; });
+  function drawLayer(ctx, cl, list, time, dk){
+    const sc = (s, b) => dk ? shade(strandColor(s, b), -dk) : strandColor(s, b);
+    const items = list.map(s => { const e = eff(s, cl); return {s, e, pts:stylePath(s, cl, e), col:sc(s)}; });
     ctx.lineCap = "round"; ctx.lineJoin = "round";
     /* one shaped mass: a thick ink silhouette, then the color fill on top, then fine strand texture inside */
     const mw = o => o.s.w*(1.75 + o.e.vol*.35 + o.e.frizz*.3);
     items.forEach(o => { ctx.strokeStyle = INK; ctx.lineWidth = mw(o) + 3.4; strokePts(ctx, o.pts); });
     items.forEach(o => { ctx.strokeStyle = o.col; ctx.lineWidth = mw(o); strokePts(ctx, o.pts); });
     items.forEach(o => { const s = o.s, n = o.pts.length; if(n < 3) return;
-      if(s.rootCol && s.rootCol !== s.color){ ctx.strokeStyle = strandColor(s, s.rootCol); ctx.lineWidth = mw(o); strokePts(ctx, o.pts.slice(0, Math.max(2, Math.floor(n*.26)))); ctx.strokeStyle = strandColor(s, mix(s.rootCol, s.color, .5)); strokePts(ctx, o.pts.slice(Math.floor(n*.22), Math.floor(n*.32))); }
-      if(s.tipCol && s.tipCol !== s.color){ ctx.strokeStyle = strandColor(s, mix(s.color, s.tipCol, .5)); ctx.lineWidth = mw(o); strokePts(ctx, o.pts.slice(Math.floor(n*.48), Math.floor(n*.62))); ctx.strokeStyle = strandColor(s, s.tipCol); strokePts(ctx, o.pts.slice(Math.floor(n*.58))); } });
+      if(s.rootCol && s.rootCol !== s.color){ ctx.strokeStyle = sc(s, s.rootCol); ctx.lineWidth = mw(o); strokePts(ctx, o.pts.slice(0, Math.max(2, Math.floor(n*.26)))); ctx.strokeStyle = sc(s, mix(s.rootCol, s.color, .5)); strokePts(ctx, o.pts.slice(Math.floor(n*.22), Math.floor(n*.32))); }
+      if(s.tipCol && s.tipCol !== s.color){ ctx.strokeStyle = sc(s, mix(s.color, s.tipCol, .5)); ctx.lineWidth = mw(o); strokePts(ctx, o.pts.slice(Math.floor(n*.48), Math.floor(n*.62))); ctx.strokeStyle = sc(s, s.tipCol); strokePts(ctx, o.pts.slice(Math.floor(n*.58))); } });
     items.forEach((o, i) => { ctx.strokeStyle = shade(o.col, -.28); ctx.globalAlpha = .6; ctx.lineWidth = 1.4; for(const off of [-o.s.w*.45, o.s.w*.35]){ strokePts(ctx, o.pts.map(([x, y]) => [x + off*((i % 2) ? 1 : -.7), y])); } ctx.globalAlpha = 1; });
     items.forEach((o, i) => { if(i % 3) return; ctx.strokeStyle = shade(o.col, .12); ctx.globalAlpha = .5; ctx.lineWidth = 1.2; strokePts(ctx, o.pts.map(([x, y]) => [x + 1.5, y])); ctx.globalAlpha = 1; });
     items.forEach((o, i) => { if(o.e.shine < .15) return; ctx.strokeStyle = mix(o.col, "#ffffff", .25 + o.e.shine*.35); ctx.globalAlpha = .25 + o.e.shine*.6; ctx.lineWidth = 1.2 + o.e.shine*1.6;
@@ -9927,7 +9928,7 @@ const SAL = (() => {
     if(opt.basin){ ctx.fillStyle = "#e9eef3"; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(CX, 300, 200, 64, 0, Math.PI, 0); ctx.lineTo(CX + 200, 330); ctx.ellipse(CX, 330, 200, 90, 0, 0, Math.PI); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = "#cfd8e1"; ctx.beginPath(); ctx.ellipse(CX, 300, 176, 46, 0, 0, 6.28); ctx.fill(); ctx.stroke();
       ctx.fillStyle = "#b9c4cf"; ctx.beginPath(); ctx.rect(CX + 150, 214, 16, 70); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(CX + 158, 214); ctx.quadraticCurveTo(CX + 158, 196, CX + 132, 198); ctx.lineWidth = 9; ctx.strokeStyle = INK; ctx.stroke(); ctx.lineWidth = 5; ctx.strokeStyle = "#b9c4cf"; ctx.stroke(); }
     const back = cl.strands.filter(s => s.g === "back" && !s.clip), front = cl.strands.filter(s => s.g === "front" && !s.clip), bang = cl.strands.filter(s => s.g === "bang" && !s.clip), allBack = cl.strands.filter(s => s.g === "back");
-    if(!styled){ if(cl.tex === 3) drawCloud(ctx, cl, time); else drawLayer(ctx, cl, back, time); }
+    if(!styled){ if(cl.tex === 3) drawCloud(ctx, cl, time); else drawLayer(ctx, cl, back, time, .26); }
     else if(cl.style === "pony" || cl.style === "braid") drawTail(ctx, cl, time, cl.style);
     drawCape(ctx, opt.basin ? "#9ec9e8" : null);
     if(styled && (cl.style === "pony" || cl.style === "braid")){ /* tail over the shoulder sits in front of the cape */ drawTail(ctx, cl, time, cl.style); }
@@ -9955,7 +9956,7 @@ const SAL = (() => {
     const ends = g => cl.strands.filter(s => s.g === g).map(s => s.pts[s.pts.length - 1].y);
     const avg = a => a.reduce((x, y) => x + y, 0)/Math.max(1, a.length), sd = a => { const m = avg(a); return Math.sqrt(avg(a.map(v => (v - m)**2))); };
     const all = cl.strands.filter(s => s.g !== "bang"), E = all.map(s => eff(s, cl));
-    const front = ends("front"), back = ends("back"), bang = ends("bang");
+    const front = cl.bangsFwd ? ends("front") : [...ends("front"), ...ends("bang")], back = ends("back"), bang = ends("bang");
     const colAvg = (() => { const c = all.map(s => hexRgb(mix(mix(s.rootCol || s.color, s.color, .64), s.tipCol || s.color, .3))); return rgbHex(avg(c.map(x => x[0])), avg(c.map(x => x[1])), avg(c.map(x => x[2]))); })();
     return {endY:avg(front)*.7 + avg(back)*.3, frontY:avg(front), backY:avg(back), bangY:avg(bang), even:sd(front) + sd(back)*.5,
       curl:avg(E.map(e => e.curl)), frizz:avg(E.map(e => e.frizz)), shine:avg(E.map(e => e.shine)), vol:avg(E.map(e => e.vol)), wet:avg(cl.strands.map(s => s.wet)),
@@ -9978,7 +9979,7 @@ const SAL = (() => {
     if(tg.hold) add("hold", "Long-lasting hold", 6, m.hold > .3 ? 1 : 0, m.hold > .3 ? "Hairspray will keep it all day." : "Without hairspray it will fall out by dinner.");
     if(cl.dirty || tg.condNeed){ add("clean", "Clean hair", 10, m.foam > .05 ? 0 : 1 - Math.max(0, m.dirt - .08)*2.2, m.foam > .05 ? "Shampoo is still in the hair! Rinse until no foam is left." : m.dirt > .18 ? "Still greasy at the roots. Scrub the scalp while shampooing." : "Squeaky clean."); }
     if(tg.condNeed || cl.tex >= 2) add("cond", "Conditioned", 8, m.condLeft > .25 ? .3 : Math.min(1, m.cond*1.8), m.condLeft > .25 ? "Conditioner left in: rinse it out, or it weighs hair down." : m.cond < .3 ? "Curly and coily hair needs conditioner on the ends." : "Soft and moisturized.");
-    if(tg.frameY) add("frame", "Face-framing pieces", 20, 1 - Math.abs(m.frontY - tg.frameY)/60, m.frontY > tg.frameY + 18 ? "The front pieces are too long: they should hit the chin." : m.frontY < tg.frameY - 18 ? "The front pieces are too short." : "They frame the face perfectly.");
+    if(tg.frameY) add("frame", "Face-framing pieces", 20, 1 - Math.max(0, Math.abs(m.frontY - tg.frameY) - 14)/90, m.frontY > tg.frameY + 18 ? `The front pieces are about ${Math.round((m.frontY - tg.frameY)/10)} cm too long: they should hit the chin (the orange "front pieces" line).` : m.frontY < tg.frameY - 18 ? "The front pieces are too short." : "They frame the face perfectly.");
     if(tg.backY) add("back", "Back length kept", 16, 1 - Math.max(0, tg.backY - m.backY - 14)/60, m.backY < tg.backY - 22 ? "You cut the back too! Clip the back sections out of the way before cutting the front." : "All the length kept at the back.");
     if(cl.washed){ const b = cl.basin; add("bowl", "Comfortable at the bowl", 8, (b.ok ? .35 : 0) + (b.neck ? .3 : 0) + (b.tested && b.temp >= 34 && b.temp <= 40 ? .35 : 0) - Math.min(.4, Math.max(0, b.tries - 1)*.15), !b.ok ? "Recline them into the bowl first." : !b.neck ? "Tuck a towel at the neck so water doesn't run down their back." : !(b.temp >= 34 && b.temp <= 40) ? "Water should be lukewarm, about 37°C." : b.tries > 1 ? "Took a few tries to recline them comfortably." : "A relaxing, comfortable wash."); }
     if(cl.strands.some(s => s.clip)) add("clips", "Clips taken out", 10, 0, "You left section clips in their hair!");
@@ -9999,7 +10000,7 @@ const SAL = (() => {
     if(tg.endY) cutAt(t.strands.filter(s => s.g !== "bang"), tg.endY);
     if(tg.endY && !tg.bangs) cutAt(t.strands.filter(s => s.g === "bang"), Math.max(tg.endY, LV.chin));
     if(tg.bangs) cutAt(t.strands.filter(s => s.g === "bang"), LV.brow);
-    if(tg.frameY) cutAt(t.strands.filter(s => s.g === "front"), tg.frameY);
+    if(tg.frameY) cutAt(t.strands.filter(s => s.g === "front" || s.g === "bang"), tg.frameY);
     if(tg.volMin){ settle(t, 60); const ys = t.strands.filter(s => s.g !== "bang").map(s => s.pts[s.pts.length - 1].y).sort((a, b) => a - b); cutAt(t.strands, ys[Math.floor(ys.length*.35)]); }
     if(tg.style) t.style = tg.style;
     settle(t, 140);
@@ -10211,7 +10212,8 @@ STUDIO.hair = {
     const mood = cl.ouch > 0 ? "ouch" : cl.mood < .45 ? "sad" : this.locked && this.result ? (this.result.pct >= 85 ? "wow" : this.result.pct >= 60 ? "happy" : "sad") : "neutral";
     SAL.drawClient(ctx, cl, {time:now, mood, back:this.view === "back", basin:cl.station === "basin", decor:SAL_MOD.decor, water:this.tool === "rinse" && this.ptr && this.ptr.down && cl.station === "basin" ? this.ptr : null});
     if($("slGuides") && $("slGuides").checked && !this.locked){ ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5; ctx.font = "11px DM Mono, monospace"; Object.entries(SAL.LV).forEach(([k, y]) => { ctx.strokeStyle = "rgba(43,33,24,.35)"; ctx.beginPath(); ctx.moveTo(8, y); ctx.lineTo(SAL.W - 8, y); ctx.stroke(); ctx.fillStyle = "rgba(43,33,24,.6)"; if(this.view !== "back") ctx.fillText(k, SAL.W - 64, y - 4); }); ctx.setLineDash([]);
-      if(this.tg.endY){ ctx.strokeStyle = "#2a9d8f"; ctx.lineWidth = 2; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(8, this.tg.endY); ctx.lineTo(SAL.W - 8, this.tg.endY); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = "#2a9d8f"; if(this.view !== "back") ctx.fillText("goal", 10, this.tg.endY - 4); } }
+      if(this.tg.endY){ ctx.strokeStyle = "#2a9d8f"; ctx.lineWidth = 2; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(8, this.tg.endY); ctx.lineTo(SAL.W - 8, this.tg.endY); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = "#2a9d8f"; if(this.view !== "back") ctx.fillText("goal", 10, this.tg.endY - 4); }
+      [[this.tg.frameY, "front pieces", "#e76f51"], [this.tg.backY, "back length", "#3a86ff"]].forEach(([gy, lab, gc]) => { if(!gy) return; ctx.strokeStyle = gc; ctx.lineWidth = 2; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(8, gy); ctx.lineTo(SAL.W - 8, gy); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = gc; if(this.view !== "back") ctx.fillText(lab, 10, gy - 4); }); }
     /* particles */
     this.parts = this.parts.filter(q => q.life-- > 0);
     this.parts.forEach(q => { ctx.globalAlpha = Math.min(1, q.life/20);
