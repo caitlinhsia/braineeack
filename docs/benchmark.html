@@ -89,7 +89,7 @@ tr.detail td{text-align:left;padding:0;border-bottom:2px solid var(--ink)}
   </div>
 
   <div class="tablebox"><table id="t" aria-label="Benchmark ratings by game"><thead></thead><tbody></tbody></table></div>
-  <p class="note">Ratings are my honest read of the current build (version 35), not a user survey. "Fit" is the game's total as a share of the benchmark's 40 points.</p>
+  <p class="note">Ratings are my honest read of the current build (version 36), not a user survey. "Fit" is the game's total as a share of the benchmark's 40 points.</p>
 
   <section>
     <span class="eyebrow">Cross-cutting</span>
@@ -141,30 +141,30 @@ const G = [
   {k:"peace", n:"Peacemaker", w:"studio", r:[4,4,4,4,4,5,4,5], pri:0,
    now:"Rebuilt: animated characters whose posture shifts with mood (arms crossed, hands on hips, pointing, open arms) with steam, sweat and sparkle effects and live speech bubbles; a reply timer where silence escalates the fight (relaxed mode available); a tone choice (calm, warm, firm) scored against the moment; a mediation goal card; a rescue branch when someone storms off; three animated endings; a path map and replay. 16 scenes, including new online-gaming and family-holiday ones. Coins, mediator ranks, upgrades and a daily scene.",
    todo:["Fully branching scripts where different choices lead to different next beats","Group conflicts with three or more people","Voice-acted lines or text-to-speech","Hand gestures and full-body animation","Write your own reply and get feedback","Long-term relationships that remember past mediations"]},
-  {k:"kitchen", n:"World Kitchen", w:"explore", r:[2,3,4,1,3,3,2,2], pri:3,
-   now:"69 dishes with clues and illustrated plates, world map pin guessing, blitz mode.",
-   todo:["Zoomable world map with regions, rivers and climate overlays","After guessing, assemble the dish from its real ingredients","Passport stamps and a collection book of every dish found","Ingredient origin trail: where tomatoes, chilies and spices came from","Coins, streaks and a daily dish"]},
-  {k:"thread", n:"Time & Thread", w:"explore", r:[2,3,3,1,3,3,1,1], pri:3,
-   now:"Historical outfits with clues; guess place and year.",
-   todo:["Dress a model in the outfit's layers in the right order (chemise, corset, petticoat…)","Inspect garments up close: fabric, buttons, embroidery as clues","Era slider timeline with fashion changing as you drag","Museum collection to fill, coins and daily outfit"]},
-  {k:"landmarks", n:"Landmark Hunt", w:"explore", r:[2,3,3,1,3,3,2,2], pri:3,
-   now:"Illustrated landmark postcards, map pinning, blitz.",
-   todo:["Build the landmark from pieces (arches, domes, columns) after finding it","Day and night views, seasons and crowds","Travel-planner mode linking landmarks on a route","Collection album, coins and daily landmark"]},
-  {k:"atlas", n:"Atlas Detective", w:"explore", r:[3,2,4,2,3,3,2,2], pri:3,
-   now:"64 countries on an unlabeled map: find, name, capitals, streaks.",
-   todo:["Pan and zoom map with terrain, rivers and mountain layers","Drag country shapes into place like a jigsaw","Neighbors chain mode: travel across borders","Map art reveal as you complete a region; coins and daily map"]},
-  {k:"trip", n:"Postcard Trip", w:"explore", r:[2,3,3,2,3,3,3,2], pri:3,
-   now:"28 cities, clue postcards, flight routes with kilometers, detours.",
-   todo:["Plan your own route under a budget and time limit","Local tasks in each city (order food, read a sign, use transit)","Souvenir collection and photo album","Daily route challenge and leaderboard"]},
-  {k:"flags", n:"Flag Maker", w:"explore", r:[3,3,4,2,4,3,2,1], pri:3,
-   now:"Rebuild 59 flags from layouts, stripes, crosses and discs.",
-   todo:["Paint emblems and symbols with guided tools (stars, sun, coats of arms)","Flag meaning cards: what each color and symbol stands for","Design your own flag for a client country with vexillology rules","Coins, collection and daily flag"]},
-  {k:"time", n:"Then & Now", w:"explore", r:[3,2,4,1,4,3,2,2], pri:3,
-   now:"80 events dragged into a growing timeline with lives.",
-   todo:["Illustrated event cards with era art","Cause-and-effect chains: link events that led to each other","Zoomable timeline from the dinosaurs to today","Daily timeline and leaderboard"]},
-  {k:"history", n:"Mystery Guest", w:"explore", r:[1,3,4,2,3,4,2,1], pri:3,
-   now:"43 historical figures, silhouette reveal, clue points.",
-   todo:["Interview the guest: choose questions, they answer in character","Artifacts from their life to examine as clues","Portrait that paints itself in as you get closer","Hall of fame collection, coins and daily guest"]},
+  {k:"kitchen", n:"World Kitchen", w:"explore", r:[3, 4, 4, 3, 4, 4, 3, 4], pri:0,
+   now:"69 dishes with clues and illustrated plates, zoomable world map pin guessing, blitz. New: explorer's lobby with a collection book, coins and daily workshop; Build the plate workshop (pick real ingredients, then an ingredient origin trail).",
+   todo:["Climate and river overlays on the map","Cook the dish step by step after finding it","Regional menus and a dinner-party mode","Leaderboards"]},
+  {k:"thread", n:"Time & Thread", w:"explore", r:[3, 4, 4, 3, 4, 4, 3, 4], pri:0,
+   now:"Historical outfits with clues; guess place and year. New: explorer's lobby, collection, coins and daily; Era runway workshop (order outfits on a timeline, then scrub through time).",
+   todo:["Dress a model layer by layer (chemise, corset, petticoat…)","Inspect fabric, buttons and embroidery up close","More outfits from Africa, the Americas and Oceania"]},
+  {k:"landmarks", n:"Landmark Hunt", w:"explore", r:[3, 4, 4, 3, 4, 4, 3, 4], pri:0,
+   now:"Illustrated landmark postcards, map pinning, blitz. New: explorer's lobby, collection, coins and daily; Postcard puzzle workshop (rebuild the postcard tile by tile).",
+   todo:["Build landmarks from architectural pieces (arches, domes, columns)","Day/night and seasons","Travel-planner mode linking landmarks"]},
+  {k:"atlas", n:"Atlas Detective", w:"explore", r:[4, 4, 4, 4, 4, 4, 3, 4], pri:0,
+   now:"64 countries on an unlabeled map: find, name, capitals, streaks. New: explorer's lobby, collection, coins and daily; Border jigsaw workshop (drag real country shapes back into their holes).",
+   todo:["Terrain, river and mountain layers","Neighbors chain mode across borders","Map art reveal as regions complete"]},
+  {k:"trip", n:"Postcard Trip", w:"explore", r:[3, 4, 4, 4, 4, 4, 3, 4], pri:0,
+   now:"28 cities, clue postcards, flight routes with kilometers, detours. New: explorer's lobby, collection, coins and daily; Route planner workshop (shortest loop through five cities, compared with the true optimum).",
+   todo:["Local tasks in each city (order food, read a sign, use transit)","Souvenirs and a photo album","Leaderboard"]},
+  {k:"flags", n:"Flag Maker", w:"explore", r:[4, 4, 4, 4, 4, 4, 3, 4], pri:0,
+   now:"Rebuild 59 flags from layouts, stripes, crosses and discs. New: explorer's lobby, collection, coins and daily; Flag studio workshop (design a flag for a client country scored on the five principles of good flag design).",
+   todo:["Paint emblems with guided tools","Meaning cards for every color and symbol","Share your designs"]},
+  {k:"time", n:"Then & Now", w:"explore", r:[3, 4, 4, 3, 4, 4, 3, 4], pri:0,
+   now:"80 events dragged into a growing timeline with lives. New: explorer's lobby, collection, coins and daily; Cause & effect workshop (10 chains of events to link in order, with explanations).",
+   todo:["Illustrated event cards with era art","Zoomable timeline from the dinosaurs to today","Leaderboard"]},
+  {k:"history", n:"Mystery Guest", w:"explore", r:[3, 4, 4, 4, 4, 4, 3, 4], pri:0,
+   now:"43 historical figures, silhouette reveal, clue points. New: explorer's lobby, collection, coins and daily; The interview workshop (ask questions, answers in character, the portrait sharpens as you learn).",
+   todo:["Artifacts from their life to examine","Guests that answer free-typed questions","Hall of fame"]},
   {k:"dive", n:"Deep Dive", w:"core", r:[3,3,4,2,3,3,3,3], pri:4,
    now:"16 categories, typing answers, rarity depth, two versions.",
    todo:["Animated ocean with creatures appearing at each depth","Head-to-head mode against a ghost of your best run","More categories and daily category leaderboard"]},
@@ -179,7 +179,7 @@ const G = [
 const CROSS = [["One shared character engine","The faces and bodies from the salon and makeup studio reused everywhere: Peacemaker, Gift Detective, Atelier, Sewing fittings, Kitchen customers."],["One coin economy","Coins earned anywhere spent in any shop, with a player profile and avatar to dress."],["Achievements and collections","Stickers, stamps and trophies for milestones in every game."],["Sound and music","A soundtrack per room and richer sound effects, with a mute and volume control."],["First-time tutorials","A guided first client in every studio that teaches each tool by doing."],["Daily challenge everywhere","Every game gets a same-for-everyone daily round with a saved best."],["Accessibility","Larger touch targets, colorblind-safe palettes, reduced-motion mode, keyboard play."],["Phone polish","Every studio laid out so the canvas and tools fit a phone screen without scrolling."]];
 const PRI = ["Benchmark","Next up","Soon","Later","Later"];
 const PRIC = ["p0","p1","p2","p3","p3"];
-const ORDER = [["Sewing Room (done, round one)","Measurements, shears, pedal-driven machine, fittings and a sketch to match are in. Draping cloth comes in round two."],["Test Kitchen (done, round one)","Live stove, knife skills, seasoning and plating are in. More dishes and a dinner rush come in round two."],["Atelier (done, round one)","Mood boards, a wardrobe rack with layering, fabric textures, a live color wheel, a runway and judges are in. Dragging and prints come in round two."],["Floorplan Lab (done, round one)","Families, doors and windows, real-size furniture with clearances, budget, sun path, 3D dollhouse and move-in are in. Hallways and storeys come in round two."],["Gift Detective (done, round one)","Feed with clue pinning, DMs, hand wrapping, cards, unboxing and holiday rush are in."],["Peacemaker (done, round one)","Body language, timer, tone, goal card, rescue branch, endings and replay are in."],["Explorer games","Shared upgrades: zoomable maps, collections, hands-on assembly after each guess."],["Brain gym","Themed visuals, hands-on modes, level maps and leaderboards."],["Hair and Makeup round two","Braiding, rollers, color mixing; brush types, skin texture, special effects."]];
+const ORDER = [["Sewing Room (done, round one)","Measurements, shears, pedal-driven machine, fittings and a sketch to match are in. Draping cloth comes in round two."],["Test Kitchen (done, round one)","Live stove, knife skills, seasoning and plating are in. More dishes and a dinner rush come in round two."],["Atelier (done, round one)","Mood boards, a wardrobe rack with layering, fabric textures, a live color wheel, a runway and judges are in. Dragging and prints come in round two."],["Floorplan Lab (done, round one)","Families, doors and windows, real-size furniture with clearances, budget, sun path, 3D dollhouse and move-in are in. Hallways and storeys come in round two."],["Gift Detective (done, round one)","Feed with clue pinning, DMs, hand wrapping, cards, unboxing and holiday rush are in."],["Peacemaker (done, round one)","Body language, timer, tone, goal card, rescue branch, endings and replay are in."],["Explorer games (done, round one)","Explorer lobby with collection books, coins and daily workshops, plus a hands-on workshop for each of the eight games."],["Brain gym","Themed visuals, hands-on modes, level maps and leaderboards."],["Hair and Makeup round two","Braiding, rollers, color mixing; brush types, skin texture, special effects."]];
 const total = g => g.r.reduce((a,b) => a+b, 0);
 document.getElementById("quals").innerHTML = Q.map(([n,d],i) => `<div class="qual"><b>${i+1}. ${n}</b>${d}</div>`).join("");
 document.querySelector("#t thead").innerHTML = `<tr><th class="game" scope="col">Game</th>${Q.map(([n]) => `<th scope="col">${n}</th>`).join("")}<th scope="col">Fit</th><th scope="col">Priority</th></tr>`;
