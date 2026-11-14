@@ -1132,6 +1132,47 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 #fpProb.bad{color:#c0392b;font-weight:700}
 .fp-compare{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.fp-compare canvas{width:100%;height:auto}
 .sal-req.fp-brief{grid-template-columns:110px 1fr}.sal-req.fp-brief canvas{width:110px;height:90px;border:2px solid var(--ink);border-radius:10px}
+.gf-sign{background:linear-gradient(135deg,#ffe7f3,#e8f3ff)}
+.gf-main .gf-left{min-width:0}
+.gf-phone{max-width:460px;margin:0 auto;background:#fffdf8;border:3px solid var(--ink);border-radius:26px;padding:10px 10px 4px;box-shadow:5px 6px 0 var(--ink);max-height:78vh;overflow:auto;color:#2b2118}
+.gf-stories{display:flex;gap:10px;padding:4px 2px 10px;border-bottom:2px dashed rgba(43,33,24,.2);margin-bottom:8px}
+.gf-story{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;cursor:pointer;font:inherit;color:inherit}.gf-story>span{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:18px;color:#fff;background:linear-gradient(135deg,#ff7db8,#ffd166);border:2.5px solid var(--ink);box-shadow:0 0 0 2px #fff,0 0 0 4px #ff7db8}.gf-story small{font-size:11px}
+.gf-post{border:2px solid var(--ink);border-radius:16px;margin:0 0 12px;overflow:hidden;background:#fff}
+.gf-post header{display:flex;gap:8px;align-items:center;padding:6px 8px}.gf-post header small{display:block;color:#7a6a5a;font-size:11px}.gf-mini{width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid var(--ink);background:#ffe9d1;display:grid;place-items:center}
+.gf-photo{position:relative;height:170px;display:grid;place-items:center;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}.gf-photo svg{filter:drop-shadow(3px 4px 0 rgba(43,33,24,.25))}.gf-cap{position:absolute;left:8px;bottom:6px;background:rgba(255,255,255,.85);border-radius:8px;padding:2px 8px;font-weight:800;font-size:13px}
+.gf-acts{display:flex;align-items:center;gap:6px;padding:4px 8px}.gf-heart{background:none;border:0;cursor:pointer;padding:0}.gf-heart svg{fill:#fff;stroke:var(--ink);stroke-width:2}.gf-heart.on svg{fill:#ff4d79;animation:gfPop .3s}
+@keyframes gfPop{50%{transform:scale(1.4)}}
+.gf-body{padding:2px 10px 6px;margin:0;line-height:1.55;font-size:14.5px}
+.gf-s{cursor:pointer;border-radius:5px;padding:1px 2px;transition:background .15s}.gf-s:hover{background:#fff1a8}
+.gf-s.pin-n,.gf-col.pin-n b,.gf-pop .pin-n,.gf-tag.pin-n{background:#ffd5cc}.gf-s.pin-l,.gf-col.pin-l b,.gf-pop .pin-l,.gf-tag.pin-l{background:#d6f3c6}.gf-s.pin-a,.gf-col.pin-a b,.gf-pop .pin-a,.gf-tag.pin-a{background:#dcd4ff}
+.gf-pop{display:inline-flex;gap:4px;margin:0 4px;vertical-align:middle}.gf-pop button{font:inherit;font-size:12px;font-weight:700;border:2px solid var(--ink);border-radius:99px;padding:1px 8px;cursor:pointer;background:#fff}
+.gf-coms{padding:4px 10px 8px;font-size:13px;border-top:1px dashed rgba(43,33,24,.2)}.gf-coms p{margin:2px 0}
+.gf-board{display:grid;gap:6px;margin-top:8px}.gf-col{border:2px solid var(--ink);border-radius:10px;padding:4px 8px;background:#fffdf8}.gf-col b{display:inline-block;border-radius:6px;padding:0 6px;font-size:12px}.gf-col ul{margin:4px 0;padding-left:16px;font-size:13px}.gf-col li.gf-tip{list-style:"› ";color:#5a4a3a}
+.gf-chat .gf-msgs{display:flex;flex-direction:column;gap:6px;padding:8px 2px;min-height:260px}.gf-chathead{display:flex;gap:8px;align-items:center;border-bottom:2px dashed rgba(43,33,24,.2);padding-bottom:8px}.gf-chathead small{display:block;color:#7a6a5a}
+.gf-bub{max-width:80%;margin:0;padding:7px 11px;border-radius:16px;border:2px solid var(--ink);font-size:14px}.gf-bub.them{background:#f1ecff;align-self:flex-start;border-bottom-left-radius:4px}.gf-bub.me{background:#d9f0ff;align-self:flex-end;border-bottom-right-radius:4px}
+.gf-store{max-height:78vh;overflow:auto}
+.gf-line{display:flex;align-items:center;gap:6px;font-size:13.5px;margin:3px 0}.gf-line span{flex:1}
+.gf-sw{display:inline-block;width:16px;height:16px;border-radius:4px;border:1.5px solid var(--ink);margin-right:5px;vertical-align:-3px}.ch.locked{opacity:.45}
+.gf-table canvas{width:100%;max-width:520px;display:block;margin:0 auto;aspect-ratio:440/400;border:3px solid var(--ink);border-radius:16px;box-shadow:5px 6px 0 var(--ink);touch-action:none;cursor:crosshair}
+.gf-cardwrap{display:grid;gap:12px;max-width:520px;margin:0 auto}.gf-card{display:grid;grid-template-columns:1fr 1.4fr;border:3px solid var(--ink);border-radius:12px;overflow:hidden;box-shadow:5px 6px 0 var(--ink);min-height:200px;background:#fffdf8;color:#2b2118}
+.gf-cardfront{background:repeating-linear-gradient(45deg,#ffd6e8 0 10px,#fff 10px 16px);display:flex;flex-direction:column;justify-content:center;align-items:center;border-right:2px dashed var(--ink)}.gf-cardfront b{font-size:24px}
+.gf-cardin{padding:16px;font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-size:16px;line-height:1.5;position:relative}.gf-sign{display:block;text-align:right;margin-top:10px}
+.gf-opts{display:grid;gap:6px}.gf-opt{text-align:left;font:inherit;font-size:14px;padding:8px 12px;border:2px solid var(--ink);border-radius:12px;background:var(--card,#fffdf8);cursor:pointer;color:inherit}.gf-opt.sel{background:#ffe08a}
+.gf-stage{position:relative;height:440px;max-width:520px;margin:0 auto;background:radial-gradient(circle at 50% 30%,#fff7e6,#ffd9ec);border:3px solid var(--ink);border-radius:18px;overflow:hidden;box-shadow:5px 6px 0 var(--ink)}
+.gf-person{position:absolute;left:4%;top:14px}
+.gf-speech{position:absolute;left:46%;right:4%;top:40px;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:6px 12px;font-weight:700;max-width:86%;text-align:center;color:#2b2118}.gf-speech.good{background:#e7f8dc}.gf-speech.bad{background:#ffe1da}
+.gf-box{position:absolute;left:50%;bottom:30px;width:150px;height:110px;margin-left:-75px;background:repeating-linear-gradient(45deg,var(--p1) 0 9px,var(--p2) 9px 14px);border:3px solid var(--ink);border-radius:6px}
+.gf-box::before,.gf-box::after{content:"";position:absolute;background:var(--rib);border:2px solid var(--ink)}.gf-box::before{left:50%;top:-3px;bottom:-3px;width:16px;margin-left:-8px}.gf-box::after{top:50%;left:-3px;right:-3px;height:16px;margin-top:-8px}
+.gf-bow{position:absolute;left:50%;top:-26px;width:60px;height:30px;margin-left:-30px;z-index:2;background:radial-gradient(circle at 50% 70%,var(--rib) 0 9px,transparent 10px),radial-gradient(ellipse 18px 13px at 22% 55%,var(--rib) 95%,transparent),radial-gradient(ellipse 18px 13px at 78% 55%,var(--rib) 95%,transparent)}
+.gf-lid{position:absolute;left:-8px;right:-8px;top:-14px;height:20px;background:inherit;border:3px solid var(--ink);border-radius:6px;z-index:1;transition:transform .5s}
+.gf-box.shake{animation:gfShake .5s 2}@keyframes gfShake{25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
+.gf-box.rip{background:#c79a68}.gf-box.rip::before,.gf-box.rip::after,.gf-box.rip .gf-bow{display:none}.gf-box.open .gf-lid{transform:translate(90px,-60px) rotate(40deg)}
+.gf-gift{position:absolute;left:50%;top:10px;transform:translate(-50%,0) scale(.3);opacity:0;transition:transform .6s cubic-bezier(.2,1.6,.4,1),opacity .3s;display:flex;gap:4px}.gf-gift.up{transform:translate(-50%,-95px) scale(1);opacity:1}
+.gf-burst{position:absolute;inset:0;pointer-events:none}.gf-burst i,.gf-burst b{position:absolute;left:50%;bottom:90px;width:18px;height:14px;border:1.5px solid var(--ink);animation:gfFly 1.2s ease-out forwards}.gf-burst b.heart{width:16px;height:16px;border:0;background:#ff4d79;clip-path:path("M8 15C3 11 0 8 0 4.5A4 4 0 0 1 8 3a4 4 0 0 1 8 1.5C16 8 13 11 8 15Z")}
+@keyframes gfFly{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+.gf-resrow{display:flex;gap:12px;align-items:center}
+.gf-toast{position:fixed;left:50%;bottom:18px;right:auto;transform:translateX(-50%);max-width:min(520px,90vw);z-index:70}.gf-toast.show{transform:translateX(-50%)}
+.sal-req.gf-who{grid-template-columns:84px 1fr}.gf-av svg{width:84px;height:auto}
 </style>
 
 <div class="wrap">
@@ -12531,6 +12572,231 @@ ROOMS.floor.blurb = "Run a home-design firm. Families bring a wish list and a bu
 ROOMS.floor.tip = "<b>Tip:</b> draw the rooms with the most rules first. Every square meter costs money, doors swing into rooms, and the sun rises in the east.";
 ROOMS.floor.modes = [["studio","Open the firm"],["classic","Classic plan"],["sprint","Plan sprint · 60s"],["practice","Quiz"]];
 HOWTO.floor = ["Read the family's wish list and budget, then pick a room and drag on the lot to draw it.","Tap walls to add doors (wide ones for wheelchairs) and windows, then furnish each room. Dashed zones show the space a piece needs.","Choose floors and paint, check the sun and the 3D view, then hand over the keys and watch the family move in."];
+
+/* =========================================================
+   GIFT DETECTIVE PRO: scroll their feed and pin clues, DM
+   their friends, shop on a budget, wrap it by hand, write
+   the card, then watch them unbox it.
+   ========================================================= */
+const GIFT_CLASSIC = STUDIO.gift;
+const GF_AVOID = {honey:["honey isn't vegan","honey"], leather:["leather isn't vegan","leather goods"], big:["it's too big for their space","big gadgets"], tech:["gadgets confuse them","new gadgets"], screen:["screens are off-limits","screen time"], slow:["it takes hours they don't have","long projects"], scented:["strong scents trigger migraines","scented candles"], sugar:["they're cutting out sweets","sweets"], cozy:["they already have far too many","cozy blankets"], smallparts:["small parts are a choking risk","tiny toys"], science:["its age rating is too old for them","science kits"], dairy:["dairy upsets their stomach","cheese"], cheese:["dairy upsets their stomach","cheese"], umbrella:["they already have one","umbrellas"], wool:["wool allergy","wool sweaters"], paperbook:["no shelf space for paper books","paper books"]};
+const GF_PHOTO = [[/bus|commut|train|travel|trip|flight/i,"g:headphones","#cfe6ff"],[/garden|allotment|plant|seed|potato|grow/i,"g:seeds","#d7f0c8"],[/curry|recipe|cook|bake|lunch|dinner|food|kitchen|tea|coffee/i,"g:spices","#ffe2c8"],[/book|read|librar|novel/i,"g:book","#f3e3ff"],[/music|song|guitar|ukulele|band|vinyl|beats/i,"g:vinyl","#ffd9ec"],[/crossword|puzzle|jigsaw/i,"g:crossword","#fff2b8"],[/run|gym|hike|bike|cycle|marathon|swim/i,"g:bikelight","#d4f4ee"],[/paint|draw|sketch|art|design/i,"g:sketchbook","#ffe8d6"],[/star|sky|night|moon/i,"g:telescope","#d8dcff"],[/rain|weather|umbrella/i,"g:umbrella","#dde7f0"],[/cat|dog|pet|kitten|puppy/i,"g:plushcat","#ffe9d1"],[/phone|game|gadget|app|screen/i,"g:tablet","#e2e8f0"],[/room|dorm|flat|cozy|light/i,"g:candle","#fff0d6"],[/cold|winter|snow|scarf/i,"g:scarf","#e3efff"]];
+const GF_LIKE = {music:"music", cozy:"cozy nights in", puzzle:"puzzles", tea:"tea", sport:"sport", space:"space and stars", kids:"games with the kids", coffee:"coffee", selfcare:"pampering", rain:"rainy walks", art:"drawing and painting", mystery:"mystery novels", food:"good food", running:"running", science:"science", cooking:"cooking", holiday:"holidays", garden:"gardening", dog:"their dog", camping:"camping", healthy:"healthy eating", dressup:"dressing up"};
+const GF_PAPERS = {stripes:["Candy stripes","#ff7db8","#fff"], dots:["Polka dots","#3a8dff","#fff"], stars:["Gold stars","#1f2a5a","#ffd166"], kraft:["Brown kraft","#c79a68","#8a5a33"], foil:["Rose-gold foil","#f2b8a2","#fff4ec", 1], floral:["Pressed flowers","#fff7ee","#ff9fb8", 1]};
+const GF_RIBBONS = ["#e63946","#ffd166","#3a8dff","#78c552","#b97cf6","#ffffff","#2b2118"];
+const GF_SHOP = [["kit","Deluxe wrap kit","g:voucher","Foil and floral papers; prettier wrapping earns bigger tips.",60],["notebook","Detective notebook","g:journal","One extra DM question per person.",50],["express","Express shipping","g:bottle","Shipping is always free.",60],["loyalty","Loyalty card","g:wallet","10% off everything in the store.",80]];
+const GF_PH = [["feed","Feed"],["dm","DMs"],["shop","Shop"],["wrap","Wrap"],["card","Card"],["give","Give"]];
+const GFS = () => { S.gfpro = S.gfpro || {coins:120, owned:[], served:0, totalMatch:0, best:0, days:0, daily:{}}; return S.gfpro; };
+const gfSize = it => it.t.includes("small") ? [16, 10, 6] : it.t.includes("big") ? [40, 28, 18] : [26, 18, 10];
+STUDIO.gift = {
+  start(mode){ if(mode === "classic") return GIFT_CLASSIC.start.call(GIFT_CLASSIC, mode); this.lobby(); },
+  has(k){ return GFS().owned.includes(k); },
+  lobby(){
+    const s = GFS(); cancelAnimationFrame(this.raf); const avg = s.served ? Math.round(s.totalMatch/s.served) : 0;
+    stage.innerHTML = `<div class="sal-lobby"><div class="sal-sign gf-sign"><span class="eyebrow">Your gift agency</span><h3>Case ${s.days + 1}</h3>
+      <div class="sal-stats"><span><small>Coins</small><b class="coin">${fmt(s.coins)}</b></span><span><small>Gifts given</small><b>${s.served}</b></span><span><small>Average score</small><b>${s.served ? avg + "%" : "–"}</b></span><span><small>Best</small><b>${s.best ? s.best + "%" : "–"}</b></span></div>
+      <p class="stage-tip">Scroll their feed and pin the clues, DM their friends, shop on a budget, wrap it by hand and write the card. Then watch them open it.</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="gfOpen">Take a case →</button><button class="btn" type="button" id="gfRush">Holiday rush · one budget, three gifts</button><button class="btn" type="button" id="gfDaily">Daily person</button></div>
+      <p class="tooltip-line">${s.daily[today()] ? `Today's best: <b>${s.daily[today()]}%</b>.` : "Everyone shops for the same person today."}</p></div>
+      <div class="sal-shop"><span class="eyebrow">Upgrades</span><div class="sal-shopgrid">${GF_SHOP.map(([k, n, ic, d, p]) => { const own = s.owned.includes(k); return `<div class="sal-item${own ? " own" : ""}"><span class="ti">${icon(ic, 34)}</span><b>${n}</b><small>${d}</small>${own ? `<span class="owned">Owned</span>` : `<button class="btn-sm" type="button" data-buy="${k}" ${s.coins < p ? "disabled" : ""}><span class="coin">${p}</span></button>`}</div>`; }).join("")}</div></div></div>`;
+    stage.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => { const t = GF_SHOP.find(x => x[0] === b.dataset.buy); if(s.coins < t[4]) return; s.coins -= t[4]; s.owned.push(t[0]); save(); sfx.win(); this.lobby(); });
+    $("gfOpen").onclick = () => { this.day = {n:0, earned:0, results:[]}; this.newCase(); };
+    $("gfRush").onclick = () => { const ppl = freshItems("gift", GIFT_PEOPLE, 3, x => x.name); this.day = {n:0, earned:0, results:[], rush:ppl, wallet:Math.round(ppl.reduce((a, g) => a + g.budget, 0)*.9)}; this.newCase(); };
+    $("gfDaily").onclick = () => { this.day = {n:0, earned:0, results:[], daily:true}; const r0 = Math.random; Math.random = rng("gf" + today()); try{ this.newCase(); } finally { Math.random = r0; } };
+    setSide("Coins", fmt(s.coins));
+  },
+  newCase(){
+    const g = this.day.rush ? this.day.rush[this.day.n] : pick(GIFT_PEOPLE.filter(x => !(this.lastG || []).includes(x.name))); this.lastG = [...(this.lastG || []).slice(-5), g.name];
+    this.g = g; this.face = {...g.look, ...randomFeatures(g.name)}; this.budget = this.day.rush ? this.day.wallet : g.budget;
+    const fr = shuffle(NAMES.filter(n => n !== g.name)); this.friends = [[fr[0], "best friend"], [fr[1], /grand/i.test(g.rel) ? "neighbour" : /niece|nephew|kid|little/i.test(g.rel) ? "parent" : "flatmate"], [fr[2], "workmate"]];
+    this.pins = {}; this.asked = []; this.qLeft = 3 + (this.has("notebook") ? 1 : 0); this.cart = []; this.cat = "All"; this.q = ""; this.liked = new Set();
+    this.wrap = {paper:null, cut:null, folds:[], tape:[], ribbon:null, bow:false, step:0, mess:0}; this.card = null; this.phase = 0; this.maxPhase = 0; this.locked = false; this.tips = new Set();
+    this.sent = this.splitPosts(); this.render();
+  },
+  splitPosts(){ let id = 0; return this.g.posts.map(([title, date, body]) => { const parts = []; body.replace(/<<([nla]):(.*?)>>|([^<]+)/g, (m, k, t, plain) => { if(k) parts.push({id:id++, k, t}); else plain.split(/(?<=[.!?])\s+/).filter(x => x.trim()).forEach(x => parts.push({id:id++, k:"x", t:x.trim()})); return m; }); return {title, date, parts}; }); },
+  render(){
+    const s = GFS(), g = this.g;
+    stage.innerHTML = `<div class="sal gfp">
+      <div class="sal-hud"><span class="coin">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily person" : this.day.rush ? `Holiday rush · gift ${this.day.n + 1} of 3` : `Case ${this.day.n + 1} of 3`}</span><span class="fp-cost" id="gfWallet"></span><span class="sal-match"><small>Clues</small><b id="gfClueN">0</b></span><button class="btn btn-solid sal-finish" type="button" id="gfNext"></button></div>
+      <ol class="stepper sal-steps" id="gfSteps">${GF_PH.map(([k, l], i) => `<li data-ph="${i}"><span>${i + 1}</span>${l}</li>`).join("")}</ol>
+      <div class="sal-main gf-main"><div class="gf-left" id="gfLeft"></div>
+        <div class="sal-side"><div class="sal-req gf-who"><div class="gf-av" id="gfAv">${faceSVG({...this.face, mood:"happy"}, 84)}</div><div><span class="eyebrow">${g.rel} · budget £${this.budget}</span><h3>${g.name}</h3><p class="sal-say">${g.bio}</p></div></div><div class="sw-panel" id="gfPanel"></div></div></div>
+      <div id="gfRes" class="sal-overlay"></div></div>`;
+    $("gfSteps").onclick = e => { const li = e.target.closest("[data-ph]"); if(li && !this.locked && +li.dataset.ph <= this.maxPhase && +li.dataset.ph < 5) this.enterPhase(+li.dataset.ph); };
+    $("gfNext").onclick = () => { if(this.locked) return; if(this.phase === 2 && (!this.cart.length || this.totals().tot > this.budget)) return this.note(!this.cart.length ? "Pick a gift first." : "That's over budget."); if(this.phase === 3 && !this.wrap.bow) return this.note("Finish wrapping: paper, cut, fold, tape and a bow."); if(this.phase === 4 && !this.card) return this.note("Choose a message for the card."); if(this.phase === 4) return this.give(); this.enterPhase(this.phase + 1); };
+    this.enterPhase(0);
+  },
+  note(t){ let m = $("gfMsg"); if(!m){ m = document.createElement("p"); m.id = "gfMsg"; m.className = "msg sal-toast gf-toast"; stage.querySelector(".gfp").appendChild(m); } m.textContent = t; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); clearTimeout(this.noteT); this.noteT = setTimeout(() => m && m.classList.remove("show"), 4200); },
+  tipOnce(k, t){ if(this.tips.has(k)) return; this.tips.add(k); this.note(t); },
+  enterPhase(i){
+    this.phase = i; this.maxPhase = Math.max(this.maxPhase, i); cancelAnimationFrame(this.raf);
+    stage.querySelectorAll("#gfSteps li").forEach((li, j) => { li.classList.toggle("now", j === i); li.classList.toggle("done", j < this.maxPhase && j !== i); });
+    $("gfNext").textContent = ["Message their friends →","Go shopping →","Wrap it →","Write the card →","Give the gift","…"][i]; $("gfNext").disabled = i === 5;
+    [this.feed, this.dms, this.shop, this.wrapUI, this.cardUI, () => {}][i].call(this); this.board(); this.updateHud();
+  },
+  updateHud(){ const t = this.totals(), w = $("gfWallet"); if(w){ w.textContent = `£${t.tot} / £${this.budget}`; w.classList.toggle("over", t.tot > this.budget); } const n = $("gfClueN"); if(n) n.textContent = Object.keys(this.pins).length + this.asked.length; },
+  /* ---------- feed ---------- */
+  feed(){
+    const g = this.g, L = $("gfLeft"), com = ["Love this!","Haha, same.","Miss you!","Ooh, tell me more.","Classic you.","This made my day.","Need an update!"];
+    L.innerHTML = `<div class="gf-phone"><div class="gf-stories">${this.friends.map(([n, r]) => `<button type="button" class="gf-story" data-dm="${n}"><span>${n[0]}</span><small>${n}</small></button>`).join("")}</div>
+      ${this.sent.map((p, pi) => { const ph = GF_PHOTO.find(([re]) => re.test(p.title + " " + p.parts.map(q => q.t).join(" "))) || [0, "g:mug", "#f1e6da"]; const likes = 12 + (g.name.length*7 + pi*13) % 60; return `<article class="gf-post"><header><span class="gf-mini">${faceSVG({...this.face, mood:"happy"}, 34)}</span><div><b>${g.name}</b><small>${p.date}</small></div></header>
+        <div class="gf-photo" style="background:linear-gradient(135deg,${ph[2]},#fff)">${icon(ph[1], 96)}<span class="gf-cap">${p.title}</span></div>
+        <div class="gf-acts"><button type="button" class="gf-heart${this.liked.has(pi) ? " on" : ""}" data-like="${pi}" aria-label="Like"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg></button><small>${likes + (this.liked.has(pi) ? 1 : 0)} likes</small></div>
+        <p class="gf-body">${p.parts.map(q => `<span class="gf-s${this.pins[q.id] ? " pin-" + this.pins[q.id] : ""}" data-s="${q.id}">${q.t}</span>`).join(" ")}</p>
+        <div class="gf-coms">${[0, 1].map(j => { const f = this.friends[(pi + j) % 3]; return `<p><b>${f[0]}</b> ${com[(pi*2 + j + g.name.length) % com.length]}</p>`; }).join("")}</div></article>`; }).join("")}</div>`;
+    L.onclick = e => { const s = e.target.closest("[data-s]"), h = e.target.closest("[data-like]"), st = e.target.closest("[data-dm]");
+      if(h){ const i = +h.dataset.like; this.liked.has(i) ? this.liked.delete(i) : this.liked.add(i); tone(880, .05, "sine", .03); return this.feed(); }
+      if(st){ this.dmWho = st.dataset.dm; return this.enterPhase(1); }
+      if(s) this.pinMenu(s); };
+    this.tipOnce("feed", "Tap any sentence that tells you what they need, love or must avoid, and pin it as a clue.");
+  },
+  pinMenu(el){ document.querySelectorAll(".gf-pop").forEach(x => x.remove()); const id = +el.dataset.s, pop = document.createElement("span"); pop.className = "gf-pop"; pop.innerHTML = [["n","Need"],["l","Love"],["a","Avoid"]].map(([k, l]) => `<button type="button" data-pin="${k}" class="pin-${k}">${l}</button>`).join("") + (this.pins[id] ? `<button type="button" data-pin="">Unpin</button>` : "");
+    el.after(pop); pop.onclick = e => { e.stopPropagation(); const b = e.target.closest("[data-pin]"); if(!b) return; if(b.dataset.pin) this.pins[id] = b.dataset.pin; else delete this.pins[id]; tone(b.dataset.pin ? 660 : 330, .06, "triangle", .03); pop.remove(); el.className = "gf-s" + (this.pins[id] ? " pin-" + this.pins[id] : ""); this.board(); this.updateHud(); }; },
+  allParts(){ return this.sent.flatMap(p => p.parts); },
+  board(){
+    const P = $("gfPanel"); if(!P) return; const parts = this.allParts(), pinned = parts.filter(q => this.pins[q.id]);
+    const col = k => pinned.filter(q => this.pins[q.id] === k).map(q => `<li>${q.t}</li>`).join("") + this.asked.filter(a => a.k === k).map(a => `<li class="gf-tip"><b>${a.from}:</b> ${a.a}</li>`).join("");
+    const extra = this.phase === 1 ? this.dmPanel() : this.phase === 2 ? this.cartPanel() : this.phase === 3 ? this.wrapPanel() : "";
+    P.innerHTML = extra + `<div class="gf-board"><span class="eyebrow">Clue board</span>${[["n","Needs"],["l","Loves"],["a","Avoid"]].map(([k, l]) => `<div class="gf-col pin-${k}"><b>${l}</b><ul>${col(k) || `<li class="muted">Nothing yet</li>`}</ul></div>`).join("")}</div>`;
+    this.bindPanel();
+  },
+  bindPanel(){ const P = $("gfPanel"); P.onclick = e => { const b = e.target.closest("[data-ask],[data-who],[data-rm],[data-paper],[data-rib],#gfBow,#gfCheckout"); if(!b || this.locked) return;
+    if(b.dataset.who){ this.dmWho = b.dataset.who; this.dms(); this.board(); }
+    if(b.dataset.ask) this.ask(b.dataset.ask);
+    if(b.dataset.rm){ this.cart.splice(+b.dataset.rm, 1); this.shop(); this.board(); this.updateHud(); }
+    if(b.dataset.paper){ if(GF_PAPERS[b.dataset.paper][3] && !this.has("kit")) return this.note("Unlock the deluxe wrap kit in the lobby."); this.wrap.paper = b.dataset.paper; this.wrap.step = Math.max(this.wrap.step, 1); sfx.click(); this.wrapUI(); this.board(); }
+    if(b.dataset.rib){ this.wrap.ribbon = b.dataset.rib; sfx.click(); this.board(); }
+    if(b.id === "gfBow" && this.wrap.ribbon){ this.wrap.bow = true; this.wrap.step = 5; sfx.win(); this.board(); }
+  }; },
+  /* ---------- DMs ---------- */
+  dms(){ const L = $("gfLeft"), who = this.dmWho || this.friends[0][0], f = this.friends.find(x => x[0] === who) || this.friends[0]; this.dmWho = f[0];
+    const log = this.asked.filter(a => a.from === f[0]);
+    L.innerHTML = `<div class="gf-phone gf-chat"><header class="gf-chathead"><span class="gf-story"><span>${f[0][0]}</span></span><div><b>${f[0]}</b><small>${this.g.name}'s ${f[1]}</small></div></header><div class="gf-msgs">
+      <p class="gf-bub them">Hey! What's up?</p>${log.map(a => `<p class="gf-bub me">${a.q}</p><p class="gf-bub them">${a.a}</p>`).join("")}${!log.length ? `<p class="gf-bub me muted">Ask about ${this.g.name}…</p>` : ""}</div></div>`;
+    this.tipOnce("dm", `You can ask ${this.qLeft} questions in total. Choose who you ask and what wisely.`);
+  },
+  dmPanel(){ return `<div class="opt-group"><h4>Message a friend · ${this.qLeft} question${this.qLeft === 1 ? "" : "s"} left</h4><div class="chips">${this.friends.map(([n, r]) => `<button type="button" class="ch${this.dmWho === n ? " sel" : ""}" data-who="${n}">${n} · ${r}</button>`).join("")}</div><div class="chips">${[["n","Is there anything they need right now?"],["a","Anything they can't stand, or can't have?"],["l","What are they really into lately?"],["b","What should I spend?"]].map(([k, q]) => `<button type="button" class="ch" data-ask="${k}" ${this.qLeft <= 0 || this.asked.some(a => a.from === this.dmWho && a.k === k) ? "disabled" : ""}>${q}</button>`).join("")}</div></div>`; },
+  ask(k){ if(this.qLeft <= 0) return; this.qLeft--; const g = this.g, f = this.friends.find(x => x[0] === this.dmWho), likeW = g.like.map(t => GF_LIKE[t] || t);
+    const q = {n:"Is there anything they need right now?", a:"Anything they can't stand, or can't have?", l:"What are they really into lately?", b:"What should I spend?"}[k];
+    const vary = f[1] === "workmate" ? .5 : 1, a = k === "n" ? (vary < 1 ? "Not sure, we mostly talk about work. Check their posts?" : `Honestly? ${g.why.need}`) : k === "a" ? `Careful: ${g.why.avoid}` : k === "l" ? `They're obsessed with ${listAnd(likeW)} right now.` : `Don't go over £${this.budget}, shipping included. Something useful beats something pricey.`;
+    this.asked.push({from:f[0], k:k === "b" ? "x" : k, q, a: a}); tone(740, .05, "sine", .03); setTimeout(() => tone(990, .05, "sine", .03), 400);
+    this.dms(); this.board(); this.updateHud(); },
+  /* ---------- shop ---------- */
+  totals(){ const disc = this.has("loyalty") ? .9 : 1, sub = Math.round(this.cart.reduce((a, x) => a + x.p, 0)*disc), ship = sub >= GIFT_FREE || !sub || this.has("express") ? 0 : GIFT_SHIP; return {sub, ship, tot:sub + ship}; },
+  shop(){ const L = $("gfLeft"), list = GIFT_ITEMS.map((x, i) => [x, i]).filter(([x]) => (this.cat === "All" || x.c === this.cat) && (!this.q || (x.n + " " + x.d + " " + x.t.join(" ")).toLowerCase().includes(this.q)));
+    if(!L.querySelector("#gfQ")){ L.innerHTML = `<div class="gf-store"><div class="shop-bar"><input id="gfQ" placeholder="Search the store…" aria-label="Search"><div class="chips" id="gfCats">${["All", ...new Set(GIFT_ITEMS.map(x => x.c))].map(c => `<button type="button" class="ch" data-cat="${c}">${c}</button>`).join("")}</div></div><div class="shop-grid" id="gfGrid"></div></div>`;
+      $("gfQ").oninput = e => { this.q = e.target.value.toLowerCase(); this.shop(); }; $("gfCats").onclick = e => { const b = e.target.closest("[data-cat]"); if(b){ this.cat = b.dataset.cat; sfx.click(); this.shop(); } };
+      $("gfGrid").onclick = e => { const b = e.target.closest("[data-add]"); if(!b || this.locked) return; const it = GIFT_ITEMS[+b.dataset.add], i = this.cart.indexOf(it); if(i >= 0) this.cart.splice(i, 1); else if(this.cart.length < 2) this.cart.push(it); else return this.note("Two gifts max: remove one first."); sfx.click(); this.shop(); this.board(); this.updateHud(); }; }
+    stage.querySelectorAll("[data-cat]").forEach(b => b.classList.toggle("sel", b.dataset.cat === this.cat));
+    $("gfGrid").innerHTML = list.map(([x, i]) => `<article class="prod-card${this.cart.includes(x) ? " in" : ""}"><div class="pc-ic">${icon(x.i, 46)}</div><b>${x.n}</b><small>${x.d}</small><div class="pc-row"><span class="price">£${x.p}</span><button type="button" class="btn-sm" data-add="${i}">${this.cart.includes(x) ? "Remove" : "Add"}</button></div></article>`).join("") || `<p class="msg">No products match.</p>`; },
+  cartPanel(){ const t = this.totals(), over = t.tot > this.budget; return `<div class="opt-group"><h4>Basket</h4>${this.cart.map((x, i) => `<div class="gf-line">${icon(x.i, 26)} <span>${x.n}</span><b>£${x.p}</b><button type="button" class="btn-sm" data-rm="${i}">×</button></div>`).join("") || `<p class="tooltip-line">Empty. Check your clue board, then search the store.</p>`}<table class="fp-bill"><tr><td>Items${this.has("loyalty") ? " (10% off)" : ""}</td><td>£${t.sub}</td></tr><tr><td>Shipping</td><td>${t.ship ? "£" + t.ship : "free"}</td></tr><tr class="${over ? "over" : ""}"><th>Total</th><th>£${t.tot} / £${this.budget}</th></tr></table>${!this.has("express") && t.ship && t.sub < GIFT_FREE && GIFT_FREE <= this.budget ? `<p class="tooltip-line">Spend £${GIFT_FREE - t.sub} more for free shipping.</p>` : ""}</div>`; },
+  /* ---------- wrapping ---------- */
+  wrapDims(){ const it = this.cart.slice().sort((a, b) => gfSize(b)[0] - gfSize(a)[0])[0] || GIFT_ITEMS[0], [w, h, d] = gfSize(it); return {w, h, d, ideal:2*(h + d) + 3}; },
+  wrapPanel(){ const W2 = this.wrap, steps = ["Choose a paper","Measure and cut: drag the scissors down through the paper","Fold: long sides first, then the ends","Tape every seam (tap the seams)","Tie a ribbon and bow","Wrapped!"];
+    return `<div class="opt-group"><h4>Step ${Math.min(5, W2.step) + 1}: ${steps[Math.min(5, W2.step)]}</h4>${W2.step === 0 || !W2.cut ? `<div class="chips">${Object.entries(GF_PAPERS).map(([k, [n, a, b, prem]]) => `<button type="button" class="ch${W2.paper === k ? " sel" : ""}${prem && !this.has("kit") ? " locked" : ""}" data-paper="${k}"><i class="gf-sw" style="background:repeating-linear-gradient(45deg,${a} 0 6px,${b} 6px 9px)"></i>${n}</button>`).join("")}</div>` : ""}${W2.step >= 4 ? `<div class="fp-paint">${GF_RIBBONS.map(c => `<button type="button" class="${W2.ribbon === c ? "sel" : ""}" data-rib="${c}" style="background:${c}" aria-label="Ribbon"></button>`).join("")}</div><div class="row-btns" style="justify-content:flex-start"><button class="btn-sm" type="button" id="gfBow" ${W2.ribbon ? "" : "disabled"}>Tie the bow</button></div>` : ""}</div>`; },
+  wrapUI(){ const L = $("gfLeft"); if(!L.querySelector("#gfWrap")){ L.innerHTML = `<div class="gf-table"><canvas id="gfWrap" aria-label="Wrapping table"></canvas></div>`; const cv = $("gfWrap"), dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = 440*dpr; cv.height = 400*dpr; this.wcv = cv; this.wctx = cv.getContext("2d"); this.wdpr = dpr;
+      const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left)/r.width*440, (e.clientY - r.top)/r.height*400]; };
+      cv.onpointerdown = e => { if(this.locked) return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){} const [x, y] = pos(e); this.wp = {x, y, sx:x, sy:y, down:true}; this.wDown(x, y); };
+      cv.onpointermove = e => { const [x, y] = pos(e); this.wp = {...(this.wp || {}), x, y}; };
+      cv.onpointerup = cv.onpointercancel = () => { if(this.wp?.down) this.wUp(); if(this.wp) this.wp.down = false; }; }
+    if(!this.cart.length) this.note("Pick a gift in the shop first.");
+    this.tipOnce("wrap", "Measure first: the paper must wrap all the way around the box, plus about 3 cm to overlap.");
+    const tok = G.token; cancelAnimationFrame(this.raf); const loop = () => { if(G.token !== tok || !document.body.contains(this.wcv)) return; this.drawWrap(); this.raf = requestAnimationFrame(loop); }; this.raf = requestAnimationFrame(loop); },
+  wGeo(){ const D = this.wrapDims(), sc = 360/Math.max(110, D.ideal + 20), bw = D.w*sc*1.4, bh = D.h*sc*1.4; return {D, sc, x0:40, sy:30, sh:46, bx:220 - bw/2, by:250 - bh/2, bw, bh}; },
+  wDown(x, y){ const W2 = this.wrap, Gm = this.wGeo();
+    if(W2.step === 3){ const seams = this.seams(Gm), hit = seams.find(s => !W2.tape.some(t => t.s === s.k) && Math.hypot(x - s.x, y - s.y) < 26); W2.tape.push({x, y, s:hit ? hit.k : null, a:(Math.random() - .5)*.6}); tone(hit ? 520 : 300, .05, "square", .02); if(!hit) W2.mess++; if(seams.every(s => W2.tape.some(t => t.s === s.k))){ W2.step = 4; sfx.good(); this.board(); } }
+    if(W2.step === 2){ const fl = this.flaps(Gm).find(f => !W2.folds.includes(f.k) && x > f.r[0] && x < f.r[0] + f.r[2] && y > f.r[1] && y < f.r[1] + f.r[3]); if(fl){ if(fl.end && !["left","right"].every(k => W2.folds.includes(k))){ W2.mess++; this.note("Fold the long sides first, or the ends won't sit flat."); } W2.folds.push(fl.k); W2.foldT = performance.now(); tone(420, .08, "triangle", .03); if(fl.k === "right" && W2.cut < Gm.D.ideal - 1) this.note("Uh oh, the paper doesn't reach all the way round. You can see the box through the gap!"); if(W2.folds.length === 4){ W2.step = 3; this.board(); } } }
+  },
+  wUp(){ const W2 = this.wrap, Gm = this.wGeo(), p = this.wp; if(W2.step === 1 && p && p.sy < Gm.sy + Gm.sh + 10 && p.y > Gm.sy + Gm.sh - 4 && Math.abs(p.x - p.sx) < 30){ const cm = Math.max(5, Math.round((p.sx - Gm.x0)/Gm.sc)); W2.cut = cm; W2.step = 2; sfx.click(); tone(200, .12, "sawtooth", .03); const err = cm - Gm.D.ideal; this.note(err < -1 ? `Cut at ${cm} cm. Hmm, the box needs ${Gm.D.ideal} cm to wrap around.` : err > 6 ? `Cut at ${cm} cm: generous! Extra paper makes bulky seams.` : `Cut at ${cm} cm: just right.`); this.board(); } },
+  flaps(Gm){ const {bx, by, bw, bh} = Gm; return [{k:"left", r:[bx - 50, by, 50, bh]}, {k:"right", r:[bx + bw, by, 50, bh]}, {k:"top", r:[bx, by - 46, bw, 46], end:true}, {k:"bottom", r:[bx, by + bh, bw, 46], end:true}]; },
+  seams(Gm){ const {bx, by, bw, bh} = Gm; return [{k:"mid", x:bx + bw/2, y:by + bh/2}, {k:"top", x:bx + bw/2, y:by + 6}, {k:"bottom", x:bx + bw/2, y:by + bh - 6}]; },
+  paperFill(ctx, k){ const P = GF_PAPERS[k] || ["", "#eee", "#ddd"], t = document.createElement("canvas"); t.width = t.height = 24; const x = t.getContext("2d"); x.fillStyle = P[1]; x.fillRect(0, 0, 24, 24); x.fillStyle = P[2]; x.strokeStyle = P[2];
+    if(k === "stripes"){ x.lineWidth = 5; x.beginPath(); x.moveTo(-6, 30); x.lineTo(30, -6); x.stroke(); x.beginPath(); x.moveTo(-18, 18); x.lineTo(18, -18); x.stroke(); x.beginPath(); x.moveTo(6, 42); x.lineTo(42, 6); x.stroke(); }
+    if(k === "dots"){ x.beginPath(); x.arc(6, 6, 3, 0, 6.28); x.arc(18, 18, 3, 0, 6.28); x.fill(); }
+    if(k === "stars"){ [[6, 7], [18, 18]].forEach(([a, b]) => { x.beginPath(); for(let i = 0; i < 10; i++){ const r = i % 2 ? 1.8 : 4.4, an = i*Math.PI/5 - Math.PI/2; x.lineTo(a + Math.cos(an)*r, b + Math.sin(an)*r); } x.closePath(); x.fill(); }); }
+    if(k === "kraft"){ x.globalAlpha = .25; for(let i = 0; i < 18; i++) x.fillRect((i*7) % 24, (i*11) % 24, 2, 1); }
+    if(k === "foil"){ const g = x.createLinearGradient(0, 0, 24, 24); g.addColorStop(0, "#f7cdbb"); g.addColorStop(.5, "#fff4ec"); g.addColorStop(1, "#e9a58c"); x.fillStyle = g; x.fillRect(0, 0, 24, 24); }
+    if(k === "floral"){ [[6, 6], [18, 17]].forEach(([a, b]) => { for(let i = 0; i < 5; i++){ x.beginPath(); x.arc(a + Math.cos(i*1.26)*3, b + Math.sin(i*1.26)*3, 2, 0, 6.28); x.fill(); } x.fillStyle = "#ffd166"; x.beginPath(); x.arc(a, b, 1.5, 0, 6.28); x.fill(); x.fillStyle = P[2]; }); }
+    return ctx.createPattern(t, "repeat"); },
+  drawWrap(){ const ctx = this.wctx; ctx.setTransform(this.wdpr, 0, 0, this.wdpr, 0, 0); const W2 = this.wrap, Gm = this.wGeo(), {D, sc, x0, sy, sh, bx, by, bw, bh} = Gm, now = performance.now();
+    ctx.fillStyle = "#e9d6b9"; ctx.fillRect(0, 0, 440, 400); ctx.strokeStyle = "rgba(120,80,40,.12)"; for(let y = 0; y < 400; y += 22){ ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(440, y); ctx.stroke(); }
+    // ruler
+    ctx.fillStyle = "#fff8d6"; ctx.fillRect(x0, sy + sh + 2, 380, 16); ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.strokeRect(x0, sy + sh + 2, 380, 16); ctx.fillStyle = INK; ctx.font = "9px system-ui"; ctx.textAlign = "center"; for(let cm = 0; x0 + cm*sc <= 420; cm += 5){ const x = x0 + cm*sc; ctx.beginPath(); ctx.moveTo(x, sy + sh + 2); ctx.lineTo(x, sy + sh + (cm % 10 ? 7 : 11)); ctx.stroke(); if(cm % 10 === 0) ctx.fillText(cm, x, sy + sh + 17); }
+    // roll + strip
+    if(W2.paper){ const len = W2.cut ? W2.cut*sc : 380; ctx.fillStyle = this.paperFill(ctx, W2.paper); ctx.strokeStyle = INK; ctx.lineWidth = 2; if(!W2.cut || W2.step <= 1){ ctx.fillRect(x0, sy, len, sh); ctx.strokeRect(x0, sy, len, sh); ctx.fillStyle = shade(GF_PAPERS[W2.paper][1], -.2); ctx.beginPath(); ctx.ellipse(x0, sy + sh/2, 9, sh/2, 0, 0, 6.28); ctx.fill(); ctx.stroke(); } }
+    else { ctx.fillStyle = INK; ctx.font = "700 14px system-ui"; ctx.fillText("Choose a paper on the right", 220, sy + 28); }
+    if(W2.step === 1){ const p = this.wp, hx = p && p.down ? p.sx : p?.x ?? 220; ctx.strokeStyle = "#e63946"; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(hx, sy - 6); ctx.lineTo(hx, sy + sh + 6); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = "#e63946"; ctx.font = "700 11px system-ui"; ctx.fillText(Math.max(0, Math.round((hx - x0)/sc)) + " cm", hx, sy - 10); ctx.save(); ctx.translate(hx, (p && p.down ? p.y : sy - 2)); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.fillStyle = "#c8ccd4"; [-1, 1].forEach(s => { ctx.beginPath(); ctx.ellipse(s*6, -14, 5, 7, 0, 0, 6.28); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(s*4, 12); ctx.lineTo(0, 10); ctx.closePath(); ctx.fill(); ctx.stroke(); }); ctx.restore(); }
+    // box + measurements
+    ctx.fillStyle = "#c79a68"; ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.fillRect(bx, by, bw, bh); ctx.strokeRect(bx, by, bw, bh);
+    if(W2.step <= 1){ ctx.fillStyle = INK; ctx.font = "700 12px system-ui"; ctx.fillText(`${D.w} cm`, bx + bw/2, by + bh + 18); ctx.save(); ctx.translate(bx - 14, by + bh/2); ctx.rotate(-Math.PI/2); ctx.fillText(`${D.h} cm`, 0, 0); ctx.restore(); ctx.fillText(`${D.d} cm tall`, bx + bw + 40, by + bh/2); ctx.font = "11px system-ui"; ctx.fillStyle = "#6b4a2a"; ctx.fillText(`Around the box: ${D.h} + ${D.d} + ${D.h} + ${D.d} = ${2*(D.h + D.d)} cm`, 220, 384); }
+    if(W2.step >= 2 && W2.paper){ const fill = this.paperFill(ctx, W2.paper), short = W2.cut < D.ideal - 1, t = Math.min(1, (now - (W2.foldT || 0))/260);
+      ctx.fillStyle = fill; ctx.strokeStyle = INK; ctx.lineWidth = 2;
+      const draw = (k, last) => { const a = last ? t : 1; if(k === "left"){ ctx.fillRect(bx - 4, by - 2, (bw/2 + 4)*a + 2, bh + 4); ctx.strokeRect(bx - 4, by - 2, (bw/2 + 4)*a + 2, bh + 4); } if(k === "right"){ const w = (short ? bw/2 - 18 : bw/2 + 10)*a; ctx.fillRect(bx + bw + 4 - w, by - 2, w, bh + 4); ctx.strokeRect(bx + bw + 4 - w, by - 2, w, bh + 4); } if(k === "top" || k === "bottom"){ const yy = k === "top" ? by - 2 : by + bh + 2, dir = k === "top" ? 1 : -1, hh = 30*a; ctx.beginPath(); ctx.moveTo(bx - 4, yy); ctx.lineTo(bx + bw + 4, yy); ctx.lineTo(bx + bw/2, yy + dir*hh); ctx.closePath(); ctx.fill(); ctx.stroke(); } };
+      if(!W2.folds.length){ ctx.globalAlpha = .9; ctx.fillRect(bx - 50, by - 46, bw + 100, bh + 92); ctx.globalAlpha = 1; ctx.strokeRect(bx - 50, by - 46, bw + 100, bh + 92); ctx.fillStyle = "#c79a68"; ctx.fillRect(bx, by, bw, bh); ctx.strokeRect(bx, by, bw, bh); }
+      else { ["left","right"].filter(k => !W2.folds.includes(k)).forEach(k => { const f = this.flaps(Gm).find(q => q.k === k); ctx.fillRect(...f.r); ctx.strokeRect(...f.r); }); ["top","bottom"].filter(k => !W2.folds.includes(k)).forEach(k => { const f = this.flaps(Gm).find(q => q.k === k); ctx.fillRect(...f.r); ctx.strokeRect(...f.r); }); W2.folds.forEach((k, i) => draw(k, i === W2.folds.length - 1)); }
+      if(W2.step === 2){ const nxt = this.flaps(Gm).filter(f => !W2.folds.includes(f.k)); const pulse = .5 + .5*Math.sin(now/200); ctx.strokeStyle = `rgba(255,125,184,${.4 + .6*pulse})`; ctx.lineWidth = 3; ctx.setLineDash([6, 4]); nxt.forEach(f => ctx.strokeRect(...f.r)); ctx.setLineDash([]); }
+      if(W2.step === 3){ const pulse = .5 + .5*Math.sin(now/200); this.seams(Gm).filter(s => !W2.tape.some(t2 => t2.s === s.k)).forEach(s => { ctx.strokeStyle = `rgba(58,141,255,${.4 + .6*pulse})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(s.x, s.y, 16, 0, 6.28); ctx.stroke(); }); }
+      W2.tape.forEach(tp => { ctx.save(); ctx.translate(tp.x, tp.y); ctx.rotate(tp.a + Math.PI/2); ctx.fillStyle = "rgba(255,255,255,.6)"; ctx.strokeStyle = "rgba(0,0,0,.2)"; ctx.lineWidth = 1; ctx.fillRect(-14, -5, 28, 10); ctx.strokeRect(-14, -5, 28, 10); ctx.restore(); });
+      if(W2.ribbon){ ctx.fillStyle = W2.ribbon; ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.fillRect(bx + bw/2 - 6, by - 2, 12, bh + 4); ctx.strokeRect(bx + bw/2 - 6, by - 2, 12, bh + 4); ctx.fillRect(bx - 4, by + bh/2 - 6, bw + 8, 12); ctx.strokeRect(bx - 4, by + bh/2 - 6, bw + 8, 12); }
+      if(W2.bow){ const cx = bx + bw/2, cy = by + bh/2, wob = Math.sin(now/300)*2; ctx.fillStyle = W2.ribbon; ctx.strokeStyle = INK; ctx.lineWidth = 2; [-1, 1].forEach(s => { ctx.beginPath(); ctx.ellipse(cx + s*18, cy - 4 + wob*s*.3, 18, 11, s*.4, 0, 6.28); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + s*16, cy + 26); ctx.lineTo(cx + s*8, cy + 24); ctx.closePath(); ctx.fill(); ctx.stroke(); }); ctx.beginPath(); ctx.arc(cx, cy, 7, 0, 6.28); ctx.fill(); ctx.stroke(); }
+    }
+  },
+  wrapScore(){ const W2 = this.wrap, D = this.wrapDims(), err = (W2.cut || 0) - D.ideal, len = !W2.cut ? 0 : err < -1 ? .2 : err <= 3 ? 1 : Math.max(.3, 1 - (err - 3)/15), order = W2.mess === 0 ? 1 : W2.mess === 1 ? .7 : .4, tape = W2.tape.length <= 5 ? 1 : .7, v = (len*2 + order + tape + (W2.bow ? 1 : 0))/5;
+    return {v, why:!W2.cut ? "Not wrapped." : err < -1 ? `The paper was ${-err} cm too short: always measure around the box plus an overlap.` : err > 3 ? `${err} cm of extra paper made bulky seams. You needed ${D.ideal} cm.` : W2.mess ? "Neat length, but fold the long sides before the ends and only tape the seams." : "Crisp folds, tidy tape and a perfect bow."}; },
+  /* ---------- card ---------- */
+  cardUI(){ const g = this.g, it = this.cart[0] || GIFT_ITEMS[0], parts = this.allParts(), needPost = this.sent.find(p => p.parts.some(q => q.k === "n")), avoidTag = g.avoid.find(a => GF_AVOID[a]) || g.avoid[0];
+    if(!this.cardOpts) this.cardOpts = {};
+    const key = g.name + it.n; if(!this.cardOpts[key]) this.cardOpts[key] = shuffle([
+      {txt:`I saw your post “${needPost ? needPost.title : "the other day"}”, so I hope this ${it.n.toLowerCase()} helps. Thinking of you!`, v:1, why:"Personal: it shows you listened to what they actually said."},
+      {txt:`Saw this and it was just so you. Hope you love it!`, v:.6, why:"Warm, but it could be for anyone. Mention something they told you."},
+      {txt:`Happy day! Enjoy your present.`, v:.35, why:"Generic: a card is a chance to show you know them."},
+      {txt:`I know how much you love ${(GF_AVOID[avoidTag] || ["", avoidTag])[1]}, so this one's for you!`, v:0, why:`Ouch: they avoid ${(GF_AVOID[avoidTag] || ["", avoidTag])[1]}. That card shows you didn't read their posts.`}]);
+    const opts = this.cardOpts[key]; $("gfLeft").innerHTML = `<div class="gf-cardwrap"><div class="gf-card"><div class="gf-cardfront"><span>For</span><b>${g.name}</b></div><div class="gf-cardin" id="gfCardIn">${this.card ? this.card.txt : "<i>Choose a message…</i>"}<span class="gf-sign">— You</span></div></div><div class="gf-opts">${opts.map((o, i) => `<button type="button" class="gf-opt${this.card === o ? " sel" : ""}" data-card="${i}">${o.txt}</button>`).join("")}</div></div>`;
+    $("gfLeft").onclick = e => { const b = e.target.closest("[data-card]"); if(!b) return; this.card = opts[+b.dataset.card]; tone(600, .05, "triangle", .03); this.cardUI(); }; },
+  /* ---------- giving ---------- */
+  score(){ const g = this.g, tags = new Set(this.cart.flatMap(x => x.t)), parts = [], add = (k, label, w, v, why) => parts.push({k, label, w, v:clamp(v, 0, 1), why});
+    const needHit = g.need.filter(n => tags.has(n)), needOk = g.needAll ? needHit.length === g.need.length : needHit.length > 0, needPart = g.needAll && needHit.length > 0 && !needOk, likeOk = g.like.some(n => tags.has(n)), bad = g.avoid.filter(a => tags.has(a));
+    add("need", g.needAll ? `Everything they need (${g.need.length} things)` : "Something they actually need", 24, needOk ? 1 : needPart ? .5 : 0, needOk ? `Yes! ${g.why.need}` : needPart ? `You covered 1 of the ${g.need.length} things. ${g.why.need}` : g.why.need);
+    add("love", "Matches what they love", 14, likeOk ? 1 : 0, likeOk ? "Right up their street." : `They're into ${listAnd(g.like.map(t => GF_LIKE[t] || t))}. A second, smaller gift can cover that.`);
+    add("avoid", "Nothing they'd hate", 18, bad.length ? 0 : 1, bad.length ? `Oops: ${listAnd(bad.map(b => (GF_AVOID[b] || [b])[0]))}. ${g.why.avoid}` : `Respected their limits. ${g.why.avoid}`);
+    const real = this.allParts().filter(q => q.k !== "x"), good = real.filter(q => this.pins[q.id] === q.k).length, half = real.filter(q => this.pins[q.id] && this.pins[q.id] !== q.k).length, decoy = this.allParts().filter(q => q.k === "x" && this.pins[q.id]).length, dm = Math.min(2, this.asked.filter(a => a.k !== "x").length);
+    add("detect", "Detective work", 10, (good + half*.3 - decoy*.4)/Math.max(1, real.length) + dm*.1, `You pinned ${good} of ${real.length} real clues correctly${decoy ? ` and ${decoy} red herring${decoy > 1 ? "s" : ""}` : ""}${dm ? `, and asked ${dm} useful question${dm > 1 ? "s" : ""}` : ""}.`);
+    const w = this.wrapScore(); add("wrap", "Wrapping", 12, w.v, w.why);
+    add("card", "The card", 10, this.card ? this.card.v : 0, this.card ? this.card.why : "No card!");
+    const t = this.totals(); add("budget", "On budget", 6, t.tot <= this.budget ? 1 : 0, `£${t.tot} of £${this.budget}${this.day.rush ? " (shared holiday budget)" : ""}.`);
+    const tw = parts.reduce((a, q) => a + q.w, 0); return {pct:Math.round(parts.reduce((a, q) => a + q.w*q.v, 0)/tw*100), parts, bad:bad.length, needOk, likeOk};
+  },
+  give(){
+    this.enterPhase(5); this.locked = true; const r = this.score(); this.res = r; const W2 = this.wrap, it = this.cart[0], mood = r.bad ? "sad" : r.pct >= 70 ? "happy" : "neutral";
+    const paper = GF_PAPERS[W2.paper] || GF_PAPERS.kraft;
+    $("gfLeft").innerHTML = `<div class="gf-stage"><div class="gf-person" id="gfPerson">${faceSVG({...this.face, mood:"neutral"}, 170)}</div><div class="gf-speech" id="gfSay">Ooh, for me?</div>
+      <div class="gf-box" id="gfBox" style="--p1:${paper[1]};--p2:${paper[2]};--rib:${W2.ribbon || "#e63946"}"><div class="gf-lid"></div><div class="gf-bow"></div><div class="gf-gift" id="gfGift">${this.cart.map(x => icon(x.i, 80)).join("")}</div></div><div class="gf-burst" id="gfBurst"></div></div>`;
+    const tok = G.token, at = (ms, fn) => setTimeout(() => { if(G.token === tok) fn(); }, ms);
+    at(500, () => { $("gfBox").classList.add("shake"); tone(300, .08, "triangle", .03); });
+    at(1300, () => { $("gfBox").classList.add("rip"); tone(180, .15, "sawtooth", .03); const B = $("gfBurst"); for(let i = 0; i < 18; i++){ const s = document.createElement("i"); s.style.cssText = `--dx:${(Math.random() - .5)*320}px;--dy:${-60 - Math.random()*180}px;--r:${Math.random()*720 - 360}deg;background:repeating-linear-gradient(45deg,${paper[1]} 0 5px,${paper[2]} 5px 8px)`; B.appendChild(s); } });
+    at(2100, () => { $("gfBox").classList.add("open"); });
+    at(2500, () => { $("gfGift").classList.add("up"); $("gfPerson").innerHTML = faceSVG({...this.face, mood}, 170); const say = r.bad ? `Oh… thank you. ${r.parts.find(p => p.k === "avoid").why.split(". ")[0].replace(/^Oops: /, "But ")}.` : r.needOk && r.likeOk ? `How did you KNOW?! I've needed one of these!` : r.needOk ? "Oh, I really needed this. Thank you!" : r.likeOk ? "Aw, that's so me!" : "That's kind of you."; $("gfSay").textContent = say; $("gfSay").classList.add("pop", r.bad ? "bad" : "good"); r.pct >= 70 ? sfx.win() : r.bad ? sfx.bad() : sfx.good();
+      if(r.pct >= 70){ const B = $("gfBurst"); for(let i = 0; i < 12; i++){ const h = document.createElement("b"); h.className = "heart"; h.style.cssText = `--dx:${(Math.random() - .5)*260}px;--dy:${-120 - Math.random()*120}px;--r:0deg;left:${45 + Math.random()*10}%`; B.appendChild(h); } } });
+    at(5200, () => this.results());
+  },
+  results(){
+    const r = this.res, s = GFS(), earn = Math.round(30*r.pct/100), tip = (r.pct >= 90 ? 12 : r.pct >= 75 ? 6 : 0) + (this.has("kit") && this.wrapScore().v >= .9 ? 3 : 0);
+    s.coins += earn + tip; s.served++; s.totalMatch += r.pct; const pb = r.pct > s.best; s.best = Math.max(s.best, r.pct); this.day.n++; this.day.earned += earn + tip; this.day.results.push({name:this.g.name, pct:r.pct}); if(this.day.daily) s.daily[today()] = Math.max(s.daily[today()] || 0, r.pct); if(this.day.rush) this.day.wallet -= this.totals().tot;
+    save(); adapt("gift", r.pct/100);
+    const last = this.day.daily || this.day.n >= 3, clues = this.allParts().filter(q => q.k !== "x");
+    $("gfRes").innerHTML = `<div class="reveal sal-result"><span class="eyebrow">${r.pct >= 90 ? "Gift genius" : r.pct >= 75 ? "Thoughtful giver" : r.pct >= 55 ? "Nice try" : "Back to the feed"}${pb ? " · New personal best!" : ""}</span><div class="sal-pct"><b>${r.pct}</b>%</div>
+      <div class="gf-resrow"><div>${faceSVG({...this.face, mood:r.bad ? "sad" : r.pct >= 70 ? "happy" : "neutral"}, 90)}</div><div>${this.cart.map(x => `<div class="gf-line">${icon(x.i, 30)} <span>${x.n}</span><b>£${x.p}</b></div>`).join("")}<p class="tooltip-line">Card: “${this.card ? this.card.txt : ""}”</p></div></div>
+      <div class="sal-pay"><span>Fee <b class="coin">${earn}</b></span><span>Tip <b class="coin">${tip}</b></span>${this.day.rush ? `<span>Holiday budget left <b>£${this.day.wallet}</b></span>` : ""}</div>
+      ${checklist(r.parts.map(q => ({label:`${q.label} · ${Math.round(q.v*100)}%`, ok:q.v >= .75, why:q.why})))}
+      <details><summary>The real clues</summary><ul class="sw-seams">${clues.map(q => `<li><span class="gf-tag pin-${q.k}">${({n:"Need", l:"Love", a:"Avoid"})[q.k]}</span> ${q.t}</li>`).join("")}</ul></details>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="gfNextC">${this.day.daily ? "Back to the agency" : last ? "Close the season" : "Next case →"}</button></div></div>`;
+    $("gfNextC").onclick = () => { if(this.day.daily) return this.lobby(); if(last){ const rs = this.day.results, avg = Math.round(rs.reduce((a, x) => a + x.pct, 0)/rs.length), stars = avg >= 85 ? 3 : avg >= 65 ? 2 : 1; s.days++; save(); return endSession({title:stars === 3 ? "Gift genius" : stars === 2 ? "Thoughtful giver" : "Gift rookie", stars, xp:20 + 15*stars, body:`<div class="big">${fmt(this.day.earned)}</div><p class="m-note">coins earned · average score ${avg}%.</p><ul class="roundlog">${rs.map(x => `<li><span>${x.name}</span><span>${x.pct}%</span></li>`).join("")}</ul>`, actions:[["Next season", () => startRoom("gift", "studio"), true], ["Lobby", goHub]]}); } this.newCase(); };
+  }
+};
+ROOMS.gift.blurb = "Be a gift detective. Scroll a person's feed and pin the clues, DM their friends, shop on a budget, wrap it by hand and write the card, then watch them unbox it.";
+ROOMS.gift.tip = "<b>Tip:</b> sort every clue into need, love or avoid before you shop. The best gift solves a real problem and respects their limits.";
+ROOMS.gift.modes = [["studio","Take a case"],["classic","Classic blog shopping"],["practice","Quiz"]];
+HOWTO.gift = ["Scroll their feed and tap sentences to pin them as Need, Love or Avoid clues. DM their friends for more (questions are limited).","Shop within the budget, shipping included.","Wrap it: measure and cut the paper, fold the sides then the ends, tape the seams and tie a bow. Pick a card message, then give it."];
 
 renderHub();
 </script>
