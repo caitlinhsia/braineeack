@@ -1,0 +1,199 @@
+<title>Arcade Benchmark Chart</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a heat-map matrix (games × benchmark qualities) with a detail drawer per game, studio-wing first */
+:root{
+  --bg:#fbf4ea; --panel:#fffdf8; --ink:#2b2118; --muted:#7a6a5a; --line:#e4d6c3; --accent:#9c6644;
+  --s1:#f4b4a8; --s2:#f7cf9d; --s3:#f3e3a0; --s4:#bfe0b4; --s5:#7fc9a2;
+  --chip:#f1e6d6; --hi:#ffe08a;
+  --display:"Fredoka", "Trebuchet MS", system-ui, sans-serif; --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif; --mono:"DM Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1d1814;--panel:#29221c;--ink:#f3e9dc;--muted:#b9a894;--line:#43382e;--accent:#e0a477;--s1:#8a3f36;--s2:#8c6232;--s3:#7f7436;--s4:#4f7a48;--s5:#2f8a64;--chip:#3a3028;--hi:#7a6420;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1d1814;--panel:#29221c;--ink:#f3e9dc;--muted:#b9a894;--line:#43382e;--accent:#e0a477;--s1:#8a3f36;--s2:#8c6232;--s3:#7f7436;--s4:#4f7a48;--s5:#2f8a64;--chip:#3a3028;--hi:#7a6420;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:22px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,4.2vw,42px)}
+h2{font-size:22px}
+.lede{max-width:68ch;color:var(--muted);margin:6px 0 0}
+.eyebrow{font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--ink);display:inline-block}
+.quals{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.qual{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.qual b{font-family:var(--display);font-size:15px;display:block}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:13px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.chip:focus-visible,.row:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tablebox{overflow-x:auto;background:var(--panel);border:2px solid var(--ink);border-radius:16px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:900px;font-size:13.5px}
+th,td{padding:8px 8px;text-align:center;border-bottom:1px solid var(--line)}
+thead th{font:600 11.5px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);vertical-align:bottom;position:sticky;top:0;background:var(--panel)}
+th.game,td.game{text-align:left;padding-left:14px;white-space:nowrap}
+td.game b{font-family:var(--display);font-size:15px;font-weight:600}
+td.game small{display:block;color:var(--muted);font-size:12px}
+td.cell{font:500 13px var(--mono);font-variant-numeric:tabular-nums}
+td.cell span{display:inline-grid;place-items:center;width:34px;height:28px;border-radius:7px;border:1.5px solid rgba(0,0,0,.18);color:var(--ink)}
+.r1{background:var(--s1)}.r2{background:var(--s2)}.r3{background:var(--s3)}.r4{background:var(--s4)}.r5{background:var(--s5)}
+td.total{font:600 14px var(--mono);font-variant-numeric:tabular-nums}
+.meter{display:inline-block;width:70px;height:8px;border-radius:5px;background:var(--line);vertical-align:middle;margin-left:6px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+.pri{font:600 11px var(--mono);border-radius:999px;padding:2px 9px;border:1.5px solid var(--ink);white-space:nowrap}
+.p0{background:var(--s5)}.p1{background:var(--s1)}.p2{background:var(--s2)}.p3{background:var(--s3)}
+tr.row{cursor:pointer}
+tr.row:hover td{background:color-mix(in srgb,var(--hi) 30%,transparent)}
+tr.row.open td{background:color-mix(in srgb,var(--hi) 45%,transparent)}
+tr.detail td{text-align:left;padding:0;border-bottom:2px solid var(--ink)}
+.drawer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;padding:16px 18px 20px}
+@media (max-width:760px){.drawer{grid-template-columns:1fr}}
+.drawer h3{font-size:16px;margin-bottom:6px}
+.drawer ul{margin:0;padding-left:18px;display:grid;gap:5px}
+.drawer li{max-width:70ch}
+.drawer .now{color:var(--muted)}
+.cross{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
+.cross div{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+.cross b{font-family:var(--display);font-size:15px;display:block;margin-bottom:2px}
+.order{counter-reset:o;display:grid;gap:8px;padding:0;margin:0;list-style:none}
+.order li{counter-increment:o;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px}
+.order li::before{content:counter(o);font:600 15px var(--mono);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--chip);border:1.5px solid var(--ink)}
+.order b{font-family:var(--display)}
+.note{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Synapse Arcade · quality audit</span>
+    <h1>Every game, measured against the Hair Salon</h1>
+    <p class="lede">The Hair Salon is the benchmark: live hair you work with your hands, real steps, a client photo to match, scoring that explains itself, and coins to earn. Each game below is rated 1 to 5 on the same eight qualities. Tap a game to see exactly what it needs.</p>
+  </header>
+
+  <section class="quals" aria-label="The eight benchmark qualities" id="quals"></section>
+
+  <div class="bar">
+    <div class="legend" aria-label="Rating key">
+      <span><i class="sw r1"></i>1 missing</span><span><i class="sw r2"></i>2 basic</span><span><i class="sw r3"></i>3 decent</span><span><i class="sw r4"></i>4 strong</span><span><i class="sw r5"></i>5 benchmark</span>
+    </div>
+    <div class="chips" role="group" aria-label="Filter games">
+      <button class="chip" type="button" data-f="all" aria-pressed="true">All 22</button>
+      <button class="chip" type="button" data-f="studio" aria-pressed="false">Studios</button>
+      <button class="chip" type="button" data-f="explore" aria-pressed="false">Explorers</button>
+      <button class="chip" type="button" data-f="core" aria-pressed="false">Brain gym</button>
+      <button class="chip" type="button" data-f="todo" aria-pressed="false">Below benchmark</button>
+    </div>
+  </div>
+
+  <div class="tablebox"><table id="t" aria-label="Benchmark ratings by game"><thead></thead><tbody></tbody></table></div>
+  <p class="note">Ratings are my honest read of the current build (version 29), not a user survey. "Fit" is the game's total as a share of the benchmark's 40 points.</p>
+
+  <section>
+    <span class="eyebrow">Cross-cutting</span>
+    <h2>Improvements every game shares</h2>
+    <div class="cross" id="cross" style="margin-top:10px"></div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Plan</span>
+    <h2>Rebuild order</h2>
+    <p class="lede">One game per round, each taken all the way to the benchmark before moving on. Studios first, because they have the most to gain from hands-on play.</p>
+    <ol class="order" id="order" style="margin-top:10px"></ol>
+  </section>
+</div>
+
+<script>
+const Q = [
+  ["Hands-on play","You work directly on the thing: hair moves, paint smudges, fabric drapes. Not just picking chips."],
+  ["Visual detail","Rich, varied art that reacts to what you do, at a quality you'd want to screenshot."],
+  ["Variety","Lots of different clients, cases, items and situations, so no two rounds feel the same."],
+  ["Real process","The real-world steps in order (wash, cut, dry, style), each with its own tools."],
+  ["Target to match","A photo or goal to aim for, scored against what you actually made."],
+  ["Teaching feedback","Every score explains why, in plain words you can learn from."],
+  ["Juice","Particles, sounds, reactions, animations: it feels alive and satisfying."],
+  ["Progression","Coins, upgrades, personal bests, daily challenge: a reason to come back and compete."]
+];
+const G = [
+  {k:"hair", n:"Hair Salon", w:"studio", r:[5,5,4,5,5,5,4,5], pri:0,
+   now:"Live strand physics, 12 hair types (1A–4C), shampoo bowl, section clips, clippers, color zones, 30+ tools and products, front and back view, photo-match scoring, coins, upgrades, daily challenge.",
+   todo:["Interactive braiding: cross the three strands yourself, plus cornrows, fishtails and twists","Rollers, perm rods and flexi-rods that set curls as the hair dries","Mix hair color like a pro: dye shade plus developer strength, processing timer, strand test","Layered cutting techniques: point cutting, slide cutting, texturizing for wolf cuts and shags","More starting styles: locs, box braids to take down, extensions, pixies, mullets","A hand mirror moment where the client inspects the back and reacts","Consultation step: ask the client questions before they show the photo"]},
+  {k:"makeup", n:"Makeup Studio", w:"studio", r:[4,4,4,5,4,4,3,5], pri:3,
+   now:"Layered canvas painting, skin concerns, prep and color correction, shade matching, six phases, eye and lip close-ups, 10 looks, pixel-by-pixel photo scoring, coins and daily challenge.",
+   todo:["Brush types that behave differently: fan, angled, flat shader, pencil, beauty sponge stippling","Skin texture: pores, fine lines, oily vs dry finish, dewy vs matte with live light reflection","More faces: mature skin, teen acne, grooming for beards, vitiligo and hyperpigmentation in the new engine","Drag-and-place false lashes and face gems with tweezers","Lip overlining and shape correction, lip combos (liner plus lipstick plus gloss)","Special-effects makeup: zombie, bruise, fantasy creatures, stage makeup","Photo shoot test: flash and stage lighting reveal shine and patchy blending","Move theme challenges onto the new painting engine"]},
+  {k:"sewing", n:"Sewing Room", w:"studio", r:[3,3,4,4,2,4,2,1], pri:1,
+   now:"30 garments, commissions, pattern layout puzzle, seam tracing, technique mini-games (boning, lacing, zippers, embroidery and more), runway check.",
+   todo:["Take the client's measurements (bust, waist, hip, length) and draft the pattern from them","Cloth that drapes and swings on a mannequin and on the client","Cut out pieces with shears along the pattern lines; pin first or the fabric shifts","Sewing machine with a foot pedal for speed, seam allowance guide, backstitching, thread tension","Fittings: the client tries it on, you pin and alter where it's tight or loose","A design photo to match (sketch from the client) with photo-match scoring","Fabric shop with real textures, prints and costs; coins, upgrades and daily challenge","Satisfying flourishes: needle punching, thread trails, steam from the iron, fabric rustle"]},
+  {k:"cook", n:"Test Kitchen", w:"studio", r:[3,3,3,3,3,3,2,1], pri:1,
+   now:"Ingredient picking, amounts, chop, mash, whisk, flip and bake mini-steps, customers tasting and reacting, 15+ recipes.",
+   todo:["A real kitchen: stove burners with heat control, pans that sizzle, timers, smoke when it burns","Doneness you can see: browning, rising, setting, boiling; overcooking and undercooking","Knife skills: dice, julienne, mince sizes that change cooking time","Plating to match a photo: arrange food on the plate, sauce swooshes, garnish","Customer queue and dinner rush with orders and patience meters","Food science explained live: Maillard browning, emulsions, gluten, caramelization","Recipes from many cultures, dietary needs (vegan, allergies), spice tolerance","Coins, kitchen upgrades, star rating, daily challenge dish"]},
+  {k:"atelier", n:"Atelier", w:"studio", r:[2,3,3,1,2,4,1,1], pri:1,
+   now:"Pick silhouette, length, neckline, sleeves, colors, pattern, fabric and accessories with chips for a client brief; harmony and occasion rules.",
+   todo:["Style a posed model by dragging garments and accessories onto them, with layering","Fabric that looks real: satin sheen, velvet pile, sequins catching light, prints that scale","Clients with different body shapes and personal style; a mood board brief with a photo","Phases: brief, sketch, fabric, fit, accessorize, runway","Runway walk with lighting and judges who react and score","Interactive color wheel that shows the harmony you've built","Wardrobe shop, coins, collections to unlock, daily challenge"]},
+  {k:"floor", n:"Floorplan Lab", w:"studio", r:[3,2,3,3,2,4,1,1], pri:2,
+   now:"Draw rooms to a client's size and adjacency rules, then doors, windows and furniture; reachability, daylight and kitchen triangle checks.",
+   todo:["Isometric 3D view you can rotate, with walls, floors and furniture in real materials","Drag furniture with collisions, door swing arcs and clearances","Sun path simulation through the day showing which rooms get light","Families with personas, pets and accessibility needs; a sketch from the client to match","Budget and materials: flooring, paint, fixtures with costs","Walk-through mode: the family moves in and reacts room by room","Coins, home gallery, daily challenge plot"]},
+  {k:"gift", n:"Gift Detective", w:"studio", r:[2,2,4,2,3,4,2,1], pri:2,
+   now:"21 people with blogs and clues, 85 products, budget and shipping, multi-need people, guaranteed solvable budgets.",
+   todo:["A scrolling social feed with photos, stories and comments to dig through for clues","DM the person's friends to ask questions (limited questions)","Wrapping mini-game: cut paper, fold, tape, ribbon and bow","Write a card: pick a message that fits the person","Unboxing reaction animation scored on how well the gift fits","Seasonal events (birthdays, holidays) with several gifts and one budget","Coins, wishlists, daily challenge person"]},
+  {k:"peace", n:"Peacemaker", w:"studio", r:[2,3,4,3,2,5,2,1], pri:2,
+   now:"14 conflicts, 4 beats each, technique-labeled choices with tension and trust meters and clear explanations.",
+   todo:["Animated characters with body language and facial expressions that shift with tension","Timed responses: the argument keeps going if you wait too long","Branching scenes with different endings and replay to find the best path","Tone choices (calm, firm, warm) layered on top of what you say","A mediation goal card: what a good outcome looks like for both people","More settings: workplace, sports team, online gaming, family holidays","Coins, mediator rank, daily scenario"]},
+  {k:"kitchen", n:"World Kitchen", w:"explore", r:[2,3,4,1,3,3,2,2], pri:3,
+   now:"69 dishes with clues and illustrated plates, world map pin guessing, blitz mode.",
+   todo:["Zoomable world map with regions, rivers and climate overlays","After guessing, assemble the dish from its real ingredients","Passport stamps and a collection book of every dish found","Ingredient origin trail: where tomatoes, chilies and spices came from","Coins, streaks and a daily dish"]},
+  {k:"thread", n:"Time & Thread", w:"explore", r:[2,3,3,1,3,3,1,1], pri:3,
+   now:"Historical outfits with clues; guess place and year.",
+   todo:["Dress a model in the outfit's layers in the right order (chemise, corset, petticoat…)","Inspect garments up close: fabric, buttons, embroidery as clues","Era slider timeline with fashion changing as you drag","Museum collection to fill, coins and daily outfit"]},
+  {k:"landmarks", n:"Landmark Hunt", w:"explore", r:[2,3,3,1,3,3,2,2], pri:3,
+   now:"Illustrated landmark postcards, map pinning, blitz.",
+   todo:["Build the landmark from pieces (arches, domes, columns) after finding it","Day and night views, seasons and crowds","Travel-planner mode linking landmarks on a route","Collection album, coins and daily landmark"]},
+  {k:"atlas", n:"Atlas Detective", w:"explore", r:[3,2,4,2,3,3,2,2], pri:3,
+   now:"64 countries on an unlabeled map: find, name, capitals, streaks.",
+   todo:["Pan and zoom map with terrain, rivers and mountain layers","Drag country shapes into place like a jigsaw","Neighbors chain mode: travel across borders","Map art reveal as you complete a region; coins and daily map"]},
+  {k:"trip", n:"Postcard Trip", w:"explore", r:[2,3,3,2,3,3,3,2], pri:3,
+   now:"28 cities, clue postcards, flight routes with kilometers, detours.",
+   todo:["Plan your own route under a budget and time limit","Local tasks in each city (order food, read a sign, use transit)","Souvenir collection and photo album","Daily route challenge and leaderboard"]},
+  {k:"flags", n:"Flag Maker", w:"explore", r:[3,3,4,2,4,3,2,1], pri:3,
+   now:"Rebuild 59 flags from layouts, stripes, crosses and discs.",
+   todo:["Paint emblems and symbols with guided tools (stars, sun, coats of arms)","Flag meaning cards: what each color and symbol stands for","Design your own flag for a client country with vexillology rules","Coins, collection and daily flag"]},
+  {k:"time", n:"Then & Now", w:"explore", r:[3,2,4,1,4,3,2,2], pri:3,
+   now:"80 events dragged into a growing timeline with lives.",
+   todo:["Illustrated event cards with era art","Cause-and-effect chains: link events that led to each other","Zoomable timeline from the dinosaurs to today","Daily timeline and leaderboard"]},
+  {k:"history", n:"Mystery Guest", w:"explore", r:[1,3,4,2,3,4,2,1], pri:3,
+   now:"43 historical figures, silhouette reveal, clue points.",
+   todo:["Interview the guest: choose questions, they answer in character","Artifacts from their life to examine as clues","Portrait that paints itself in as you get closer","Hall of fame collection, coins and daily guest"]},
+  {k:"dive", n:"Deep Dive", w:"core", r:[3,3,4,2,3,3,3,3], pri:4,
+   now:"16 categories, typing answers, rarity depth, two versions.",
+   todo:["Animated ocean with creatures appearing at each depth","Head-to-head mode against a ghost of your best run","More categories and daily category leaderboard"]},
+  {k:"lab", n:"Science Lab", w:"core", r:[3,2,2,1,3,3,2,1], pri:4,
+   now:"Organs and bones, light vs ink mixing, sink or float, planets.",
+   todo:["Body explorer with layers (skin, muscle, skeleton, organs)","Experiment sandbox: circuits, chemical reactions, magnets, plants growing","Microscope view with cells to identify","Lab notebook, coins and daily experiment"]},
+  {k:"memory", n:"Echo Grid", w:"core", r:[2,2,2,1,3,2,2,3], pri:4, now:"Repeat lit-up tile patterns; adaptive length; daily puzzle.", todo:["Themed boards (music notes, colors, shapes) with sounds","Level map with power-ups","Leaderboard and streak rewards"]},
+  {k:"math", n:"Quick Sums", w:"core", r:[2,2,3,1,3,2,2,3], pri:4, now:"Fast multiple-choice arithmetic with adaptive difficulty.", todo:["Hands-on modes: a shop till making change, recipe scaling, sports stats","Visual models (number lines, fraction bars) when you miss","Level map and leaderboard"]},
+  {k:"words", n:"Unscramble", w:"core", r:[2,2,3,1,3,3,2,3], pri:4, now:"Rebuild words from letters with definitions; spaced review; daily puzzle.", todo:["Drag-and-drop letter tiles with satisfying snaps","Word families and roots explained when solved","Themed packs and leaderboard"]},
+  {k:"logic", n:"Switchboard", w:"core", r:[3,2,2,1,3,2,2,3], pri:4, now:"Lights-out puzzle with daily, arcade and zen modes.", todo:["More puzzle types (pipes, sliding blocks, logic grids)","Hint system that teaches strategy","Level map with stars and leaderboard"]}
+];
+const CROSS = [["One shared character engine","The faces and bodies from the salon and makeup studio reused everywhere: Peacemaker, Gift Detective, Atelier, Sewing fittings, Kitchen customers."],["One coin economy","Coins earned anywhere spent in any shop, with a player profile and avatar to dress."],["Achievements and collections","Stickers, stamps and trophies for milestones in every game."],["Sound and music","A soundtrack per room and richer sound effects, with a mute and volume control."],["First-time tutorials","A guided first client in every studio that teaches each tool by doing."],["Daily challenge everywhere","Every game gets a same-for-everyone daily round with a saved best."],["Accessibility","Larger touch targets, colorblind-safe palettes, reduced-motion mode, keyboard play."],["Phone polish","Every studio laid out so the canvas and tools fit a phone screen without scrolling."]];
+const PRI = ["Benchmark","Next up","Soon","Later","Later"];
+const PRIC = ["p0","p1","p2","p3","p3"];
+const ORDER = [["Sewing Room","Measurements, draping cloth, shears, pedal-driven machine, fittings and a design photo to match."],["Test Kitchen","A real stove with heat and doneness, knife skills, plating to a photo, dinner rush."],["Atelier","Drag-and-drop styling on varied bodies, real fabric looks, runway with judges."],["Floorplan Lab","Isometric 3D, furniture with clearances, sun path, families moving in."],["Gift Detective","Social feed, DMs, wrapping and unboxing reactions."],["Peacemaker","Animated characters, timing and branching endings."],["Explorer games","Shared upgrades: zoomable maps, collections, hands-on assembly after each guess."],["Brain gym","Themed visuals, hands-on modes, level maps and leaderboards."],["Hair and Makeup round two","Braiding, rollers, color mixing; brush types, skin texture, special effects."]];
+const total = g => g.r.reduce((a,b) => a+b, 0);
+document.getElementById("quals").innerHTML = Q.map(([n,d],i) => `<div class="qual"><b>${i+1}. ${n}</b>${d}</div>`).join("");
+document.querySelector("#t thead").innerHTML = `<tr><th class="game" scope="col">Game</th>${Q.map(([n]) => `<th scope="col">${n}</th>`).join("")}<th scope="col">Fit</th><th scope="col">Priority</th></tr>`;
+let filter = "all"; const open = new Set();
+function render(){
+  const rows = G.filter(g => filter === "all" || (filter === "todo" ? total(g) < 40 : g.w === filter));
+  document.querySelector("#t tbody").innerHTML = rows.map(g => { const pct = Math.round(total(g)/40*100), isOpen = open.has(g.k);
+    return `<tr class="row${isOpen ? " open" : ""}" data-k="${g.k}" tabindex="0" aria-expanded="${isOpen}"><td class="game"><b>${g.n}</b><small>${{studio:"Studio",explore:"Explorer",core:"Brain gym"}[g.w]}</small></td>${g.r.map((v,i) => `<td class="cell"><span class="r${v}" title="${Q[i][0]}: ${v} of 5">${v}</span></td>`).join("")}<td class="total">${pct}%<span class="meter"><i style="width:${pct}%"></i></span></td><td><span class="pri ${PRIC[g.pri]}">${PRI[g.pri]}</span></td></tr>`
+      + (isOpen ? `<tr class="detail"><td colspan="${Q.length + 3}"><div class="drawer"><div><h3>Where it is now</h3><p class="now">${g.now}</p><h3>Weakest areas</h3><ul>${g.r.map((v,i) => [v,i]).filter(([v]) => v <= 3).map(([v,i]) => `<li><b>${Q[i][0]}</b> (${v} of 5)</li>`).join("") || "<li>None below 4.</li>"}</ul></div><div><h3>What it needs to reach the benchmark</h3><ul>${g.todo.map(t => `<li>${t}</li>`).join("")}</ul></div></div></td></tr>` : ""); }).join("");
+}
+document.querySelector("#t tbody").addEventListener("click", e => { const r = e.target.closest("tr.row"); if(!r) return; const k = r.dataset.k; open.has(k) ? open.delete(k) : open.add(k); render(); });
+document.querySelector("#t tbody").addEventListener("keydown", e => { if((e.key === "Enter" || e.key === " ") && e.target.matches("tr.row")){ e.preventDefault(); e.target.click(); } });
+document.querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; document.querySelectorAll("[data-f]").forEach(x => x.setAttribute("aria-pressed", x === b)); render(); }));
+open.add("sewing"); render();
+document.getElementById("cross").innerHTML = CROSS.map(([n,d]) => `<div><b>${n}</b>${d}</div>`).join("");
+document.getElementById("order").innerHTML = ORDER.map(([n,d]) => `<li><span><b>${n}</b>: ${d}</span></li>`).join("");
+</script>
