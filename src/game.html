@@ -1173,6 +1173,45 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .gf-resrow{display:flex;gap:12px;align-items:center}
 .gf-toast{position:fixed;left:50%;bottom:18px;right:auto;transform:translateX(-50%);max-width:min(520px,90vw);z-index:70}.gf-toast.show{transform:translateX(-50%)}
 .sal-req.gf-who{grid-template-columns:84px 1fr}.gf-av svg{width:84px;height:auto}
+.pm-sign{background:linear-gradient(135deg,#fff0dc,#e6f4ff)}.pm-relax{display:flex;align-items:center;gap:6px;font-size:13px}
+.pm-rank{font-size:12px;font-weight:700;padding:3px 9px;border:2px solid var(--ink);border-radius:99px;background:#fff0dc}
+.pm-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}@media(max-width:860px){.pm-grid{grid-template-columns:1fr}}
+.pm-stage2{position:relative;height:360px;border:3px solid var(--ink);border-radius:18px;overflow:hidden;box-shadow:5px 6px 0 var(--ink);background:#f3ebe0}
+.pm-bg{position:absolute;inset:0;width:100%;height:100%}
+.pm-actor2{position:absolute;bottom:0;width:44%;display:flex;flex-direction:column;align-items:center;transition:transform .6s cubic-bezier(.3,1.4,.5,1),left .9s,opacity .9s}.pm-actor2.a0{left:3%}.pm-actor2.a1{right:3%}
+.pm-head{position:relative;z-index:2;margin-bottom:-22px;transition:transform .5s}.pm-head svg{width:120px;height:auto}
+.pm-body{width:160px;height:auto;display:block;overflow:visible}
+.pm-body .pm-armL,.pm-body .pm-armR{transition:transform .5s cubic-bezier(.3,1.4,.5,1)}.pm-body .pm-armL{transform-origin:52px 34px}.pm-body .pm-armR{transform-origin:148px 34px}
+.pm-actor2[data-pose=cross] .pm-armL{transform:rotate(-62deg) translate(6px,-10px)}.pm-actor2[data-pose=cross] .pm-armR{transform:rotate(62deg) translate(-6px,-10px)}
+.pm-actor2[data-pose=hips] .pm-armL{transform:rotate(28deg) scaleY(.7)}.pm-actor2[data-pose=hips] .pm-armR{transform:rotate(-28deg) scaleY(.7)}
+.pm-actor2[data-pose=open] .pm-armL{transform:rotate(30deg)}.pm-actor2[data-pose=open] .pm-armR{transform:rotate(-30deg)}
+.pm-actor2.a0[data-pose=point] .pm-armR{transform:rotate(-105deg)}.pm-actor2.a1[data-pose=point] .pm-armL{transform:rotate(105deg)}
+.pm-actor2.a0[data-pose=shake] .pm-armR{transform:rotate(-70deg)}.pm-actor2.a1[data-pose=shake] .pm-armL{transform:rotate(70deg)}
+.pm-actor2.a0[data-mood=Heated]{transform:rotate(4deg) translateX(8px)}.pm-actor2.a1[data-mood=Heated]{transform:rotate(-4deg) translateX(-8px)}
+.pm-actor2.a0[data-mood=Guarded]{transform:rotate(-4deg) translateX(-6px)}.pm-actor2.a1[data-mood=Guarded]{transform:rotate(4deg) translateX(6px)}
+.pm-actor2[data-mood=Heated] .pm-head svg{filter:drop-shadow(0 0 10px rgba(230,57,70,.6))}
+.pm-stage2[data-end=resolved] .pm-actor2.a0{left:14%}.pm-stage2[data-end=resolved] .pm-actor2.a1{right:14%}
+.pm-actor2.gone{opacity:0}.pm-actor2.a0.gone{left:-50%}.pm-actor2.a1.gone{right:-50%}.pm-actor2.leaving{animation:pmLeave .5s}
+@keyframes pmLeave{50%{transform:translateY(-8px)}}
+.pm-actor2.talk .pm-head{animation:pmTalk .45s}@keyframes pmTalk{30%{transform:translateY(-6px) rotate(-2deg)}70%{transform:translateY(-2px) rotate(2deg)}}
+.pm-tag{position:absolute;bottom:6px;background:#fff;border:2px solid var(--ink);border-radius:99px;padding:0 10px;font-weight:800;font-size:12px;z-index:3}
+.pm-say{position:absolute;bottom:100%;margin-bottom:-90px;left:50%;transform:translateX(-50%) scale(.6);opacity:0;width:min(220px,40vw);background:#fff;border:2px solid var(--ink);border-radius:14px;padding:6px 10px;font-size:13px;font-weight:600;z-index:4;transition:.25s;color:#2b2118;top:0;bottom:auto;margin:0}.pm-say.show{opacity:1;transform:translateX(-50%) scale(1)}
+.pm-actor2 .pm-say{top:-10px}
+.pm-stage2 .pm-actor2{padding-top:70px}
+.pm-fx{position:absolute;top:60px;left:0;right:0;height:60px;pointer-events:none;z-index:3}
+.pm-fx .steam{position:absolute;top:0;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.85);border:2px solid rgba(43,33,24,.3);animation:pmSteam 1.2s ease-out forwards}@keyframes pmSteam{to{transform:translateY(-50px) scale(1.8);opacity:0}}
+.pm-fx .sweat{position:absolute;top:30px;right:30%;width:9px;height:13px;background:#7cc8ff;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;border:1.5px solid var(--ink);animation:pmSweat 1.4s ease-in forwards}@keyframes pmSweat{to{transform:translateY(40px);opacity:0}}
+.pm-fx .spark{position:absolute;top:10px;width:10px;height:10px;background:#ffd166;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:pmSpark 1s ease-out forwards}@keyframes pmSpark{to{transform:translateY(-30px) rotate(90deg);opacity:0}}
+.pm-tension{position:absolute;left:12px;right:12px;top:10px;height:10px;border:2px solid var(--ink);border-radius:99px;background:#fff;overflow:hidden;z-index:5}.pm-tension i{display:block;height:100%;transition:width .6s,background .6s}
+.pm-feed{margin-top:10px;max-height:230px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.pm-feed .line{padding:6px 10px;border-radius:12px;border:2px solid var(--ink);background:#fff;font-size:14px;color:#2b2118}.pm-feed .line.char{border-left:8px solid var(--ac)}.pm-feed .line.you{background:#e6f4ff;align-self:flex-end;max-width:90%}.pm-feed .line.narr{background:none;border:0;font-style:italic;color:#6b5a4a}.pm-feed .who{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.pm-feed .pm-note{color:#c0392b}
+.pm-goal{border:2.5px solid var(--ink);border-radius:14px;padding:10px;background:#fffdf8;box-shadow:3px 3px 0 var(--ink);color:#2b2118}
+.pm-checks{margin:6px 0;padding:0;list-style:none;font-size:13.5px}.pm-checks li::before{content:"○ ";font-weight:800}.pm-checks li.ok::before{content:"● ";color:#2e7d32}.pm-checks li.ok{color:#2e7d32;font-weight:700}
+.pm-trust{display:grid;gap:4px}.pm-trust small{display:block;font-size:11.5px}.pm-trust .bar{display:block;height:8px;border:1.5px solid var(--ink);border-radius:99px;overflow:hidden;background:#fff}.pm-trust .bar i{display:block;height:100%;background:#3a8dff;transition:width .6s}.pm-trust em{font-size:11px;font-style:normal;font-weight:700}
+.pm-tones .ch small{font-weight:400;opacity:.8}.pm-coach{color:#6f62ff;font-weight:600}
+.pm-timer{height:8px;border:2px solid var(--ink);border-radius:99px;overflow:hidden;margin-top:8px;background:#fff}.pm-timer i{display:block;height:100%;background:#78c552;width:100%;transition:width .1s linear}.pm-timer i.low{background:#e63946}
+.tag.pm-t0{background:#ffd5cc}.tag.pm-t1{background:#fff1a8}.tag.pm-t2{background:#d6f3c6}
+.pm-path>div{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:4px 0 8px}.pm-node{display:flex;flex-direction:column;border:2px solid var(--ink);border-radius:10px;padding:3px 8px;font-weight:800;font-size:12px;background:#fff}.pm-node small{font-weight:500;font-size:10.5px}.pm-node.q2{background:#d6f3c6}.pm-node.q1{background:#fff1a8}.pm-node.q0{background:#ffd5cc}.pm-node.end-resolved{background:#78c552;color:#fff}.pm-node.end-ceasefire{background:#ffbf2e}.pm-node.end-walkout{background:#e63946;color:#fff}.pm-link{width:14px;height:3px;background:var(--ink)}
 </style>
 
 <div class="wrap">
@@ -12797,6 +12836,181 @@ ROOMS.gift.blurb = "Be a gift detective. Scroll a person's feed and pin the clue
 ROOMS.gift.tip = "<b>Tip:</b> sort every clue into need, love or avoid before you shop. The best gift solves a real problem and respects their limits.";
 ROOMS.gift.modes = [["studio","Take a case"],["classic","Classic blog shopping"],["practice","Quiz"]];
 HOWTO.gift = ["Scroll their feed and tap sentences to pin them as Need, Love or Avoid clues. DM their friends for more (questions are limited).","Shop within the budget, shipping included.","Wrap it: measure and cut the paper, fold the sides then the ends, tape the seams and tie a bow. Pick a card message, then give it."];
+
+/* =========================================================
+   PEACEMAKER PRO: animated characters with body language,
+   timed responses, tone of voice, a mediation goal card,
+   a rescue branch, three endings and replay.
+   ========================================================= */
+const PEACE_CLASSIC = STUDIO.peace;
+SCEN.push(
+ {id:"raid", tier:2, title:"The Lost Loot", setting:"A voice channel at 11 p.m. The guild just wiped on the final boss, and the rare sword went to the wrong player.",
+  cast:[{n:"Kai",role:"Guild leader, organizes every raid"},{n:"Zoe",role:"Newest member, top damage tonight"}], tension:72,
+  beats:[
+   {narr:"Kai unmutes. Everyone else goes quiet.", lines:[[0,"You rolled Need on a sword you can't even use. That was for our tank."],[1,"I can use it next season! And nobody told me the loot rules."]],
+    opts:[["Okay, it sounds like Kai feels the plan got broken, and Zoe feels blindsided by rules nobody explained. Can we hear each of you in turn?","Affect labeling + structure",2,-15,10,10,[[0,"…Yeah. Broken plan, exactly."],[1,"Fine. Thank you."]],"Naming each person's feeling and setting turns lowers the threat response on both sides."],
+          ["Zoe, just give the sword back and we can all log off.","Taking sides",0,15,10,-25,[[1,"Wow. Newbie tax, I guess. I'm leaving the guild."]],"Siding early makes you part of the fight; the other person stops listening."],
+          ["It's a game. Seriously, it's just pixels.","Dismissing feelings",0,10,-15,-10,[[0,"It's three months of raids to me."]],"Minimizing what someone cares about tells them their feelings don't count."],
+          ["Let's just write loot rules tomorrow.","Jumping to solutions",1,5,-5,-5,[[1,"And tonight I just get yelled at?"]],"A fix offered before people feel heard tends to bounce off."]]},
+   {narr:"Kai goes first.", lines:[[0,"She's a loot goblin. Typical new player, only cares about herself."]],
+    opts:[["Kai, can you tell us what happened, rather than what kind of player Zoe is?","Separating person from problem",2,-10,5,15,[[0,"The sword was promised to Rae for three weeks. Then Zoe rolled first."],[1,"Promised where? I wasn't in that chat."]],"Attacks on character are much harder to hear than a complaint about a specific event."],
+          ["Zoe, how does it feel to be called a loot goblin?","Inviting a counterattack",0,10,-5,0,[[1,"Like he's a power-tripping control freak."]],"Asking the target of an insult to respond invites retaliation."],
+          ["Name-calling isn't allowed in this guild, Kai.","Lecturing",1,5,-8,5,[[0,"Great, so I'm the bad guy now."]],"Right point, wrong delivery: a lecture makes you a judge, not a mediator."],
+          ["You're both tired after a wipe. Let's not take it out on each other.","Generalizing",1,-5,0,5,[[1,"Okay."],[0,"That's not the point, though."]],"Partly true, but it skips the real issue."]]},
+   {narr:"Zoe sighs into her mic.", lines:[[1,"I just wanted to feel like part of the team. I did the most damage tonight."]],
+    opts:[["What matters most to each of you about raiding together?","Interests over positions",2,-15,10,10,[[0,"That people can trust the plan. Otherwise the raid falls apart."],[1,"That I'm treated like a real member, not a stand-in."]],"Positions clash (“give it back!”), but interests (a reliable team, belonging) often fit together."],
+          ["Zoe, will you trade it to Rae, yes or no?","Closed question",1,5,5,-8,[[1,"Do I have a choice?"]],"A yes/no question pushes for a commitment before anyone understands the problem."],
+          ["Kai, maybe loot rules are a bit much for a game?","Minimizing",0,10,-15,5,[[0,"So organizing anything is pointless now."]],"Minimizing one side's concern destroys their trust in you."],
+          ["It sounds like you both want this guild to work.","Reflecting a shared goal",1,-10,5,5,[[0,"Obviously."],[1,"Yeah, I do."]],"Common ground helps, though it doesn't yet show what each person needs."]]},
+   {narr:"The channel is calm. Even the lurkers are listening.", lines:[[0,"So what now?"]],
+    opts:[["You two know this guild best. What could work for both of you?","Empowering the parties",2,-18,10,10,[[1,"I'll trade the sword to Rae if I get priority on the next drop I can use."],[0,"And I'll pin the loot rules where new people can see them. Deal."]],"People keep agreements they helped design."],
+          ["What if Zoe trades the sword to Rae tonight, gets first pick next raid, and Kai pins written loot rules?","Specific, mutual proposal",2,-15,8,10,[[1,"That's fair, actually."],[0,"Works for me."]],"Durable agreements are specific and mutual: both give and both get."],
+          ["Zoe returns the sword, and that's the end of it.","Imposed win-lose",0,10,-5,-15,[[1,"Cool. I'll find a different guild."]],"One-sided deals breed resentment and quietly collapse."],
+          ["Let's just play it by ear.","Vague agreement",1,5,-5,-5,[[0,"That's how this happened."]],"Vague agreements fail because no one knows what “better” looks like."]]}
+  ]},
+ {id:"holiday", tier:3, title:"Whose Turn for the Holidays", setting:"A kitchen table in November. Two siblings, one calendar, and a very old argument about where the family spends the holidays.",
+  cast:[{n:"Elena",role:"Older sister, has hosted for six years"},{n:"Marco",role:"Younger brother, just moved across the country"}], tension:66,
+  beats:[
+   {narr:"Elena slides the calendar across the table.", lines:[[0,"I've hosted every single year. I'm exhausted, and nobody even offers to bring a dish."],[1,"You always insist on hosting! Now it's my fault?"]],
+    opts:[["Elena, it sounds like you're worn out and feel unappreciated. Marco, you sound accused. Let's take turns.","Affect labeling + structure",2,-15,10,10,[[0,"Unappreciated. Yes."],[1,"Okay. Turns."]],"Labeling both feelings shows you're on nobody's side, only on the conversation's."],
+          ["Marco, she's right, you could help more.","Taking sides",0,15,10,-25,[[1,"Of course. The baby brother is always wrong."]],"Siding early turns you into a third party in the fight."],
+          ["It's the holidays, let's not fight.","Dismissing feelings",0,10,-12,-5,[[0,"That's exactly why we HAVE to talk about it."]],"Waving away feelings usually escalates them."],
+          ["Just alternate years. Done.","Jumping to solutions",1,5,-5,-5,[[1,"I live 2,000 miles away now. It's not that simple."]],"A quick fix bounces off people who don't feel heard yet."]]},
+   {narr:"Elena goes first.", lines:[[0,"He's selfish. He moved away and left me with Mom and Dad and everything."]],
+    opts:[["Elena, can you describe what's been happening, rather than what kind of person Marco is?","Separating person from problem",2,-10,5,15,[[0,"I drive Mom to every appointment, and then I host twenty people in December."],[1,"I… didn't know about the appointments."]],"A specific complaint is much easier to hear than an attack on character."],
+          ["Marco, how does it feel to be called selfish?","Inviting a counterattack",0,10,0,-5,[[1,"Like she's been waiting years to say it."]],"Inviting a response to an insult invites retaliation."],
+          ["Calling him selfish won't help, Elena.","Lecturing",1,5,-8,5,[[0,"So I just stay quiet, like always?"]],"Good point, preachy delivery."],
+          ["Families are complicated, it's nobody's fault.","Generalizing",1,-5,-3,5,[[1,"Right."],[0,"It's a bit someone's fault."]],"True, but it skips the specific load Elena carries."]]},
+   {narr:"Marco looks at the table.", lines:[[1,"I can't afford flights every December. I feel like a bad son every year."]],
+    opts:[["What matters most to each of you about the holidays?","Interests over positions",2,-15,10,10,[[0,"That I get to rest and actually enjoy it, too."],[1,"That I'm still part of the family, even from far away."]],"Under “host” vs “don't host” are interests (rest, belonging) that can both be met."],
+          ["Marco, can you fly back this year, yes or no?","Closed question",1,5,5,-8,[[1,"With what money?"]],"Yes/no questions corner people before anyone understands the problem."],
+          ["Elena, maybe hosting is your choice, so stop complaining?","Minimizing",0,12,-15,5,[[0,"Unbelievable."]],"Minimizing one side destroys your neutrality."],
+          ["You both sound like you miss each other.","Reflecting a shared feeling",1,-10,5,5,[[1,"…I do."],[0,"Me too."]],"A shared feeling builds common ground."]]},
+   {narr:"Both siblings are quieter. Elena pours two cups of tea.", lines:[[1,"So what do we do?"]],
+    opts:[["You know your family best. What could work for both of you?","Empowering the parties",2,-18,10,10,[[1,"I'll host Thanksgiving by video and cover the groceries for December. And I'll call Mom every Sunday."],[0,"And I'll ask our cousins to bring dishes. Deal."]],"Self-determination: solutions people build themselves are the ones they keep."],
+          ["What if Marco pays for the December groceries and joins by video, and Elena hands two dishes to the cousins?","Specific, mutual proposal",2,-15,10,8,[[0,"That would genuinely help."],[1,"I can do that."]],"Specific, mutual agreements hold: both give and both get."],
+          ["Marco hosts next year, no excuses.","Imposed win-lose",0,10,-5,-15,[[1,"In my studio apartment? Sure."]],"Imposed deals that ignore real limits fall apart."],
+          ["Let's see how December goes.","Vague agreement",1,5,-5,-5,[[0,"That's what we said last year."]],"Vague agreements leave both people guessing."]]}
+  ]}
+);
+const PM_PH = [["goal","Goal"],["talk","Mediate"],["end","Ending"]];
+const PM_SHOP = [["coach","Coaching notes","g:journal","A coach whispers which tone fits the moment.",60],["stick","Talking stick","g:pick","Four extra seconds on the reply timer.",40],["tea","Pot of tea","g:tea","Scenes start a little calmer.",60],["cert","Mediator certificate","g:voucher","Bigger tips for resolved scenes.",80]];
+const PMS = () => { S.pmpro = S.pmpro || {coins:120, owned:[], served:0, totalMatch:0, best:0, days:0, daily:{}, relaxed:false, resolved:0}; return S.pmpro; };
+const PM_POSE = {Heated:"point", Guarded:"cross", Tense:"hips", Calmer:"down", Open:"open"};
+const PM_TONES = [["calm","Calm","Slow, low, steady"],["warm","Warm","Kind, caring"],["firm","Firm","Clear, direct"]];
+const PM_RANKS = [[0,"Trainee"],[3,"Junior mediator"],[8,"Mediator"],[15,"Senior mediator"],[25,"Master peacemaker"]];
+const pmLook = (sc, i) => { const L = (CAST_LOOK[sc.id] || [])[i]; if(L) return L; const r = rng(sc.id + i), pk = a => a[Math.floor(r()*a.length)]; return {skin:pk(SKINS)[0], hair:pk(["curls","buzz","long","pixie","bun","ponytail","afro","braids"]), hairC:pk(["black","darkbrown","brown","auburn","blonde","grey"]), top:pk(["#ff7db8","#3a8dff","#22b8a7","#e85d3a","#78c552","#b97cf6","#ffbf2e"]), eye:pk(["brown","darkbrown","blue","green"]), shape:pk(["oval","round","heart","square","long"])}; };
+function pmBody(top){ const sk = "#00000000"; return `<svg viewBox="0 0 200 170" class="pm-body" aria-hidden="true"><g class="pm-armL"><path d="M52 34 C34 60 30 92 34 120" stroke="var(--ink)" stroke-width="22" stroke-linecap="round" fill="none"/><path d="M52 34 C34 60 30 92 34 120" stroke="${top}" stroke-width="15" stroke-linecap="round" fill="none"/><circle cx="34" cy="124" r="9" fill="var(--pmskin)" stroke="var(--ink)" stroke-width="3"/></g><path d="M48 30 Q100 6 152 30 L162 170 L38 170 Z" fill="${top}" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/><path d="M84 16 Q100 34 116 16" fill="none" stroke="var(--ink)" stroke-width="3"/><g class="pm-armR"><path d="M148 34 C166 60 170 92 166 120" stroke="var(--ink)" stroke-width="22" stroke-linecap="round" fill="none"/><path d="M148 34 C166 60 170 92 166 120" stroke="${top}" stroke-width="15" stroke-linecap="round" fill="none"/><circle cx="166" cy="124" r="9" fill="var(--pmskin)" stroke="var(--ink)" stroke-width="3"/></g></svg>`; }
+STUDIO.peace = {
+  start(mode){ if(mode === "classic") return PEACE_CLASSIC.start.call(PEACE_CLASSIC, mode); this.lobby(); },
+  has(k){ return PMS().owned.includes(k); },
+  rank(){ const n = PMS().resolved; return PM_RANKS.filter(r => n >= r[0]).pop()[1]; },
+  lobby(){
+    const s = PMS(); cancelAnimationFrame(this.raf); clearInterval(this.timerI); const avg = s.served ? Math.round(s.totalMatch/s.served) : 0;
+    stage.innerHTML = `<div class="sal-lobby"><div class="sal-sign pm-sign"><span class="eyebrow">${this.rank()}</span><h3>Mediation office · day ${s.days + 1}</h3>
+      <div class="sal-stats"><span><small>Coins</small><b class="coin">${fmt(s.coins)}</b></span><span><small>Scenes</small><b>${s.served}</b></span><span><small>Resolved</small><b>${s.resolved}</b></span><span><small>Average</small><b>${s.served ? avg + "%" : "–"}</b></span></div>
+      <p class="stage-tip">Step into a live argument. Watch body language, answer before the moment passes, choose your words and your tone, and steer them toward an agreement both can live with.</p>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn btn-solid" type="button" id="pmOpen">Open the office →</button><button class="btn" type="button" id="pmDaily">Daily scene</button><label class="pm-relax"><input type="checkbox" id="pmRelax" ${s.relaxed ? "checked" : ""}> Relaxed mode (no timer)</label></div>
+      <p class="tooltip-line">${s.daily[today()] ? `Today's best: <b>${s.daily[today()]}%</b>.` : "Everyone mediates the same scene today."} ${SCEN.length} scenes: flatmates, coworkers, teammates, gamers, neighbors and family.</p></div>
+      <div class="sal-shop"><span class="eyebrow">Upgrades</span><div class="sal-shopgrid">${PM_SHOP.map(([k, n, ic, d, p]) => { const own = s.owned.includes(k); return `<div class="sal-item${own ? " own" : ""}"><span class="ti">${icon(ic, 34)}</span><b>${n}</b><small>${d}</small>${own ? `<span class="owned">Owned</span>` : `<button class="btn-sm" type="button" data-buy="${k}" ${s.coins < p ? "disabled" : ""}><span class="coin">${p}</span></button>`}</div>`; }).join("")}</div></div></div>`;
+    stage.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => { const t = PM_SHOP.find(x => x[0] === b.dataset.buy); if(s.coins < t[4]) return; s.coins -= t[4]; s.owned.push(t[0]); save(); sfx.win(); this.lobby(); });
+    $("pmRelax").onchange = e => { s.relaxed = e.target.checked; save(); };
+    $("pmOpen").onclick = () => { this.day = {n:0, earned:0, results:[]}; this.newScene(); };
+    $("pmDaily").onclick = () => { this.day = {n:0, earned:0, results:[], daily:true}; const r0 = Math.random; Math.random = rng("pm" + today()); try{ this.newScene(); } finally { Math.random = r0; } };
+    setSide("Coins", fmt(s.coins));
+  },
+  newScene(sc){
+    if(!sc){ const d = S.rating.peace, tier = d < 3 ? 2 : d < 6 ? 3 : 4, pool = SCEN.filter(x => x.tier <= tier && !(this.lastSc || []).includes(x.id)); sc = pick(pool.length ? pool : SCEN); }
+    this.lastSc = [...(this.lastSc || []).slice(-5), sc.id]; this.sc = sc;
+    this.t = Math.max(30, sc.tension - (this.has("tea") ? 10 : 0)); this.trust = [35, 35]; this.beat = 0; this.log = []; this.tone = null; this.rescued = false; this.rescue = null; this.ended = null; this.walker = null; this.locked = false; this.timeouts = 0;
+    this.render();
+  },
+  render(){
+    const s = PMS(), sc = this.sc;
+    stage.innerHTML = `<div class="sal pmp">
+      <div class="sal-hud"><span class="coin">${fmt(s.coins)}</span><span>${this.day.daily ? "Daily scene" : `Scene ${this.day.n + 1} of 3`}</span><span class="pm-rank">${this.rank()}</span><span class="sal-match"><small>Tension</small><b id="pmTv">${this.t}</b></span></div>
+      <div class="pm-grid"><div class="pm-left"><div class="pm-stage2" id="pmStage"><svg viewBox="0 0 400 200" class="pm-bg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${SCENE_ART[sc.id] || `<rect width="400" height="200" fill="#f3ebe0"/><rect y="150" width="400" height="50" fill="#e0cfb6"/>`}</svg>
+        ${[0, 1].map(i => `<div class="pm-actor2 a${i}" id="pmA${i}" style="--pmskin:${pmLook(sc, i).skin}"><div class="pm-say" id="pmSay${i}"></div><div class="pm-fx" id="pmFx${i}"></div><div class="pm-head" id="pmH${i}"></div>${pmBody(pmLook(sc, i).top)}<span class="pm-tag">${sc.cast[i].n}</span></div>`).join("")}
+        <div class="pm-tension"><i id="pmTbar"></i></div></div>
+        <div class="pm-feed" id="pmFeed" aria-live="polite"></div></div>
+      <div class="sal-side"><div class="pm-goal"><span class="eyebrow">Mediation goal · ${sc.title}</span><p class="tooltip-line">${sc.setting}</p><ul class="pm-checks" id="pmChecks"></ul><div class="pm-trust">${sc.cast.map((c, i) => `<div><small>${c.n} · ${c.role}</small><span class="bar"><i id="pmTr${i}"></i></span><em id="pmMd${i}"></em></div>`).join("")}</div></div><div class="sw-panel" id="pmAct"></div></div></div>
+      <div id="pmRes" class="sal-overlay"></div></div>`;
+    this.update(); this.playBeat();
+    const tok = G.token; cancelAnimationFrame(this.raf); const loop = () => { if(G.token !== tok || !$("pmStage")) return; this.fxTick(); this.raf = requestAnimationFrame(loop); }; this.raf = requestAnimationFrame(loop);
+  },
+  mood(i){ const tr = this.trust[i], t = this.t; return t > 70 ? "Heated" : tr < 25 ? "Guarded" : tr > 65 ? "Open" : t > 45 ? "Tense" : "Calmer"; },
+  update(){ const tv = $("pmTv"); if(!tv) return; tv.textContent = this.t; $("pmTbar").style.width = this.t + "%"; $("pmTbar").style.background = this.t > 70 ? "#e63946" : this.t > 45 ? "#ff9a1f" : "#78c552";
+    [0, 1].forEach(i => { const m = this.ended === "walkout" && i === this.walker ? "Heated" : this.ended === "resolved" ? "Open" : this.mood(i), A = $("pmA" + i); $("pmTr" + i).style.width = this.trust[i] + "%"; $("pmMd" + i).textContent = m; A.dataset.pose = this.ended === "resolved" ? "shake" : PM_POSE[m]; A.dataset.mood = m; $("pmH" + i).innerHTML = faceSVG({...pmLook(this.sc, i), mood:MOOD_FACE[m] || "neutral"}, 120); });
+    const lastQ = this.log.filter(l => l.beat === this.sc.beats.length - 1).pop(); $("pmChecks").innerHTML = [[this.t <= 30, `Tension at 30 or below (now ${this.t})`], [Math.min(...this.trust) >= 55, `Both feel heard: trust 55+ each`], [lastQ && lastQ.q === 2, "A specific agreement both helped shape"]].map(([ok, l]) => `<li class="${ok ? "ok" : ""}">${l}</li>`).join(""); },
+  fxTick(){ const now = performance.now(); [0, 1].forEach(i => { const fx = $("pmFx" + i); if(!fx) return; const m = $("pmA" + i).dataset.mood; if(m === "Heated" && Math.random() < .06){ const p = document.createElement("i"); p.className = "steam"; p.style.left = (30 + Math.random()*40) + "%"; fx.appendChild(p); setTimeout(() => p.remove(), 1200); } if(m === "Tense" && Math.random() < .015){ const p = document.createElement("i"); p.className = "sweat"; fx.appendChild(p); setTimeout(() => p.remove(), 1400); } if(m === "Open" && Math.random() < .03){ const p = document.createElement("i"); p.className = "spark"; p.style.left = (10 + Math.random()*80) + "%"; fx.appendChild(p); setTimeout(() => p.remove(), 1000); } }); },
+  speak(who, text){ const f = $("pmFeed"); if(!f) return; const el = document.createElement("div"); el.className = "line " + (who === "you" ? "you" : who === "narr" ? "narr" : "char"); if(typeof who === "number"){ el.style.setProperty("--ac", pmLook(this.sc, who).top); el.innerHTML = `<span class="who">${this.sc.cast[who].n}</span>${text}`; const b = $("pmSay" + who), A = $("pmA" + who); if(b){ b.textContent = text; b.classList.remove("show"); void b.offsetWidth; b.classList.add("show"); clearTimeout(this["sayT" + who]); this["sayT" + who] = setTimeout(() => b && b.classList.remove("show"), 3200); } if(A){ A.classList.remove("talk"); void A.offsetWidth; A.classList.add("talk"); } tone(who ? 220 : 300, .04, "triangle", .015); } else if(who === "you") el.innerHTML = `<span class="who">You · ${this.toneName || "mediator"}</span>${text}`; else el.textContent = text; f.appendChild(el); f.scrollTop = f.scrollHeight; },
+  curBeat(){ return this.rescue || this.sc.beats[this.beat]; },
+  playBeat(){
+    const b = this.curBeat(); $("pmAct").innerHTML = `<p class="tooltip-line">Listening…</p>`; this.locked = true;
+    const seq = [["narr", b.narr], ...b.lines.map(([w, t]) => [w, t])]; seq.forEach(([w, t], i) => later(() => this.speak(w, t), 300 + i*1100));
+    later(() => { this.locked = false; this.opts = shuffle(b.opts.slice()); this.tone = null; this.toneName = null; this.timeouts = 0; this.showOpts(); }, 300 + seq.length*1100);
+  },
+  bestTone(){ const isLast = !this.rescue && this.beat === this.sc.beats.length - 1; return this.t >= 65 ? "calm" : Math.min(...this.trust) < 40 ? "warm" : isLast ? "firm" : "warm"; },
+  showOpts(){
+    const relaxed = PMS().relaxed, coach = this.has("coach");
+    $("pmAct").innerHTML = `<div class="opt-group"><h4>Your tone</h4><div class="chips pm-tones">${PM_TONES.map(([k, n, d]) => `<button type="button" class="ch${this.tone === k ? " sel" : ""}" data-tone="${k}"><b>${n}</b> <small>${d}</small></button>`).join("")}</div>${coach ? `<p class="tooltip-line pm-coach">Coach: “${({calm:"They're heated. Slow down and lower your voice.", warm:"Someone feels unheard. Lead with warmth.", firm:"Time to pin down specifics. Be clear and direct."})[this.bestTone()]}”</p>` : ""}</div>
+      <div class="opt-group"><h4>What you say</h4><div class="replies">${this.opts.map((o, i) => `<button class="reply" type="button" data-i="${i}">${o[0]}</button>`).join("")}</div></div>${relaxed ? "" : `<div class="pm-timer"><i id="pmTimer"></i></div>`}`;
+    $("pmAct").onclick = e => { const t = e.target.closest("[data-tone]"), r = e.target.closest(".reply"); if(this.locked) return; if(t){ this.tone = t.dataset.tone; this.toneName = PM_TONES.find(x => x[0] === this.tone)[1].toLowerCase(); stage.querySelectorAll("[data-tone]").forEach(x => x.classList.toggle("sel", x === t)); sfx.click(); } if(r) this.choose(+r.dataset.i); };
+    clearInterval(this.timerI); if(relaxed) return; const dur = (19 - this.sc.tier*2 + (this.has("stick") ? 4 : 0))*1000; this.tEnd = performance.now() + dur; const tok = G.token;
+    this.timerI = setInterval(() => { if(G.token !== tok || !$("pmTimer")){ clearInterval(this.timerI); return; } const left = this.tEnd - performance.now(); $("pmTimer").style.width = Math.max(0, left/dur*100) + "%"; $("pmTimer").classList.toggle("low", left < dur*.3); if(left <= 0) this.timeout(dur); }, 100);
+  },
+  timeout(dur){ this.timeouts++; const who = this.trust[0] <= this.trust[1] ? 0 : 1, lines = ["Hello? Is anyone going to say anything?","See? Nobody ever listens to me.","This is pointless.","Are you even on my side?"]; this.speak(who, lines[(this.timeouts + who) % lines.length]); this.t = clamp(this.t + 8, 0, 100); this.trust = this.trust.map(v => clamp(v - 4, 0, 100)); this.update(); sfx.bad(); this.tEnd = performance.now() + dur*.7; if(this.timeouts === 1) this.note("Silence lets an argument keep going. Respond before the moment passes."); if(this.t >= 90 && !this.rescued) { clearInterval(this.timerI); this.startRescue(); } },
+  note(t){ const f = $("pmFeed"); if(!f) return; const el = document.createElement("div"); el.className = "line narr pm-note"; el.textContent = t; f.appendChild(el); f.scrollTop = f.scrollHeight; },
+  choose(i){
+    clearInterval(this.timerI); this.locked = true; const [text, tech, q, dT, dA, dB, reacts, note] = this.opts[i], best = this.bestTone(), tone = this.tone, toneQ = !tone ? 0 : tone === best ? 1 : (tone === "firm" && (this.t >= 65 || Math.min(...this.trust) < 40)) || (tone === "calm" && best === "firm") ? -1 : 0;
+    const toneWhy = !tone ? "You didn't pick a tone, so it came out flat." : toneQ === 1 ? ({calm:"A calm, slow voice lowers arousal when people are heated.", warm:"Warmth rebuilds trust when someone feels unheard.", firm:"Firmness helps nail down specifics at the agreement stage."})[tone] : toneQ === -1 ? (tone === "firm" ? "A firm tone sounds like pressure when people are heated or hurt." : "Too soft for the moment: at the agreement stage, be clear and specific.") : `Fine, but a ${best} tone would have fit better here.`;
+    this.log.push({beat:this.rescue ? -1 : this.beat, tech, q, note, text, tone:tone || "none", toneQ, toneWhy, rescue:!!this.rescue}); this.speak("you", text);
+    q === 2 ? sfx.good() : q === 0 ? sfx.bad() : sfx.click();
+    const tm = toneQ === 1 ? -6 : toneQ === -1 ? 6 : 0; this.t = clamp(this.t + dT + tm, 0, 100); this.trust[0] = clamp(this.trust[0] + dA - tm/2, 0, 100); this.trust[1] = clamp(this.trust[1] + dB - tm/2, 0, 100);
+    reacts.forEach(([w, t], k) => later(() => { this.speak(w, t); if(k === 0) this.update(); }, 700 + k*1100));
+    later(() => {
+      this.update(); const wasRescue = !!this.rescue, ultimatum = wasRescue && q === 0; this.rescue = null;
+      $("pmAct").innerHTML = `<div class="tech"><span class="tag q${q}">${["Backfired","Okay move","Strong move"][q]} · ${tech}</span><p>${note}</p><span class="tag pm-t${toneQ + 1}">Tone: ${tone || "none"}</span><p>${toneWhy}</p></div><div class="row-btns" style="justify-content:flex-start;margin-top:10px"><button class="btn btn-solid" type="button" id="pmNext">Continue</button></div>`;
+      $("pmNext").onclick = () => {
+        if(ultimatum) return this.ending("walkout");
+        if(!wasRescue && this.t >= 85 && !this.rescued) return this.startRescue();
+        if(wasRescue){ this.playBeat(); return; }
+        if(this.beat === this.sc.beats.length - 1) return this.ending(this.t <= 30 && Math.min(...this.trust) >= 55 ? "resolved" : this.t <= 58 ? "ceasefire" : "walkout");
+        this.beat++; this.playBeat(); };
+    }, 700 + reacts.length*1100 + 200);
+  },
+  startRescue(){ this.rescued = true; const w = this.trust[0] <= this.trust[1] ? 0 : 1, o = 1 - w, n = this.sc.cast[w].n; this.walker = w; const tr = (a, b) => w === 0 ? [a, b] : [b, a];
+    $("pmA" + w).classList.add("leaving");
+    this.rescue = {narr:`${n} stands up and grabs their things.`, lines:[[w, "I'm done. I'm not doing this."]], opts:[
+      [`${n}, before you go, can I check I've understood what matters most to you?`, "Reflective listening", 2, -18, ...tr(14, 4), [[w, "…Fine. One minute."]], "Reflecting someone's view back to them is the fastest way to show they've been heard, and people who feel heard stay."],
+      ["Let's all take ten minutes, get some air, and come back to this.", "Cooling-off break", 1, -12, ...tr(6, 4), [[w, "Ten minutes. Then I'm deciding."]], "A short break lets stress hormones settle. It works, but nothing gets resolved during it."],
+      [`Fine. If you don't want to fix this, leave.`, "Ultimatum", 0, 10, ...tr(-20, -5), [[w, "Gladly."]], "Ultimatums force people to save face, and walking out is the easiest way to do it."]]};
+    later(() => { $("pmA" + w).classList.remove("leaving"); this.playBeat(); }, 400); },
+  ending(kind){ this.ended = kind; this.locked = true; clearInterval(this.timerI); if(kind === "walkout" && this.walker == null) this.walker = this.trust[0] <= this.trust[1] ? 0 : 1; this.update();
+    const st = $("pmStage"); st.dataset.end = kind; if(kind === "walkout") $("pmA" + this.walker).classList.add("gone");
+    this.speak("narr", kind === "resolved" ? "They shake hands. For the first time, both of them smile." : kind === "ceasefire" ? "The shouting has stopped, but they sit apart. Something is still unsaid." : `${this.sc.cast[this.walker].n} walks out. The door slams.`);
+    kind === "resolved" ? sfx.win() : kind === "ceasefire" ? sfx.good() : sfx.bad(); if(kind === "walkout") tone(90, .3, "sawtooth", .05);
+    $("pmAct").innerHTML = `<p class="tooltip-line">…</p>`; later(() => this.results(), 2600); },
+  score(){ const outcome = {resolved:100, ceasefire:62, walkout:25}[this.ended], L = this.log, qual = L.length ? L.reduce((a, l) => a + l.q, 0)/(2*L.length)*100 : 0, toneV = L.length ? L.reduce((a, l) => a + (l.toneQ + 1)/2, 0)/L.length*100 : 0; return {pct:Math.round(outcome*.45 + qual*.35 + toneV*.2), outcome, qual:Math.round(qual), toneV:Math.round(toneV)}; },
+  results(){
+    const r = this.score(), s = PMS(), earn = Math.round(30*r.pct/100), tip = (r.pct >= 90 ? 12 : r.pct >= 75 ? 6 : 0) + (this.has("cert") && this.ended === "resolved" ? 5 : 0);
+    s.coins += earn + tip; s.served++; s.totalMatch += r.pct; if(this.ended === "resolved"){ s.resolved++; grant("peace"); } const pb = r.pct > s.best; s.best = Math.max(s.best, r.pct); this.day.n++; this.day.earned += earn + tip; this.day.results.push({name:this.sc.title, pct:r.pct, end:this.ended}); if(this.day.daily) s.daily[today()] = Math.max(s.daily[today()] || 0, r.pct);
+    save(); adapt("peace", r.pct/100);
+    const last = this.day.daily || this.day.n >= 3, E = {resolved:["Resolved","They leave with an agreement, and with the relationship intact."], ceasefire:["Ceasefire","The shouting stopped, but something is still unresolved between them."], walkout:["Walkout","Someone left mid-conversation. The conflict is worse than before."]}[this.ended];
+    $("pmRes").innerHTML = `<div class="reveal sal-result"><span class="eyebrow">${E[0]}${pb ? " · New personal best!" : ""}</span><div class="sal-pct"><b>${r.pct}</b>%</div><p class="m-note">${E[1]}</p>
+      <div class="m-row"><span><b>${this.t}</b>final tension</span><span><b>${this.trust[0]}</b>${this.sc.cast[0].n}'s trust</span><span><b>${this.trust[1]}</b>${this.sc.cast[1].n}'s trust</span></div>
+      <div class="pm-path"><span class="eyebrow">Your path</span><div>${this.log.map((l, i) => `<span class="pm-node q${l.q}" title="${l.tech}">${l.rescue ? "Rescue" : "Beat " + (l.beat + 1)}<small>${["Backfired","Okay","Strong"][l.q]} · ${l.tone}</small></span>`).join('<i class="pm-link"></i>')}<i class="pm-link"></i><span class="pm-node end-${this.ended}">${E[0]}</span></div></div>
+      <div class="sal-pay"><span>Fee <b class="coin">${earn}</b></span><span>Tip <b class="coin">${tip}</b></span><span>Moves <b>${r.qual}%</b></span><span>Tone <b>${r.toneV}%</b></span></div>
+      <ul class="debrief">${this.log.map(l => `<li><span class="tag q${l.q}">${l.rescue ? "Rescue" : "Beat " + (l.beat + 1)} · ${["Backfired","Okay","Strong"][l.q]}</span><b>${l.tech}</b><p>${l.note}</p><p class="tooltip-line">Tone (${l.tone}): ${l.toneWhy}</p></li>`).join("")}</ul>
+      <div class="row-btns" style="justify-content:flex-start"><button class="btn" type="button" id="pmReplay">Replay this scene</button><button class="btn btn-solid" type="button" id="pmNextC">${this.day.daily ? "Back to the office" : last ? "End the day" : "Next scene →"}</button></div></div>`;
+    $("pmReplay").onclick = () => { this.day.n--; this.day.results.pop(); this.newScene(this.sc); };
+    $("pmNextC").onclick = () => { if(this.day.daily) return this.lobby(); if(last){ const rs = this.day.results, avg = Math.round(rs.reduce((a, x) => a + x.pct, 0)/rs.length), stars = avg >= 85 ? 3 : avg >= 65 ? 2 : 1; s.days++; save(); return endSession({title:this.rank(), stars, xp:30 + 15*stars, body:`<div class="big">${fmt(this.day.earned)}</div><p class="m-note">coins earned · average ${avg}%.</p><ul class="roundlog">${rs.map(x => `<li><span>${x.name}</span><span>${x.end} · ${x.pct}%</span></li>`).join("")}</ul>`, actions:[["Next day", () => startRoom("peace", "studio"), true], ["Lobby", goHub]]}); } this.newScene(); };
+  }
+};
+ROOMS.peace.blurb = "Step into a live argument and mediate it. Watch body language, respond before the moment passes, choose your words and your tone, and steer both people to an agreement, or watch someone walk out.";
+ROOMS.peace.tip = "<b>Tip:</b> people need to feel heard before they can problem-solve. Calm tone when it's heated, warm when someone feels unheard, firm when it's time for specifics.";
+ROOMS.peace.modes = [["studio","Open the office"],["classic","Classic scenes"],["sprint","Read the room · 60s"],["practice","Quiz"]];
+HOWTO.peace = ["Read the goal card: low tension, both people feeling heard, and a specific agreement.","Watch faces and body language. When it's your turn, pick a tone (calm, warm, firm) and what to say before the timer runs out.","If someone storms off you get one chance to bring them back. Replay any scene to find the best path."];
 
 renderHub();
 </script>
