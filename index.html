@@ -1277,6 +1277,14 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 .ck-allergy{display:table;background:#e63946;color:#fff;font-weight:800;font-size:12px;padding:2px 10px;border-radius:99px;border:2px solid var(--ink);margin-bottom:4px;animation:ckPulse 1.2s infinite alternate}@keyframes ckPulse{to{transform:scale(1.05)}}
 .ck-allergy-box{border:2.5px solid #e63946;background:#ffe1da;border-radius:12px;padding:8px 10px;margin-bottom:8px;color:#2b2118}.ch.ck-danger{border-color:#e63946;color:#c0392b}
 .sw-trims{margin-top:8px}
+.wallet-chip .coin{font-weight:800}
+.xp-ov{position:fixed;inset:0;z-index:90;background:rgba(20,14,10,.55);display:grid;place-items:center;padding:14px}.xp-box{background:var(--card,#fffdf8);color:#2b2118;border:3px solid var(--ink);border-radius:18px;box-shadow:6px 7px 0 var(--ink);max-width:760px;width:100%;max-height:88vh;overflow:auto;padding:14px 16px}.xp-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.xp-head h3{margin:0}
+.stk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.stk{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:10px 6px;border:2px dashed rgba(43,33,24,.3);border-radius:14px;background:#f6f0e6}.stk small{font-size:11px;opacity:.75}.stk em{font-style:normal;font-size:10px;font-weight:700;color:#2e7d32}.stk:not(.got) .stk-ic{filter:grayscale(1);opacity:.3}.stk.got{border:2.5px solid var(--ink);background:#fff8d6;box-shadow:2px 3px 0 var(--ink);transform:rotate(-1.5deg)}.stk.got:nth-child(even){transform:rotate(1.5deg)}
+.stk-toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,140%);z-index:95;display:flex;gap:10px;align-items:center;background:#fff8d6;border:3px solid var(--ink);border-radius:16px;box-shadow:5px 6px 0 var(--ink);padding:10px 14px;transition:transform .4s cubic-bezier(.3,1.5,.5,1);max-width:min(420px,92vw);color:#2b2118}.stk-toast.show{transform:translate(-50%,0)}.stk-toast small{display:block;font-weight:800;text-transform:uppercase;font-size:10px;letter-spacing:.06em;color:#b8860b}.stk-toast b{display:block}.stk-toast span{font-size:12.5px}
+.set-list{display:grid;gap:8px}.set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:2px solid var(--ink);border-radius:12px;background:#fffdf8;cursor:pointer}.set-row small{display:block;font-size:12px;opacity:.75}.set-row input[type=checkbox]{width:24px;height:24px;flex:none}.set-row input[type=range]{width:160px}
+html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+html.big-targets{font-size:112%}html.big-targets button,html.big-targets .ch,html.big-targets .chip{min-height:46px;min-width:46px}html.big-targets .tooltip-line,html.big-targets small{font-size:105%}
+html.high-contrast body{color:#000}html.high-contrast .tooltip-line,html.high-contrast small,html.high-contrast .eyebrow{color:#111!important;opacity:1!important}html.high-contrast .ch,html.high-contrast .btn,html.high-contrast .btn-sm,html.high-contrast .chip{border-color:#000!important;border-width:3px!important}html.high-contrast .sal-meter b.hi,html.high-contrast .pm-trust .bar i{background:#00703c!important}html.high-contrast .sal-meter b.lo{background:#b00020!important}
 </style>
 </head>
 <body>
@@ -1642,6 +1650,7 @@ function load(){
         if(d[k] && typeof d[k] === "object" && !Array.isArray(d[k]) && r[k] && typeof r[k] === "object") Object.assign(d[k], r[k]);
         else if(k in r) d[k] = r[k];
       }
+      for(const k in r) if(!(k in d)) d[k] = r[k]; /* keep studio stores, wallet, stickers and settings */
     }
   }catch(e){}
   ALL.forEach(k => { if(!Array.isArray(d.hist[k])) d.hist[k] = []; if(typeof d.rating[k] !== "number") d.rating[k] = 2; });
@@ -13465,6 +13474,66 @@ const _gymEnd = endSession; endSession = function(o){ try{ if(G.room === "dive" 
     if(this.frame % 15 === 0 && this.vessels){ const items = this.vessels.flatMap(v => v.items || []), anyBrown = items.some(it => it.d && Math.max(...it.d) > .55); if(anyBrown) show("brown"); if(this.vessels.some(v => v.water && v.boil > .8)) show("boil"); if(this.vessels.some(v => v.items && v.items.some(it => it.k === "pasta"))) show("starch"); if(items.some(it => it.k === "pancake")) show("bubble"); if(this.vessels.some(v => v.kind === "wok" && v.temp > 2.5)) show("wok"); if(items.some(it => it.k === "salmon")) show("sear"); if(items.some(it => it.k === "egg")) show("set"); if(this.prep && this.prep.some(t => t.task === "whisk" && t.prog > .3)) show("whisk"); }
     return out; };
   C.serve = function(...a){ const was = this.locked, out = prev.serve.apply(this, a); if(!was && this.day && this.day.rush){ try{ const r = this.score(), bonus = r.pct >= 75 ? Math.round(12*r.pct/100) : 0; if(bonus){ CKS().coins += bonus; this.day.earned += bonus; save(); const pay = stage.querySelector("#ckRes .sal-pay"); if(pay) pay.insertAdjacentHTML("beforeend", `<span>Rush bonus <b class="coin">${bonus}</b></span>`); } }catch(e){} } return out; };
+}
+
+/* =========================================================
+   CROSS-CUTTING: one coin wallet, sticker book, settings
+   (volume, music, reduced motion, bigger targets, contrast).
+   ========================================================= */
+const WALLET_STORES = () => [[SAL.st(), 120], [MKS(), 120], [SWS(), 120], [CKS(), 120], [ATS(), 120], [FPS(), 120], [GFS(), 120], [PMS(), 120], [EXS(), 0], [GYS(), 0]];
+function unifyWallet(){
+  const stores = WALLET_STORES();
+  if(S.wallet == null){ let w = 120; stores.forEach(([o, start]) => { const c = Object.getOwnPropertyDescriptor(o, "coins") && !Object.getOwnPropertyDescriptor(o, "coins").get ? (o.coins || 0) : 0; w += Math.max(0, c - start); }); S.wallet = w; }
+  stores.forEach(([o]) => { const d = Object.getOwnPropertyDescriptor(o, "coins"); if(!d || !d.get) Object.defineProperty(o, "coins", {get(){ return S.wallet; }, set(v){ S.wallet = Math.max(0, Math.round(v)); }, enumerable:true, configurable:true}); });
+}
+unifyWallet();
+/* settings */
+S.vol = S.vol ?? .8; S.music = S.music ?? false;
+const _tone = tone; tone = function(f, d, type, vol = .07){ return _tone(f, d, type, vol*(S.vol ?? 1)); };
+function applyA11y(){ const h = document.documentElement; h.classList.toggle("reduce-motion", !!S.reduce); h.classList.toggle("big-targets", !!S.big); h.classList.toggle("high-contrast", !!S.hc); }
+applyA11y();
+const MUSIC = {iv:null, step:0, start(){ if(this.iv) return; this.iv = setInterval(() => this.tick(), 640); }, stop(){ clearInterval(this.iv); this.iv = null; }, tick(){ if(!S.music || !S.sound || document.hidden){ return; } const wing = G.room ? (ROOMS[G.room] || {}).wing : "hub", scales = {studio:[262, 294, 330, 392, 440, 523], explore:[294, 330, 349, 392, 440, 494, 587], core:[220, 262, 294, 330, 392, 440], hub:[262, 330, 392, 440, 523]}, sc = scales[wing] || scales.hub, st = this.step++; if(st % 4 === 0) _tone(sc[0]/2, 1.2, "sine", .018*(S.vol ?? 1)); if(Math.random() < .55) _tone(sc[Math.floor(Math.random()*sc.length)], .5, "triangle", .012*(S.vol ?? 1)); }};
+if(S.music) MUSIC.start();
+/* stickers */
+const STICKERS = [
+  ["cut1","First snip","Serve your first salon client.","✂",() => SAL.st().served >= 1],["cut10","Salon regular","Serve 10 salon clients.","g:clippers",() => SAL.st().served >= 10],["cutstar","Salon superstar","Score 95% or more on a haircut.","👑",() => SAL.st().best >= 95],
+  ["mk1","Brush off","Finish your first makeup client.","g:lipstick",() => MKS().served >= 1],["mkstar","Flawless","Score 95% or more in makeup.","💎",() => MKS().best >= 95],
+  ["sew1","First stitch","Make your first garment.","g:pick",() => SWS().served >= 1],["sewstar","Couturier","Score 90% or more on a garment.","🎀",() => SWS().best >= 90],
+  ["ck1","Order up","Serve your first dish.","g:spices",() => CKS().served >= 1],["ckstar","Head chef","Score 90% or more on a dish.","🔥",() => CKS().best >= 90],
+  ["at1","Stylist","Dress your first client.","g:jacket",() => ATS().served >= 1],["atstar","Showstopper","Score 95% or more in the Atelier.","⭐",() => ATS().best >= 95],
+  ["fp1","Architect","Hand over your first set of keys.","🔑",() => FPS().served >= 1],["fpstar","Dream home","Score 90% or more on a house.","🏰",() => FPS().best >= 90],
+  ["gf1","Gift giver","Give your first gift.","🎀",() => GFS().served >= 1],["gfstar","Gift genius","Score 90% or more on a gift.","g:voucher",() => GFS().best >= 90],
+  ["pm1","Peacemaker","Resolve your first conflict.","g:tea",() => PMS().resolved >= 1],["pm5","Diplomat","Resolve 5 conflicts.","🏅",() => PMS().resolved >= 5],
+  ["ex10","Collector","Collect 10 things in any explorer book.","🌍",() => Object.values(EXS().col).some(a => a.length >= 10)],["ex50","Globetrotter","Collect 50 things across the explorer books.","g:telescope",() => Object.values(EXS().col).reduce((a, b) => a + b.length, 0) >= 50],["exall","Workshop tour","Try all eight explorer workshops.","g:book",() => Object.keys(EXS().best).length >= 8],
+  ["gy10","Gym rat","Earn 10 brain-gym stars.","⭐",() => Object.values(GYS().stars).reduce((a, o) => a + Object.values(o).reduce((x, y) => x + y, 0), 0) >= 10],["gy30","Mastermind","Earn 30 brain-gym stars.","👑",() => Object.values(GYS().stars).reduce((a, o) => a + Object.values(o).reduce((x, y) => x + y, 0), 0) >= 30],["deep","Abyss diver","Dive deeper than 4,000 m.","🐙",() => GYS().dives.some(d => d.m >= 4000)],
+  ["daily3","Daily habit","Play daily challenges on 3 different days.","g:stars",() => { const days = new Set(); [SAL.st(), MKS(), SWS(), CKS(), ATS(), FPS(), GFS(), PMS()].forEach(o => Object.keys(o.daily || {}).forEach(d => days.add(d))); Object.values(EXS().daily).forEach(o => Object.keys(o).forEach(d => days.add(d))); Object.values(GYS().daily).forEach(o => Object.keys(o).forEach(d => days.add(d))); return days.size >= 3; }],
+  ["rich","Saver","Have 500 coins in your wallet.","g:wallet",() => S.wallet >= 500],["rich2","Tycoon","Have 2,000 coins in your wallet.","💰",() => S.wallet >= 2000],
+  ["lvl5","Rising star","Reach player level 5.","🏅",() => levelInfo(S.xp).level >= 5]
+];
+STICKERS.forEach(s => { if(!ICONS[icKey(s[3])]) s[3] = "⭐"; });
+function checkStickers(quiet){ S.stickers = S.stickers || {}; const fresh = STICKERS.filter(s => !S.stickers[s[0]] && (() => { try{ return s[4](); }catch(e){ return false; } })()); fresh.forEach(s => S.stickers[s[0]] = today()); if(fresh.length){ save(); if(!quiet) fresh.forEach((s, i) => setTimeout(() => stickerToast(s), i*1600)); } return fresh; }
+function stickerToast(s){ const t = document.createElement("div"); t.className = "stk-toast"; t.innerHTML = `<span class="stk-ic">${icon(s[3], 40)}</span><div><small>Sticker unlocked!</small><b>${s[1]}</b><span>${s[2]}</span></div>`; document.body.appendChild(t); requestAnimationFrame(() => t.classList.add("show")); if(S.sound) [659, 880, 1175].forEach((f, i) => setTimeout(() => tone(f, .14, "triangle", .05), i*90)); setTimeout(() => { t.classList.remove("show"); setTimeout(() => t.remove(), 400); }, 3600); }
+checkStickers(true);
+setInterval(() => checkStickers(false), 4000);
+function openPanel(title, html){ closePanel(); const ov = document.createElement("div"); ov.className = "xp-ov"; ov.id = "xpOv"; ov.innerHTML = `<div class="xp-box" role="dialog" aria-modal="true" aria-label="${title}"><div class="xp-head"><h3>${title}</h3><button class="btn-sm" type="button" id="xpClose" aria-label="Close">Close</button></div>${html}</div>`; document.body.appendChild(ov); ov.onclick = e => { if(e.target === ov) closePanel(); }; $("xpClose").onclick = closePanel; document.addEventListener("keydown", panelEsc); return ov; }
+function closePanel(){ const o = $("xpOv"); if(o) o.remove(); document.removeEventListener("keydown", panelEsc); }
+function panelEsc(e){ if(e.key === "Escape") closePanel(); }
+function openStickers(){ checkStickers(true); S.stickers = S.stickers || {}; const got = STICKERS.filter(s => S.stickers[s[0]]).length; openPanel(`Sticker book · ${got} of ${STICKERS.length}`, `<div class="stk-grid">${STICKERS.map(s => { const g = S.stickers[s[0]]; return `<div class="stk${g ? " got" : ""}"><span class="stk-ic">${icon(s[3], 44)}</span><b>${s[1]}</b><small>${s[2]}</small>${g ? `<em>${g}</em>` : ""}</div>`; }).join("")}</div>`); }
+function openSettings(){ const ov = openPanel("Settings", `<div class="set-list"><label class="set-row"><span><b>Sound effects</b><small>Clicks, chimes and tool sounds.</small></span><input type="checkbox" id="setSound" ${S.sound ? "checked" : ""}></label>
+    <label class="set-row"><span><b>Volume</b><small id="setVolL">${Math.round((S.vol ?? .8)*100)}%</small></span><input type="range" id="setVol" min="0" max="1" step="0.05" value="${S.vol ?? .8}"></label>
+    <label class="set-row"><span><b>Background music</b><small>Gentle generated tunes that change with each wing.</small></span><input type="checkbox" id="setMusic" ${S.music ? "checked" : ""}></label>
+    <label class="set-row"><span><b>Reduced motion</b><small>Calmer animations: no confetti, shaking or spinning.</small></span><input type="checkbox" id="setReduce" ${S.reduce ? "checked" : ""}></label>
+    <label class="set-row"><span><b>Bigger buttons and text</b><small>Larger touch targets everywhere.</small></span><input type="checkbox" id="setBig" ${S.big ? "checked" : ""}></label>
+    <label class="set-row"><span><b>High contrast</b><small>Darker outlines and stronger colors for meters and labels.</small></span><input type="checkbox" id="setHc" ${S.hc ? "checked" : ""}></label>
+    <p class="tooltip-line">Wallet: <b class="coin">${fmt(S.wallet)}</b> coins, shared across every shop in the arcade.</p></div>`);
+  const bind = (id, k, after) => { $(id).onchange = e => { S[k] = e.target.checked; save(); applyA11y(); after && after(); renderTop(); sfx.click(); }; };
+  bind("setSound", "sound"); bind("setMusic", "music", () => S.music ? MUSIC.start() : MUSIC.stop()); bind("setReduce", "reduce"); bind("setBig", "big"); bind("setHc", "hc");
+  $("setVol").oninput = e => { S.vol = +e.target.value; $("setVolL").textContent = Math.round(S.vol*100) + "%"; save(); }; $("setVol").onchange = () => tone(880, .1, "triangle", .07); }
+{
+  const pl = document.querySelector("header .player"); if(pl && !$("walletChip")){ pl.insertAdjacentHTML("afterbegin", `<span class="chip wallet-chip" id="walletChip" title="Your coins, shared across every shop"><span class="coin">0</span></span>`); pl.insertAdjacentHTML("beforeend", `<button class="chip" id="stickerBtn" type="button">Stickers</button><button class="chip" id="settingsBtn" type="button" aria-label="Settings">Settings</button>`); $("stickerBtn").onclick = openStickers; $("settingsBtn").onclick = openSettings; }
+  const _rt = renderTop; renderTop = function(...a){ const r = _rt.apply(this, a); const w = $("walletChip"); if(w) w.querySelector(".coin").textContent = fmt(S.wallet); const sb = $("stickerBtn"); if(sb){ const n = Object.keys(S.stickers || {}).length; sb.textContent = `Stickers ${n}/${STICKERS.length}`; } return r; };
+  setInterval(() => { const w = $("walletChip"); if(w) w.querySelector(".coin").textContent = fmt(S.wallet); }, 1500);
+  if(FX && FX.sparkle){ const _sp = FX.sparkle; FX.sparkle = function(...a){ if(S.reduce) return; return _sp.apply(this, a); }; }
 }
 
 renderHub();

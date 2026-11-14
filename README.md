@@ -54,3 +54,11 @@ Every push to `main` then redeploys automatically.
 ## Credits
 
 Map data: [Natural Earth](https://www.naturalearthdata.com/) (public domain), via [world-atlas](https://github.com/topojson/world-atlas) (ISC), pre-projected into SVG paths. Fonts from Google Fonts.
+
+
+## Across the arcade
+
+- **Shared wallet**: one coin balance used by every shop.
+- **Sticker book**: 27 achievements with unlock toasts.
+- **Settings**: sound volume, generated background music, reduced motion, bigger buttons and high contrast.
+- **Saves**: all studio progress, coins, stickers and settings now survive a page reload.
