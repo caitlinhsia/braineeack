@@ -1325,6 +1325,7 @@ html.high-contrast body{color:#000}html.high-contrast .tooltip-line,html.high-co
 .gd-mirror{border-radius:16px!important;max-width:640px!important;border-color:#8a5a33!important}.gd-mirror canvas{aspect-ratio:520/400;cursor:crosshair}
 .sal-req.gd-order{grid-template-columns:1fr}.gd-wx{font-size:12px;font-weight:700;padding:3px 9px;border:2px solid var(--ink);border-radius:99px;background:#e9f6ff}
 .gd-packets{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin:6px 0}.gd-pk{display:flex;flex-direction:column;align-items:flex-start;gap:1px;font:inherit;color:inherit;padding:6px 8px;border:2px solid var(--ink);border-radius:10px;background:var(--card,#fffdf8);cursor:pointer;text-align:left}.gd-pk i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink)}.gd-pk small{font-size:10.5px;opacity:.75}.gd-pk.sel{background:#e7f8dc}.gd-pk.want{box-shadow:inset 0 0 0 2px #ffd166}
+.cp-hint{display:flex;gap:10px;align-items:center;text-align:left}.cp-hint small{display:block;opacity:.8}.cp-rose{position:relative;flex:none;width:44px;height:44px;border-radius:50%;border:2.5px solid var(--ink);background:radial-gradient(circle,#fffdf8 60%,#ffe8a8 61%)}.cp-rose i{position:absolute;left:50%;top:4px;width:0;height:0;margin-left:-6px;border:6px solid transparent;border-bottom:16px solid #e63946;transform-origin:6px 18px;transform:rotate(var(--a));animation:cpSpin .6s cubic-bezier(.3,1.6,.5,1)}@keyframes cpSpin{from{transform:rotate(calc(var(--a) - 180deg))}}
 </style>
 </head>
 <body>
@@ -14110,6 +14111,23 @@ STUDIO.garden = {
     $("gdAgain").onclick = () => this.newSeason(false); $("gdLob").onclick = () => this.lobby(); }
 };
 
+
+/* ---------- World Kitchen & Landmark Hunt: three guesses with compass hints (active recall) ---------- */
+{
+  const DIRS = ["north","north-east","east","south-east","south","south-west","west","north-west"];
+  const bearing = (a, b) => { const t = Math.PI/180, [la1, lo1] = a, [la2, lo2] = b, y = Math.sin((lo2 - lo1)*t)*Math.cos(la2*t), x = Math.cos(la1*t)*Math.sin(la2*t) - Math.sin(la1*t)*Math.cos(la2*t)*Math.cos((lo2 - lo1)*t); return (Math.atan2(y, x)/t + 360) % 360; };
+  const FACT = [1, .7, .5];
+  [STUDIO.kitchen, STUDIO.landmarks].forEach(E => { if(!E) return; const orig = E.lockIn;
+    E.lockIn = function(){ if(!this.guess || this.locked || this.blitz || this.hasYear) return orig.call(this);
+      if(this.cItem !== this.item){ this.cItem = this.item; this.tries = 0; this.prevKm = null; }
+      const it = this.item, km = Math.round(haversine(this.guess, it.ll)); this.tries++;
+      if(km > 500 && this.tries < 3){ const dir = DIRS[Math.round(bearing(this.guess, it.ll)/45) % 8], band = km < 1500 ? "close: under 1,500 km away" : km < 4000 ? "a few thousand kilometers away" : "very far: over 4,000 km away", warm = this.prevKm == null ? "" : km < this.prevKm ? " Warmer!" : " Colder.";
+        const warmer = this.prevKm != null && km < this.prevKm; this.prevKm = km; sfx.click(); tone(warmer ? 660 : 330, .08, "triangle", .03);
+        const msg = $("exMsg"); if(msg) msg.innerHTML = `<span class="cp-hint"><span class="cp-rose" style="--a:${Math.round(bearing(this.guess, it.ll))}deg"><i></i></span><span><b>Not quite: go further ${dir}.</b> You're ${band}.${warm} <small>Guess ${this.tries + 1} of 3: move your pin and lock in again.</small></span></span>`;
+        const go = $("exGo"); if(go) go.disabled = true; this.guess = null; return; }
+      const before = this.total; orig.call(this); const l = this.log[this.log.length - 1]; if(l && this.tries > 1){ const adj = Math.round(l.pts*FACT[this.tries - 1]); this.total = before + adj; l.pts = adj; const p = $("exReveal") && $("exReveal").querySelector(".pts"); if(p) p.textContent = "+" + fmt(adj); const eb = $("exReveal") && $("exReveal").querySelector(".eyebrow"); if(eb) eb.textContent += ` · found on guess ${this.tries}`; setSide("Score", fmt(this.total)); this.renderPass && this.renderPass(); } this.cItem = null; };
+  });
+}
 
 renderHub();
 </script>
