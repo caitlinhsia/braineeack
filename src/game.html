@@ -13768,5 +13768,13 @@ const CHAR = {
   moodPose(mood){ return {happy:"open", sad:"cross", angry:"point", neutral:"down", tense:"hips"}[mood] || "down"; }
 };
 
+
+/* shared characters for Atelier and Sewing clients: salon-style faces on the fitting bodies */
+{
+  const FACE_VB = "10 -14 180 192", fimg = {};
+  const faceImg = (cl, mood) => { cl.look = cl.look || CHAR.look(cl.name || "client", {skin:cl.skin}); if(!cl._hairSet){ cl._hairSet = 1; if(typeof HAIRC !== "undefined" && HAIRC[cl.look.hairC]) cl.hair = HAIRC[cl.look.hairC]; cl.hairStyle = ["long","curls","braids","afro"].includes(cl.look.hair) ? "long" : "none"; } const m = {happy:"happy", sad:"sad", ouch:"sad", neutral:"neutral"}[mood] || "neutral", key = (cl.name || "") + cl.skin + m; if(fimg[key]) return fimg[key]; const svg = faceSVG({...cl.look, mood:m}, 180, "", FACE_VB).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" '), img = new Image(); img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); fimg[key] = img; return img; };
+  const _db = SWP.drawBody; SWP.drawBody = function(ctx, cl, opt = {}){ const r = _db.call(this, ctx, cl, opt); try{ const img = faceImg(cl, opt.mood); if(img.complete && img.naturalWidth){ const k = .6; ctx.drawImage(img, SWP.CX - (100 - 10)*k, 74 - (88 + 14)*k, 180*k, 192*k); } }catch(e){} return r; };
+}
+
 renderHub();
 </script>
