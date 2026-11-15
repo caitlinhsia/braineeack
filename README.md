@@ -56,6 +56,15 @@ Every push to `main` then redeploys automatically.
 Map data: [Natural Earth](https://www.naturalearthdata.com/) (public domain), via [world-atlas](https://github.com/topojson/world-atlas) (ISC), pre-projected into SVG paths. Fonts from Google Fonts.
 
 
+## Life skills
+
+| Room | What you do | Real-life skill |
+|---|---|---|
+| **First Apartment** | Pick an apartment, split a paycheck into envelopes, survive a month of surprises | Budgeting, 50/30/20, debt and interest |
+| **First Responder** | Handle emergencies step by step against the clock, with hands-on CPR, back blows and pressure | First aid basics |
+| **Fact or Fake** | Investigate viral posts with limited checks, give a verdict and decide whether to share | Media literacy |
+| **Garden Plot** | Grow a 30-day garden in sun and shade, water, feed, pair companions and fill a market order | Plant science |
+
 ## Across the arcade
 
 - **Shared wallet**: one coin balance used by every shop.
