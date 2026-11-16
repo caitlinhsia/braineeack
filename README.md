@@ -73,3 +73,8 @@ Map data: [Natural Earth](https://www.naturalearthdata.com/) (public domain), vi
 - **Leaderboards**: on claude.ai, top scores for every studio across everyone the arcade is shared with.
 - **Tutorials**: a spotlight tour the first time you open each rebuilt studio.
 - **Saves**: all studio progress, coins, stickers and settings now survive a page reload.
+
+
+## Photo credits
+
+World Kitchen uses 69 dish photos from Wikimedia Commons under Creative Commons or public-domain licenses. Each photo shows its author, license and a link to its Commons page in the game, after you lock in your guess.
