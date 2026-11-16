@@ -60,10 +60,10 @@ Map data: [Natural Earth](https://www.naturalearthdata.com/) (public domain), vi
 
 | Room | What you do | Real-life skill |
 |---|---|---|
-| **First Apartment** | Pick an apartment, split a paycheck into envelopes, survive a month of surprises | Budgeting, 50/30/20, debt and interest |
-| **First Responder** | Handle emergencies step by step against the clock, with hands-on CPR, back blows and pressure | First aid basics |
-| **Fact or Fake** | Investigate viral posts with limited checks, give a verdict and decide whether to share | Media literacy |
-| **Garden Plot** | Grow a 30-day garden in sun and shade, water, feed, pair companions and fill a market order | Plant science |
+| **First Apartment** | Read a payslip, pick an apartment, split your pay into envelopes and get through a month of surprises; an emergency fund carries over and raises come every 3 months | Payslips and tax, budgeting, 50/30/20, debt and interest, saving |
+| **First Responder** | Handle 10 emergencies step by step against the clock (including anaphylaxis, seizures and heat stroke), with hands-on CPR, AED pad placement, an auto-injector, back blows and pressure | First aid basics |
+| **Fact or Fake** | Investigate 18 viral posts (deepfakes, AI images, misleading charts, cut quotes) with limited checks, give a verdict, decide whether to share and write a correction that changes minds | Media literacy |
+| **Garden Plot** | Grow through Spring, Summer and Autumn: plant in sun or shade, water, feed, pair companions, cover plants when frost is forecast, rotate crops between seasons and fill a market order | Plant science |
 
 ## Across the arcade
 
