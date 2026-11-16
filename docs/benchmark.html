@@ -89,7 +89,7 @@ tr.detail td{text-align:left;padding:0;border-bottom:2px solid var(--ink)}
   </div>
 
   <div class="tablebox"><table id="t" aria-label="Benchmark ratings by game"><thead></thead><tbody></tbody></table></div>
-  <p class="note">Ratings are my honest read of the current build (version 45), not a user survey. "Fit" is the game's total as a share of the benchmark's 40 points.</p>
+  <p class="note">Ratings are my honest read of the current build (version 49), not a user survey. "Fit" is the game's total as a share of the benchmark's 40 points.</p>
 
   <section>
     <span class="eyebrow">Cross-cutting</span>
@@ -183,18 +183,18 @@ const G = [
   {k:"logic", n:"Switchboard", w:"core", r:[4, 4, 4, 3, 4, 4, 4, 4], pri:0,
    now:"Lights-out puzzle with daily, arcade and zen modes. New: Slide puzzle (3×3 and 4×4) with hints that show the next best move and teach the row-by-row strategy, 10-level map with stars, leaderboard and daily level.",
    todo:["Pipes and logic-grid puzzles","Hints for lights-out","Online leaderboard"]},
-  {k:"apartment", n:"First Apartment", w:"life", r:[4,4,4,4,4,4,3,4], pri:0,
-   now:"New: pick an apartment by rent-to-income, split a paycheck into need/want/savings envelopes with a live 50/30/20 bar, then four weeks of real surprises (cracked phone, sick day, sales, bills) with explained consequences, credit-card interest, a happiness meter and a month-end report.",
-   todo:["Multi-month careers with raises and big goals (a car, a trip)","Reading a real payslip and taxes","Roommate negotiation using the Peacemaker engine"]},
-  {k:"firstaid", n:"First Responder", w:"life", r:[4,4,4,4,4,4,3,4], pri:0,
-   now:"New: seven emergencies (collapse, CPR, choking, burn, bleeding, nosebleed, sprain) with timed step choices, dangerous moves explained, and hands-on steps: CPR compressions to a 100–120 beat, counted back blows, holding pressure or cooling.",
-   todo:["Animated patient with breathing and color","AED walkthrough","More scenes: allergic reaction, seizure, heat stroke"]},
-  {k:"factcheck", n:"Fact or Fake", w:"life", r:[4,4,4,4,4,4,3,4], pri:0,
-   now:"New: twelve viral posts with six investigation tools (source, reverse image, date, full story, other reports, zoom for edits) and limited checks, a four-way verdict, a share decision and red-flag lessons.",
-   todo:["Video and audio deepfakes","Write your own correction reply","Weekly news-literacy challenge"]},
-  {k:"garden", n:"Garden Plot", w:"life", r:[4,4,4,4,4,4,3,4], pri:0,
-   now:"New: a 30-day season on a 12-bed plot with sun, part shade and shade; eight plants with real needs; watering, compost, weather, companion planting, nitrogen-fixing beans, bees, aphids and ladybugs, and a market order to fill.",
-   todo:["Seasons and frost","Seed saving and crop rotation across seasons","A greenhouse"]}
+  {k:"apartment", n:"First Apartment", w:"life", r:[4,4,5,4,4,4,3,5], pri:0,
+   now:"Read a payslip first (gross, tax, social insurance, retirement match), then pick an apartment by rent-to-income, split net pay into envelopes with a live 50/30/20 bar and get through four weeks drawn from 16 real surprises. An emergency fund carries over between months and pays for surprises before a card does, and every 3 months on the job earns a raise.",
+   todo:["Big goals to save toward (a car, a trip)","Roommate negotiation using the Peacemaker engine","Animated apartment that reflects your choices"]},
+  {k:"firstaid", n:"First Responder", w:"life", r:[5,4,5,4,4,4,4,4], pri:0,
+   now:"Ten emergencies, now including anaphylaxis, seizure and heat stroke, with timed step choices and dangerous moves explained. Hands-on steps: CPR to a 100–120 beat, placing AED pads and pressing shock, an auto-injector hold, clearing hazards, back blows, pressure and cooling. The patient visibly breathes once breathing returns.",
+   todo:["Patient skin color and responsiveness that change with your choices","Bystanders you can direct (call, fetch the AED)","Kid and baby versions of CPR and choking"]},
+  {k:"factcheck", n:"Fact or Fake", w:"life", r:[4,4,5,4,4,5,3,4], pri:0,
+   now:"Eighteen viral posts, now including a deepfake video, an AI-generated photo, a misleading chart and a cut-down quote, with six investigation tools and limited checks, a four-way verdict and a share decision. Choosing to correct a post asks you to pick the reply most likely to change minds.",
+   todo:["Audio deepfakes","Weekly news-literacy challenge","Write your own correction in free text"]},
+  {k:"garden", n:"Garden Plot", w:"life", r:[4,4,5,4,4,4,3,5], pri:0,
+   now:"Seasons rotate Spring, Summer and Autumn with frost forecasts and fleece covers. Beds remember last season's crop: repeats bring pests and beans leave nitrogen. A greenhouse upgrade gives frost-free beds that you must water yourself. Plus sun and shade, eight plants, watering, compost, weather, companions, bees, aphids and ladybugs, and a market order.",
+   todo:["Seed saving between seasons","A winter season of planning and ordering seeds","Soil testing (pH) and choosing fertilizer"]}
 ];
 const CROSS = [["Shared leaderboards (done)","On claude.ai, a leaderboard per studio plus explorer and gym totals, for everyone the arcade is shared with."],["One shared character engine (done)","One engine makes and draws people full-body (face plus posable body). Used in Peacemaker, Gift Detective (unboxing and friends), Floorplan families, Test Kitchen customers, and the Atelier and Sewing clients (salon-style faces on the fitting bodies). Was: The faces and bodies from the salon and makeup studio reused everywhere: Peacemaker, Gift Detective, Atelier, Sewing fittings, Kitchen customers."],["One coin economy (done)","One shared wallet across every shop, shown in the header. Coins earned anywhere spent in any shop, with a player profile and avatar to dress."],["Achievements and collections (done)","A 27-sticker book with unlock toasts, plus explorer collection books. Stickers, stamps and trophies for milestones in every game."],["Sound and music (done)","Volume slider and generated background music that changes by wing. A soundtrack per room and richer sound effects, with a mute and volume control."],["First-time tutorials (done)","A spotlight tour of every rebuilt studio the first time you play it. A guided first client in every studio that teaches each tool by doing."],["Daily challenge everywhere (done)","Every studio, explorer workshop and gym game now has a daily round. Every game gets a same-for-everyone daily round with a saved best."],["Accessibility (done, round one)","Reduced motion, bigger buttons and high-contrast settings. Larger touch targets, colorblind-safe palettes, reduced-motion mode, keyboard play."],["Phone polish (checked)","Every screen is swept on a phone width with no sideways scrolling. Every studio laid out so the canvas and tools fit a phone screen without scrolling."]];
 const PRI = ["Benchmark","Next up","Soon","Later","Later"];

@@ -68,6 +68,9 @@ Map data: [Natural Earth](https://www.naturalearthdata.com/) (public domain), vi
 ## Across the arcade
 
 - **Shared wallet**: one coin balance used by every shop.
+- **Daily goals**: three new goals every day on the home screen (a wing of the day, variety, the Daily Mix or a room you have never played), with coins for each and a bonus for all three.
+- **Streaks**: playing any room counts. A 7-day strip shows your week, and 3, 7, 14 and 30-day streaks pay coin rewards.
+- **Jump back in**: one tap returns you to the last room you played.
 - **Sticker book**: 27 achievements with unlock toasts.
 - **Settings**: sound volume, generated background music, reduced motion, bigger buttons and high contrast.
 - **Leaderboards**: on claude.ai, top scores for every studio across everyone the arcade is shared with.
