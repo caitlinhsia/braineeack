@@ -14128,5 +14128,24 @@ const DISH_PHOTO = {"Sushi":{"img":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAA
   return `<figure class="dish-photo" style="max-width:${Math.max(w, 260)}px"><img src="${ph.img}" alt="A photo of the mystery dish"><figcaption><span class="fc-hold">Photo from Wikimedia Commons · credit appears after you guess</span><span class="fc-full">Photo: ${esc(ph.by)} · ${esc(ph.lic)} · <a href="${esc(ph.src)}" target="_blank" rel="noopener">Wikimedia Commons</a></span></figcaption></figure>`; }; }
 
 { new MutationObserver(() => { const r = document.getElementById("exReveal"), pic = document.getElementById("exPic"); if(pic) pic.classList.toggle("revealed", !!(r && r.textContent.trim())); }).observe(document.getElementById("stage") || document.body, {childList:true, subtree:true}); }
+
+/* ---------- Sewing: a tidy pattern tray (no overlapping pieces; extra pieces wait in a queue) ---------- */
+{
+  const SWo = STUDIO.sewing, prev = {layoutCheck:SWo.layoutCheck, drawCut:SWo.drawCut, pieceAt:SWo.pieceAt, draft:SWo.draft};
+  const TRAY = {x:244, y:40, w:190, h:500};
+  const onFab = p => { const F = SW_FAB; return p.x < F.x + F.w - 4 && p.x + p.bw > F.x + 4 && p.y < F.y + F.h && p.y + p.bh > F.y; };
+  SWo.trayLayout = function(){ if(!this.pieces) return; let x = TRAY.x, y = TRAY.y, rowH = 0, full = false; this.queued = 0;
+    this.pieces.forEach(p => { if(p.cut || onFab(p) || (this.dragP && this.dragP.p === p)) { p.hidden = false; return; }
+      if(full){ p.hidden = true; this.queued++; return; }
+      if(x + p.bw > TRAY.x + TRAY.w && x > TRAY.x){ x = TRAY.x; y += rowH + 8; rowH = 0; }
+      if(y + p.bh > TRAY.y + TRAY.h && y > TRAY.y){ full = true; p.hidden = true; this.queued++; return; }
+      p.x = x; p.y = y; p.hidden = false; x += p.bw + 8; rowH = Math.max(rowH, p.bh); }); };
+  SWo.draft = function(...a){ const r = prev.draft.apply(this, a); this.trayLayout(); return r; };
+  SWo.layoutCheck = function(...a){ if(this.cutStage === "layout") this.trayLayout(); return prev.layoutCheck.apply(this, a); };
+  const visible = (self, fn) => { const all = self.pieces; if(!all) return fn(); self.pieces = all.filter(p => !p.hidden); try{ return fn(); } finally { self.pieces = all; } };
+  SWo.pieceAt = function(x, y){ return visible(this, () => prev.pieceAt.call(this, x, y)); };
+  SWo.drawCut = function(ctx){ const r = visible(this, () => prev.drawCut.call(this, ctx)); if(this.queued){ ctx.fillStyle = "#fff8d6"; ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.fillRect(TRAY.x, TRAY.y + TRAY.h - 26, TRAY.w, 24); ctx.strokeRect(TRAY.x, TRAY.y + TRAY.h - 26, TRAY.w, 24); ctx.fillStyle = INK; ctx.font = "600 12px Figtree, sans-serif"; ctx.textAlign = "left"; ctx.fillText(`+${this.queued} more piece${this.queued > 1 ? "s" : ""} waiting: place one to see it`, TRAY.x + 8, TRAY.y + TRAY.h - 9); } return r; };
+}
+
 renderHub();
 </script>
